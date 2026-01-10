@@ -818,14 +818,12 @@ const Canvas: Component = () => {
 
         // Center viewport on content center
         // panX = -worldX * scale + screenCX
-        const { scale } = store.viewState;
         const screenCX = window.innerWidth / 2;
         const screenCY = window.innerHeight / 2;
 
         const newPanX = -contentCX * scale + screenCX;
         const newPanY = -contentCY * scale + screenCY;
 
-        console.log("Scroll Back:", { contentCX, contentCY, scale, screenCX, newPanX });
         setViewState({ panX: newPanX, panY: newPanY });
     };
 
@@ -845,23 +843,6 @@ const Canvas: Component = () => {
                 onMouseUp={handleMouseUp}
                 style={{ display: "block", "touch-action": "none", cursor: cursor() }}
             />
-            {/* Debug Overlay */}
-            <div style={{
-                position: 'fixed',
-                bottom: '10px',
-                left: '10px',
-                "background-color": "rgba(0,0,0,0.5)",
-                color: "white",
-                padding: "8px",
-                "border-radius": "4px",
-                "font-size": "12px",
-                "pointer-events": "none",
-                "white-space": "pre",
-                "z-index": 1000
-            }}>
-                {`View: ${Math.round(store.viewState.panX)}, ${Math.round(store.viewState.panY)} @ ${store.viewState.scale.toFixed(2)}x
-Elements: ${store.elements.length}`}
-            </div>
 
             <Show when={showScrollBack()}>
                 <div style={{

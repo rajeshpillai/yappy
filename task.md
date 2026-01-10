@@ -17,6 +17,13 @@
 - [x] Improve selection logic for Pencil and Line tools
 - [x] Fix pencil drawing shift bug
 
+## Phase 6: Viewport & Optimization
+- [ ] Implement Viewport Culling (Visible Bounds check) - *Disabled for stability*
+- [x] Implement Auto-Scroll when dragging near viewport edges
+- [ ] Implement visible bounds check for `draw`
+- [x] Fix Scroll Stability (Transform Matrix Reset)
+- [x] Implement "Scroll back to content" button
+
 ## Phase 3: File Management
 - [x] Implement File Open Modal Dialog
 
