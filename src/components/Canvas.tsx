@@ -1,7 +1,10 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show } from "solid-js";
 import { store, setViewState, addElement, updateElement, setStore } from "../store/appStore";
+import { distanceToSegment, isPointOnPolyline, isPointInEllipse } from "../utils/geometry";
+import type { DrawingElement } from "../types";
 
 const Canvas: Component = () => {
+
     let canvasRef: HTMLCanvasElement | undefined;
     let isDrawing = false;
     let currentId: string | null = null;
@@ -82,9 +85,51 @@ const Canvas: Component = () => {
                 ctx.stroke();
             } else if (el.type === 'pencil' && el.points) {
                 if (el.points.length > 0) {
-                    ctx.moveTo(el.points[0].x, el.points[0].y);
+                    // Points are either absolute (while drawing) or relative (after normalization)
+                    // We can check if we are currently drawing this element? 
+                    // Or simpler: We haven't normalized yet if it's being drawn.
+                    // BUT: normalization happens on MouseUp.
+                    // Ideally we always treat them as relative? 
+                    // No, when drawing `handleMouseMove` pushes absolute coordinates.
+                    // So we must distinguish. 
+                    // HACK: If width/height are 0, assume absolute? No.
+                    // Let's assume normalized if width > 0 ? 
+                    // Or better: Just check bounds.
+                    // Actually, simpler logic:
+                    // If creating, points are absolute. `el.x` might be start coordinate.
+                    // Let's rely on standard logic: `ctx.translate(el.x, el.y)`... not straightforward without changing `points`.
+
+                    // Correct approach:
+                    // If normalized, points start near 0,0.
+                    // If absolute, points are huge.
+                    // We can just add el.x/el.y ONLY if we normalised?
+                    // Let's use a flag? No.
+                    // Check handleMouseUp normalization. It sets `x` and `y`.
+                    // While drawing, `x` and `y` are the start point, but `points` are absolute.
+
+                    // Wait, if I change `draw` to:
+                    // ctx.moveTo(el.x + p.x, el.y + p.y)
+                    // Then absolute points will be offset by startX... Double offset!
+
+                    // Solution:
+                    // In `handleMouseMove` for pencil, store RELATIVE points from the start!
+                    // startX, startY is the start.
+                    // point = { x: x - startX, y: y - startY }.
+                    // Then `el.x` = startX.
+                    // Then `draw` is always relative.
+                    // And `normalization` at the end just tightens the bounding box.
+
+                    // Let's fix `handleMouseMove` instead!
+                    // See next tool call.
+                    // But for now, I update Draw assuming they are relative.
+                    // Wait, `handleMouseMove` changes are future. Current `points` are absolute.
+                    // I should change logic to allow both or consistent.
+
+                    // Better: Assuming I fix `handleMouseMove` to be relative, then this code is:
+
+                    ctx.moveTo(el.x + el.points[0].x, el.y + el.points[0].y);
                     for (let i = 1; i < el.points.length; i++) {
-                        ctx.lineTo(el.points[i].x, el.points[i].y);
+                        ctx.lineTo(el.x + el.points[i].x, el.y + el.points[i].y);
                     }
                     ctx.stroke();
                 }
@@ -256,6 +301,68 @@ const Canvas: Component = () => {
 
     let draggingHandle: string | null = null;
 
+    // Helper: Normalize pencil points to be relative to bounding box
+    const normalizePencil = (el: DrawingElement) => {
+        if (!el.points || el.points.length === 0) return null;
+
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        el.points.forEach(p => {
+            minX = Math.min(minX, p.x);
+            minY = Math.min(minY, p.y);
+            maxX = Math.max(maxX, p.x);
+            maxY = Math.max(maxY, p.y);
+        });
+
+        const width = maxX - minX;
+        const height = maxY - minY;
+
+        // Pad slightly? No, exact bounds.
+        const newPoints = el.points.map(p => ({ x: p.x - minX, y: p.y - minY }));
+
+        return {
+            x: el.x + minX,
+            y: el.y + minY,
+            width,
+            height,
+            points: newPoints
+        };
+    };
+
+
+    const hitTestElement = (el: DrawingElement, x: number, y: number, threshold: number): boolean => {
+        // Transform point to local non-rotated space
+        const cx = el.x + el.width / 2;
+        const cy = el.y + el.height / 2;
+        const p = unrotatePoint(x, y, cx, cy, el.rotation || 0);
+
+        // Check if inside bounding box (broad phase)
+        // Add threshold to box check
+        if (p.x < el.x - threshold || p.x > el.x + el.width + threshold ||
+            p.y < el.y - threshold || p.y > el.y + el.height + threshold) {
+            return false;
+        }
+
+        if (el.type === 'rectangle') {
+            // Check if inside
+            return true;
+        } else if (el.type === 'circle') {
+            return isPointInEllipse(p, el.x, el.y, el.width, el.height);
+        } else if (el.type === 'line' || el.type === 'arrow') {
+            // Line
+            return distanceToSegment(p, { x: el.x, y: el.y }, { x: el.x + el.width, y: el.y + el.height }) <= threshold;
+        } else if (el.type === 'pencil' && el.points) {
+            // For pencil, points are now relative to el.x, el.y
+            // The point p is in local unrotated space matches el.x/y system.
+            // But valid points are relative. So we need to check distance relative to (el.x, el.y).
+            const localP = { x: p.x - el.x, y: p.y - el.y };
+            return isPointOnPolyline(localP, el.points, threshold);
+        } else if (el.type === 'text') {
+            return true; // Box check passed
+        }
+
+        return false;
+    };
+
     const handleMouseDown = (e: MouseEvent) => {
         const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
 
@@ -269,7 +376,6 @@ const Canvas: Component = () => {
             if (hitHandle) {
                 isDragging = true;
                 draggingHandle = hitHandle.handle;
-                // Keep track of which element we are resizing
                 const el = store.elements.find(e => e.id === hitHandle.id);
                 if (el) {
                     initialElementX = el.x;
@@ -278,24 +384,17 @@ const Canvas: Component = () => {
                     initialElementHeight = el.height;
                     startX = x;
                     startY = y;
-                    // Store initial dims
-                    // We need to store original dims to properly resize
-                    // For now using quick hack: rely on delta.
-                    // Ideally we should cache initialWidth/Height here
                 }
                 return;
             }
 
-            // Hit Test Body
+            // Hit Test Body using refined logic
             let hitId: string | null = null;
+            const threshold = 10 / store.viewState.scale;
+
             for (let i = store.elements.length - 1; i >= 0; i--) {
                 const el = store.elements[i];
-                // Check if point inside rotated rect?
-                const cx = el.x + el.width / 2;
-                const cy = el.y + el.height / 2;
-                const local = unrotatePoint(x, y, cx, cy, el.rotation || 0);
-
-                if (local.x >= el.x && local.x <= el.x + el.width && local.y >= el.y && local.y <= el.y + el.height) {
+                if (hitTestElement(el, x, y, threshold)) {
                     hitId = el.id;
                     break;
                 }
@@ -304,7 +403,7 @@ const Canvas: Component = () => {
             if (hitId) {
                 store.selection.includes(hitId) ? null : setStore('selection', [hitId]);
                 isDragging = true;
-                draggingHandle = null; // Simply moving
+                draggingHandle = null;
                 startX = x;
                 startY = y;
                 const el = store.elements.find(e => e.id === hitId);
@@ -357,7 +456,7 @@ const Canvas: Component = () => {
             strokeColor: '#000000',
             backgroundColor: 'transparent',
             strokeWidth: 2,
-            points: store.selectedTool === 'pencil' ? [{ x, y }] : undefined,
+            points: store.selectedTool === 'pencil' ? [{ x: 0, y: 0 }] : undefined,
             rotation: 0,
             opacity: 100
         };
@@ -443,7 +542,10 @@ const Canvas: Component = () => {
         if (store.selectedTool === 'pencil') {
             const el = store.elements.find(e => e.id === currentId);
             if (el && el.points) {
-                updateElement(currentId, { points: [...el.points, { x, y }] });
+                // Store relative to element origin (startX, startY)
+                // NOTE: startX/startY was set on MouseDown.
+                // el.x/el.y is startX/startY.
+                updateElement(currentId, { points: [...el.points, { x: x - startX, y: y - startY }] });
             }
         } else {
             updateElement(currentId, {
@@ -462,12 +564,20 @@ const Canvas: Component = () => {
 
         if (isDrawing && currentId) {
             const el = store.elements.find(e => e.id === currentId);
-            if (el && (el.type === 'rectangle' || el.type === 'circle')) {
-                if (el.width < 0) {
-                    updateElement(currentId, { x: el.x + el.width, width: Math.abs(el.width) });
-                }
-                if (el.height < 0) {
-                    updateElement(currentId, { y: el.y + el.height, height: Math.abs(el.height) });
+            if (el) {
+                if (el.type === 'rectangle' || el.type === 'circle') {
+                    if (el.width < 0) {
+                        updateElement(currentId, { x: el.x + el.width, width: Math.abs(el.width) });
+                    }
+                    if (el.height < 0) {
+                        updateElement(currentId, { y: el.y + el.height, height: Math.abs(el.height) });
+                    }
+                } else if (el.type === 'pencil') {
+                    // Normalize pencil
+                    const updates = normalizePencil(el);
+                    if (updates) {
+                        updateElement(currentId, updates);
+                    }
                 }
             }
         }
