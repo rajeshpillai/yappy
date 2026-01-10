@@ -1,6 +1,8 @@
 import { type Component, createSignal, onMount } from "solid-js";
 import { storage } from "../storage/FileSystemStorage";
 import { store, setStore } from "../store/appStore";
+import { Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus } from "lucide-solid";
+import "./Menu.css";
 
 const Menu: Component = () => {
     const [drawingId, setDrawingId] = createSignal('default');
@@ -54,28 +56,41 @@ const Menu: Component = () => {
     });
 
     return (
-        <div style={{
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            display: 'flex',
-            gap: '10px',
-            padding: '10px',
-            background: 'white',
-            "border-radius": '8px',
-            "box-shadow": '0 2px 10px rgba(0,0,0,0.1)'
-        }}>
-            <input
-                type="text"
-                value={drawingId()}
-                onInput={(e) => setDrawingId(e.currentTarget.value)}
-                style={{ padding: '8px', border: '1px solid #ccc', "border-radius": '4px' }}
-            />
-            <button onClick={handleSave} style={{ padding: '8px', cursor: 'pointer' }}>Save</button>
-            <button onClick={handleLoad} style={{ padding: '8px', cursor: 'pointer' }}>Load</button>
-            <button onClick={handleShare} style={{ padding: '8px', cursor: 'pointer' }}>Share</button>
-            <button onClick={handleNew} style={{ padding: '8px', cursor: 'pointer' }}>New</button>
-        </div>
+        <>
+            {/* Top Left Menu */}
+            <div style={{ position: 'fixed', top: '12px', left: '12px', "z-index": 100 }}>
+                <div class="menu-container">
+                    <button class="menu-btn" title="Menu">
+                        <MenuIcon size={20} />
+                    </button>
+                </div>
+            </div>
+
+            {/* Top Right Controls */}
+            <div style={{ position: 'fixed', top: '12px', right: '12px', "z-index": 100 }}>
+                <div class="menu-container">
+                    <input
+                        type="text"
+                        class="title-input"
+                        value={drawingId()}
+                        onInput={(e) => setDrawingId(e.currentTarget.value)}
+                    />
+                    <button class="menu-btn" onClick={handleSave} title="Save">
+                        <Save size={18} />
+                    </button>
+                    <button class="menu-btn" onClick={handleLoad} title="Load">
+                        <FolderOpen size={18} />
+                    </button>
+                    <button class="menu-btn primary" onClick={handleShare} title="Share">
+                        <Share2 size={18} />
+                        <span style={{ "margin-left": "4px" }}>Share</span>
+                    </button>
+                    <button class="menu-btn" onClick={handleNew} title="New">
+                        <FilePlus size={18} />
+                    </button>
+                </div>
+            </div>
+        </>
     );
 };
 

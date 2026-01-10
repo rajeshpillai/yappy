@@ -1,36 +1,29 @@
 import { type Component } from "solid-js";
 import { store, setSelectedTool } from "../store/appStore";
 import type { ElementType } from "../types";
+import { MousePointer2, Square, Circle, Minus, Type, Pencil, MoveUpRight } from "lucide-solid";
+import "./Toolbar.css";
 
-const tools: { type: ElementType | 'selection'; label: string }[] = [
-    { type: 'selection', label: 'Pointer' },
-    { type: 'rectangle', label: 'Rectangle' },
-    { type: 'circle', label: 'Circle' },
-    { type: 'line', label: 'Line' },
-    { type: 'pencil', label: 'Pencil' },
-    { type: 'text', label: 'Text' },
+const tools: { type: ElementType | 'selection'; icon: Component; label: string }[] = [
+    { type: 'selection', icon: MousePointer2, label: 'Selection' },
+    { type: 'rectangle', icon: Square, label: 'Rectangle' },
+    { type: 'circle', icon: Circle, label: 'Circle' },
+    { type: 'arrow', icon: MoveUpRight, label: 'Arrow' },
+    { type: 'line', icon: Minus, label: 'Line' },
+    { type: 'pencil', icon: Pencil, label: 'Pencil' },
+    { type: 'text', icon: Type, label: 'Text' },
 ];
 
 const Toolbar: Component = () => {
     return (
-        <div style={{
-            position: 'fixed',
-            top: '20px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            gap: '10px',
-            padding: '10px',
-            background: 'white',
-            "border-radius": '8px',
-            "box-shadow": '0 2px 10px rgba(0,0,0,0.1)'
-        }}>
+        <div class="toolbar-container">
             {tools.map(tool => (
                 <button
+                    class={`toolbar-btn ${store.selectedTool === tool.type ? 'active' : ''}`}
                     onClick={() => setSelectedTool(tool.type)}
-                    classList={{ active: store.selectedTool === tool.type }}
+                    title={tool.label}
                 >
-                    {tool.label}
+                    <tool.icon size={20} />
                 </button>
             ))}
         </div>

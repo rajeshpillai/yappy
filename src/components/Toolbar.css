@@ -1,0 +1,40 @@
+.toolbar-container {
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    z-index: 100;
+    border: 1px solid #e5e7eb;
+}
+
+.toolbar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background-color: transparent;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toolbar-btn:hover {
+    background-color: #f3f4f6;
+    color: #1f2937;
+}
+
+.toolbar-btn.active {
+    background-color: #eff6ff;
+    color: #3b82f6;
+    border-color: #bfdbfe;
+}
