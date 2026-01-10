@@ -23,6 +23,8 @@ const Canvas: Component = () => {
     let initialElementWidth = 0;
     let initialElementHeight = 0;
 
+    let initialElementPoints: { x: number; y: number }[] | undefined;
+
     const handleResize = () => {
         if (canvasRef) {
             canvasRef.width = window.innerWidth;
@@ -395,6 +397,7 @@ const Canvas: Component = () => {
                     initialElementY = el.y;
                     initialElementWidth = el.width;
                     initialElementHeight = el.height;
+                    initialElementPoints = el.points ? [...el.points] : undefined;
                     startX = x;
                     startY = y;
                 }
@@ -538,7 +541,25 @@ const Canvas: Component = () => {
                             newHeight += dy;
                         }
 
-                        updateElement(id, { x: newX, y: newY, width: newWidth, height: newHeight });
+                        const updates: any = { x: newX, y: newY, width: newWidth, height: newHeight };
+
+                        // Scale points for pencil
+                        if (el.type === 'pencil' && initialElementPoints) {
+                            const scaleX = newWidth / initialElementWidth;
+                            const scaleY = newHeight / initialElementHeight;
+
+                            // Protect against zero division? 
+                            // If initialWidth is 0, scale is undefined. But normalized pencil shouldn't be 0 width.
+                            // However, if we resize TO 0, scale is 0. Points become 0. That's fine.
+
+                            const newPoints = initialElementPoints.map(p => ({
+                                x: p.x * (initialElementWidth === 0 ? 1 : scaleX),
+                                y: p.y * (initialElementHeight === 0 ? 1 : scaleY)
+                            }));
+                            updates.points = newPoints;
+                        }
+
+                        updateElement(id, updates);
                     }
                 } else {
                     // Move
