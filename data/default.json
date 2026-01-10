@@ -1,7 +1,7 @@
 {
   "elements": [
     {
-      "id": "93f93409-fd1b-4230-ad5f-b4012ef07d0f",
+      "id": "aadc360d-0b76-4252-83ef-6b1dc834be82",
       "type": "rectangle",
       "x": 273,
       "y": 130,
@@ -9,7 +9,9 @@
       "height": 130,
       "strokeColor": "#000000",
       "backgroundColor": "transparent",
-      "strokeWidth": 2
+      "strokeWidth": 2,
+      "rotation": 0,
+      "opacity": 100
     }
   ],
   "viewState": {

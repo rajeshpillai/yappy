@@ -16,4 +16,6 @@ declare module 'lucide-solid' {
     export const Plus: Component<{ size?: number; color?: string; strokeWidth?: number }>;
     export const Undo2: Component<{ size?: number; color?: string; strokeWidth?: number }>;
     export const Redo2: Component<{ size?: number; color?: string; strokeWidth?: number }>;
+    export const X: Component<{ size?: number; color?: string; strokeWidth?: number }>;
+    export const FileText: Component<{ size?: number; color?: string; strokeWidth?: number }>;
 }

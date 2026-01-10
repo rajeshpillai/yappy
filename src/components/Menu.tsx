@@ -2,10 +2,12 @@ import { type Component, createSignal, onMount } from "solid-js";
 import { storage } from "../storage/FileSystemStorage";
 import { store, setStore } from "../store/appStore";
 import { Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus } from "lucide-solid";
+import FileOpenDialog from "./FileOpenDialog";
 import "./Menu.css";
 
 const Menu: Component = () => {
     const [drawingId, setDrawingId] = createSignal('default');
+    const [isDialogOpen, setIsDialogOpen] = createSignal(false);
 
     const handleSave = async () => {
         try {
@@ -20,11 +22,13 @@ const Menu: Component = () => {
         }
     };
 
-    const handleLoad = async () => {
+    const handleLoad = async (id?: string) => {
+        const targetId = id || drawingId();
         try {
-            const data = await storage.loadDrawing(drawingId());
+            const data = await storage.loadDrawing(targetId);
             if (data) {
                 setStore({ elements: data.elements, viewState: data.viewState });
+                setDrawingId(targetId);
             } else {
                 alert('Drawing not found');
             }
@@ -37,6 +41,7 @@ const Menu: Component = () => {
     const handleNew = () => {
         if (confirm('Clear canvas?')) {
             setStore({ elements: [], viewState: { scale: 1, panX: 0, panY: 0 } });
+            setDrawingId('untitled');
         }
     };
 
@@ -51,12 +56,22 @@ const Menu: Component = () => {
         const id = params.get('id');
         if (id) {
             setDrawingId(id);
-            handleLoad();
+            handleLoad(id);
         }
     });
 
     return (
         <>
+            {/* Open File Dialog */}
+            <FileOpenDialog
+                isOpen={isDialogOpen()}
+                onClose={() => setIsDialogOpen(false)}
+                onSelect={(id) => {
+                    handleLoad(id);
+                    setIsDialogOpen(false);
+                }}
+            />
+
             {/* Top Left Menu */}
             <div style={{ position: 'fixed', top: '12px', left: '12px', "z-index": 100 }}>
                 <div class="menu-container">
@@ -78,7 +93,7 @@ const Menu: Component = () => {
                     <button class="menu-btn" onClick={handleSave} title="Save">
                         <Save size={18} />
                     </button>
-                    <button class="menu-btn" onClick={handleLoad} title="Load">
+                    <button class="menu-btn" onClick={() => setIsDialogOpen(true)} title="Open">
                         <FolderOpen size={18} />
                     </button>
                     <button class="menu-btn primary" onClick={handleShare} title="Share">
