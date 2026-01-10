@@ -1,7 +1,8 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show } from "solid-js";
-import { store, setViewState, addElement, updateElement, setStore } from "../store/appStore";
+import { store, setViewState, addElement, updateElement, setStore, pushToHistory } from "../store/appStore";
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse } from "../utils/geometry";
 import type { DrawingElement } from "../types";
+
 
 const Canvas: Component = () => {
 
@@ -389,6 +390,7 @@ const Canvas: Component = () => {
         if (store.selectedTool === 'selection') {
             const hitHandle = getHandleAtPosition(x, y);
             if (hitHandle) {
+                pushToHistory(); // Save state before resize/rotate
                 isDragging = true;
                 draggingHandle = hitHandle.handle;
                 const el = store.elements.find(e => e.id === hitHandle.id);
@@ -418,6 +420,7 @@ const Canvas: Component = () => {
 
             if (hitId) {
                 store.selection.includes(hitId) ? null : setStore('selection', [hitId]);
+                pushToHistory(); // Save state before move
                 isDragging = true;
                 draggingHandle = null;
                 startX = x;
@@ -591,6 +594,21 @@ const Canvas: Component = () => {
 
     const handleMouseUp = () => {
         if (store.selectedTool === 'selection') {
+            if (isDragging && store.selection.length > 0) {
+                // We finished dragging/resizing.
+                // WE MUST RECORD PREVIOUS STATE BEFORE THE DRAG STARTED.
+                // BUT we already modified the state during drag!
+                // So `pushToHistory` NOW would save the MODIFIED state.
+                // Logic flaw: We need to push history BEFORE modification starts.
+                // In `handleMouseDown`, we didn't push.
+
+                // Correction: `pushToHistory` saves CURRENT state to Undo.
+                // If we call it BEFORE modification, we save "State A".
+                // Then we modify to "State B".
+                // Undo -> Restores "State A". Correct.
+
+                // So we need to call `pushToHistory` in `handleMouseDown` when operation STARTS.
+            }
             isDragging = false;
             draggingHandle = null;
             return;
@@ -599,6 +617,7 @@ const Canvas: Component = () => {
         if (isDrawing && currentId) {
             const el = store.elements.find(e => e.id === currentId);
             if (el) {
+                // Logic for normalization...
                 if (el.type === 'rectangle' || el.type === 'circle') {
                     if (el.width < 0) {
                         updateElement(currentId, { x: el.x + el.width, width: Math.abs(el.width) });
@@ -614,6 +633,11 @@ const Canvas: Component = () => {
                     }
                 }
             }
+            // Finished drawing, state is already updated (addElement called pushToHistory BEFORE adding).
+            // So we are good?
+            // `addElement` calls `pushToHistory` -> Saves "Empty Canvas".
+            // Then adds element. "Canvas with Element".
+            // Undo -> "Empty Canvas". Correct.
         }
         isDrawing = false;
         currentId = null;
@@ -622,7 +646,35 @@ const Canvas: Component = () => {
     const handleTextBlur = () => {
         const id = editingId();
         if (id) {
-            updateElement(id, { text: editText() });
+            // Text editing is an update.
+            // We should have saved history BEFORE editing started?
+            // `addElement` saved history (State Before Text Object).
+            // Then we added Text Object (Empty).
+            // Now we update text.
+            // If we undo, we go to "State Before Text Object".
+            // That works for NEW text.
+            // What if we EDIT existing text?
+            // `handleMouseDown` -> hit text -> setEditingId.
+            // We should push history HERE if it's existing text?
+            // Or just push history before `updateElement` in `handleTextBlur`.
+            // If we push NOW, we save "Text Empty/Old".
+            // Then update to "New".
+            // Undo -> "Text Empty/Old". Correct.
+
+            // Wait, if it was NEW text, `addElement` already pushed history.
+            // So we have [Empty Canvas]. Current: [Canvas with ""]
+            // onBlur -> updates to [Canvas with "Hello"].
+            // If we push history now: [Empty Canvas, Canvas with ""].
+            // Undo -> [Canvas with ""]. User expects [Empty Canvas] or [Previous State].
+            // Actually, if I created text, I probably want undo to remove it.
+            // So saving intermediate "" state is minor annoyance but safe.
+
+            // But for EXISTING text:
+            // State: [Text "A"]
+            // Click -> Update to "B" -> Blur.
+            // We need to save [Text "A"].
+            // Pushing history before updateElement(text) works.
+            updateElement(id, { text: editText() }, true); // Record history!
             setEditingId(null);
         }
     };

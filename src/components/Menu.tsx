@@ -1,7 +1,7 @@
 import { type Component, createSignal, onMount } from "solid-js";
 import { storage } from "../storage/FileSystemStorage";
-import { store, setStore } from "../store/appStore";
-import { Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus } from "lucide-solid";
+import { store, setStore, undo, redo } from "../store/appStore";
+import { Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus, Undo2, Redo2 } from "lucide-solid";
 import FileOpenDialog from "./FileOpenDialog";
 import "./Menu.css";
 
@@ -77,6 +77,13 @@ const Menu: Component = () => {
                 <div class="menu-container">
                     <button class="menu-btn" title="Menu">
                         <MenuIcon size={20} />
+                    </button>
+                    <div style={{ width: '1px', height: '24px', background: '#e5e7eb', margin: '0 4px' }}></div>
+                    <button class="menu-btn" onClick={undo} title="Undo">
+                        <Undo2 size={18} />
+                    </button>
+                    <button class="menu-btn" onClick={redo} title="Redo">
+                        <Redo2 size={18} />
                     </button>
                 </div>
             </div>
