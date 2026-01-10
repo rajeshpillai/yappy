@@ -64,6 +64,13 @@ export const addElement = (element: DrawingElement) => {
     setStore("elements", (els) => [...els, element]);
 };
 
+export const deleteElements = (ids: string[]) => {
+    if (ids.length === 0) return;
+    pushToHistory(); // Save state before deletion
+    setStore("elements", (els) => els.filter(el => !ids.includes(el.id)));
+    setStore("selection", []); // Clear selection
+};
+
 export const updateElement = (id: string, updates: Partial<DrawingElement>, recordHistory = false) => {
     if (recordHistory) pushToHistory();
     setStore("elements", (el) => el.id === id, updates);

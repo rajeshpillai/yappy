@@ -1,7 +1,7 @@
 import { type Component } from "solid-js";
 import { store, setSelectedTool } from "../store/appStore";
 import type { ElementType } from "../types";
-import { MousePointer2, Square, Circle, Minus, Type, Pencil, MoveUpRight } from "lucide-solid";
+import { MousePointer2, Square, Circle, Minus, Type, Pencil, MoveUpRight, Eraser } from "lucide-solid";
 import "./Toolbar.css";
 
 const tools: { type: ElementType | 'selection'; icon: Component; label: string }[] = [
@@ -12,6 +12,7 @@ const tools: { type: ElementType | 'selection'; icon: Component; label: string }
     { type: 'line', icon: Minus, label: 'Line' },
     { type: 'pencil', icon: Pencil, label: 'Pencil' },
     { type: 'text', icon: Type, label: 'Text' },
+    { type: 'eraser', icon: Eraser, label: 'Eraser' },
 ];
 
 const Toolbar: Component = () => {

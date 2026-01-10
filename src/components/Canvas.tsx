@@ -1,5 +1,5 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show } from "solid-js";
-import { store, setViewState, addElement, updateElement, setStore, pushToHistory } from "../store/appStore";
+import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements } from "../store/appStore";
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse } from "../utils/geometry";
 import type { DrawingElement } from "../types";
 
@@ -460,6 +460,18 @@ const Canvas: Component = () => {
             return;
         }
 
+        if (store.selectedTool === 'eraser') {
+            isDrawing = true; // Enable drag
+            const threshold = 10 / store.viewState.scale;
+            for (let i = store.elements.length - 1; i >= 0; i--) {
+                const el = store.elements[i];
+                if (hitTestElement(el, x, y, threshold)) {
+                    deleteElements([el.id]);
+                }
+            }
+            return;
+        }
+
         isDrawing = true;
         startX = x;
         startY = y;
@@ -574,7 +586,18 @@ const Canvas: Component = () => {
             return;
         }
 
-        if (!isDrawing || !currentId) return;
+        if (!isDrawing || !currentId) {
+            if (isDrawing && store.selectedTool === 'eraser') {
+                const threshold = 10 / store.viewState.scale;
+                for (let i = store.elements.length - 1; i >= 0; i--) {
+                    const el = store.elements[i];
+                    if (hitTestElement(el, x, y, threshold)) {
+                        deleteElements([el.id]);
+                    }
+                }
+            }
+            return;
+        }
 
         if (store.selectedTool === 'pencil') {
             const el = store.elements.find(e => e.id === currentId);

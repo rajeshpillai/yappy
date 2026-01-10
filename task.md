@@ -26,6 +26,12 @@
 - [x] Add Undo/Redo buttons to Menu
 - [x] Add Keyboard shortcuts (Ctrl+Z, Ctrl+Y)
 
+## Phase 5: Eraser & Delete
+- [x] Implement Delete action in appStore (with history)
+- [x] Implement Keyboard Delete (Delete/Backspace)
+- [x] Add Eraser Tool to Toolbar
+- [x] Implement Eraser interaction (click/drag to delete)
+
 
 
 

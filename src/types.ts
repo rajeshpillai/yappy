@@ -1,4 +1,4 @@
-export type ElementType = 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | 'pencil';
+export type ElementType = 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | 'pencil' | 'eraser';
 
 export interface Point {
     x: number;
