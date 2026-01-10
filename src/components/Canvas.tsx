@@ -42,6 +42,8 @@ const Canvas: Component = () => {
         const ctx = canvasRef.getContext("2d");
         if (!ctx) return;
 
+        // Reset Transform Matrix to Identity so we don't accumulate translations!
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, canvasRef.width, canvasRef.height);
 
         // Background color
@@ -51,6 +53,7 @@ const Canvas: Component = () => {
         ctx.save();
 
         const { scale, panX, panY } = store.viewState;
+
         ctx.translate(panX, panY);
         ctx.scale(scale, scale);
 
@@ -236,9 +239,17 @@ const Canvas: Component = () => {
 
     const handleWheel = (e: WheelEvent) => {
         e.preventDefault();
+
+        // Normalize delta values based on deltaMode
+        // 0: Pixel, 1: Line, 2: Page
+        const multiplier = e.deltaMode === 1 ? 33 : (e.deltaMode === 2 ? 400 : 1);
+        const deltaX = e.deltaX * multiplier;
+        const deltaY = e.deltaY * multiplier;
+
         if (e.ctrlKey || e.metaKey) {
+            // ... Zoom Logic ...
             const zoomSensitivity = 0.001;
-            const zoom = 1 - e.deltaY * zoomSensitivity;
+            const zoom = 1 - deltaY * zoomSensitivity;
             const newScale = Math.min(Math.max(store.viewState.scale * zoom, 0.1), 10);
 
             const { x: mouseX, y: mouseY } = getClientCoordinates(e);
@@ -252,10 +263,19 @@ const Canvas: Component = () => {
 
             setViewState({ scale: newScale, panX: newPanX, panY: newPanY });
         } else {
-            setViewState({
-                panX: store.viewState.panX - e.deltaX,
-                panY: store.viewState.panY - e.deltaY
-            });
+            // Pan
+            if (e.shiftKey) {
+                // Horizontal Scroll
+                setViewState({
+                    panX: store.viewState.panX - (deltaY || deltaX),
+                    panY: store.viewState.panY
+                });
+            } else {
+                setViewState({
+                    panX: store.viewState.panX - deltaX,
+                    panY: store.viewState.panY - deltaY
+                });
+            }
         }
     };
 
@@ -603,8 +623,6 @@ const Canvas: Component = () => {
             const el = store.elements.find(e => e.id === currentId);
             if (el && el.points) {
                 // Store relative to element origin (startX, startY)
-                // NOTE: startX/startY was set on MouseDown.
-                // el.x/el.y is startX/startY.
                 updateElement(currentId, { points: [...el.points, { x: x - startX, y: y - startY }] });
             }
         } else {
@@ -612,6 +630,29 @@ const Canvas: Component = () => {
                 width: x - startX,
                 height: y - startY
             });
+        }
+
+        // Auto-Scroll Check
+        if (isDragging || isDrawing) {
+            const edgeThreshold = 50;
+            const scrollSpeed = 10;
+            const clientX = e.clientX;
+            const clientY = e.clientY;
+
+            let dPanX = 0;
+            let dPanY = 0;
+
+            if (clientX < edgeThreshold) dPanX = scrollSpeed;
+            if (clientX > window.innerWidth - edgeThreshold) dPanX = -scrollSpeed;
+            if (clientY < edgeThreshold) dPanY = scrollSpeed;
+            if (clientY > window.innerHeight - edgeThreshold) dPanY = -scrollSpeed;
+
+            if (dPanX !== 0 || dPanY !== 0) {
+                setViewState({
+                    panX: store.viewState.panX + dPanX,
+                    panY: store.viewState.panY + dPanY
+                });
+            }
         }
     };
 
@@ -715,6 +756,79 @@ const Canvas: Component = () => {
         }
     });
 
+    const [showScrollBack, setShowScrollBack] = createSignal(false);
+
+    // Check if content is visible
+    createEffect(() => {
+        const { scale, panX, panY } = store.viewState;
+        if (!canvasRef || store.elements.length === 0) {
+            setShowScrollBack(false);
+            return;
+        }
+
+        // Viewport in World Coords
+        const vpX = -panX / scale;
+        const vpY = -panY / scale;
+        const vpW = canvasRef.width / scale;
+        const vpH = canvasRef.height / scale;
+
+        // Content Bounds
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        store.elements.forEach(el => {
+            const x1 = el.x;
+            const x2 = el.x + el.width;
+            const y1 = el.y;
+            const y2 = el.y + el.height;
+            minX = Math.min(minX, x1, x2);
+            maxX = Math.max(maxX, x1, x2);
+            minY = Math.min(minY, y1, y2);
+            maxY = Math.max(maxY, y1, y2);
+        });
+
+        // Check if Viewport intersects Content
+        // Loose check: If viewport is completely outside content bounds? 
+        // Or if content is completely outside viewport? YES.
+
+        const isContentVisible = !(minX > vpX + vpW || maxX < vpX || minY > vpY + vpH || maxY < vpY);
+
+        setShowScrollBack(!isContentVisible);
+    });
+
+    const handleScrollBack = () => {
+        if (store.elements.length === 0) return;
+
+        // Calculate center of content
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        store.elements.forEach(el => {
+            const x1 = el.x;
+            const x2 = el.x + el.width;
+            const y1 = el.y;
+            const y2 = el.y + el.height;
+
+            minX = Math.min(minX, x1, x2);
+            maxX = Math.max(maxX, x1, x2);
+            minY = Math.min(minY, y1, y2);
+            maxY = Math.max(maxY, y1, y2);
+        });
+
+        const contentW = maxX - minX;
+        const contentH = maxY - minY;
+        const contentCX = minX + contentW / 2;
+        const contentCY = minY + contentH / 2;
+
+        // Center viewport on content center
+        // panX = -worldX * scale + screenCX
+        const { scale } = store.viewState;
+        const screenCX = window.innerWidth / 2;
+        const screenCY = window.innerHeight / 2;
+
+        const newPanX = -contentCX * scale + screenCX;
+        const newPanY = -contentCY * scale + screenCY;
+
+        console.log("Scroll Back:", { contentCX, contentCY, scale, screenCX, newPanX });
+        setViewState({ panX: newPanX, panY: newPanY });
+    };
+
     onMount(() => {
         window.addEventListener("resize", handleResize);
         handleResize();
@@ -731,6 +845,51 @@ const Canvas: Component = () => {
                 onMouseUp={handleMouseUp}
                 style={{ display: "block", "touch-action": "none", cursor: cursor() }}
             />
+            {/* Debug Overlay */}
+            <div style={{
+                position: 'fixed',
+                bottom: '10px',
+                left: '10px',
+                "background-color": "rgba(0,0,0,0.5)",
+                color: "white",
+                padding: "8px",
+                "border-radius": "4px",
+                "font-size": "12px",
+                "pointer-events": "none",
+                "white-space": "pre",
+                "z-index": 1000
+            }}>
+                {`View: ${Math.round(store.viewState.panX)}, ${Math.round(store.viewState.panY)} @ ${store.viewState.scale.toFixed(2)}x
+Elements: ${store.elements.length}`}
+            </div>
+
+            <Show when={showScrollBack()}>
+                <div style={{
+                    position: 'fixed',
+                    bottom: '30px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    "z-index": 100
+                }}>
+                    <button
+                        onClick={handleScrollBack}
+                        style={{
+                            "background-color": "white",
+                            border: "1px solid #e5e7eb",
+                            padding: "8px 16px",
+                            "border-radius": "9999px",
+                            "box-shadow": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                            cursor: "pointer",
+                            color: "#3b82f6",
+                            "font-weight": "500",
+                            "font-size": "14px",
+                            transition: "all 0.2s"
+                        }}
+                    >
+                        Scroll back to content
+                    </button>
+                </div>
+            </Show>
             <Show when={editingId() && activeTextElement()}>
                 {(_) => {
                     const el = activeTextElement()!;

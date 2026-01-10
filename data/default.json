@@ -1,12 +1,25 @@
 {
   "elements": [
     {
-      "id": "aadc360d-0b76-4252-83ef-6b1dc834be82",
+      "id": "136ec0db-2dfd-4003-8285-a6377ff7af37",
       "type": "rectangle",
-      "x": 273,
-      "y": 130,
-      "width": 273,
-      "height": 130,
+      "x": 8,
+      "y": 62,
+      "width": 159,
+      "height": 125,
+      "strokeColor": "#000000",
+      "backgroundColor": "transparent",
+      "strokeWidth": 2,
+      "rotation": 0,
+      "opacity": 100
+    },
+    {
+      "id": "59e0af37-a2f0-43b0-9bef-10f28c612afd",
+      "type": "circle",
+      "x": 250,
+      "y": 187,
+      "width": 167,
+      "height": 125,
       "strokeColor": "#000000",
       "backgroundColor": "transparent",
       "strokeWidth": 2,
