@@ -14,6 +14,8 @@
 - [x] Implement Resize and Rotate handles in Canvas <!-- id: 10 -->
 - [x] Create Property Panel sidebar component <!-- id: 11 -->
 - [x] Connect Property Panel to selected element state <!-- id: 12 -->
+- [x] Improve selection logic for Pencil and Line tools
+- [x] Fix pencil drawing shift bug
 
 
 
