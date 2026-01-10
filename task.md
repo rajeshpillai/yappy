@@ -17,5 +17,15 @@
 - [x] Improve selection logic for Pencil and Line tools
 - [x] Fix pencil drawing shift bug
 
+## Phase 3: File Management
+- [x] Implement File Open Modal Dialog
+
+## Phase 4: Undo/Redo
+- [x] Implement History Stack in appStore
+- [x] Record history on modification (draw, move, resize)
+- [x] Add Undo/Redo buttons to Menu
+- [x] Add Keyboard shortcuts (Ctrl+Z, Ctrl+Y)
+
+
 
 
