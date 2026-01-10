@@ -81,8 +81,21 @@ const Canvas: Component = () => {
                 ctx.stroke();
             } else if (el.type === 'line' || el.type === 'arrow') {
                 ctx.moveTo(el.x, el.y);
-                ctx.lineTo(el.x + el.width, el.y + el.height);
+                const endX = el.x + el.width;
+                const endY = el.y + el.height;
+                ctx.lineTo(endX, endY);
                 ctx.stroke();
+
+                if (el.type === 'arrow') {
+                    const angle = Math.atan2(el.height, el.width);
+                    const headLen = 15;
+                    ctx.beginPath();
+                    ctx.moveTo(endX, endY);
+                    ctx.lineTo(endX - headLen * Math.cos(angle - Math.PI / 6), endY - headLen * Math.sin(angle - Math.PI / 6));
+                    ctx.moveTo(endX, endY);
+                    ctx.lineTo(endX - headLen * Math.cos(angle + Math.PI / 6), endY - headLen * Math.sin(angle + Math.PI / 6));
+                    ctx.stroke();
+                }
             } else if (el.type === 'pencil' && el.points) {
                 if (el.points.length > 0) {
                     // Points are either absolute (while drawing) or relative (after normalization)
