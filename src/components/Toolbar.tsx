@@ -28,13 +28,7 @@ const Toolbar: Component = () => {
             {tools.map(tool => (
                 <button
                     onClick={() => setSelectedTool(tool.type)}
-                    style={{
-                        background: store.selectedTool === tool.type ? '#e0efff' : 'transparent',
-                        border: store.selectedTool === tool.type ? '1px solid #007acc' : '1px solid transparent',
-                        padding: '8px',
-                        "border-radius": '4px',
-                        cursor: 'pointer'
-                    }}
+                    classList={{ active: store.selectedTool === tool.type }}
                 >
                     {tool.label}
                 </button>

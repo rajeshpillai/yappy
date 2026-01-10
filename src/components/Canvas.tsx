@@ -1,5 +1,5 @@
-import { type Component, onMount, createEffect, onCleanup } from "solid-js";
-import { store, setViewState, addElement, updateElement } from "../store/appStore";
+import { type Component, onMount, createEffect, onCleanup, createSignal, Show } from "solid-js";
+import { store, setViewState, addElement, updateElement, setStore } from "../store/appStore";
 
 const Canvas: Component = () => {
     let canvasRef: HTMLCanvasElement | undefined;
@@ -7,6 +7,16 @@ const Canvas: Component = () => {
     let currentId: string | null = null;
     let startX = 0;
     let startY = 0;
+
+    // Text Editing State
+    const [editingId, setEditingId] = createSignal<string | null>(null);
+    const [editText, setEditText] = createSignal("");
+    let textInputRef: HTMLTextAreaElement | undefined;
+
+    // Selection/Move State
+    let isDragging = false;
+    let initialElementX = 0;
+    let initialElementY = 0;
 
     const handleResize = () => {
         if (canvasRef) {
@@ -39,6 +49,16 @@ const Canvas: Component = () => {
             ctx.lineWidth = el.strokeWidth;
             ctx.fillStyle = el.backgroundColor;
 
+            // Selection highlight
+            if (store.selection.includes(el.id)) {
+                ctx.save();
+                ctx.strokeStyle = '#007acc';
+                ctx.lineWidth = 1 / scale;
+                const padding = 4 / scale;
+                ctx.strokeRect(el.x - padding, el.y - padding, el.width + padding * 2, el.height + padding * 2);
+                ctx.restore();
+            }
+
             ctx.beginPath();
             if (el.type === 'rectangle') {
                 ctx.rect(el.x, el.y, el.width, el.height);
@@ -62,9 +82,10 @@ const Canvas: Component = () => {
                     ctx.stroke();
                 }
             } else if (el.type === 'text' && el.text) {
-                ctx.font = `${20 * scale}px sans-serif`; // Needs text size handling
+                const fontSize = 20;
+                ctx.font = `${fontSize}px sans-serif`;
                 ctx.fillStyle = el.strokeColor;
-                ctx.fillText(el.text, el.x, el.y);
+                ctx.fillText(el.text, el.x, el.y + fontSize); // Adjust for baseline
             }
         });
 
@@ -80,6 +101,7 @@ const Canvas: Component = () => {
         store.viewState.scale;
         store.viewState.panX;
         store.viewState.panY;
+        store.selection.length; // Trigger redraw on selection change
 
         requestAnimationFrame(draw);
     });
@@ -124,10 +146,64 @@ const Canvas: Component = () => {
     };
 
     const handleMouseDown = (e: MouseEvent) => {
-        if (store.selectedTool === 'selection') return;
+        const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
+
+        // If editing text, commit on click away
+        if (editingId()) {
+            setEditingId(null);
+            return;
+        }
+
+        if (store.selectedTool === 'selection') {
+            // Hit Test (Simple bounding box for now)
+            // Iterate reverse to select top-most
+            let hitId: string | null = null;
+            for (let i = store.elements.length - 1; i >= 0; i--) {
+                const el = store.elements[i];
+                if (x >= el.x && x <= el.x + el.width && y >= el.y && y <= el.y + el.height) {
+                    hitId = el.id;
+                    break;
+                }
+            }
+
+            if (hitId) {
+                store.selection.includes(hitId) ? null : setStore('selection', [hitId]); // Simple single select
+                isDragging = true;
+                startX = x;
+                startY = y;
+                const el = store.elements.find(e => e.id === hitId);
+                if (el) {
+                    initialElementX = el.x;
+                    initialElementY = el.y;
+                }
+            } else {
+                setStore('selection', []);
+            }
+            return;
+        }
+
+        if (store.selectedTool === 'text') {
+            const id = crypto.randomUUID();
+            const newElement = {
+                id,
+                type: 'text' as const,
+                x,
+                y,
+                width: 100, // min width
+                height: 30, // min height
+                strokeColor: '#000000',
+                backgroundColor: 'transparent',
+                strokeWidth: 1,
+                text: ''
+            };
+            addElement(newElement);
+            setEditingId(id);
+            setEditText("");
+            setTimeout(() => textInputRef?.focus(), 0);
+            return;
+        }
 
         isDrawing = true;
-        const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
         startX = x;
         startY = y;
         currentId = crypto.randomUUID();
@@ -149,9 +225,20 @@ const Canvas: Component = () => {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-        if (!isDrawing || !currentId) return;
-
         const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
+
+        if (store.selectedTool === 'selection') {
+            if (isDragging && store.selection.length > 0) {
+                const dx = x - startX;
+                const dy = y - startY;
+                // Move selected element
+                const id = store.selection[0];
+                updateElement(id, { x: initialElementX + dx, y: initialElementY + dy });
+            }
+            return;
+        }
+
+        if (!isDrawing || !currentId) return;
 
         if (store.selectedTool === 'pencil') {
             // Append point
@@ -172,6 +259,11 @@ const Canvas: Component = () => {
     };
 
     const handleMouseUp = () => {
+        if (store.selectedTool === 'selection') {
+            isDragging = false;
+            return;
+        }
+
         if (isDrawing && currentId) {
             // Normalize rect/circle
             const el = store.elements.find(e => e.id === currentId);
@@ -188,6 +280,27 @@ const Canvas: Component = () => {
         currentId = null;
     };
 
+    const handleTextBlur = () => {
+        const id = editingId();
+        if (id) {
+            updateElement(id, { text: editText() });
+            setEditingId(null);
+        }
+    };
+
+    const activeTextElement = () => {
+        const id = editingId();
+        if (!id) return null;
+        return store.elements.find(e => e.id === id);
+    };
+
+    createEffect(() => {
+        if (editingId() && textInputRef) {
+            textInputRef.style.height = 'auto';
+            textInputRef.style.height = textInputRef.scrollHeight + 'px';
+        }
+    });
+
     onMount(() => {
         window.addEventListener("resize", handleResize);
         handleResize();
@@ -195,14 +308,49 @@ const Canvas: Component = () => {
     });
 
     return (
-        <canvas
-            ref={canvasRef}
-            onWheel={handleWheel}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            style={{ display: "block", "touch-action": "none" }}
-        />
+        <>
+            <canvas
+                ref={canvasRef}
+                onWheel={handleWheel}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                style={{ display: "block", "touch-action": "none" }}
+            />
+            <Show when={editingId() && activeTextElement()}>
+                {(_) => {
+                    const el = activeTextElement()!;
+                    const { scale, panX, panY } = store.viewState;
+                    const screenX = el.x * scale + panX;
+                    const screenY = el.y * scale + panY;
+
+                    return (
+                        <textarea
+                            ref={textInputRef}
+                            value={editText()}
+                            onInput={(e) => setEditText(e.currentTarget.value)}
+                            onBlur={handleTextBlur}
+                            style={{
+                                position: 'absolute',
+                                top: `${screenY}px`,
+                                left: `${screenX}px`,
+                                font: `${20 * scale}px sans-serif`,
+                                color: el.strokeColor,
+                                background: 'transparent',
+                                border: '1px dashed #007acc',
+                                outline: 'none',
+                                margin: 0,
+                                padding: 0,
+                                resize: 'none',
+                                overflow: 'hidden',
+                                'min-width': '50px',
+                                'min-height': '1em'
+                            }}
+                        />
+                    );
+                }}
+            </Show>
+        </>
     );
 };
 
