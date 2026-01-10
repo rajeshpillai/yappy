@@ -1,0 +1,20 @@
+{
+  "elements": [
+    {
+      "id": "93f93409-fd1b-4230-ad5f-b4012ef07d0f",
+      "type": "rectangle",
+      "x": 273,
+      "y": 130,
+      "width": 273,
+      "height": 130,
+      "strokeColor": "#000000",
+      "backgroundColor": "transparent",
+      "strokeWidth": 2
+    }
+  ],
+  "viewState": {
+    "scale": 1,
+    "panX": 0,
+    "panY": 0
+  }
+}
