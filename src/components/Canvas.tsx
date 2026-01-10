@@ -17,6 +17,8 @@ const Canvas: Component = () => {
     let isDragging = false;
     let initialElementX = 0;
     let initialElementY = 0;
+    let initialElementWidth = 0;
+    let initialElementHeight = 0;
 
     const handleResize = () => {
         if (canvasRef) {
@@ -25,6 +27,9 @@ const Canvas: Component = () => {
             draw();
         }
     };
+
+    // Cursor Management
+    const [cursor, setCursor] = createSignal<string>('default');
 
     const draw = () => {
         if (!canvasRef) return;
@@ -45,19 +50,22 @@ const Canvas: Component = () => {
 
         // Render Elements
         store.elements.forEach(el => {
+            ctx.save();
+            ctx.globalAlpha = (el.opacity ?? 100) / 100;
+
+            // Apply rotation (center based)
+            let cx = el.x + el.width / 2;
+            let cy = el.y + el.height / 2;
+
+            if (el.rotation) {
+                ctx.translate(cx, cy);
+                ctx.rotate(el.rotation);
+                ctx.translate(-cx, -cy);
+            }
+
             ctx.strokeStyle = el.strokeColor;
             ctx.lineWidth = el.strokeWidth;
             ctx.fillStyle = el.backgroundColor;
-
-            // Selection highlight
-            if (store.selection.includes(el.id)) {
-                ctx.save();
-                ctx.strokeStyle = '#007acc';
-                ctx.lineWidth = 1 / scale;
-                const padding = 4 / scale;
-                ctx.strokeRect(el.x - padding, el.y - padding, el.width + padding * 2, el.height + padding * 2);
-                ctx.restore();
-            }
 
             ctx.beginPath();
             if (el.type === 'rectangle') {
@@ -72,7 +80,6 @@ const Canvas: Component = () => {
                 ctx.moveTo(el.x, el.y);
                 ctx.lineTo(el.x + el.width, el.y + el.height);
                 ctx.stroke();
-                // Arrow head logic later
             } else if (el.type === 'pencil' && el.points) {
                 if (el.points.length > 0) {
                     ctx.moveTo(el.points[0].x, el.points[0].y);
@@ -85,11 +92,59 @@ const Canvas: Component = () => {
                 const fontSize = 20;
                 ctx.font = `${fontSize}px sans-serif`;
                 ctx.fillStyle = el.strokeColor;
-                ctx.fillText(el.text, el.x, el.y + fontSize); // Adjust for baseline
+                ctx.fillText(el.text, el.x, el.y + fontSize);
+            }
+
+            ctx.restore();
+
+            // Selection highlight & Handles
+            if (store.selection.includes(el.id)) {
+                ctx.save();
+                // Re-apply rotation for handles
+                if (el.rotation) {
+                    ctx.translate(cx, cy);
+                    ctx.rotate(el.rotation);
+                    ctx.translate(-cx, -cy);
+                }
+
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 1 / scale;
+                const padding = 2 / scale;
+                ctx.strokeRect(el.x - padding, el.y - padding, el.width + padding * 2, el.height + padding * 2);
+
+                // Handles
+                const handleSize = 8 / scale;
+                ctx.fillStyle = '#ffffff';
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 2 / scale;
+
+                const handles = [
+                    { x: el.x - padding, y: el.y - padding }, // TL
+                    { x: el.x + el.width + padding, y: el.y - padding }, // TR
+                    { x: el.x + el.width + padding, y: el.y + el.height + padding }, // BR
+                    { x: el.x - padding, y: el.y + el.height + padding } // BL
+                ];
+
+                handles.forEach(h => {
+                    ctx.fillRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
+                    ctx.strokeRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
+                });
+
+                // Rotate Handle
+                const rotH = { x: el.x + el.width / 2, y: el.y - padding - 20 / scale };
+                ctx.beginPath();
+                ctx.moveTo(el.x + el.width / 2, el.y - padding);
+                ctx.lineTo(rotH.x, rotH.y);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(rotH.x, rotH.y, handleSize / 2, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.restore();
             }
         });
 
-        ctx.restore();
     };
 
     createEffect(() => {
@@ -97,12 +152,12 @@ const Canvas: Component = () => {
         store.elements.forEach(e => {
             e.x; e.y; e.width; e.height;
             if (e.points) e.points.length;
+            e.rotation; e.opacity;
         });
         store.viewState.scale;
         store.viewState.panX;
         store.viewState.panY;
-        store.selection.length; // Trigger redraw on selection change
-
+        store.selection.length;
         requestAnimationFrame(draw);
     });
 
@@ -121,7 +176,6 @@ const Canvas: Component = () => {
     const handleWheel = (e: WheelEvent) => {
         e.preventDefault();
         if (e.ctrlKey || e.metaKey) {
-            // Zoom
             const zoomSensitivity = 0.001;
             const zoom = 1 - e.deltaY * zoomSensitivity;
             const newScale = Math.min(Math.max(store.viewState.scale * zoom, 0.1), 10);
@@ -137,7 +191,6 @@ const Canvas: Component = () => {
 
             setViewState({ scale: newScale, panX: newPanX, panY: newPanY });
         } else {
-            // Pan
             setViewState({
                 panX: store.viewState.panX - e.deltaX,
                 panY: store.viewState.panY - e.deltaY
@@ -145,30 +198,113 @@ const Canvas: Component = () => {
         }
     };
 
+
+    // Helper: Rotate point (x,y) around center (cx,cy) by angle
+    const rotatePoint = (x: number, y: number, cx: number, cy: number, angle: number) => {
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+        return {
+            x: (cos * (x - cx)) - (sin * (y - cy)) + cx,
+            y: (sin * (x - cx)) + (cos * (y - cy)) + cy
+        };
+    };
+
+    // Helper: Inverse rotate point
+    const unrotatePoint = (x: number, y: number, cx: number, cy: number, angle: number) => {
+        return rotatePoint(x, y, cx, cy, -angle);
+    };
+
+    const getHandleAtPosition = (x: number, y: number) => {
+        const { scale } = store.viewState;
+        const handleSize = 10 / scale; // slightly larger hit area
+
+        for (let i = store.elements.length - 1; i >= 0; i--) {
+            const el = store.elements[i];
+            if (!store.selection.includes(el.id)) continue;
+
+            const cx = el.x + el.width / 2;
+            const cy = el.y + el.height / 2;
+            const heading = el.rotation || 0;
+
+            // Transform mouse point to element's local system (unrotate)
+            const local = unrotatePoint(x, y, cx, cy, heading);
+
+            const padding = 2 / scale;
+
+            // Check corners
+            const handles = [
+                { type: 'tl', x: el.x - padding, y: el.y - padding },
+                { type: 'tr', x: el.x + el.width + padding, y: el.y - padding },
+                { type: 'br', x: el.x + el.width + padding, y: el.y + el.height + padding },
+                { type: 'bl', x: el.x - padding, y: el.y + el.height + padding }
+            ];
+
+            for (const h of handles) {
+                if (Math.abs(local.x - h.x) <= handleSize / 2 && Math.abs(local.y - h.y) <= handleSize / 2) {
+                    return { id: el.id, handle: h.type };
+                }
+            }
+
+            // Check Rotate Handle
+            const rotH = { x: el.x + el.width / 2, y: el.y - padding - 20 / scale };
+            if (Math.abs(local.x - rotH.x) <= handleSize && Math.abs(local.y - rotH.y) <= handleSize / 2) {
+                return { id: el.id, handle: 'rotate' };
+            }
+        }
+        return null;
+    };
+
+    let draggingHandle: string | null = null;
+
     const handleMouseDown = (e: MouseEvent) => {
         const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
 
-        // If editing text, commit on click away
         if (editingId()) {
             setEditingId(null);
             return;
         }
 
         if (store.selectedTool === 'selection') {
-            // Hit Test (Simple bounding box for now)
-            // Iterate reverse to select top-most
+            const hitHandle = getHandleAtPosition(x, y);
+            if (hitHandle) {
+                isDragging = true;
+                draggingHandle = hitHandle.handle;
+                // Keep track of which element we are resizing
+                const el = store.elements.find(e => e.id === hitHandle.id);
+                if (el) {
+                    initialElementX = el.x;
+                    initialElementY = el.y;
+                    initialElementWidth = el.width;
+                    initialElementHeight = el.height;
+                    startX = x;
+                    startY = y;
+                    // Store initial dims
+                    // We need to store original dims to properly resize
+                    // For now using quick hack: rely on delta.
+                    // Ideally we should cache initialWidth/Height here
+                }
+                return;
+            }
+
+            // Hit Test Body
             let hitId: string | null = null;
             for (let i = store.elements.length - 1; i >= 0; i--) {
                 const el = store.elements[i];
-                if (x >= el.x && x <= el.x + el.width && y >= el.y && y <= el.y + el.height) {
+                // Check if point inside rotated rect?
+                const cx = el.x + el.width / 2;
+                const cy = el.y + el.height / 2;
+                const local = unrotatePoint(x, y, cx, cy, el.rotation || 0);
+
+                if (local.x >= el.x && local.x <= el.x + el.width && local.y >= el.y && local.y <= el.y + el.height) {
                     hitId = el.id;
                     break;
                 }
             }
 
             if (hitId) {
-                store.selection.includes(hitId) ? null : setStore('selection', [hitId]); // Simple single select
+                store.selection.includes(hitId) ? null : setStore('selection', [hitId]);
                 isDragging = true;
+                draggingHandle = null; // Simply moving
                 startX = x;
                 startY = y;
                 const el = store.elements.find(e => e.id === hitId);
@@ -182,6 +318,7 @@ const Canvas: Component = () => {
             return;
         }
 
+        // ... existing creation logic for text/shapes ...
         if (store.selectedTool === 'text') {
             const id = crypto.randomUUID();
             const newElement = {
@@ -189,12 +326,14 @@ const Canvas: Component = () => {
                 type: 'text' as const,
                 x,
                 y,
-                width: 100, // min width
-                height: 30, // min height
+                width: 100,
+                height: 30,
                 strokeColor: '#000000',
                 backgroundColor: 'transparent',
                 strokeWidth: 1,
-                text: ''
+                text: '',
+                rotation: 0,
+                opacity: 100
             };
             addElement(newElement);
             setEditingId(id);
@@ -218,7 +357,9 @@ const Canvas: Component = () => {
             strokeColor: '#000000',
             backgroundColor: 'transparent',
             strokeWidth: 2,
-            points: store.selectedTool === 'pencil' ? [{ x, y }] : undefined
+            points: store.selectedTool === 'pencil' ? [{ x, y }] : undefined,
+            rotation: 0,
+            opacity: 100
         };
 
         addElement(newElement);
@@ -227,13 +368,72 @@ const Canvas: Component = () => {
     const handleMouseMove = (e: MouseEvent) => {
         const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
 
+        // Update Cursor
+        if (store.selectedTool === 'selection' && !isDragging) {
+            const hit = getHandleAtPosition(x, y);
+            if (hit) {
+                if (hit.handle === 'rotate') setCursor('grab');
+                else if (hit.handle === 'tl' || hit.handle === 'br') setCursor('nwse-resize');
+                else if (hit.handle === 'tr' || hit.handle === 'bl') setCursor('nesw-resize');
+            } else {
+                setCursor('default');
+            }
+        }
+
         if (store.selectedTool === 'selection') {
             if (isDragging && store.selection.length > 0) {
-                const dx = x - startX;
-                const dy = y - startY;
-                // Move selected element
                 const id = store.selection[0];
-                updateElement(id, { x: initialElementX + dx, y: initialElementY + dy });
+                const el = store.elements.find(e => e.id === id);
+                if (!el) return;
+
+                if (draggingHandle) {
+                    // Resize/Rotate logic
+                    if (draggingHandle === 'rotate') {
+                        const cx = el.x + el.width / 2;
+                        const cy = el.y + el.height / 2;
+                        // Calculate angle
+                        const angle = Math.atan2(y - cy, x - cx);
+                        // Handle is at top (-PI/2). So we need to offset.
+                        // But we just want angle of pointer relative to center
+                        // plus 90 deg offset because pointer started at -90 deg relative to center?
+                        // Actually, just simpler: angle from center to mouse, plus 90 degrees (so when mouse is at top, angle is 0).
+                        updateElement(id, { rotation: angle + Math.PI / 2 });
+                    } else {
+                        // RESIZING
+                        const dx = x - startX;
+                        const dy = y - startY;
+
+                        let newX = initialElementX;
+                        let newY = initialElementY;
+                        let newWidth = initialElementWidth;
+                        let newHeight = initialElementHeight;
+
+                        if (draggingHandle === 'tl') {
+                            newX += dx;
+                            newY += dy;
+                            newWidth -= dx;
+                            newHeight -= dy;
+                        } else if (draggingHandle === 'tr') {
+                            newY += dy;
+                            newWidth += dx;
+                            newHeight -= dy;
+                        } else if (draggingHandle === 'bl') {
+                            newX += dx;
+                            newWidth -= dx;
+                            newHeight += dy;
+                        } else if (draggingHandle === 'br') {
+                            newWidth += dx;
+                            newHeight += dy;
+                        }
+
+                        updateElement(id, { x: newX, y: newY, width: newWidth, height: newHeight });
+                    }
+                } else {
+                    // Move
+                    const dx = x - startX;
+                    const dy = y - startY;
+                    updateElement(id, { x: initialElementX + dx, y: initialElementY + dy });
+                }
             }
             return;
         }
@@ -241,16 +441,11 @@ const Canvas: Component = () => {
         if (!isDrawing || !currentId) return;
 
         if (store.selectedTool === 'pencil') {
-            // Append point
-            // Efficiently update? store is reactive.
-            // Ideally we grab the current element but store update logic is by ID
-            // We can push to points.
             const el = store.elements.find(e => e.id === currentId);
             if (el && el.points) {
                 updateElement(currentId, { points: [...el.points, { x, y }] });
             }
         } else {
-            // Shapes
             updateElement(currentId, {
                 width: x - startX,
                 height: y - startY
@@ -261,11 +456,11 @@ const Canvas: Component = () => {
     const handleMouseUp = () => {
         if (store.selectedTool === 'selection') {
             isDragging = false;
+            draggingHandle = null;
             return;
         }
 
         if (isDrawing && currentId) {
-            // Normalize rect/circle
             const el = store.elements.find(e => e.id === currentId);
             if (el && (el.type === 'rectangle' || el.type === 'circle')) {
                 if (el.width < 0) {
@@ -315,7 +510,7 @@ const Canvas: Component = () => {
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
-                style={{ display: "block", "touch-action": "none" }}
+                style={{ display: "block", "touch-action": "none", cursor: cursor() }}
             />
             <Show when={editingId() && activeTextElement()}>
                 {(_) => {
