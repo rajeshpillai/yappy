@@ -87,3 +87,20 @@
     color: #666;
     padding: 20px;
 }
+
+.delete-file-btn {
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    padding: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-file-btn:hover {
+    color: #ef4444;
+    background: #fee2e2;
+}

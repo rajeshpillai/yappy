@@ -24,6 +24,12 @@ export class FileSystemStorage implements StorageInterface {
         if (!response.ok) return [];
         return await response.json();
     }
+
+    async deleteDrawing(id: string): Promise<void> {
+        await fetch(`${this.baseUrl}/${id}`, {
+            method: 'DELETE',
+        });
+    }
 }
 
 export const storage = new FileSystemStorage();

@@ -1,6 +1,6 @@
 import { type Component, createSignal, onMount, createEffect, For, Show } from "solid-js";
 import { storage } from "../storage/FileSystemStorage";
-import { X, FileText } from "lucide-solid";
+import { X, FileText, Trash2 } from "lucide-solid";
 import "./FileOpenDialog.css";
 
 interface FileOpenDialogProps {
@@ -22,6 +22,18 @@ const FileOpenDialog: Component<FileOpenDialogProps> = (props) => {
             console.error(e);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDelete = async (file: string, e: Event) => {
+        e.stopPropagation();
+        if (confirm(`Are you sure you want to delete "${file}"?`)) {
+            try {
+                await storage.deleteDrawing(file);
+                fetchFiles();
+            } catch (err) {
+                alert('Failed to delete file');
+            }
         }
     };
 
@@ -54,8 +66,13 @@ const FileOpenDialog: Component<FileOpenDialogProps> = (props) => {
                             <For each={files()}>
                                 {(file) => (
                                     <div class="file-item" onClick={() => props.onSelect(file)}>
-                                        <FileText size={16} />
-                                        <span>{file}</span>
+                                        <div style={{ display: 'flex', "align-items": 'center', gap: '8px', flex: 1 }}>
+                                            <FileText size={16} />
+                                            <span>{file}</span>
+                                        </div>
+                                        <button class="delete-file-btn" onClick={(e) => handleDelete(file, e)} title="Delete">
+                                            <Trash2 size={16} />
+                                        </button>
                                     </div>
                                 )}
                             </For>

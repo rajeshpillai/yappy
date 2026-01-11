@@ -49,6 +49,20 @@ app.post('/api/drawings/:id', (req, res) => {
     }
 });
 
+app.delete('/api/drawings/:id', (req, res) => {
+    const filePath = path.join(DATA_DIR, `${req.params.id}.json`);
+    try {
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ error: 'Drawing not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete drawing' });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
