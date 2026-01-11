@@ -1,4 +1,10 @@
-export type ElementType = 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | 'pencil' | 'eraser' | 'pan';
+export type ElementType = 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | 'pencil' | 'eraser' | 'pan' | 'selection';
+export type FillStyle = 'hachure' | 'solid' | 'cross-hatch';
+export type StrokeStyle = 'solid' | 'dashed' | 'dotted';
+export type FontFamily = 1 | 2 | 3; // 1: Hand-drawn, 2: Normal, 3: Code
+export type TextAlign = 'left' | 'center' | 'right';
+export type VerticalAlign = 'top' | 'middle' | 'bottom';
+export type ArrowHead = 'arrow' | 'triangle' | 'dot' | 'circle' | 'bar' | null;
 
 export interface Point {
     x: number;
@@ -12,15 +18,45 @@ export interface DrawingElement {
     y: number;
     width: number;
     height: number;
+
+    // Common Styles
     strokeColor: string;
     backgroundColor: string;
+    fillStyle: FillStyle;
     strokeWidth: number;
-    points?: Point[]; // For lines, arrows, pencil
-    text?: string;    // For text
+    strokeStyle: StrokeStyle;
+    roughness: number;
+    opacity: number; // 0-100
+    angle: number; // radians
+    seed: number;
+    roundness: null | { type: number };
+    locked: boolean;
+    link: string | null;
+
+    // Specific to Linear (Line, Arrow, Pencil)
+    points?: Point[];
+    startArrowhead?: ArrowHead;
+    endArrowhead?: ArrowHead;
+
+    // Specific to Text
+    text?: string;
+    rawText?: string;
+    fontSize?: number;
+    fontFamily?: FontFamily;
+    textAlign?: TextAlign;
+    verticalAlign?: VerticalAlign;
+    containerId?: string | null;
+
+    // Specific to Image
+    fileId?: string | null;
+    scale?: [number, number]; // [x, y]
+    crop?: { x: number; y: number; width: number; height: number } | null;
+    status?: 'pending' | 'loaded' | 'error';
+
+    // Meta
+    groupIds?: string[];
+    boundElements?: { id: string; type: 'arrow' | 'text' }[] | null;
     isSelected?: boolean;
-    rotation: number; // in radians
-    opacity: number;  // 0 to 100
-    strokeStyle?: 'solid' | 'dashed' | 'dotted';
 }
 
 export interface ViewState {

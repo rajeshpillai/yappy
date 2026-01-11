@@ -6,13 +6,31 @@ interface AppState {
     viewState: ViewState;
     selectedTool: ElementType | 'selection';
     selection: string[]; // IDs of selected elements
+    defaultElementStyles: Partial<DrawingElement>; // Styles for new elements
 }
 
 const initialState: AppState = {
     elements: [],
     viewState: { scale: 1, panX: 0, panY: 0 },
     selectedTool: 'selection',
-    selection: []
+    selection: [],
+    defaultElementStyles: {
+        strokeColor: '#000000',
+        backgroundColor: 'transparent',
+        fillStyle: 'hachure',
+        strokeWidth: 1,
+        strokeStyle: 'solid',
+        roughness: 1,
+        opacity: 100,
+        angle: 0,
+        roundness: null,
+        locked: false,
+        fontFamily: 1,
+        fontSize: 20,
+        textAlign: 'left',
+        startArrowhead: null,
+        endArrowhead: 'arrow'
+    }
 };
 
 export const [store, setStore] = createStore<AppState>(initialState);
@@ -84,6 +102,10 @@ export const setSelectedTool = (tool: ElementType | 'selection') => {
     setStore("selectedTool", tool);
 };
 
+export const updateDefaultStyles = (updates: Partial<DrawingElement>) => {
+    setStore("defaultElementStyles", (s) => ({ ...s, ...updates }));
+};
+
 // Helper to clear history (e.g. on new file)
 export const clearHistory = () => {
     undoStack.length = 0;
@@ -97,9 +119,21 @@ export const duplicateElement = (id: string) => {
     pushToHistory();
     const newId = crypto.randomUUID();
     const offset = 10 / store.viewState.scale;
-    const newElement = { ...el, id: newId, x: el.x + offset, y: el.y + offset };
 
-    // Insert after the original? Or at the end? Excalidraw puts it at top (end).
+    // Deep copy objects
+    const newElement: DrawingElement = {
+        ...el,
+        id: newId,
+        x: el.x + offset,
+        y: el.y + offset,
+        points: el.points ? el.points.map(p => ({ ...p })) : undefined,
+        roundness: el.roundness ? { ...el.roundness } : null,
+        crop: el.crop ? { ...el.crop } : null,
+        // bounds/meta might need attention too but boundElements usually reset or logic specific
+        boundElements: null, // Don't copy bindings directly for now
+        groupIds: el.groupIds ? [...el.groupIds] : undefined
+    };
+
     setStore("elements", els => [...els, newElement]);
     setStore("selection", [newId]); // Select new
 };
