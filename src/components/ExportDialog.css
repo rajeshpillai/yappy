@@ -142,5 +142,6 @@
 }
 
 .export-confirm-btn:hover {
+    background-color: var(--primary-color);
     opacity: 0.9;
 }
