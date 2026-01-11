@@ -36,6 +36,16 @@
 - **Scroll to Content** - Quick button to return to your drawing
 - **Mobile & Pen Support** - Touch and stylus input via Pointer Events API
 - **Delete** - Keyboard shortcuts (Delete/Backspace) for quick removal
+- **Layer System** - Professional layer management (like Procreate/Figma)
+  - Create, rename, duplicate, delete layers
+  - Show/hide and lock/unlock layers
+  - Drag & drop layer reordering
+  - Move elements between layers
+  - Layer-based z-ordering
+- **Grid & Snap** - Grid visualization and snapping (in progress)
+  - Canvas context menu (right-click)
+  - Toggleable grid overlay
+  - Snap to grid functionality
 
 ## Tech Stack
 
@@ -102,8 +112,7 @@ This builds the app with the correct base path and pushes to the `gh-pages` bran
 ```
 yappy/
 ├── src/
-│   ├── components/     # UI components (Canvas, Toolbar, PropertyPanel, etc.)
-│   ├── store/          # Application state management (appStore.ts)
+│   ├── components/     # UI components (Canvas, Toolbar, PropertyPanel, etc.)\n│   ├── store/          # Application state management (appStore.ts)
 │   ├── utils/          # Utility functions and helpers
 │   └── App.tsx         # Main application component
 ├── public/             # Static assets
@@ -116,6 +125,8 @@ yappy/
 - **Ctrl+Z** - Undo
 - **Ctrl+Y** / **Ctrl+Shift+Z** - Redo
 - **Delete** / **Backspace** - Delete selected element(s)
+- **Ctrl+'** - Toggle grid
+- **Ctrl+Shift+'** - Toggle snap to grid
 - **V** - Select tool
 - **H** - Pan (Hand) tool
 - **R** - Rectangle
@@ -140,9 +151,13 @@ yappy/
 - [x] Image insertion
 - [x] Mobile and pen support
 - [x] Local file save/load
+- [x] Layer system with full controls
+- [x] Grid visualization and context menu
 
 ### Planned
-- [ ] Layer system (like Procreate/Figma/Krita)
+- [ ] Snap to grid functionality
+- [ ] Layer grouping (hierarchical folders)
+- [ ] Snap to objects with visual guides
 - [ ] Viewport culling optimization
 - [ ] API-based programmatic drawing
 - [ ] Animation system

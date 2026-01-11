@@ -129,15 +129,15 @@
 - [ ] Layer thumbnails/previews (50x50px visual indicator)
 
 ## Phase 14: Snap to Grid & Guides
-- [ ] Canvas context menu (right-click/double-click)
+- [x] Canvas context menu (right-click/double-click)
   - Toggle grid visibility
   - Toggle snap to grid
-  - Toggle snap to objects
-  - Grid settings
-- [ ] Grid system
+  - Select all, Reset view
+- [x] Grid system
   - Configurable grid size (default 20px)
   - Visual grid overlay (toggleable)
   - Grid color and opacity settings
+  - Optimized rendering (only visible lines)
 - [ ] Snap to grid functionality
   - Snap while drawing new elements
   - Snap while moving elements
