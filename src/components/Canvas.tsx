@@ -471,6 +471,17 @@ const Canvas: Component = () => {
         }
 
         // ... existing creation logic for text/shapes ...
+        // Check if active layer is visible and unlocked
+        const activeLayer = store.layers.find(l => l.id === store.activeLayerId);
+        if (!activeLayer?.visible) {
+            alert('Cannot draw on a hidden layer. Please show the layer first or select a visible layer.');
+            return;
+        }
+        if (activeLayer?.locked) {
+            alert('Cannot draw on a locked layer. Please unlock the layer first or select an unlocked layer.');
+            return;
+        }
+
         if (store.selectedTool === 'text') {
             const id = crypto.randomUUID();
             const newElement = {

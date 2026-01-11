@@ -279,22 +279,44 @@ export const addLayer = (name?: string) => {
 
 export const deleteLayer = (id: string) => {
     // Cannot delete the last layer
-    if (store.layers.length <= 1) return;
+    if (store.layers.length <= 1) {
+        alert('Cannot delete the last layer.');
+        return;
+    }
 
-    // Cannot delete default layer if it has elements
     const layer = store.layers.find(l => l.id === id);
     if (!layer) return;
 
-    pushToHistory();
+    // Check if layer has elements
+    const elementsOnLayer = store.elements.filter(el => el.layerId === id);
 
-    // Move all elements from this layer to the first remaining layer
-    const remainingLayer = store.layers.find(l => l.id !== id);
-    if (remainingLayer) {
-        store.elements.forEach((el, idx) => {
-            if (el.layerId === id) {
-                setStore('elements', idx, 'layerId', remainingLayer.id);
+    if (elementsOnLayer.length > 0) {
+        // Ask user what to do with elements
+        const shouldDelete = confirm(
+            `Layer "${layer.name}" contains ${elementsOnLayer.length} element(s).\n\n` +
+            `Click "OK" to delete the layer AND all its elements.\n` +
+            `Click "Cancel" to delete the layer but move elements to another layer.`
+        );
+
+        pushToHistory();
+
+        if (shouldDelete) {
+            // Delete all elements on this layer
+            setStore('elements', store.elements.filter(el => el.layerId !== id));
+        } else {
+            // Move all elements from this layer to the first remaining layer
+            const remainingLayer = store.layers.find(l => l.id !== id);
+            if (remainingLayer) {
+                store.elements.forEach((el, idx) => {
+                    if (el.layerId === id) {
+                        setStore('elements', idx, 'layerId', remainingLayer.id);
+                    }
+                });
             }
-        });
+        }
+    } else {
+        // No elements, just delete
+        pushToHistory();
     }
 
     // Remove the layer
