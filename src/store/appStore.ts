@@ -7,6 +7,7 @@ interface AppState {
     selectedTool: ElementType | 'selection';
     selection: string[]; // IDs of selected elements
     defaultElementStyles: Partial<DrawingElement>; // Styles for new elements
+    theme: 'light' | 'dark';
 }
 
 const initialState: AppState = {
@@ -32,7 +33,8 @@ const initialState: AppState = {
         startArrowhead: null,
         endArrowhead: 'arrow',
         seed: 0
-    }
+    },
+    theme: (localStorage.getItem('theme') as 'light' | 'dark') || 'light'
 };
 
 export const [store, setStore] = createStore<AppState>(initialState);
@@ -166,3 +168,13 @@ export const moveElementZIndex = (id: string, direction: 'front' | 'back' | 'for
         return newEls;
     });
 };
+
+export const toggleTheme = () => {
+    const newTheme = store.theme === 'light' ? 'dark' : 'light';
+    setStore('theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+};
+
+// Initialize theme on load
+document.documentElement.setAttribute('data-theme', initialState.theme);

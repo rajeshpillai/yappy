@@ -1,7 +1,7 @@
 .property-panel-container {
     width: 280px;
-    background: white;
-    border-left: 1px solid #e5e7eb;
+    background: var(--bg-panel);
+    border-left: 1px solid var(--border-color);
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -15,18 +15,18 @@
 
 .property-header {
     padding: 16px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #f9fafb;
+    background: var(--bg-secondary);
 }
 
 .property-header h3 {
     margin: 0;
     font-size: 14px;
     font-weight: 600;
-    color: #111827;
+    color: var(--text-primary);
 }
 
 .header-actions {
@@ -40,15 +40,15 @@
     cursor: pointer;
     padding: 4px;
     border-radius: 4px;
-    color: #4b5563;
+    color: var(--text-secondary);
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .header-actions button:hover {
-    background: #e5e7eb;
-    color: #111827;
+    background: var(--btn-hover);
+    color: var(--text-primary);
 }
 
 .header-actions button.delete-btn:hover {
@@ -69,7 +69,7 @@
 .group-title {
     font-size: 11px;
     font-weight: 600;
-    color: #6b7280;
+    color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 12px;
@@ -84,7 +84,7 @@
 
 .control-row label {
     font-size: 13px;
-    color: #374151;
+    color: var(--text-primary);
     flex: 1;
 }
 
@@ -98,9 +98,9 @@
 
 .color-picker-container {
     padding: 8px;
-    background: #f8f9fa;
+    background: var(--bg-secondary);
     border-radius: 6px;
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--border-color);
 }
 
 .color-grid {
@@ -114,7 +114,7 @@
     width: 100%;
     aspect-ratio: 1;
     border-radius: 4px;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--border-color);
     cursor: pointer;
     position: relative;
     padding: 0;
@@ -136,9 +136,9 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    background: white;
+    background: var(--bg-panel);
     padding: 4px 8px;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
 }
 
@@ -154,7 +154,7 @@
     font-family: monospace;
     font-size: 13px;
     outline: none;
-    color: #495057;
+    color: var(--text-primary);
     width: 60px !important;
     text-transform: uppercase;
 }
@@ -224,11 +224,11 @@
 
 select {
     padding: 6px 10px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 13px;
-    color: #374151;
-    background: white;
+    color: var(--text-primary);
+    background: var(--bg-panel);
     cursor: pointer;
     min-width: 120px;
 }
@@ -241,7 +241,7 @@ select:focus {
 input[type="text"] {
     width: 100%;
     padding: 6px 10px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 13px;
 }
@@ -249,7 +249,7 @@ input[type="text"] {
 .layer-controls {
     display: flex;
     gap: 4px;
-    background: #f3f4f6;
+    background: var(--bg-secondary);
     padding: 4px;
     border-radius: 6px;
     justify-content: space-between;
@@ -260,16 +260,16 @@ input[type="text"] {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: white;
-    border: 1px solid #e5e7eb;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     padding: 6px;
     cursor: pointer;
-    color: #4b5563;
+    color: var(--text-secondary);
 }
 
 .layer-controls button:hover {
-    background: #e5e7eb;
+    background: var(--btn-hover);
 }
 
 /* Mobile Responsive Styles */
@@ -283,7 +283,7 @@ input[type="text"] {
         right: 0;
         left: 0;
         border-left: none;
-        border-top: 1px solid #e5e7eb;
+        border-top: 1px solid var(--border-color);
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
         border-radius: 12px 12px 0 0;
     }

@@ -10,27 +10,29 @@
     justify-content: center;
     padding: 8px 12px;
     border-radius: 6px;
-    border: 1px solid #e5e7eb;
-    background-color: white;
-    color: #374151;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-panel);
+    color: var(--text-primary);
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
 }
 
 .menu-btn:hover {
-    background-color: #f3f4f6;
+    background-color: var(--btn-hover);
+    border-color: var(--border-color);
 }
 
 .menu-btn.primary {
-    background-color: #4f46e5;
+    background-color: var(--primary-color);
     color: white;
-    border-color: #4f46e5;
+    border-color: var(--primary-color);
 }
 
 .menu-btn.primary:hover {
-    background-color: #4338ca;
+    filter: brightness(0.9);
 }
 
 .title-input {
@@ -39,18 +41,18 @@
     border-radius: 4px;
     font-size: 14px;
     font-weight: 500;
-    color: #374151;
+    color: var(--text-primary);
     background: transparent;
     width: 150px;
     text-align: center;
 }
 
 .title-input:hover {
-    border-color: #e5e7eb;
+    border-color: var(--border-color);
 }
 
 .title-input:focus {
-    border-color: #3b82f6;
-    background: white;
+    border-color: var(--primary-color);
+    background: var(--bg-panel);
     outline: none;
 }

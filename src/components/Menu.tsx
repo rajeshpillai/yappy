@@ -1,7 +1,7 @@
 import { type Component, createSignal, onMount } from "solid-js";
 import { storage } from "../storage/FileSystemStorage";
-import { store, setStore, undo, redo, deleteElements, clearHistory } from "../store/appStore";
-import { Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus, Undo2, Redo2, Trash2, Maximize } from "lucide-solid";
+import { store, setStore, undo, redo, deleteElements, clearHistory, toggleTheme } from "../store/appStore";
+import { Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus, Undo2, Redo2, Trash2, Maximize, Moon, Sun } from "lucide-solid";
 import FileOpenDialog from "./FileOpenDialog";
 import "./Menu.css";
 
@@ -88,18 +88,18 @@ const Menu: Component = () => {
                     <button class="menu-btn" title="Menu">
                         <MenuIcon size={20} />
                     </button>
-                    <div style={{ width: '1px', height: '24px', background: '#e5e7eb', margin: '0 4px' }}></div>
+                    <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
                     <button class="menu-btn" onClick={undo} title="Undo">
                         <Undo2 size={18} />
                     </button>
                     <button class="menu-btn" onClick={redo} title="Redo">
                         <Redo2 size={18} />
                     </button>
-                    <div style={{ width: '1px', height: '24px', background: '#e5e7eb', margin: '0 4px' }}></div>
+                    <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
                     <button class="menu-btn" onClick={() => deleteElements(store.selection)} title="Delete" disabled={store.selection.length === 0}>
                         <Trash2 size={18} />
                     </button>
-                    <div style={{ width: '1px', height: '24px', background: '#e5e7eb', margin: '0 4px' }}></div>
+                    <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
                     <button class="menu-btn" onClick={handleResetView} title="Reset View">
                         <Maximize size={18} />
                     </button>
@@ -127,6 +127,10 @@ const Menu: Component = () => {
                     </button>
                     <button class="menu-btn" onClick={handleNew} title="New">
                         <FilePlus size={18} />
+                    </button>
+                    <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
+                    <button class="menu-btn" onClick={toggleTheme} title="Toggle Theme">
+                        {store.theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                     </button>
                 </div>
             </div>

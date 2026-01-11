@@ -68,7 +68,7 @@
 
 ## Phase 9: Future Enhancements
 - [ ] Implement Export to Image (PNG/SVG) <!-- id: 29 -->
-- [ ] Implement Dark Mode support <!-- id: 30 -->
+- [/] Implement Dark Mode support <!-- id: 30 -->
 - [ ] Implement Groups (selecting multiple items) <!-- id: 31 -->
 
 ## Phase 10: Mobile & Pen Support
