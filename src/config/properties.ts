@@ -52,7 +52,7 @@ export const properties: PropertyConfig[] = [
         max: 20,
         step: 1,
         group: 'stroke',
-        applicableTo: 'all',
+        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'pencil'], // Exclude text
         defaultValue: 1
     },
     {
@@ -65,7 +65,7 @@ export const properties: PropertyConfig[] = [
             { label: 'Dashed', value: 'dashed' },
             { label: 'Dotted', value: 'dotted' }
         ],
-        applicableTo: 'all',
+        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'pencil'], // Exclude text
         defaultValue: 'solid'
     },
     {
