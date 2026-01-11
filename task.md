@@ -73,6 +73,7 @@
 - [x] Implement Delete Drawings (UI and Backend)
 - [x] Implement Zoom to Fit (Reset View)
 - [x] Implement Insert Image (PNG/JPG) <!-- id: 32 -->
+- [ ] Implement Layers like Procreate / Krita / Figma
 
 ## Phase 10: Mobile & Pen Support
 - [x] Migrate Mouse Events to Pointer Events in Canvas <!-- id: 32 -->
@@ -83,6 +84,8 @@
 - [x] Refactor Save Flow (Remove persistent input, Add Save As Dialog, Show Title) <!-- id: 35 -->
 - [x] Implement Local File Support (Save/Load JSON from Disk) <!-- id: 36 -->
 
-
+## Nice to have
+- [ ] Api based drawing (so that programatically design can be created)
+- [ ] Animation (Need to plan)
 
 
