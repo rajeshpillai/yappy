@@ -81,6 +81,7 @@
 ## Phase 11: UI Refinements
 - [x] Refactor Main Menu (Burger Menu handling Open/Save/Export) <!-- id: 34 -->
 - [x] Refactor Save Flow (Remove persistent input, Add Save As Dialog, Show Title) <!-- id: 35 -->
+- [x] Implement Local File Support (Save/Load JSON from Disk) <!-- id: 36 -->
 
 
 

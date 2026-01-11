@@ -1,7 +1,7 @@
 import { type Component, createSignal, onMount, Show, onCleanup } from "solid-js";
 import { storage } from "../storage/FileSystemStorage";
 import { store, setStore, undo, redo, deleteElements, clearHistory, toggleTheme, zoomToFit } from "../store/appStore";
-import { Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus, Undo2, Redo2, Trash2, Maximize, Moon, Sun, Image as ImageIcon } from "lucide-solid";
+import { Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus, Undo2, Redo2, Trash2, Maximize, Moon, Sun, Image as ImageIcon, Download, Upload } from "lucide-solid";
 import FileOpenDialog from "./FileOpenDialog";
 import ExportDialog from "./ExportDialog";
 import SaveDialog from "./SaveDialog";
@@ -13,6 +13,7 @@ const Menu: Component = () => {
     const [isExportOpen, setIsExportOpen] = createSignal(false);
     const [isSaveOpen, setIsSaveOpen] = createSignal(false);
     const [isMenuOpen, setIsMenuOpen] = createSignal(false);
+    let fileInputRef: HTMLInputElement | undefined;
 
     const handleSaveRequest = () => {
         setIsSaveOpen(true);
@@ -73,6 +74,55 @@ const Menu: Component = () => {
         alert(`Link copied: ${url}`);
     };
 
+    const handleDownloadJson = () => {
+        const data = JSON.stringify({
+            elements: store.elements,
+            viewState: store.viewState,
+            version: 1
+        }, null, 2);
+
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${drawingId()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setIsMenuOpen(false);
+    };
+
+    const handleOpenJson = (e: Event) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const json = JSON.parse(event.target?.result as string);
+                if (json.elements) {
+                    setStore({
+                        elements: json.elements,
+                        viewState: json.viewState || { scale: 1, panX: 0, panY: 0 }
+                    });
+                    // Set title from filename without extension
+                    const name = file.name.replace(/\.json$/i, '');
+                    setDrawingId(name);
+                } else {
+                    alert('Invalid file format');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Failed to parse JSON');
+            }
+        };
+        reader.readAsText(file);
+        setIsMenuOpen(false);
+        // Reset input
+        (e.target as HTMLInputElement).value = '';
+    };
+
     onMount(() => {
         const params = new URLSearchParams(window.location.search);
         const id = params.get('id');
@@ -104,6 +154,14 @@ const Menu: Component = () => {
             <Show when={isMenuOpen()}>
                 <div class="menu-backdrop" onClick={() => setIsMenuOpen(false)}></div>
             </Show>
+
+            <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+                accept=".json"
+                onChange={handleOpenJson}
+            />
 
             <FileOpenDialog
                 isOpen={isDialogOpen()}
@@ -142,14 +200,23 @@ const Menu: Component = () => {
                         <div class="menu-dropdown">
                             <button class="menu-item" onClick={() => { setIsDialogOpen(true); setIsMenuOpen(false); }}>
                                 <FolderOpen size={16} />
-                                <span class="label">Open</span>
+                                <span class="label">Open Saved...</span>
                                 <span class="shortcut">Ctrl+O</span>
+                            </button>
+                            <button class="menu-item" onClick={() => { fileInputRef?.click(); setIsMenuOpen(false); }}>
+                                <Upload size={16} />
+                                <span class="label">Open from Disk...</span>
                             </button>
                             <button class="menu-item" onClick={handleSaveRequest}>
                                 <Save size={16} />
-                                <span class="label">Save to...</span>
+                                <span class="label">Save to Browser...</span>
                                 <span class="shortcut">Ctrl+S</span>
                             </button>
+                            <button class="menu-item" onClick={handleDownloadJson}>
+                                <Download size={16} />
+                                <span class="label">Download JSON</span>
+                            </button>
+                            <div class="menu-separator"></div>
                             <button class="menu-item" onClick={() => { setIsExportOpen(true); setIsMenuOpen(false); }}>
                                 <ImageIcon size={16} />
                                 <span class="label">Export image...</span>
