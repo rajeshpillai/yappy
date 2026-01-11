@@ -1,5 +1,5 @@
 import { createStore } from "solid-js/store";
-import type { DrawingElement, ViewState, ElementType, Layer } from "../types";
+import type { DrawingElement, ViewState, ElementType, Layer, GridSettings } from "../types";
 
 interface AppState {
     elements: DrawingElement[];
@@ -10,6 +10,7 @@ interface AppState {
     theme: 'light' | 'dark';
     layers: Layer[];
     activeLayerId: string;
+    gridSettings: GridSettings;
 }
 
 const initialState: AppState = {
@@ -46,7 +47,14 @@ const initialState: AppState = {
             order: 0
         }
     ],
-    activeLayerId: 'default-layer'
+    activeLayerId: 'default-layer',
+    gridSettings: {
+        enabled: false,
+        snapToGrid: false,
+        gridSize: 20,
+        gridColor: '#e0e0e0',
+        gridOpacity: 0.5
+    }
 };
 
 export const [store, setStore] = createStore<AppState>(initialState);
@@ -411,6 +419,19 @@ export const moveElementsToLayer = (elementIds: string[], targetLayerId: string)
             setStore('elements', idx, 'layerId', targetLayerId);
         }
     });
+};
+
+//Grid Control Functions
+export const toggleGrid = () => {
+    setStore('gridSettings', 'enabled', !store.gridSettings.enabled);
+};
+
+export const toggleSnapToGrid = () => {
+    setStore('gridSettings', 'snapToGrid', !store.gridSettings.snapToGrid);
+};
+
+export const updateGridSettings = (updates: Partial<GridSettings>) => {
+    setStore('gridSettings', updates as any);
 };
 
 // Initialize theme on load

@@ -68,7 +68,15 @@ export interface Layer {
     name: string;
     visible: boolean;
     locked: boolean;
-    order: number; // Lower numbers render first (background)
+    order: number;      // Z-index for layer ordering (lower = background)
+}
+
+export interface GridSettings {
+    enabled: boolean;       // Show grid
+    snapToGrid: boolean;    // Snap to grid
+    gridSize: number;       // Grid spacing in pixels (default 20)
+    gridColor: string;      // Grid line color
+    gridOpacity: number;    // Grid opacity (0-1)
 }
 
 export interface ViewState {

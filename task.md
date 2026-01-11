@@ -115,8 +115,53 @@
 - [ ] File format migration for grouped layers
 - [ ] Group icon differentiation in UI (📁 vs layer)
 
+## Phase 12.5: Layer Enhancements (Quick Wins)
+- [ ] Multi-select layer movement (move multiple elements to layer at once)
+- [ ] Layer keyboard shortcuts (Ctrl+]/[, Alt+1-9, Ctrl+Shift+N)
+- [ ] Layer context menu (right-click on layer item)
+  - Rename, Duplicate, Delete, Merge Down, Flatten
+- [ ] Layer opacity control (affects all elements multiplicatively)
+- [ ] Smart layer operations
+  - Merge down (combine with layer below)
+  - Flatten all (merge all visible layers)
+  - Layer from selection (create layer from selected elements)
+  - Isolate layer (hide all other layers)
+- [ ] Layer thumbnails/previews (50x50px visual indicator)
+
+## Phase 14: Snap to Grid & Guides
+- [ ] Canvas context menu (right-click/double-click)
+  - Toggle grid visibility
+  - Toggle snap to grid
+  - Toggle snap to objects
+  - Grid settings
+- [ ] Grid system
+  - Configurable grid size (default 20px)
+  - Visual grid overlay (toggleable)
+  - Grid color and opacity settings
+- [ ] Snap to grid functionality
+  - Snap while drawing new elements
+  - Snap while moving elements
+  - Snap while resizing elements
+  - Configurable snap threshold
+- [ ] Snap to objects
+  - Snap to edges of other elements
+  - Snap to centers of other elements
+  - Visual snap guides (dashed lines)
+  - Smart distance indicators
+- [ ] Rulers (optional)
+  - Horizontal and vertical rulers
+  - Show coordinates on hover
+  - Ruler units (px, cm, in)
+- [ ] Guides (optional)
+  - Drag from rulers to create guides
+  - Snap to guides
+  - Lock/unlock guides
+  - Guide color customization
+
 ## Nice to have
 - [ ] Api based drawing (so that programatically design can be created)
 - [ ] Animation (Need to plan)
+- [ ] Layer blend modes (multiply, screen, overlay, etc.)
+- [ ] Layer effects/filters (blur, brightness, saturation)
 
 
