@@ -499,6 +499,28 @@
       ],
       "rotation": 0,
       "opacity": 100
+    },
+    {
+      "id": "e09624b4-e0bd-4e87-a2a3-10686be0280a",
+      "type": "text",
+      "x": 293,
+      "y": 373,
+      "width": 393.50390625,
+      "height": 36,
+      "strokeColor": "#000000",
+      "backgroundColor": "transparent",
+      "strokeWidth": 1,
+      "text": "Yappy Drawing Tool, It is",
+      "fontSize": 36,
+      "angle": 0,
+      "opacity": 100,
+      "fillStyle": "hachure",
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "seed": 2131203264,
+      "roundness": null,
+      "locked": false,
+      "link": null
     }
   ],
   "viewState": {

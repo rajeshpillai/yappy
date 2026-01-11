@@ -25,6 +25,7 @@ const Canvas: Component = () => {
     let initialElementHeight = 0;
 
     let initialElementPoints: { x: number; y: number }[] | undefined;
+    let initialElementFontSize = 20;
 
     const handleResize = () => {
         if (canvasRef) {
@@ -162,10 +163,12 @@ const Canvas: Component = () => {
                     ctx.stroke();
                 }
             } else if (el.type === 'text' && el.text) {
-                const fontSize = 20;
-                ctx.font = `${fontSize}px sans-serif`;
-                ctx.fillStyle = el.strokeColor;
-                ctx.fillText(el.text, el.x, el.y + fontSize);
+                if (editingId() !== el.id) {
+                    const fontSize = el.fontSize || 20;
+                    ctx.font = `${fontSize}px sans-serif`;
+                    ctx.fillStyle = el.strokeColor;
+                    ctx.fillText(el.text, el.x, el.y + fontSize);
+                }
             }
 
             ctx.restore();
@@ -430,7 +433,9 @@ const Canvas: Component = () => {
                     initialElementY = el.y;
                     initialElementWidth = el.width;
                     initialElementHeight = el.height;
+                    initialElementHeight = el.height;
                     initialElementPoints = el.points ? [...el.points] : undefined;
+                    initialElementFontSize = el.fontSize || 20;
                     startX = x;
                     startY = y;
                 }
@@ -481,6 +486,7 @@ const Canvas: Component = () => {
                 backgroundColor: 'transparent',
                 strokeWidth: 1,
                 text: '',
+                fontSize: 20,
                 angle: 0,
                 opacity: 100,
                 fillStyle: 'hachure' as 'hachure' | 'solid' | 'cross-hatch',
@@ -621,20 +627,48 @@ const Canvas: Component = () => {
 
                         const updates: any = { x: newX, y: newY, width: newWidth, height: newHeight };
 
+
+
                         // Scale points for pencil
                         if (el.type === 'pencil' && initialElementPoints) {
                             const scaleX = newWidth / initialElementWidth;
                             const scaleY = newHeight / initialElementHeight;
-
-                            // Protect against zero division? 
-                            // If initialWidth is 0, scale is undefined. But normalized pencil shouldn't be 0 width.
-                            // However, if we resize TO 0, scale is 0. Points become 0. That's fine.
 
                             const newPoints = initialElementPoints.map(p => ({
                                 x: p.x * (initialElementWidth === 0 ? 1 : scaleX),
                                 y: p.y * (initialElementHeight === 0 ? 1 : scaleY)
                             }));
                             updates.points = newPoints;
+                        }
+
+                        // Scale font size for text
+                        if (el.type === 'text') {
+                            // Lock aspect ratio for text? Usually yes.
+                            // We use height growth to determine scale (standard for text)
+                            const scale = newHeight / initialElementHeight;
+                            // Ensure valid scale
+                            if (scale > 0) {
+                                let newFontSize = initialElementFontSize * scale;
+                                newFontSize = Math.max(newFontSize, 8); // Minimum 8px
+                                updates.fontSize = newFontSize;
+
+                                // Adjust width to match aspect ratio of the text box
+                                // newWidth = initialWidth * scale
+                                updates.width = initialElementWidth * scale;
+
+                                // If dragging a corner, we might have set newX/newY loosely. 
+                                // For aspect lock, we usually just honor the height change and fix width.
+                                // But if user dragged width-wise?
+
+                                // Better approach for Text: Always Maintain Aspect Ratio.
+                                // Use the maximum scale change?
+                                // const scaleX = newWidth / initialElementWidth;
+                                // const scaleY = newHeight / initialElementHeight;
+                                // const maxScale = Math.max(Math.abs(scaleX), Math.abs(scaleY)); 
+
+                                // Simple approach: Just trust height change (vertical resize guides text usually).
+                                // And force width.
+                            }
                         }
 
                         updateElement(id, updates);
@@ -761,7 +795,24 @@ const Canvas: Component = () => {
         if (id) {
             const text = editText().trim();
             if (text) {
-                updateElement(id, { text: editText() }, true);
+                const el = store.elements.find(e => e.id === id);
+                let width = 0;
+                let height = 0;
+                if (canvasRef && el) {
+                    const ctx = canvasRef.getContext("2d");
+                    if (ctx) {
+                        const fontSize = el.fontSize || 20;
+                        ctx.font = `${fontSize}px sans-serif`;
+                        const metrics = ctx.measureText(text);
+                        width = metrics.width;
+                        height = fontSize; // Approximate height as font size is standard for single line
+                    }
+                }
+                // Fallback or min dimensions
+                width = Math.max(width, 10);
+                height = Math.max(height, 10);
+
+                updateElement(id, { text: editText(), width, height }, true);
             } else {
                 deleteElements([id]);
             }
