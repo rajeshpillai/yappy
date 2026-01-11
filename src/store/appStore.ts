@@ -336,6 +336,47 @@ export const updateLayer = (id: string, updates: Partial<Layer>) => {
     setStore('layers', idx, updates);
 };
 
+export const duplicateLayer = (id: string) => {
+    const layer = store.layers.find(l => l.id === id);
+    if (!layer) return;
+
+    pushToHistory();
+
+    // Create new layer with incremented name
+    const newLayerId = crypto.randomUUID();
+    const newLayer: Layer = {
+        ...layer,
+        id: newLayerId,
+        name: `${layer.name} Copy`,
+        order: layer.order + 0.5 // Place right above original
+    };
+
+    // Duplicate all elements on this layer
+    const elementsOnLayer = store.elements.filter(el => el.layerId === id);
+    const duplicatedElements = elementsOnLayer.map(el => ({
+        ...el,
+        id: crypto.randomUUID(),
+        layerId: newLayerId,
+        // Offset duplicated elements slightly so they're visible
+        x: el.x + 10,
+        y: el.y + 10
+    }));
+
+    // Add new layer and elements
+    setStore('layers', [...store.layers, newLayer]);
+    setStore('elements', [...store.elements, ...duplicatedElements]);
+
+    // Recalculate layer orders
+    const sortedLayers = [...store.layers].sort((a, b) => a.order - b.order);
+    sortedLayers.forEach((l, idx) => {
+        const layerIdx = store.layers.findIndex(layer => layer.id === l.id);
+        setStore('layers', layerIdx, 'order', idx);
+    });
+
+    // Set the duplicated layer as active
+    setStore('activeLayerId', newLayerId);
+};
+
 export const reorderLayers = (fromIndex: number, toIndex: number) => {
     if (fromIndex === toIndex) return;
     pushToHistory();

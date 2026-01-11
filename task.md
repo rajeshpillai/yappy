@@ -100,8 +100,8 @@
 - [x] Layer name editing (double-click and long-press for mobile)
 - [ ] Drag & drop layer reordering
 - [ ] Layer context menu (right-click)
-- [ ] Duplicate layer function
-- [ ] Move elements between layers UI (in PropertyPanel)
+- [x] Duplicate layer function
+- [x] Move elements between layers UI (in PropertyPanel)
 
 ## Phase 13: Layer Grouping (Future)
 - [ ] Update Layer type to support hierarchy (parentId, isGroup, expanded)

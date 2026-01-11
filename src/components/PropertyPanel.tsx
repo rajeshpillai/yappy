@@ -229,6 +229,34 @@ const PropertyPanel: Component = () => {
                     <Show when={activeTarget()?.type === 'element'}>
                         <div class="property-group">
                             <div class="group-title">LAYERS</div>
+
+                            {/* Layer Selection Dropdown */}
+                            <div class="control-row">
+                                <label>Layer</label>
+                                <select
+                                    value={(activeTarget()!.data as any).layerId}
+                                    onChange={(e) => {
+                                        const targetLayerId = e.currentTarget.value;
+                                        const elementId = (activeTarget()!.data as any).id;
+                                        updateElement(elementId, { layerId: targetLayerId }, true);
+                                    }}
+                                >
+                                    <For each={store.layers}>
+                                        {(layer) => (
+                                            <option value={layer.id}>
+                                                {layer.name}
+                                                {!layer.visible ? ' (hidden)' : ''}
+                                                {layer.locked ? ' (locked)' : ''}
+                                            </option>
+                                        )}
+                                    </For>
+                                </select>
+                            </div>
+
+                            {/* Z-Index Controls */}
+                            <div class="control-row">
+                                <label>Z-Order</label>
+                            </div>
                             <div class="layer-controls">
                                 <button onClick={() => moveElementZIndex((activeTarget()!.data as any).id, 'front')} title="To Front"><ChevronsUp size={16} /></button>
                                 <button onClick={() => moveElementZIndex((activeTarget()!.data as any).id, 'forward')} title="Forward"><ChevronUp size={16} /></button>

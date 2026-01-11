@@ -1,5 +1,5 @@
 import { type Component, For, createSignal } from 'solid-js';
-import { store, addLayer, setActiveLayer, updateLayer, deleteLayer } from '../store/appStore';
+import { store, addLayer, setActiveLayer, updateLayer, deleteLayer, duplicateLayer } from '../store/appStore';
 import './LayerPanel.css';
 
 const LayerPanel: Component = () => {
@@ -36,6 +36,11 @@ const LayerPanel: Component = () => {
         if (store.layers.length > 1) {
             deleteLayer(id);
         }
+    };
+
+    const handleDuplicateLayer = (id: string, e: MouseEvent) => {
+        e.stopPropagation();
+        duplicateLayer(id);
     };
 
     // Start editing layer name
@@ -147,6 +152,13 @@ const LayerPanel: Component = () => {
                                 </span>
                             )}
 
+                            <button
+                                class="layer-duplicate-btn"
+                                onClick={(e) => handleDuplicateLayer(layer.id, e)}
+                                title="Duplicate layer"
+                            >
+                                ⎘
+                            </button>
                             <button
                                 class="layer-delete-btn"
                                 onClick={(e) => handleDeleteLayer(layer.id, e)}
