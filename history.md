@@ -32,6 +32,7 @@ This document tracks the complete evolution of the **Yappy** project. It include
         *   Added `strokeStyle` (solid/dashed/dotted) support.
         *   Added **Duplicate** icon/action.
         *   Implemented **Layers** (Bring to Front, Send to Back, etc.) with Z-index manipulation in `appStore`.
+    *   **Fixes:** Resolved missing icons issue by correcting imports and type definitions; fixed `size` prop type error in Toolbar.
 
 ## Phase 2: UI & Interaction
 **Goal:** Excalidraw-like feel.

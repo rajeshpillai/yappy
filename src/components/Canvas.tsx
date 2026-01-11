@@ -525,7 +525,7 @@ const Canvas: Component = () => {
             points: store.selectedTool === 'pencil' ? [{ x: 0, y: 0 }] : undefined,
             rotation: 0,
             opacity: 100,
-            strokeStyle: 'solid'
+            strokeStyle: 'solid' as 'solid' | 'dashed' | 'dotted'
         };
 
         addElement(newElement);

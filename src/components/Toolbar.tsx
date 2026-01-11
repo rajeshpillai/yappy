@@ -4,7 +4,7 @@ import type { ElementType } from "../types";
 import { MousePointer2, Square, Circle, Minus, Type, Pencil, MoveUpRight, Eraser, Hand } from "lucide-solid";
 import "./Toolbar.css";
 
-const tools: { type: ElementType | 'selection'; icon: Component; label: string }[] = [
+const tools: { type: ElementType | 'selection'; icon: Component<{ size?: number; color?: string }>; label: string }[] = [
     { type: 'pan', icon: Hand, label: 'Pan Tool' },
     { type: 'selection', icon: MousePointer2, label: 'Selection' },
     { type: 'rectangle', icon: Square, label: 'Rectangle' },

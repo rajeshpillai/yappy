@@ -1,6 +1,6 @@
 import { type Component, Show, createMemo, createSignal } from "solid-js";
 import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex } from "../store/appStore";
-import { SlidersHorizontal, Trash2, Layers, Copy, ChevronsDown, ChevronDown, ChevronUp, ChevronsUp } from "lucide-solid";
+import { SlidersHorizontal, Layers, Copy, ChevronsDown, ChevronDown, ChevronUp, ChevronsUp, Trash2 } from "lucide-solid";
 import "./PropertyPanel.css";
 
 const PropertyPanel: Component = () => {

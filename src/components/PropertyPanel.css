@@ -30,6 +30,14 @@
     transition: all 0.2s;
 }
 
+.sidebar-btn svg {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    flex-shrink: 0;
+    color: #495057;
+}
+
 .sidebar-btn:hover {
     background: #f1f3f5;
 }
