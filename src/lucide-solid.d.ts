@@ -25,4 +25,9 @@ declare module 'lucide-solid' {
     export const SlidersHorizontal: Component<{ size?: number; color?: string; strokeWidth?: number }>;
     export const Layers: Component<{ size?: number; color?: string; strokeWidth?: number }>;
     export const Palette: Component<{ size?: number; color?: string; strokeWidth?: number }>;
+    export const Copy: Component<{ size?: number; color?: string; strokeWidth?: number }>;
+    export const ChevronUp: Component<{ size?: number; color?: string; strokeWidth?: number }>;
+    export const ChevronDown: Component<{ size?: number; color?: string; strokeWidth?: number }>;
+    export const ChevronsUp: Component<{ size?: number; color?: string; strokeWidth?: number }>;
+    export const ChevronsDown: Component<{ size?: number; color?: string; strokeWidth?: number }>;
 }

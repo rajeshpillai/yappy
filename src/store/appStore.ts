@@ -89,3 +89,43 @@ export const clearHistory = () => {
     undoStack.length = 0;
     redoStack.length = 0;
 };
+
+export const duplicateElement = (id: string) => {
+    const el = store.elements.find(e => e.id === id);
+    if (!el) return;
+
+    pushToHistory();
+    const newId = crypto.randomUUID();
+    const offset = 10 / store.viewState.scale;
+    const newElement = { ...el, id: newId, x: el.x + offset, y: el.y + offset };
+
+    // Insert after the original? Or at the end? Excalidraw puts it at top (end).
+    setStore("elements", els => [...els, newElement]);
+    setStore("selection", [newId]); // Select new
+};
+
+export const moveElementZIndex = (id: string, direction: 'front' | 'back' | 'forward' | 'backward') => {
+    const idx = store.elements.findIndex(e => e.id === id);
+    if (idx === -1) return;
+
+    pushToHistory();
+
+    setStore("elements", els => {
+        const newEls = [...els];
+        const el = newEls.splice(idx, 1)[0];
+
+        if (direction === 'front') {
+            newEls.push(el);
+        } else if (direction === 'back') {
+            newEls.unshift(el);
+        } else if (direction === 'forward') {
+            const newIdx = Math.min(newEls.length, idx + 1);
+            newEls.splice(newIdx, 0, el);
+        } else if (direction === 'backward') {
+            const newIdx = Math.max(0, idx - 1);
+            newEls.splice(newIdx, 0, el);
+        }
+
+        return newEls;
+    });
+};

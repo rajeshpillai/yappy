@@ -1,6 +1,6 @@
 import { type Component, Show, createMemo, createSignal } from "solid-js";
-import { store, updateElement, deleteElements } from "../store/appStore";
-import { SlidersHorizontal, Trash2, Layers, Palette } from "lucide-solid";
+import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex } from "../store/appStore";
+import { SlidersHorizontal, Trash2, Layers, Copy, ChevronsDown, ChevronDown, ChevronUp, ChevronsUp } from "lucide-solid";
 import "./PropertyPanel.css";
 
 const PropertyPanel: Component = () => {
@@ -11,9 +11,9 @@ const PropertyPanel: Component = () => {
         return null;
     });
 
-    const [activePopover, setActivePopover] = createSignal<'stroke' | 'background' | 'properties' | null>(null);
+    const [activePopover, setActivePopover] = createSignal<'stroke' | 'background' | 'properties' | 'layers' | null>(null);
 
-    const togglePopover = (type: 'stroke' | 'background' | 'properties') => {
+    const togglePopover = (type: 'stroke' | 'background' | 'properties' | 'layers') => {
         if (activePopover() === type) {
             setActivePopover(null);
         } else {
@@ -76,8 +76,17 @@ const PropertyPanel: Component = () => {
 
                             <div class="separator"></div>
 
-                            {/* Layers (Placeholder) */}
-                            <button class="sidebar-btn" title="Layers (Coming Soon)">
+                            {/* Duplicate */}
+                            <button class="sidebar-btn" onClick={() => duplicateElement(el.id)} title="Duplicate">
+                                <Copy size={20} />
+                            </button>
+
+                            {/* Layers */}
+                            <button
+                                class={`sidebar-btn ${activePopover() === 'layers' ? 'active' : ''}`}
+                                onClick={() => togglePopover('layers')}
+                                title="Layers"
+                            >
                                 <Layers size={20} />
                             </button>
 
@@ -172,6 +181,26 @@ const PropertyPanel: Component = () => {
                                             value={el.opacity}
                                             onInput={(e) => handleChange('opacity', parseInt(e.currentTarget.value))}
                                         />
+                                    </div>
+                                </Show>
+
+                                <Show when={activePopover() === 'layers'}>
+                                    <div class="panel-section">
+                                        <label>Layers</label>
+                                        <div class="flex-row">
+                                            <button class="prop-btn" onClick={() => moveElementZIndex(el.id, 'front')} title="Bring to Front">
+                                                <ChevronsUp size={20} />
+                                            </button>
+                                            <button class="prop-btn" onClick={() => moveElementZIndex(el.id, 'forward')} title="Bring Forward">
+                                                <ChevronUp size={20} />
+                                            </button>
+                                            <button class="prop-btn" onClick={() => moveElementZIndex(el.id, 'backward')} title="Send Backward">
+                                                <ChevronDown size={20} />
+                                            </button>
+                                            <button class="prop-btn" onClick={() => moveElementZIndex(el.id, 'back')} title="Send to Back">
+                                                <ChevronsDown size={20} />
+                                            </button>
+                                        </div>
                                     </div>
                                 </Show>
                             </div>

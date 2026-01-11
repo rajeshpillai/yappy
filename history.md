@@ -28,7 +28,10 @@ This document tracks the complete evolution of the **Yappy** project. It include
     *   **Component:** Rewrote `PropertyPanel.tsx`.
     *   **UI:** Vertical icon strip for Stroke, Background, Properties, Layers, Delete.
     *   **Popovers:** Implemented flyout panels for color grids and style options.
-    *   **Features:** Added `strokeStyle` (solid/dashed/dotted) support to `DrawingElement` and `Canvas.tsx`.
+    *   **Features:**
+        *   Added `strokeStyle` (solid/dashed/dotted) support.
+        *   Added **Duplicate** icon/action.
+        *   Implemented **Layers** (Bring to Front, Send to Back, etc.) with Z-index manipulation in `appStore`.
 
 ## Phase 2: UI & Interaction
 **Goal:** Excalidraw-like feel.
