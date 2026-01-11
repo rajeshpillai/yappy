@@ -116,6 +116,7 @@
 - [ ] Group icon differentiation in UI (📁 vs layer)
 
 ## Phase 12.5: Layer Enhancements (Quick Wins)
+- [x] Auto-activate layer on selection (switches active layer to selected element's layer)
 - [ ] Multi-select layer movement (move multiple elements to layer at once)
 - [ ] Layer keyboard shortcuts (Ctrl+]/[, Alt+1-9, Ctrl+Shift+N)
 - [ ] Layer context menu (right-click on layer item)

@@ -1,6 +1,6 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show } from "solid-js";
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
-import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid } from "../store/appStore";
+import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer } from "../store/appStore";
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse } from "../utils/geometry";
 import type { DrawingElement } from "../types";
 import { renderElement } from "../utils/renderElement";
@@ -9,6 +9,31 @@ import { snapPoint } from "../utils/snapHelpers";
 
 
 const Canvas: Component = () => {
+
+    // Auto-switch Active Layer based on Selection
+    createEffect(() => {
+        const selection = store.selection;
+        if (selection.length > 0) {
+            // Find element with highest layer order
+            let topLayerId: string | null = null;
+            let maxOrder = -Infinity;
+
+            selection.forEach(id => {
+                const el = store.elements.find(e => e.id === id);
+                if (el) {
+                    const layer = store.layers.find(l => l.id === el.layerId);
+                    if (layer && layer.order > maxOrder) {
+                        maxOrder = layer.order;
+                        topLayerId = layer.id;
+                    }
+                }
+            });
+
+            if (topLayerId && topLayerId !== store.activeLayerId) {
+                setActiveLayer(topLayerId);
+            }
+        }
+    });
 
     let canvasRef: HTMLCanvasElement | undefined;
     let isDrawing = false;
