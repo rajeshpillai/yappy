@@ -4,7 +4,7 @@ import { store, setViewState, addElement, updateElement, setStore, pushToHistory
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse } from "../utils/geometry";
 import type { DrawingElement } from "../types";
 import { renderElement } from "../utils/renderElement";
-import ContextMenu, { type MenuItem } from "./ContextMenu";
+import ContextMenu from "./ContextMenu";
 import { snapPoint } from "../utils/snapHelpers";
 
 

@@ -75,7 +75,8 @@ const Toolbar: Component = () => {
                         locked: false,
                         link: null,
                         dataURL: dataURL,
-                        mimeType: file.type
+                        mimeType: file.type,
+                        layerId: store.activeLayerId
                     });
                 };
             }
