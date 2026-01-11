@@ -74,7 +74,7 @@ const Menu: Component = () => {
         alert(`Link copied: ${url}`);
     };
 
-    const handleDownloadJson = () => {
+    const handleDownloadJson = async () => {
         const data = JSON.stringify({
             elements: store.elements,
             viewState: store.viewState,
@@ -82,10 +82,32 @@ const Menu: Component = () => {
         }, null, 2);
 
         const blob = new Blob([data], { type: 'application/json' });
+        const fileName = `${drawingId()}.json`;
+        const file = new File([blob], fileName, { type: 'application/json' });
+
+        // Try using Web Share API first (great for mobile)
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+                await navigator.share({
+                    files: [file],
+                    title: 'Yappy Drawing',
+                    text: 'Save your drawing JSON'
+                });
+                setIsMenuOpen(false);
+                return;
+            } catch (err) {
+                if ((err as Error).name !== 'AbortError') {
+                    console.error('Share failed:', err);
+                }
+                // If share fails (or is aborted), fall back to download
+            }
+        }
+
+        // Fallback to standard download
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${drawingId()}.json`;
+        a.download = fileName;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
