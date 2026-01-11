@@ -42,6 +42,7 @@
   - Drag & drop layer reordering
   - Move elements between layers
   - Layer-based z-ordering
+  - Auto-switch active layer on selection
 - **Grid & Snap** - Grid visualization and snapping (in progress)
   - Canvas context menu (right-click)
   - Toggleable grid overlay
@@ -153,9 +154,9 @@ yappy/
 - [x] Local file save/load
 - [x] Layer system with full controls
 - [x] Grid visualization and context menu
+- [x] Snap to grid functionality
 
 ### Planned
-- [ ] Snap to grid functionality
 - [ ] Layer grouping (hierarchical folders)
 - [ ] Snap to objects with visual guides
 - [ ] Viewport culling optimization
