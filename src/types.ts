@@ -1,4 +1,4 @@
-export type ElementType = 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | 'pencil' | 'eraser' | 'pan' | 'selection';
+export type ElementType = 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | 'pencil' | 'eraser' | 'pan' | 'selection' | 'image';
 export type FillStyle = 'hachure' | 'solid' | 'cross-hatch';
 export type StrokeStyle = 'solid' | 'dashed' | 'dotted';
 export type FontFamily = 1 | 2 | 3; // 1: Hand-drawn, 2: Normal, 3: Code
@@ -53,6 +53,8 @@ export interface DrawingElement {
     scale?: [number, number]; // [x, y]
     crop?: { x: number; y: number; width: number; height: number } | null;
     status?: 'pending' | 'loaded' | 'error';
+    dataURL?: string;
+    mimeType?: string;
 
     // Meta
     groupIds?: string[];

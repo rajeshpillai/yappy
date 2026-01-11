@@ -72,6 +72,7 @@
 - [x] Implement Groups (selecting multiple items) <!-- id: 31 -->
 - [x] Implement Delete Drawings (UI and Backend)
 - [x] Implement Zoom to Fit (Reset View)
+- [x] Implement Insert Image (PNG/JPG) <!-- id: 32 -->
 
 ## Phase 10: Mobile & Pen Support
 - [x] Migrate Mouse Events to Pointer Events in Canvas <!-- id: 32 -->

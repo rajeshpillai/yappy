@@ -135,6 +135,14 @@ export const exportToSvg = () => {
             textText.setAttribute('font-family', 'sans-serif');
             textText.setAttribute('font-size', `${el.fontSize || 20}px`);
             node = textText;
+        } else if (el.type === 'image' && el.dataURL) {
+            const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+            image.setAttribute('href', el.dataURL);
+            image.setAttribute('x', `${el.x}`);
+            image.setAttribute('y', `${el.y}`);
+            image.setAttribute('width', `${el.width}`);
+            image.setAttribute('height', `${el.height}`);
+            node = image;
         }
 
         if (node) {

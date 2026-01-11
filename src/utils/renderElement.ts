@@ -1,5 +1,6 @@
 import type { DrawingElement } from "../types";
 import type { RoughCanvas } from "roughjs/bin/canvas";
+import { getImage } from "./imageCache";
 
 export const renderElement = (
     rc: RoughCanvas,
@@ -53,6 +54,20 @@ export const renderElement = (
     } else if (el.type === 'pencil' && el.points && el.points.length > 0) {
         const points: [number, number][] = el.points.map(p => [el.x + p.x, el.y + p.y]);
         rc.linearPath(points, options);
+    } else if (el.type === 'image' && el.dataURL) {
+        const img = getImage(el.dataURL);
+        if (img) {
+            ctx.drawImage(img, el.x, el.y, el.width, el.height);
+        } else {
+            // Placeholder while loading?
+            ctx.save();
+            ctx.fillStyle = "#e5e5e5";
+            ctx.fillRect(el.x, el.y, el.width, el.height);
+            ctx.fillStyle = "#999";
+            ctx.font = "12px sans-serif";
+            ctx.fillText("Loading image...", el.x + 10, el.y + 20);
+            ctx.restore();
+        }
     } else if (el.type === 'text' && el.text) {
         // We do NOT check editingId here. Callsite should handle exclusion if needed.
         // Actually, for export we want to render text always.
