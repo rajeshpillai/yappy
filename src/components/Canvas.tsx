@@ -1,4 +1,5 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show } from "solid-js";
+import rough from 'roughjs/bin/rough'; // Hand-drawn style
 import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements } from "../store/appStore";
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse } from "../utils/geometry";
 import type { DrawingElement } from "../types";
@@ -73,96 +74,64 @@ const Canvas: Component = () => {
                 ctx.translate(-cx, -cy);
             }
 
-            ctx.strokeStyle = el.strokeColor;
-            ctx.lineWidth = el.strokeWidth;
-            ctx.fillStyle = el.backgroundColor;
+            // RoughJS Options
+            const options: any = {
+                seed: el.seed,
+                roughness: el.roughness,
+                stroke: el.strokeColor,
+                strokeWidth: el.strokeWidth,
+                fill: el.backgroundColor === 'transparent' ? undefined : el.backgroundColor,
+                fillStyle: el.fillStyle,
+                strokeLineDash: el.strokeStyle === 'dashed' ? [10, 10] : (el.strokeStyle === 'dotted' ? [5, 10] : undefined),
+            };
 
-            // Stroke Style
-            if (el.strokeStyle === 'dashed') {
-                ctx.setLineDash([10, 10]);
-            } else if (el.strokeStyle === 'dotted') {
-                ctx.setLineDash([5, 10]);
-            } else {
-                ctx.setLineDash([]);
-            }
+            const rc = rough.canvas(canvasRef);
 
-            ctx.beginPath();
             if (el.type === 'rectangle') {
-                ctx.rect(el.x, el.y, el.width, el.height);
-                ctx.fill();
-                ctx.stroke();
+                rc.rectangle(el.x, el.y, el.width, el.height, options);
             } else if (el.type === 'circle') {
-                ctx.ellipse(el.x + el.width / 2, el.y + el.height / 2, Math.abs(el.width / 2), Math.abs(el.height / 2), 0, 0, 2 * Math.PI);
-                ctx.fill();
-                ctx.stroke();
+                rc.ellipse(el.x + el.width / 2, el.y + el.height / 2, Math.abs(el.width), Math.abs(el.height), options);
             } else if (el.type === 'line' || el.type === 'arrow') {
-                ctx.moveTo(el.x, el.y);
                 const endX = el.x + el.width;
                 const endY = el.y + el.height;
-                ctx.lineTo(endX, endY);
-                ctx.stroke();
+
+                rc.line(el.x, el.y, endX, endY, options);
 
                 if (el.type === 'arrow') {
                     const angle = Math.atan2(el.height, el.width);
                     const headLen = 15;
-                    ctx.beginPath();
-                    ctx.moveTo(endX, endY);
-                    ctx.lineTo(endX - headLen * Math.cos(angle - Math.PI / 6), endY - headLen * Math.sin(angle - Math.PI / 6));
-                    ctx.moveTo(endX, endY);
-                    ctx.lineTo(endX - headLen * Math.cos(angle + Math.PI / 6), endY - headLen * Math.sin(angle + Math.PI / 6));
-                    ctx.stroke();
+                    // Draw arrow head as line or polygon?
+                    // Linear path for head
+                    const p1 = { x: endX - headLen * Math.cos(angle - Math.PI / 6), y: endY - headLen * Math.sin(angle - Math.PI / 6) };
+                    const p2 = { x: endX - headLen * Math.cos(angle + Math.PI / 6), y: endY - headLen * Math.sin(angle + Math.PI / 6) };
+
+                    // Simple lines for head to match style
+                    rc.line(endX, endY, p1.x, p1.y, options);
+                    rc.line(endX, endY, p2.x, p2.y, options);
                 }
-            } else if (el.type === 'pencil' && el.points) {
-                if (el.points.length > 0) {
-                    // Points are either absolute (while drawing) or relative (after normalization)
-                    // We can check if we are currently drawing this element? 
-                    // Or simpler: We haven't normalized yet if it's being drawn.
-                    // BUT: normalization happens on MouseUp.
-                    // Ideally we always treat them as relative? 
-                    // No, when drawing `handleMouseMove` pushes absolute coordinates.
-                    // So we must distinguish. 
-                    // HACK: If width/height are 0, assume absolute? No.
-                    // Let's assume normalized if width > 0 ? 
-                    // Or better: Just check bounds.
-                    // Actually, simpler logic:
-                    // If creating, points are absolute. `el.x` might be start coordinate.
-                    // Let's rely on standard logic: `ctx.translate(el.x, el.y)`... not straightforward without changing `points`.
+            } else if (el.type === 'pencil' && el.points && el.points.length > 0) {
+                // Convert points to [x,y] array
+                // Points are absolute-ish?
+                // In draw logic, we assumed relative?
+                // Wait, existing draw logic:
+                // ctx.moveTo(el.x + el.points[0].x, el.y + el.points[0].y);
 
-                    // Correct approach:
-                    // If normalized, points start near 0,0.
-                    // If absolute, points are huge.
-                    // We can just add el.x/el.y ONLY if we normalised?
-                    // Let's use a flag? No.
-                    // Check handleMouseUp normalization. It sets `x` and `y`.
-                    // While drawing, `x` and `y` are the start point, but `points` are absolute.
+                // So we need to map them back to absolute for drawing?
+                // Or translate context? 
+                // Context is already translated by pan/zoom.
+                // But we didn't translate to el.x, el.y for pencil in the old code?
 
-                    // Wait, if I change `draw` to:
-                    // ctx.moveTo(el.x + p.x, el.y + p.y)
-                    // Then absolute points will be offset by startX... Double offset!
+                // Old code:
+                // if (el.points.length > 0) {
+                //    ctx.moveTo(el.x + el.points[0].x, el.y + el.points[0].y);
+                //    ...
 
-                    // Solution:
-                    // In `handleMouseMove` for pencil, store RELATIVE points from the start!
-                    // startX, startY is the start.
-                    // point = { x: x - startX, y: y - startY }.
-                    // Then `el.x` = startX.
-                    // Then `draw` is always relative.
-                    // And `normalization` at the end just tightens the bounding box.
+                // So yes, points are relative to el.x, el.y.
 
-                    // Let's fix `handleMouseMove` instead!
-                    // See next tool call.
-                    // But for now, I update Draw assuming they are relative.
-                    // Wait, `handleMouseMove` changes are future. Current `points` are absolute.
-                    // I should change logic to allow both or consistent.
-
-                    // Better: Assuming I fix `handleMouseMove` to be relative, then this code is:
-
-                    ctx.moveTo(el.x + el.points[0].x, el.y + el.points[0].y);
-                    for (let i = 1; i < el.points.length; i++) {
-                        ctx.lineTo(el.x + el.points[i].x, el.y + el.points[i].y);
-                    }
-                    ctx.stroke();
-                }
-            } else if (el.type === 'text' && el.text) {
+                const points: [number, number][] = el.points.map(p => [el.x + p.x, el.y + p.y]);
+                rc.linearPath(points, options);
+            }
+            else if (el.type === 'text' && el.text) {
                 if (editingId() !== el.id) {
                     const fontSize = el.fontSize || 20;
                     ctx.font = `${fontSize}px sans-serif`;

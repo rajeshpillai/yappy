@@ -29,7 +29,8 @@ const initialState: AppState = {
         fontSize: 20,
         textAlign: 'left',
         startArrowhead: null,
-        endArrowhead: 'arrow'
+        endArrowhead: 'arrow',
+        seed: 0
     }
 };
 
@@ -131,7 +132,8 @@ export const duplicateElement = (id: string) => {
         crop: el.crop ? { ...el.crop } : null,
         // bounds/meta might need attention too but boundElements usually reset or logic specific
         boundElements: null, // Don't copy bindings directly for now
-        groupIds: el.groupIds ? [...el.groupIds] : undefined
+        groupIds: el.groupIds ? [...el.groupIds] : undefined,
+        seed: Math.floor(Math.random() * 2147483647)
     };
 
     setStore("elements", els => [...els, newElement]);

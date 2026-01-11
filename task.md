@@ -55,6 +55,12 @@
 - [x] Refine property visibility (text exclusions)
 - [ ] Fix overlap between Top Bar and Property Panel
 
+## Phase 8: RoughJS Integration
+- [x] Install roughjs <!-- id: 21 -->
+- [x] Update appStore to generate seeds for elements <!-- id: 22 -->
+- [ ] Refactor Canvas.tsx to use roughjs for rendering <!-- id: 23 -->
+- [ ] Verify fill styles (hachure, solid, etc) <!-- id: 24 -->
+
 
 
 
