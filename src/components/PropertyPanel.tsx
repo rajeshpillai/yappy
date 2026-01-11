@@ -58,16 +58,54 @@ const PropertyPanel: Component = () => {
     const renderControl = (prop: PropertyConfig, currentValue: any) => {
         switch (prop.type) {
             case 'color':
+                const predefinedColors = [
+                    'transparent', '#ffffff', '#f8f9fa', '#f1f3f5', '#fff5f5', '#fff0f6',
+                    '#f3f0ff', '#e03131', '#e8590c', '#fcc419', '#2f9e44', '#1971c2',
+                    '#6741d9', '#c2255c', '#343a40'
+                ];
+
                 return (
-                    <div class="control-row">
+                    <div class="control-col">
                         <label>{prop.label}</label>
-                        <div class="color-picker-wrapper">
-                            <input
-                                type="color"
-                                value={currentValue || '#000000'}
-                                onInput={(e) => handleChange(prop.key, e.currentTarget.value)}
-                            />
-                            <span class="color-value">{currentValue}</span>
+                        <div class="color-picker-container">
+                            {/* Palette Grid */}
+                            <div class="color-grid">
+                                <For each={predefinedColors}>
+                                    {(c) => (
+                                        <button
+                                            class={`color-swatch ${currentValue === c ? 'selected' : ''}`}
+                                            style={{ background: c === 'transparent' ? 'white' : c }}
+                                            onClick={() => handleChange(prop.key, c)}
+                                            title={c}
+                                        >
+                                            {c === 'transparent' && <div class="diagonal-line-sm"></div>}
+                                        </button>
+                                    )}
+                                </For>
+                            </div>
+
+                            {/* Hex Input & Picker */}
+                            <div class="hex-input-row">
+                                <span class="hash">#</span>
+                                <input
+                                    type="text"
+                                    class="hex-input"
+                                    value={currentValue?.replace('#', '') || ''}
+                                    onInput={(e) => {
+                                        let val = e.currentTarget.value;
+                                        // Simple validation/formatting could go here
+                                        handleChange(prop.key, '#' + val);
+                                    }}
+                                />
+                                <div class="system-picker-wrapper">
+                                    <input
+                                        type="color"
+                                        value={currentValue?.startsWith('#') ? currentValue : '#000000'}
+                                        onInput={(e) => handleChange(prop.key, e.currentTarget.value)}
+                                        title="Custom Color"
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 );
