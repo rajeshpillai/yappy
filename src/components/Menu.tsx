@@ -200,21 +200,22 @@ const Menu: Component = () => {
                         <div class="menu-dropdown">
                             <button class="menu-item" onClick={() => { setIsDialogOpen(true); setIsMenuOpen(false); }}>
                                 <FolderOpen size={16} />
-                                <span class="label">Open Saved...</span>
+                                <span class="label">Open from Workspace...</span>
                                 <span class="shortcut">Ctrl+O</span>
                             </button>
+                            <button class="menu-item" onClick={handleSaveRequest}>
+                                <Save size={16} />
+                                <span class="label">Save to Workspace...</span>
+                                <span class="shortcut">Ctrl+S</span>
+                            </button>
+                            <div class="menu-separator"></div>
                             <button class="menu-item" onClick={() => { fileInputRef?.click(); setIsMenuOpen(false); }}>
                                 <Upload size={16} />
                                 <span class="label">Open from Disk...</span>
                             </button>
-                            <button class="menu-item" onClick={handleSaveRequest}>
-                                <Save size={16} />
-                                <span class="label">Save to Browser...</span>
-                                <span class="shortcut">Ctrl+S</span>
-                            </button>
                             <button class="menu-item" onClick={handleDownloadJson}>
                                 <Download size={16} />
-                                <span class="label">Download JSON</span>
+                                <span class="label">Save to Disk...</span>
                             </button>
                             <div class="menu-separator"></div>
                             <button class="menu-item" onClick={() => { setIsExportOpen(true); setIsMenuOpen(false); }}>
