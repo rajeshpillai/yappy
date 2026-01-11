@@ -271,3 +271,35 @@ input[type="text"] {
 .layer-controls button:hover {
     background: #e5e7eb;
 }
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    .property-panel-container {
+        width: 100%;
+        height: auto;
+        max-height: 45vh;
+        bottom: 0;
+        top: auto;
+        right: 0;
+        left: 0;
+        border-left: none;
+        border-top: 1px solid #e5e7eb;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 12px 12px 0 0;
+    }
+
+    .property-content {
+        padding: 12px;
+        padding-bottom: 20px;
+        /* Safe area for bottom */
+    }
+
+    /* Adjust control density for mobile */
+    .control-row {
+        margin-bottom: 8px;
+    }
+
+    .property-group {
+        margin-bottom: 16px;
+    }
+}
