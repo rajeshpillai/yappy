@@ -107,7 +107,7 @@ const Menu: Component = () => {
             </div>
 
             {/* Top Right Controls */}
-            <div style={{ position: 'fixed', top: '12px', right: '12px', "z-index": 100 }}>
+            <div style={{ position: 'fixed', top: '12px', right: '300px', "z-index": 100 }}>
                 <div class="menu-container">
                     <input
                         type="text"

@@ -41,6 +41,20 @@
 - [x] Implement Pan Tool (Hand)
 - [x] Redesign Property Panel (Sidebar with Popovers)
 
+## Phase 7: Text & Resize Enhancements
+- [x] Fix Text tool inconsistency (text disappears on blur)
+- [x] Implement enhanced color picker (palette, hex, system picker)
+- [x] Update src/store/appStore.ts defaults
+- [x] Fix text bounding box (measure text width)
+- [x] Verify side handle logic for all shapes
+- [x] Add side resize handles (top, bottom, left, right)
+- [x] Enable non-proportional text resizing
+- [x] Ensure Canvas redraws on any property change
+- [x] Refactor PropertyPanel.tsx
+- [x] Implement text stretching in render (draw)
+- [x] Refine property visibility (text exclusions)
+- [ ] Fix overlap between Top Bar and Property Panel
+
 
 
 
