@@ -166,8 +166,23 @@ const Canvas: Component = () => {
                 if (editingId() !== el.id) {
                     const fontSize = el.fontSize || 20;
                     ctx.font = `${fontSize}px sans-serif`;
+
+                    // Text Stretching logic
+                    const metrics = ctx.measureText(el.text);
+                    const actualWidth = metrics.width;
+                    const scaleX = (el.width && actualWidth) ? (el.width / actualWidth) : 1;
+
                     ctx.fillStyle = el.strokeColor;
-                    ctx.fillText(el.text, el.x, el.y + fontSize);
+
+                    if (scaleX !== 1) {
+                        ctx.save();
+                        ctx.translate(el.x, el.y);
+                        ctx.scale(scaleX, 1);
+                        ctx.fillText(el.text, 0, fontSize);
+                        ctx.restore();
+                    } else {
+                        ctx.fillText(el.text, el.x, el.y + fontSize);
+                    }
                 }
             }
 
@@ -198,7 +213,12 @@ const Canvas: Component = () => {
                     { x: el.x - padding, y: el.y - padding }, // TL
                     { x: el.x + el.width + padding, y: el.y - padding }, // TR
                     { x: el.x + el.width + padding, y: el.y + el.height + padding }, // BR
-                    { x: el.x - padding, y: el.y + el.height + padding } // BL
+                    { x: el.x - padding, y: el.y + el.height + padding }, // BL
+                    // Side Handles
+                    { x: el.x + el.width / 2, y: el.y - padding }, // TM
+                    { x: el.x + el.width + padding, y: el.y + el.height / 2 }, // RM
+                    { x: el.x + el.width / 2, y: el.y + el.height + padding }, // BM
+                    { x: el.x - padding, y: el.y + el.height / 2 } // LM
                 ];
 
                 handles.forEach(h => {
@@ -328,12 +348,16 @@ const Canvas: Component = () => {
 
             const padding = 2 / scale;
 
-            // Check corners
+            // Check corners and sides
             const handles = [
                 { type: 'tl', x: el.x - padding, y: el.y - padding },
                 { type: 'tr', x: el.x + el.width + padding, y: el.y - padding },
                 { type: 'br', x: el.x + el.width + padding, y: el.y + el.height + padding },
-                { type: 'bl', x: el.x - padding, y: el.y + el.height + padding }
+                { type: 'bl', x: el.x - padding, y: el.y + el.height + padding },
+                { type: 'tm', x: el.x + el.width / 2, y: el.y - padding },
+                { type: 'rm', x: el.x + el.width + padding, y: el.y + el.height / 2 },
+                { type: 'bm', x: el.x + el.width / 2, y: el.y + el.height + padding },
+                { type: 'lm', x: el.x - padding, y: el.y + el.height / 2 }
             ];
 
             for (const h of handles) {
@@ -568,6 +592,8 @@ const Canvas: Component = () => {
                 if (hit.handle === 'rotate') setCursor('grab');
                 else if (hit.handle === 'tl' || hit.handle === 'br') setCursor('nwse-resize');
                 else if (hit.handle === 'tr' || hit.handle === 'bl') setCursor('nesw-resize');
+                else if (hit.handle === 'tm' || hit.handle === 'bm') setCursor('ns-resize');
+                else if (hit.handle === 'lm' || hit.handle === 'rm') setCursor('ew-resize');
             } else {
                 setCursor('default');
             }
@@ -627,6 +653,16 @@ const Canvas: Component = () => {
                         } else if (draggingHandle === 'br') {
                             newWidth += dx;
                             newHeight += dy;
+                        } else if (draggingHandle === 'tm') {
+                            newY += dy;
+                            newHeight -= dy;
+                        } else if (draggingHandle === 'bm') {
+                            newHeight += dy;
+                        } else if (draggingHandle === 'lm') {
+                            newX += dx;
+                            newWidth -= dx;
+                        } else if (draggingHandle === 'rm') {
+                            newWidth += dx;
                         }
 
                         const updates: any = { x: newX, y: newY, width: newWidth, height: newHeight };
@@ -644,37 +680,16 @@ const Canvas: Component = () => {
                             }));
                             updates.points = newPoints;
                         }
-
                         // Scale font size for text
                         if (el.type === 'text') {
-                            // Lock aspect ratio for text? Usually yes.
-                            // We use height growth to determine scale (standard for text)
-                            const scale = newHeight / initialElementHeight;
-                            // Ensure valid scale
-                            if (scale > 0) {
-                                let newFontSize = initialElementFontSize * scale;
-                                newFontSize = Math.max(newFontSize, 8); // Minimum 8px
+                            const scaleY = newHeight / initialElementHeight;
+                            if (scaleY > 0) {
+                                let newFontSize = initialElementFontSize * scaleY;
+                                newFontSize = Math.max(newFontSize, 8);
                                 updates.fontSize = newFontSize;
-
-                                // Adjust width to match aspect ratio of the text box
-                                // newWidth = initialWidth * scale
-                                updates.width = initialElementWidth * scale;
-
-                                // If dragging a corner, we might have set newX/newY loosely. 
-                                // For aspect lock, we usually just honor the height change and fix width.
-                                // But if user dragged width-wise?
-
-                                // Better approach for Text: Always Maintain Aspect Ratio.
-                                // Use the maximum scale change?
-                                // const scaleX = newWidth / initialElementWidth;
-                                // const scaleY = newHeight / initialElementHeight;
-                                // const maxScale = Math.max(Math.abs(scaleX), Math.abs(scaleY)); 
-
-                                // Simple approach: Just trust height change (vertical resize guides text usually).
-                                // And force width.
+                                updates.width = newWidth;
                             }
                         }
-
                         updateElement(id, updates);
                     }
                 } else {
@@ -684,8 +699,8 @@ const Canvas: Component = () => {
                     updateElement(id, { x: initialElementX + dx, y: initialElementY + dy });
                 }
             }
-            return;
         }
+
 
         if (!isDrawing || !currentId) {
             if (isDrawing && store.selectedTool === 'eraser') {
