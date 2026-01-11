@@ -1,4 +1,4 @@
-import { type Component, createSignal, onMount } from "solid-js";
+import { type Component, createSignal, onMount, Show, onCleanup } from "solid-js";
 import { storage } from "../storage/FileSystemStorage";
 import { store, setStore, undo, redo, deleteElements, clearHistory, toggleTheme, zoomToFit } from "../store/appStore";
 import { Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus, Undo2, Redo2, Trash2, Maximize, Moon, Sun, Image as ImageIcon } from "lucide-solid";
@@ -10,6 +10,7 @@ const Menu: Component = () => {
     const [drawingId, setDrawingId] = createSignal('default');
     const [isDialogOpen, setIsDialogOpen] = createSignal(false);
     const [isExportOpen, setIsExportOpen] = createSignal(false);
+    const [isMenuOpen, setIsMenuOpen] = createSignal(false);
 
     const handleSave = async () => {
         try {
@@ -22,6 +23,7 @@ const Menu: Component = () => {
             console.error(e);
             alert('Failed to save');
         }
+        setIsMenuOpen(false);
     };
 
     const handleLoad = async (id?: string) => {
@@ -51,6 +53,7 @@ const Menu: Component = () => {
             clearHistory();
             setDrawingId('untitled');
         }
+        setIsMenuOpen(false);
     };
 
     const handleResetView = () => {
@@ -70,10 +73,28 @@ const Menu: Component = () => {
             setDrawingId(id);
             handleLoad(id);
         }
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.ctrlKey) {
+                if (e.key === 'o') {
+                    e.preventDefault();
+                    setIsDialogOpen(true);
+                } else if (e.key.toLowerCase() === 'e' && e.shiftKey) { // Ctrl+Shift+E
+                    e.preventDefault();
+                    setIsExportOpen(true);
+                }
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        onCleanup(() => window.removeEventListener('keydown', handleKeyDown));
     });
 
     return (
         <>
+            <Show when={isMenuOpen()}>
+                <div class="menu-backdrop" onClick={() => setIsMenuOpen(false)}></div>
+            </Show>
+
             {/* Open File Dialog */}
             <FileOpenDialog
                 isOpen={isDialogOpen()}
@@ -90,16 +111,45 @@ const Menu: Component = () => {
             />
 
             {/* Top Left Menu */}
-            <div style={{ position: 'fixed', top: '12px', left: '12px', "z-index": 100 }}>
-                <div class="menu-container">
-                    <button class="menu-btn" title="Menu">
+            <div style={{ position: 'fixed', top: '12px', left: '12px', "z-index": 1001 }}>
+                <div class="menu-container" style={{ position: 'relative' }}>
+                    <button class={`menu-btn ${isMenuOpen() ? 'active' : ''}`} title="Menu" onClick={() => setIsMenuOpen(!isMenuOpen())}>
                         <MenuIcon size={20} />
                     </button>
+
+                    <Show when={isMenuOpen()}>
+                        <div class="menu-dropdown">
+                            <button class="menu-item" onClick={() => { setIsDialogOpen(true); setIsMenuOpen(false); }}>
+                                <FolderOpen size={16} />
+                                <span class="label">Open</span>
+                                <span class="shortcut">Ctrl+O</span>
+                            </button>
+                            <button class="menu-item" onClick={handleSave}>
+                                <Save size={16} />
+                                <span class="label">Save to...</span>
+                            </button>
+                            <button class="menu-item" onClick={() => { setIsExportOpen(true); setIsMenuOpen(false); }}>
+                                <ImageIcon size={16} />
+                                <span class="label">Export image...</span>
+                                <span class="shortcut">Ctrl+Shift+E</span>
+                            </button>
+                            <div class="menu-separator"></div>
+                            <button class="menu-item" onClick={handleNew}>
+                                <FilePlus size={16} />
+                                <span class="label">Reset Canvas</span>
+                            </button>
+                            <div class="menu-separator"></div>
+                            <div style={{ padding: '4px 12px', "font-size": '12px', color: 'var(--text-secondary)' }}>
+                                Found a bug? <a href="https://github.com/rajeshpillai/yappy/issues" target="_blank" rel="noopener noreferrer">Report</a>
+                            </div>
+                        </div>
+                    </Show>
+
                     <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
-                    <button class="menu-btn" onClick={undo} title="Undo">
+                    <button class="menu-btn" onClick={undo} title="Undo (Ctrl+Z)">
                         <Undo2 size={18} />
                     </button>
-                    <button class="menu-btn" onClick={redo} title="Redo">
+                    <button class="menu-btn" onClick={redo} title="Redo (Ctrl+Y)">
                         <Redo2 size={18} />
                     </button>
                     <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
@@ -122,21 +172,10 @@ const Menu: Component = () => {
                         value={drawingId()}
                         onInput={(e) => setDrawingId(e.currentTarget.value)}
                     />
-                    <button class="menu-btn" onClick={handleSave} title="Save">
-                        <Save size={18} />
-                    </button>
-                    <button class="menu-btn" onClick={() => setIsDialogOpen(true)} title="Open">
-                        <FolderOpen size={18} />
-                    </button>
-                    <button class="menu-btn" onClick={() => setIsExportOpen(true)} title="Export to Image">
-                        <ImageIcon size={18} />
-                    </button>
+
                     <button class="menu-btn primary" onClick={handleShare} title="Share">
                         <Share2 size={18} />
                         <span style={{ "margin-left": "4px" }}>Share</span>
-                    </button>
-                    <button class="menu-btn" onClick={handleNew} title="New">
-                        <FilePlus size={18} />
                     </button>
                     <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
                     <button class="menu-btn" onClick={toggleTheme} title="Toggle Theme">

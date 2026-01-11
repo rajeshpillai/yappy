@@ -78,6 +78,9 @@
 - [x] Migrate Mouse Events to Pointer Events in Canvas <!-- id: 32 -->
 - [x] Add touch-action: none to Canvas CSS <!-- id: 33 -->
 
+## Phase 11: UI Refinements
+- [x] Refactor Main Menu (Burger Menu handling Open/Save/Export) <!-- id: 34 -->
+
 
 
 
