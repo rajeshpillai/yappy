@@ -66,9 +66,9 @@ const Canvas: Component = () => {
             let cx = el.x + el.width / 2;
             let cy = el.y + el.height / 2;
 
-            if (el.rotation) {
+            if (el.angle) {
                 ctx.translate(cx, cy);
-                ctx.rotate(el.rotation);
+                ctx.rotate(el.angle);
                 ctx.translate(-cx, -cy);
             }
 
@@ -174,9 +174,9 @@ const Canvas: Component = () => {
             if (store.selection.includes(el.id)) {
                 ctx.save();
                 // Re-apply rotation for handles
-                if (el.rotation) {
+                if (el.angle) {
                     ctx.translate(cx, cy);
-                    ctx.rotate(el.rotation);
+                    ctx.rotate(el.angle);
                     ctx.translate(-cx, -cy);
                 }
 
@@ -225,7 +225,7 @@ const Canvas: Component = () => {
         store.elements.forEach(e => {
             e.x; e.y; e.width; e.height;
             if (e.points) e.points.length;
-            e.rotation; e.opacity;
+            e.angle; e.opacity;
         });
         store.viewState.scale;
         store.viewState.panX;
@@ -314,7 +314,7 @@ const Canvas: Component = () => {
 
             const cx = el.x + el.width / 2;
             const cy = el.y + el.height / 2;
-            const heading = el.rotation || 0;
+            const heading = el.angle || 0;
 
             // Transform mouse point to element's local system (unrotate)
             const local = unrotatePoint(x, y, cx, cy, heading);
@@ -378,7 +378,7 @@ const Canvas: Component = () => {
         // Transform point to local non-rotated space
         const cx = el.x + el.width / 2;
         const cy = el.y + el.height / 2;
-        const p = unrotatePoint(x, y, cx, cy, el.rotation || 0);
+        const p = unrotatePoint(x, y, cx, cy, el.angle || 0);
 
         // Check if inside bounding box (broad phase)
         // Add threshold to box check
@@ -412,9 +412,11 @@ const Canvas: Component = () => {
         const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
 
         if (editingId()) {
-            setEditingId(null);
+            commitText();
             return;
         }
+
+
 
         if (store.selectedTool === 'selection') {
             const hitHandle = getHandleAtPosition(x, y);
@@ -479,8 +481,15 @@ const Canvas: Component = () => {
                 backgroundColor: 'transparent',
                 strokeWidth: 1,
                 text: '',
-                rotation: 0,
-                opacity: 100
+                angle: 0,
+                opacity: 100,
+                fillStyle: 'hachure' as 'hachure' | 'solid' | 'cross-hatch',
+                strokeStyle: 'solid' as 'solid' | 'dashed' | 'dotted',
+                roughness: 1,
+                seed: Math.floor(Math.random() * 2 ** 31),
+                roundness: null,
+                locked: false,
+                link: null
             };
             addElement(newElement);
             setEditingId(id);
@@ -523,9 +532,15 @@ const Canvas: Component = () => {
             backgroundColor: 'transparent',
             strokeWidth: 2,
             points: store.selectedTool === 'pencil' ? [{ x: 0, y: 0 }] : undefined,
-            rotation: 0,
+            angle: 0,
             opacity: 100,
-            strokeStyle: 'solid' as 'solid' | 'dashed' | 'dotted'
+            strokeStyle: 'solid' as 'solid' | 'dashed' | 'dotted',
+            fillStyle: 'hachure' as 'hachure' | 'solid' | 'cross-hatch',
+            roughness: 1,
+            seed: Math.floor(Math.random() * 2 ** 31),
+            roundness: null,
+            locked: false,
+            link: null
         };
 
         addElement(newElement);
@@ -575,7 +590,7 @@ const Canvas: Component = () => {
                         // But we just want angle of pointer relative to center
                         // plus 90 deg offset because pointer started at -90 deg relative to center?
                         // Actually, just simpler: angle from center to mouse, plus 90 degrees (so when mouse is at top, angle is 0).
-                        updateElement(id, { rotation: angle + Math.PI / 2 });
+                        updateElement(id, { angle: angle + Math.PI / 2 });
                     } else {
                         // RESIZING
                         const dx = x - startX;
@@ -741,39 +756,26 @@ const Canvas: Component = () => {
         currentId = null;
     };
 
-    const handleTextBlur = () => {
+    const commitText = () => {
         const id = editingId();
         if (id) {
-            // Text editing is an update.
-            // We should have saved history BEFORE editing started?
-            // `addElement` saved history (State Before Text Object).
-            // Then we added Text Object (Empty).
-            // Now we update text.
-            // If we undo, we go to "State Before Text Object".
-            // That works for NEW text.
-            // What if we EDIT existing text?
-            // `handleMouseDown` -> hit text -> setEditingId.
-            // We should push history HERE if it's existing text?
-            // Or just push history before `updateElement` in `handleTextBlur`.
-            // If we push NOW, we save "Text Empty/Old".
-            // Then update to "New".
-            // Undo -> "Text Empty/Old". Correct.
-
-            // Wait, if it was NEW text, `addElement` already pushed history.
-            // So we have [Empty Canvas]. Current: [Canvas with ""]
-            // onBlur -> updates to [Canvas with "Hello"].
-            // If we push history now: [Empty Canvas, Canvas with ""].
-            // Undo -> [Canvas with ""]. User expects [Empty Canvas] or [Previous State].
-            // Actually, if I created text, I probably want undo to remove it.
-            // So saving intermediate "" state is minor annoyance but safe.
-
-            // But for EXISTING text:
-            // State: [Text "A"]
-            // Click -> Update to "B" -> Blur.
-            // We need to save [Text "A"].
-            // Pushing history before updateElement(text) works.
-            updateElement(id, { text: editText() }, true); // Record history!
+            const text = editText().trim();
+            if (text) {
+                updateElement(id, { text: editText() }, true);
+            } else {
+                deleteElements([id]);
+            }
             setEditingId(null);
+            setEditText("");
+            // Force redraw immediately to prevent flicker
+            requestAnimationFrame(draw);
+        }
+    };
+
+    const handleTextBlur = () => {
+        // If we are still editing (i.e. didn't click canvas which manually commits), commit now.
+        if (editingId()) {
+            commitText();
         }
     };
 

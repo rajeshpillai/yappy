@@ -165,6 +165,26 @@ const PropertyPanel: Component = () => {
                         />
                     </div>
                 );
+            case 'textarea':
+                return (
+                    <div class="control-col">
+                        <label>{prop.label}</label>
+                        <textarea
+                            value={currentValue || ''}
+                            onInput={(e) => handleChange(prop.key, e.currentTarget.value)}
+                            rows={3}
+                            style={{
+                                width: '100%',
+                                padding: '8px',
+                                border: '1px solid #d1d5db',
+                                "border-radius": '6px',
+                                "font-family": 'inherit',
+                                "font-size": '13px',
+                                resize: 'vertical'
+                            }}
+                        />
+                    </div>
+                );
             default:
                 return null;
         }

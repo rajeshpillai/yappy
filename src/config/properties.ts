@@ -3,7 +3,7 @@ import type { ElementType } from "../types";
 export interface PropertyConfig {
     key: string;
     label: string;
-    type: 'color' | 'slider' | 'select' | 'toggle' | 'input' | 'number';
+    type: 'color' | 'slider' | 'select' | 'toggle' | 'input' | 'number' | 'textarea';
     options?: { label: string; value: any; icon?: any }[];
     min?: number;
     max?: number;
@@ -132,6 +132,14 @@ export const properties: PropertyConfig[] = [
         group: 'text',
         applicableTo: ['text'],
         defaultValue: 'left'
+    },
+    {
+        key: 'text',
+        label: 'Content',
+        type: 'textarea',
+        group: 'text',
+        applicableTo: ['text'],
+        defaultValue: ''
     },
 
     // Linear
