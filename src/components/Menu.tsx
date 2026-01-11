@@ -15,22 +15,66 @@ const Menu: Component = () => {
     const [isMenuOpen, setIsMenuOpen] = createSignal(false);
     let fileInputRef: HTMLInputElement | undefined;
 
-    const handleSaveRequest = () => {
+    const [saveIntent, setSaveIntent] = createSignal<'workspace' | 'disk'>('workspace');
+
+    const handleSaveRequest = (intent: 'workspace' | 'disk') => {
+        setSaveIntent(intent);
         setIsSaveOpen(true);
         setIsMenuOpen(false);
     };
 
     const performSave = async (filename: string) => {
-        try {
-            await storage.saveDrawing(filename, {
+        // Update drawing title
+        setDrawingId(filename);
+
+        if (saveIntent() === 'workspace') {
+            try {
+                await storage.saveDrawing(filename, {
+                    elements: store.elements,
+                    viewState: store.viewState
+                });
+                alert(`Drawing saved as "${filename}"!`);
+            } catch (e) {
+                console.error(e);
+                alert('Failed to save to workspace');
+            }
+        } else {
+            // Save to Disk (Download/Share)
+            const data = JSON.stringify({
                 elements: store.elements,
-                viewState: store.viewState
-            });
-            setDrawingId(filename);
-            alert(`Drawing saved as "${filename}"!`);
-        } catch (e) {
-            console.error(e);
-            alert('Failed to save');
+                viewState: store.viewState,
+                version: 1
+            }, null, 2);
+
+            const blob = new Blob([data], { type: 'application/json' });
+            const fileNameWithExt = `${filename}.json`;
+            const file = new File([blob], fileNameWithExt, { type: 'application/json' });
+
+            // Try using Web Share API first (great for mobile)
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Yappy Drawing',
+                        text: 'Save your drawing JSON'
+                    });
+                    return;
+                } catch (err) {
+                    if ((err as Error).name !== 'AbortError') {
+                        console.error('Share failed:', err);
+                    }
+                }
+            }
+
+            // Fallback to standard download
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileNameWithExt;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
     };
 
@@ -72,47 +116,6 @@ const Menu: Component = () => {
         const url = `${window.location.origin}${window.location.pathname}?id=${drawingId()}`;
         navigator.clipboard.writeText(url);
         alert(`Link copied: ${url}`);
-    };
-
-    const handleDownloadJson = async () => {
-        const data = JSON.stringify({
-            elements: store.elements,
-            viewState: store.viewState,
-            version: 1
-        }, null, 2);
-
-        const blob = new Blob([data], { type: 'application/json' });
-        const fileName = `${drawingId()}.json`;
-        const file = new File([blob], fileName, { type: 'application/json' });
-
-        // Try using Web Share API first (great for mobile)
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            try {
-                await navigator.share({
-                    files: [file],
-                    title: 'Yappy Drawing',
-                    text: 'Save your drawing JSON'
-                });
-                setIsMenuOpen(false);
-                return;
-            } catch (err) {
-                if ((err as Error).name !== 'AbortError') {
-                    console.error('Share failed:', err);
-                }
-                // If share fails (or is aborted), fall back to download
-            }
-        }
-
-        // Fallback to standard download
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        setIsMenuOpen(false);
     };
 
     const handleOpenJson = (e: Event) => {
@@ -160,7 +163,7 @@ const Menu: Component = () => {
                     setIsDialogOpen(true);
                 } else if (e.key === 's') { // Ctrl+S
                     e.preventDefault();
-                    handleSaveRequest();
+                    handleSaveRequest('workspace');
                 } else if (e.key.toLowerCase() === 'e' && e.shiftKey) { // Ctrl+Shift+E
                     e.preventDefault();
                     setIsExportOpen(true);
@@ -225,7 +228,7 @@ const Menu: Component = () => {
                                 <span class="label">Open from Workspace...</span>
                                 <span class="shortcut">Ctrl+O</span>
                             </button>
-                            <button class="menu-item" onClick={handleSaveRequest}>
+                            <button class="menu-item" onClick={() => handleSaveRequest('workspace')}>
                                 <Save size={16} />
                                 <span class="label">Save to Workspace...</span>
                                 <span class="shortcut">Ctrl+S</span>
@@ -235,7 +238,7 @@ const Menu: Component = () => {
                                 <Upload size={16} />
                                 <span class="label">Open from Disk...</span>
                             </button>
-                            <button class="menu-item" onClick={handleDownloadJson}>
+                            <button class="menu-item" onClick={() => handleSaveRequest('disk')}>
                                 <Download size={16} />
                                 <span class="label">Save to Disk...</span>
                             </button>
