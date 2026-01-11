@@ -1,6 +1,6 @@
 import { type Component, createSignal, onMount } from "solid-js";
 import { storage } from "../storage/FileSystemStorage";
-import { store, setStore, undo, redo, deleteElements, clearHistory, toggleTheme } from "../store/appStore";
+import { store, setStore, undo, redo, deleteElements, clearHistory, toggleTheme, zoomToFit } from "../store/appStore";
 import { Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus, Undo2, Redo2, Trash2, Maximize, Moon, Sun } from "lucide-solid";
 import FileOpenDialog from "./FileOpenDialog";
 import "./Menu.css";
@@ -52,7 +52,7 @@ const Menu: Component = () => {
     };
 
     const handleResetView = () => {
-        setStore("viewState", { scale: 1, panX: 0, panY: 0 });
+        zoomToFit();
     };
 
     const handleShare = () => {
@@ -100,7 +100,7 @@ const Menu: Component = () => {
                         <Trash2 size={18} />
                     </button>
                     <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
-                    <button class="menu-btn" onClick={handleResetView} title="Reset View">
+                    <button class="menu-btn" onClick={handleResetView} title="Zoom to Fit">
                         <Maximize size={18} />
                     </button>
                 </div>

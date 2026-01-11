@@ -176,5 +176,62 @@ export const toggleTheme = () => {
     document.documentElement.setAttribute('data-theme', newTheme);
 };
 
+export const zoomToFit = () => {
+    if (store.elements.length === 0) {
+        setStore("viewState", { scale: 1, panX: 0, panY: 0 });
+        return;
+    }
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    store.elements.forEach(el => {
+        minX = Math.min(minX, el.x);
+        maxX = Math.max(maxX, el.x + el.width);
+        minY = Math.min(minY, el.y);
+        maxY = Math.max(maxY, el.y + el.height);
+    });
+
+    const contentW = maxX - minX;
+    const contentH = maxY - minY;
+
+    // Safety check for single point
+    if (contentW === 0 && contentH === 0) {
+        // Just center on the point
+        const cx = minX;
+        const cy = minY;
+        const screenCX = window.innerWidth / 2;
+        const screenCY = window.innerHeight / 2;
+        setStore("viewState", {
+            scale: 1,
+            panX: -cx + screenCX,
+            panY: -cy + screenCY
+        });
+        return;
+    }
+
+    const margin = 50;
+    const screenW = window.innerWidth;
+    const screenH = window.innerHeight;
+
+    // Calculate scale to fit
+    const scaleX = (screenW - margin * 2) / contentW;
+    const scaleY = (screenH - margin * 2) / contentH;
+    let newScale = Math.min(scaleX, scaleY);
+
+    // Clamp scale
+    newScale = Math.min(Math.max(newScale, 0.1), 2);
+
+    const contentCX = minX + contentW / 2;
+    const contentCY = minY + contentH / 2;
+
+    const screenCX = screenW / 2;
+    const screenCY = screenH / 2;
+
+    setStore("viewState", {
+        scale: newScale,
+        panX: -contentCX * newScale + screenCX,
+        panY: -contentCY * newScale + screenCY
+    });
+};
+
 // Initialize theme on load
 document.documentElement.setAttribute('data-theme', initialState.theme);
