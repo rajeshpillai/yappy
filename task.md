@@ -59,9 +59,12 @@
 - [x] Install roughjs <!-- id: 21 -->
 - [x] Update appStore to generate seeds for elements <!-- id: 22 -->
 - [x] Refactor Canvas.tsx to use roughjs for rendering <!-- id: 23 -->
+- [x] Refactor Canvas.tsx to use roughjs for rendering <!-- id: 23 -->
 - [x] Verify fill styles (hachure, solid, etc) <!-- id: 24 -->
 - [x] Implement 'renderStyle' ('sketch' vs 'architectural') property <!-- id: 25 -->
 - [x] Implement dual rendering logic in Canvas.tsx <!-- id: 26 -->
+- [x] Configure static build (base path) <!-- id: 27 -->
+- [x] Deploy to GitHub Pages (gh-pages branch) <!-- id: 28 -->
 
 
 
