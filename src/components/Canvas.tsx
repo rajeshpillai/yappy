@@ -1,9 +1,11 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show } from "solid-js";
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
-import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements } from "../store/appStore";
+import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid } from "../store/appStore";
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse } from "../utils/geometry";
 import type { DrawingElement } from "../types";
 import { renderElement } from "../utils/renderElement";
+import ContextMenu, { type MenuItem } from "./ContextMenu";
+import { snapPoint } from "../utils/snapHelpers";
 
 
 const Canvas: Component = () => {
@@ -45,6 +47,10 @@ const Canvas: Component = () => {
     // Cursor Management
     const [cursor, setCursor] = createSignal<string>('default');
 
+    // Context Menu State
+    const [contextMenuOpen, setContextMenuOpen] = createSignal(false);
+    const [contextMenuPos, setContextMenuPos] = createSignal({ x: 0, y: 0 });
+
     const draw = () => {
         if (!canvasRef) return;
         const ctx = canvasRef.getContext("2d");
@@ -64,6 +70,45 @@ const Canvas: Component = () => {
 
         ctx.translate(panX, panY);
         ctx.scale(scale, scale);
+
+        // Draw Grid if enabled
+        if (store.gridSettings.enabled) {
+            const gridSize = store.gridSettings.gridSize;
+            const gridColor = store.gridSettings.gridColor;
+            const gridOpacity = store.gridSettings.gridOpacity;
+
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform for grid
+            ctx.strokeStyle = gridColor;
+            ctx.globalAlpha = gridOpacity;
+            ctx.lineWidth = 1;
+
+            // Calculate visible grid bounds
+            const startX = Math.floor((-panX / scale) / gridSize) * gridSize;
+            const endX = Math.ceil((canvasRef.width - panX) / scale / gridSize) * gridSize;
+            const startY = Math.floor((-panY / scale) / gridSize) * gridSize;
+            const endY = Math.ceil((canvasRef.height - panY) / scale / gridSize) * gridSize;
+
+            // Draw vertical lines
+            ctx.beginPath();
+            for (let x = startX; x <= endX; x += gridSize) {
+                const screenX = x * scale + panX;
+                ctx.moveTo(screenX, 0);
+                ctx.lineTo(screenX, canvasRef.height);
+            }
+            // Draw horizontal lines
+            for (let y = startY; y <= endY; y += gridSize) {
+                const screenY = y * scale + panY;
+                ctx.moveTo(0, screenY);
+                ctx.lineTo(canvasRef.width, screenY);
+            }
+            ctx.stroke();
+            ctx.restore();
+
+            // Restore transform for elements
+            ctx.translate(panX, panY);
+            ctx.scale(scale, scale);
+        }
 
         // Render Elements - Sort by layer order and filter by visibility
         const visibleElements = store.elements
@@ -980,6 +1025,11 @@ const Canvas: Component = () => {
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
+                onContextMenu={(e) => {
+                    e.preventDefault();
+                    setContextMenuPos({ x: e.clientX, y: e.clientY });
+                    setContextMenuOpen(true);
+                }}
                 style={{ display: "block", "touch-action": "none", cursor: cursor() }}
             />
 
@@ -1042,6 +1092,47 @@ const Canvas: Component = () => {
                         />
                     );
                 }}
+            </Show>
+
+            {/* Context Menu */}
+            <Show when={contextMenuOpen()}>
+                <ContextMenu
+                    x={contextMenuPos().x}
+                    y={contextMenuPos().y}
+                    items={[
+                        {
+                            label: 'Paste',
+                            shortcut: 'Ctrl+V',
+                            onClick: () => { },
+                            disabled: true
+                        },
+                        {
+                            label: 'Select all',
+                            shortcut: 'Ctrl+A',
+                            onClick: () => setStore('selection', store.elements.map(e => e.id))
+                        },
+                        { separator: true } as any,
+                        {
+                            label: 'Show grid',
+                            shortcut: "Ctrl+'",
+                            onClick: toggleGrid,
+                            checked: store.gridSettings.enabled
+                        },
+                        {
+                            label: 'Snap to grid',
+                            shortcut: "Ctrl+Shift+'",
+                            onClick: toggleSnapToGrid,
+                            checked: store.gridSettings.snapToGrid
+                        },
+                        { separator: true } as any,
+                        {
+                            label: 'Reset view',
+                            shortcut: 'Ctrl+0',
+                            onClick: () => setViewState({ scale: 1, panX: 0, panY: 0 })
+                        }
+                    ]}
+                    onClose={() => setContextMenuOpen(false)}
+                />
             </Show>
         </>
     );
