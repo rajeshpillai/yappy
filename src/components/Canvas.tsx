@@ -229,6 +229,10 @@ const Canvas: Component = () => {
             e.x; e.y; e.width; e.height;
             if (e.points) e.points.length;
             e.angle; e.opacity;
+            e.strokeColor; e.backgroundColor; e.fillStyle; e.strokeWidth; e.strokeStyle;
+            e.roughness; e.roundness;
+            e.text; e.fontSize; e.fontFamily; e.textAlign;
+            e.startArrowhead; e.endArrowhead;
         });
         store.viewState.scale;
         store.viewState.panX;
