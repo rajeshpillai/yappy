@@ -68,8 +68,10 @@
 
 ## Phase 9: Future Enhancements
 - [ ] Implement Export to Image (PNG/SVG) <!-- id: 29 -->
-- [/] Implement Dark Mode support <!-- id: 30 -->
-- [ ] Implement Groups (selecting multiple items) <!-- id: 31 -->
+- [x] Implement Dark Mode support <!-- id: 30 -->
+- [x] Implement Groups (selecting multiple items) <!-- id: 31 -->
+- [x] Implement Delete Drawings (UI and Backend)
+- [x] Implement Zoom to Fit (Reset View)
 
 ## Phase 10: Mobile & Pen Support
 - [x] Migrate Mouse Events to Pointer Events in Canvas <!-- id: 32 -->

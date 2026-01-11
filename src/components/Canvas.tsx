@@ -20,6 +20,11 @@ const Canvas: Component = () => {
 
     // Selection/Move State
     let isDragging = false;
+    let isSelecting = false; // Drag selection box
+    let draggingHandle: string | null = null;
+    const [selectionBox, setSelectionBox] = createSignal<{ x: number, y: number, w: number, h: number } | null>(null);
+    let initialPositions = new Map<string, { x: number, y: number }>();
+
     let initialElementX = 0;
     let initialElementY = 0;
     let initialElementWidth = 0;
@@ -172,43 +177,67 @@ const Canvas: Component = () => {
                 const padding = 2 / scale;
                 ctx.strokeRect(el.x - padding, el.y - padding, el.width + padding * 2, el.height + padding * 2);
 
-                // Handles
-                const handleSize = 8 / scale;
-                ctx.fillStyle = '#ffffff';
-                ctx.strokeStyle = '#3b82f6';
-                ctx.lineWidth = 2 / scale;
+                // Handles (Only if single selection)
+                if (store.selection.length === 1) {
+                    const handleSize = 8 / scale;
+                    ctx.fillStyle = '#ffffff';
+                    ctx.strokeStyle = '#3b82f6';
+                    ctx.lineWidth = 2 / scale;
 
-                const handles = [
-                    { x: el.x - padding, y: el.y - padding }, // TL
-                    { x: el.x + el.width + padding, y: el.y - padding }, // TR
-                    { x: el.x + el.width + padding, y: el.y + el.height + padding }, // BR
-                    { x: el.x - padding, y: el.y + el.height + padding }, // BL
-                    // Side Handles
-                    { x: el.x + el.width / 2, y: el.y - padding }, // TM
-                    { x: el.x + el.width + padding, y: el.y + el.height / 2 }, // RM
-                    { x: el.x + el.width / 2, y: el.y + el.height + padding }, // BM
-                    { x: el.x - padding, y: el.y + el.height / 2 } // LM
-                ];
+                    const handles = [
+                        { x: el.x - padding, y: el.y - padding }, // TL
+                        { x: el.x + el.width + padding, y: el.y - padding }, // TR
+                        { x: el.x + el.width + padding, y: el.y + el.height + padding }, // BR
+                        { x: el.x - padding, y: el.y + el.height + padding }, // BL
+                        // Side Handles
+                        { x: el.x + el.width / 2, y: el.y - padding }, // TM
+                        { x: el.x + el.width + padding, y: el.y + el.height / 2 }, // RM
+                        { x: el.x + el.width / 2, y: el.y + el.height + padding }, // BM
+                        { x: el.x - padding, y: el.y + el.height / 2 } // LM
+                    ];
 
-                handles.forEach(h => {
-                    ctx.fillRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
-                    ctx.strokeRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
-                });
+                    handles.forEach(h => {
+                        ctx.fillRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
+                        ctx.strokeRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
+                    });
 
-                // Rotate Handle
-                const rotH = { x: el.x + el.width / 2, y: el.y - padding - 20 / scale };
-                ctx.beginPath();
-                ctx.moveTo(el.x + el.width / 2, el.y - padding);
-                ctx.lineTo(rotH.x, rotH.y);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.arc(rotH.x, rotH.y, handleSize / 2, 0, 2 * Math.PI);
-                ctx.fill();
-                ctx.stroke();
+                    // Rotate Handle
+                    const rotH = { x: el.x + el.width / 2, y: el.y - padding - 20 / scale };
+                    ctx.beginPath();
+                    ctx.moveTo(el.x + el.width / 2, el.y - padding);
+                    ctx.lineTo(rotH.x, rotH.y);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(rotH.x, rotH.y, handleSize / 2, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.stroke();
 
-                ctx.restore();
+                    ctx.stroke();
+
+                    ctx.restore();
+                } else {
+                    // For multi-selection, just show the box (already drawn)
+                    ctx.restore();
+                }
             }
         });
+
+        // Draw Selection Box
+        const box = selectionBox();
+        if (box) {
+            ctx.save();
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.2)';
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 1 / scale;
+            // Box is in world coordinates?
+            // Yes, startX/startY and pointer are world.
+            // But context is translated/scaled!
+            // So we draw directly using world coords.
+
+            ctx.fillRect(box.x, box.y, box.w, box.h);
+            ctx.strokeRect(box.x, box.y, box.w, box.h);
+            ctx.restore();
+        }
 
     };
 
@@ -227,6 +256,7 @@ const Canvas: Component = () => {
         store.viewState.panX;
         store.viewState.panY;
         store.selection.length;
+        selectionBox();
         requestAnimationFrame(draw);
     });
 
@@ -344,8 +374,6 @@ const Canvas: Component = () => {
         return null;
     };
 
-    let draggingHandle: string | null = null;
-
     // Helper: Normalize pencil points to be relative to bounding box
     const normalizePencil = (el: DrawingElement) => {
         if (!el.points || el.points.length === 0) return null;
@@ -421,8 +449,9 @@ const Canvas: Component = () => {
 
         if (store.selectedTool === 'selection') {
             const hitHandle = getHandleAtPosition(x, y);
-            if (hitHandle) {
-                pushToHistory(); // Save state before resize/rotate
+            // Allow resize ONLY if single item selected
+            if (hitHandle && store.selection.length === 1) {
+                pushToHistory();
                 isDragging = true;
                 draggingHandle = hitHandle.handle;
                 const el = store.elements.find(e => e.id === hitHandle.id);
@@ -430,7 +459,6 @@ const Canvas: Component = () => {
                     initialElementX = el.x;
                     initialElementY = el.y;
                     initialElementWidth = el.width;
-                    initialElementHeight = el.height;
                     initialElementHeight = el.height;
                     initialElementPoints = el.points ? [...el.points] : undefined;
                     initialElementFontSize = el.fontSize || 20;
@@ -440,7 +468,7 @@ const Canvas: Component = () => {
                 return;
             }
 
-            // Hit Test Body using refined logic
+            // Hit Test Body
             let hitId: string | null = null;
             const threshold = 10 / store.viewState.scale;
 
@@ -453,19 +481,49 @@ const Canvas: Component = () => {
             }
 
             if (hitId) {
-                store.selection.includes(hitId) ? null : setStore('selection', [hitId]);
-                pushToHistory(); // Save state before move
-                isDragging = true;
-                draggingHandle = null;
-                startX = x;
-                startY = y;
-                const el = store.elements.find(e => e.id === hitId);
-                if (el) {
-                    initialElementX = el.x;
-                    initialElementY = el.y;
+                const isSelected = store.selection.includes(hitId);
+
+                if (e.shiftKey) {
+                    // Toggle selection
+                    if (isSelected) {
+                        setStore('selection', s => s.filter(id => id !== hitId));
+                    } else {
+                        setStore('selection', s => [...s, hitId]);
+                    }
+                } else {
+                    // Normal click
+                    if (!isSelected) {
+                        setStore('selection', [hitId]);
+                    }
+                    // If already selected, do nothing (keep selection for potential drag)
+                }
+
+                // Initialize Move (if there is selection)
+                if (store.selection.length > 0) {
+                    pushToHistory();
+                    isDragging = true;
+                    draggingHandle = null;
+                    startX = x;
+                    startY = y;
+
+                    // Capture initial positions for ALL selected elements
+                    initialPositions.clear();
+                    store.elements.forEach(el => {
+                        if (store.selection.includes(el.id)) {
+                            initialPositions.set(el.id, { x: el.x, y: el.y });
+                        }
+                    });
                 }
             } else {
-                setStore('selection', []);
+                // Clicked empty space
+                if (!e.shiftKey) {
+                    setStore('selection', []);
+                }
+                // Start Selection Box
+                isSelecting = true;
+                startX = x;
+                startY = y;
+                setSelectionBox({ x, y, w: 0, h: 0 });
             }
             return;
         }
@@ -582,6 +640,18 @@ const Canvas: Component = () => {
         }
 
         if (store.selectedTool === 'selection') {
+            if (isSelecting) {
+                const w = x - startX;
+                const h = y - startY;
+                setSelectionBox({
+                    x: w > 0 ? startX : startX + w,
+                    y: h > 0 ? startY : startY + h,
+                    w: Math.abs(w),
+                    h: Math.abs(h)
+                });
+                return;
+            }
+
             if (isDragging && store.selection.length > 0) {
                 const id = store.selection[0];
                 const el = store.elements.find(e => e.id === id);
@@ -665,10 +735,16 @@ const Canvas: Component = () => {
                         updateElement(id, updates);
                     }
                 } else {
-                    // Move
+                    // Move Multiple Items
                     const dx = x - startX;
                     const dy = y - startY;
-                    updateElement(id, { x: initialElementX + dx, y: initialElementY + dy });
+
+                    store.selection.forEach(selId => {
+                        const initPos = initialPositions.get(selId);
+                        if (initPos) {
+                            updateElement(selId, { x: initPos.x + dx, y: initPos.y + dy });
+                        }
+                    });
                 }
             }
         }
@@ -733,23 +809,51 @@ const Canvas: Component = () => {
         }
 
         if (store.selectedTool === 'selection') {
-            if (isDragging && store.selection.length > 0) {
-                // We finished dragging/resizing.
-                // WE MUST RECORD PREVIOUS STATE BEFORE THE DRAG STARTED.
-                // BUT we already modified the state during drag!
-                // So `pushToHistory` NOW would save the MODIFIED state.
-                // Logic flaw: We need to push history BEFORE modification starts.
-                // In `handleMouseDown`, we didn't push.
+            if (isSelecting) {
+                const box = selectionBox();
+                if (box) {
+                    // Find touching elements
+                    const selectedIds: string[] = [];
+                    const threshold = 0; // Strict inside? Or touching? usually touching/intersecting.
+                    // Box is in World Coordinates (since startX/Y and x/y are world)
 
-                // Correction: `pushToHistory` saves CURRENT state to Undo.
-                // If we call it BEFORE modification, we save "State A".
-                // Then we modify to "State B".
-                // Undo -> Restores "State A". Correct.
+                    // Normalize Box
+                    const bx = box.x;
+                    const by = box.y;
+                    const bw = box.w;
+                    const bh = box.h;
 
-                // So we need to call `pushToHistory` in `handleMouseDown` when operation STARTS.
+                    store.elements.forEach(el => {
+                        // Simple AABB overlap check
+                        // Element AABB
+                        const elX = el.x;
+                        const elY = el.y;
+                        const elW = el.width;
+                        const elH = el.height;
+
+                        // Intersection
+                        if (bx < elX + elW && bx + bw > elX &&
+                            by < elY + elH && by + bh > elY) {
+                            selectedIds.push(el.id);
+                        }
+                    });
+
+                    if (e.shiftKey) {
+                        // Add to existing
+                        const existing = new Set(store.selection);
+                        selectedIds.forEach(id => existing.add(id));
+                        setStore('selection', Array.from(existing));
+                    } else {
+                        setStore('selection', selectedIds);
+                    }
+                }
+                isSelecting = false;
+                setSelectionBox(null);
             }
+
             isDragging = false;
             draggingHandle = null;
+            initialPositions.clear();
             return;
         }
 
