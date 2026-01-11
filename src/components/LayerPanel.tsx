@@ -1,8 +1,12 @@
-import { type Component, For } from 'solid-js';
+import { type Component, For, createSignal } from 'solid-js';
 import { store, addLayer, setActiveLayer, updateLayer, deleteLayer } from '../store/appStore';
 import './LayerPanel.css';
 
 const LayerPanel: Component = () => {
+    const [editingId, setEditingId] = createSignal<string | null>(null);
+    const [editingName, setEditingName] = createSignal('');
+    let longPressTimer: number | null = null;
+
     const handleAddLayer = () => {
         addLayer();
     };
@@ -31,6 +35,54 @@ const LayerPanel: Component = () => {
         e.stopPropagation();
         if (store.layers.length > 1) {
             deleteLayer(id);
+        }
+    };
+
+    // Start editing layer name
+    const startEditing = (id: string, currentName: string, e: Event) => {
+        e.stopPropagation();
+        setEditingId(id);
+        setEditingName(currentName);
+    };
+
+    // Save layer rename
+    const saveRename = (id: string) => {
+        const newName = editingName().trim();
+        if (newName && newName !== store.layers.find(l => l.id === id)?.name) {
+            updateLayer(id, { name: newName });
+        }
+        setEditingId(null);
+        setEditingName('');
+    };
+
+    // Cancel editing
+    const cancelEditing = () => {
+        setEditingId(null);
+        setEditingName('');
+    };
+
+    // Handle keyboard in rename input
+    const handleRenameKeyDown = (e: KeyboardEvent, id: string) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            saveRename(id);
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            cancelEditing();
+        }
+    };
+
+    // Long press for mobile
+    const handlePointerDown = (id: string, name: string, e: PointerEvent) => {
+        longPressTimer = window.setTimeout(() => {
+            startEditing(id, name, e);
+        }, 500); // 500ms long press
+    };
+
+    const handlePointerUp = () => {
+        if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
         }
     };
 
@@ -70,7 +122,31 @@ const LayerPanel: Component = () => {
                             >
                                 {layer.locked ? '🔒' : '🔓'}
                             </button>
-                            <span class="layer-name">{layer.name}</span>
+
+                            {editingId() === layer.id ? (
+                                <input
+                                    type="text"
+                                    class="layer-name-input"
+                                    value={editingName()}
+                                    onInput={(e) => setEditingName(e.currentTarget.value)}
+                                    onKeyDown={(e) => handleRenameKeyDown(e, layer.id)}
+                                    onBlur={() => saveRename(layer.id)}
+                                    onClick={(e) => e.stopPropagation()}
+                                    ref={(el) => setTimeout(() => el?.select(), 0)}
+                                />
+                            ) : (
+                                <span
+                                    class="layer-name"
+                                    onDblClick={(e) => startEditing(layer.id, layer.name, e)}
+                                    onPointerDown={(e) => handlePointerDown(layer.id, layer.name, e)}
+                                    onPointerUp={handlePointerUp}
+                                    onPointerCancel={handlePointerUp}
+                                    title="Double-click or long-press to rename"
+                                >
+                                    {layer.name}
+                                </span>
+                            )}
+
                             <button
                                 class="layer-delete-btn"
                                 onClick={(e) => handleDeleteLayer(layer.id, e)}

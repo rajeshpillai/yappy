@@ -74,6 +74,12 @@
 - [x] Implement Zoom to Fit (Reset View)
 - [x] Implement Insert Image (PNG/JPG) <!-- id: 32 -->
 - [x] Implement Layers like Procreate / Krita / Figma
+  - Layer Panel UI with add, delete, visibility, lock controls
+  - Layer-based z-ordering and rendering
+  - Backward compatibility with migration for old files
+  - Prevention of drawing on hidden/locked layers (with alerts)
+  - User confirmation dialog for layer deletion with elements
+  - History/undo-redo support for all layer operations
 - [ ] Implement shape connectors (able to link shapes to crete flow chart, data flow like diagrams)
 
 ## Phase 10: Mobile & Pen Support
@@ -84,6 +90,30 @@
 - [x] Refactor Main Menu (Burger Menu handling Open/Save/Export) <!-- id: 34 -->
 - [x] Refactor Save Flow (Remove persistent input, Add Save As Dialog, Show Title) <!-- id: 35 -->
 - [x] Implement Local File Support (Save/Load JSON from Disk) <!-- id: 36 -->
+
+## Phase 12: Layer System (feat-layer branch)
+- [x] Core layer infrastructure (types, store, rendering)
+- [x] LayerPanel component with full controls
+- [x] File compatibility and migration utilities
+- [x] Drawing validation (prevent hidden/locked layer drawing)
+- [x] Improved layer deletion UX with user choice
+- [x] Layer name editing (double-click and long-press for mobile)
+- [ ] Drag & drop layer reordering
+- [ ] Layer context menu (right-click)
+- [ ] Duplicate layer function
+- [ ] Move elements between layers UI (in PropertyPanel)
+
+## Phase 13: Layer Grouping (Future)
+- [ ] Update Layer type to support hierarchy (parentId, isGroup, expanded)
+- [ ] Implement group creation/deletion in store
+- [ ] Add nested rendering in LayerPanel (indentation, expand/collapse)
+- [ ] Implement cascade operations (group visibility/lock affects children)
+- [ ] Add drag & drop into/out of groups
+- [ ] Add expand/collapse UI controls (▶/▼ arrows)
+- [ ] Update rendering to respect group hierarchy
+- [ ] Add "Create Group" and "Ungroup" actions
+- [ ] File format migration for grouped layers
+- [ ] Group icon differentiation in UI (📁 vs layer)
 
 ## Nice to have
 - [ ] Api based drawing (so that programatically design can be created)
