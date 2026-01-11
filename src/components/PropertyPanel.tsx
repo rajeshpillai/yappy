@@ -11,14 +11,10 @@ const PropertyPanel: Component = () => {
         if (store.selection.length === 1) {
             const el = store.elements.find(e => e.id === store.selection[0]);
             return el ? { type: 'element' as const, data: el } : null;
-        } else if (store.selection.length === 0) {
-            // No selection -> editing defaults for the currently selected tool? 
-            // Or just global defaults. Let's assume global defaults for next shape.
-            // But we need to know what "type" we are targeting to show relevant props.
-            // If tool is 'rectangle', show rectangle props.
-            const tool = store.selectedTool === 'selection' ? 'all' : store.selectedTool;
-            return { type: 'default' as const, data: store.defaultElementStyles, toolType: tool };
         }
+        // else if (store.selection.length === 0) { ... } -> USER wants hidden
+
+        return null;
         return null; // Multiple selection not handled yet for detailed props, just basics maybe?
     });
 
@@ -26,11 +22,11 @@ const PropertyPanel: Component = () => {
         const target = activeTarget();
         if (!target) return [];
 
-        const targetType = target.type === 'element' ? target.data.type : target.toolType;
+        const targetType = target.data.type;
 
         return properties.filter(p => {
             if (p.applicableTo === 'all') return true;
-            if (Array.isArray(p.applicableTo) && targetType !== 'all') {
+            if (Array.isArray(p.applicableTo)) {
                 return p.applicableTo.includes(targetType as any);
             }
             return true;
