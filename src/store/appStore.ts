@@ -1,5 +1,5 @@
 import { createStore } from "solid-js/store";
-import type { DrawingElement, ViewState, ElementType } from "../types";
+import type { DrawingElement, ViewState, ElementType, Layer } from "../types";
 
 interface AppState {
     elements: DrawingElement[];
@@ -8,6 +8,8 @@ interface AppState {
     selection: string[]; // IDs of selected elements
     defaultElementStyles: Partial<DrawingElement>; // Styles for new elements
     theme: 'light' | 'dark';
+    layers: Layer[];
+    activeLayerId: string;
 }
 
 const initialState: AppState = {
@@ -34,18 +36,35 @@ const initialState: AppState = {
         endArrowhead: 'arrow',
         seed: 0
     },
-    theme: (localStorage.getItem('theme') as 'light' | 'dark') || 'light'
+    theme: (localStorage.getItem('theme') as 'light' | 'dark') || 'light',
+    layers: [
+        {
+            id: 'default-layer',
+            name: 'Layer 1',
+            visible: true,
+            locked: false,
+            order: 0
+        }
+    ],
+    activeLayerId: 'default-layer'
 };
 
 export const [store, setStore] = createStore<AppState>(initialState);
 
-// History Stacks
-const undoStack: DrawingElement[][] = [];
-const redoStack: DrawingElement[][] = [];
+// History Stacks - Now include layers
+interface HistorySnapshot {
+    elements: DrawingElement[];
+    layers: Layer[];
+}
+const undoStack: HistorySnapshot[] = [];
+const redoStack: HistorySnapshot[] = [];
 
 export const pushToHistory = () => {
-    // Deep copy current elements
-    const snapshot = JSON.parse(JSON.stringify(store.elements));
+    // Deep copy current elements and layers
+    const snapshot: HistorySnapshot = {
+        elements: JSON.parse(JSON.stringify(store.elements)),
+        layers: JSON.parse(JSON.stringify(store.layers))
+    };
     undoStack.push(snapshot);
     // Limit stack size? Say 50
     if (undoStack.length > 50) undoStack.shift();
@@ -57,13 +76,17 @@ export const undo = () => {
     if (undoStack.length === 0) return;
 
     // Save current state to redo
-    const currentSnapshot = JSON.parse(JSON.stringify(store.elements));
+    const currentSnapshot: HistorySnapshot = {
+        elements: JSON.parse(JSON.stringify(store.elements)),
+        layers: JSON.parse(JSON.stringify(store.layers))
+    };
     redoStack.push(currentSnapshot);
 
     // Restore from undo
     const previousState = undoStack.pop();
     if (previousState) {
-        setStore("elements", previousState);
+        setStore("elements", previousState.elements);
+        setStore("layers", previousState.layers);
     }
 };
 
@@ -71,13 +94,17 @@ export const redo = () => {
     if (redoStack.length === 0) return;
 
     // Save current to undo
-    const currentSnapshot = JSON.parse(JSON.stringify(store.elements));
+    const currentSnapshot: HistorySnapshot = {
+        elements: JSON.parse(JSON.stringify(store.elements)),
+        layers: JSON.parse(JSON.stringify(store.layers))
+    };
     undoStack.push(currentSnapshot);
 
     // Restore from redo
     const nextState = redoStack.pop();
     if (nextState) {
-        setStore("elements", nextState);
+        setStore("elements", nextState.elements);
+        setStore("layers", nextState.layers);
     }
 };
 
@@ -230,6 +257,96 @@ export const zoomToFit = () => {
         scale: newScale,
         panX: -contentCX * newScale + screenCX,
         panY: -contentCY * newScale + screenCY
+    });
+};
+
+// Layer Management Functions
+export const addLayer = (name?: string) => {
+    pushToHistory();
+    const newId = crypto.randomUUID();
+    const maxOrder = Math.max(...store.layers.map(l => l.order), -1);
+    const newLayer: Layer = {
+        id: newId,
+        name: name || `Layer ${store.layers.length + 1}`,
+        visible: true,
+        locked: false,
+        order: maxOrder + 1
+    };
+    setStore('layers', [...store.layers, newLayer]);
+    setStore('activeLayerId', newId);
+    return newId;
+};
+
+export const deleteLayer = (id: string) => {
+    // Cannot delete the last layer
+    if (store.layers.length <= 1) return;
+
+    // Cannot delete default layer if it has elements
+    const layer = store.layers.find(l => l.id === id);
+    if (!layer) return;
+
+    pushToHistory();
+
+    // Move all elements from this layer to the first remaining layer
+    const remainingLayer = store.layers.find(l => l.id !== id);
+    if (remainingLayer) {
+        store.elements.forEach((el, idx) => {
+            if (el.layerId === id) {
+                setStore('elements', idx, 'layerId', remainingLayer.id);
+            }
+        });
+    }
+
+    // Remove the layer
+    setStore('layers', store.layers.filter(l => l.id !== id));
+
+    // Update active layer if needed
+    if (store.activeLayerId === id) {
+        setStore('activeLayerId', store.layers[0]?.id || 'default-layer');
+    }
+};
+
+export const updateLayer = (id: string, updates: Partial<Layer>) => {
+    const idx = store.layers.findIndex(l => l.id === id);
+    if (idx === -1) return;
+
+    // Don't record history for simple UI toggles
+    setStore('layers', idx, updates);
+};
+
+export const reorderLayers = (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) return;
+    pushToHistory();
+
+    const newLayers = [...store.layers];
+    const [movedLayer] = newLayers.splice(fromIndex, 1);
+    newLayers.splice(toIndex, 0, movedLayer);
+
+    // Update order values
+    newLayers.forEach((layer, idx) => {
+        layer.order = idx;
+    });
+
+    setStore('layers', newLayers);
+};
+
+export const setActiveLayer = (id: string) => {
+    const layer = store.layers.find(l => l.id === id);
+    if (layer) {
+        setStore('activeLayerId', id);
+    }
+};
+
+export const moveElementsToLayer = (elementIds: string[], targetLayerId: string) => {
+    const targetLayer = store.layers.find(l => l.id === targetLayerId);
+    if (!targetLayer) return;
+
+    pushToHistory();
+    elementIds.forEach(elId => {
+        const idx = store.elements.findIndex(e => e.id === elId);
+        if (idx !== -1) {
+            setStore('elements', idx, 'layerId', targetLayerId);
+        }
     });
 };
 

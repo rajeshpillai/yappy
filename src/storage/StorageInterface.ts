@@ -1,8 +1,9 @@
-import type { DrawingElement, ViewState } from "../types";
+import type { DrawingElement, ViewState, Layer } from "../types";
 
 export interface DrawingData {
     elements: DrawingElement[];
     viewState: ViewState;
+    layers?: Layer[]; // Optional for backward compatibility
 }
 
 export interface StorageInterface {

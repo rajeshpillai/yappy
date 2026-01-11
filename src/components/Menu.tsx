@@ -5,6 +5,7 @@ import { Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus, Undo2, Redo2, Tra
 import FileOpenDialog from "./FileOpenDialog";
 import ExportDialog from "./ExportDialog";
 import SaveDialog from "./SaveDialog";
+import { migrateDrawingData } from "../utils/migration";
 import "./Menu.css";
 
 const Menu: Component = () => {
@@ -31,7 +32,8 @@ const Menu: Component = () => {
             try {
                 await storage.saveDrawing(filename, {
                     elements: store.elements,
-                    viewState: store.viewState
+                    viewState: store.viewState,
+                    layers: store.layers
                 });
                 alert(`Drawing saved as "${filename}"!`);
             } catch (e) {
@@ -43,6 +45,7 @@ const Menu: Component = () => {
             const data = JSON.stringify({
                 elements: store.elements,
                 viewState: store.viewState,
+                layers: store.layers,
                 version: 1
             }, null, 2);
 
@@ -83,9 +86,12 @@ const Menu: Component = () => {
         try {
             const data = await storage.loadDrawing(targetId);
             if (data) {
+                const migrated = migrateDrawingData(data);
                 setStore({
-                    elements: data.elements || [],
-                    viewState: data.viewState || { scale: 1, panX: 0, panY: 0 }
+                    elements: migrated.elements,
+                    viewState: data.viewState || { scale: 1, panX: 0, panY: 0 },
+                    layers: migrated.layers,
+                    activeLayerId: migrated.layers[0]?.id || 'default-layer'
                 });
                 setDrawingId(targetId);
             } else {
@@ -127,9 +133,12 @@ const Menu: Component = () => {
             try {
                 const json = JSON.parse(event.target?.result as string);
                 if (json.elements) {
+                    const migrated = migrateDrawingData(json);
                     setStore({
-                        elements: json.elements,
-                        viewState: json.viewState || { scale: 1, panX: 0, panY: 0 }
+                        elements: migrated.elements,
+                        viewState: json.viewState || { scale: 1, panX: 0, panY: 0 },
+                        layers: migrated.layers,
+                        activeLayerId: migrated.layers[0]?.id || 'default-layer'
                     });
                     // Set title from filename without extension
                     const name = file.name.replace(/\.json$/i, '');

@@ -60,6 +60,15 @@ export interface DrawingElement {
     groupIds?: string[];
     boundElements?: { id: string; type: 'arrow' | 'text' }[] | null;
     isSelected?: boolean;
+    layerId: string; // Reference to parent layer
+}
+
+export interface Layer {
+    id: string;
+    name: string;
+    visible: boolean;
+    locked: boolean;
+    order: number; // Lower numbers render first (background)
 }
 
 export interface ViewState {

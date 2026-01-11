@@ -73,7 +73,8 @@
 - [x] Implement Delete Drawings (UI and Backend)
 - [x] Implement Zoom to Fit (Reset View)
 - [x] Implement Insert Image (PNG/JPG) <!-- id: 32 -->
-- [ ] Implement Layers like Procreate / Krita / Figma
+- [x] Implement Layers like Procreate / Krita / Figma
+- [ ] Implement shape connectors (able to link shapes to crete flow chart, data flow like diagrams)
 
 ## Phase 10: Mobile & Pen Support
 - [x] Migrate Mouse Events to Pointer Events in Canvas <!-- id: 32 -->

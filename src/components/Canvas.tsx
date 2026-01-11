@@ -65,8 +65,23 @@ const Canvas: Component = () => {
         ctx.translate(panX, panY);
         ctx.scale(scale, scale);
 
-        // Render Elements
-        store.elements.forEach(el => {
+        // Render Elements - Sort by layer order and filter by visibility
+        const visibleElements = store.elements
+            .map(el => {
+                const layer = store.layers.find(l => l.id === el.layerId);
+                return { element: el, layer };
+            })
+            .filter(({ layer }) => layer?.visible !== false)  // Hide if layer invisible
+            .sort((a, b) => {
+                // First sort by layer order (lower order = background)
+                const layerOrderDiff = (a.layer?.order ?? 999) - (b.layer?.order ?? 999);
+                if (layerOrderDiff !== 0) return layerOrderDiff;
+
+                // Within same layer, maintain element order
+                return store.elements.indexOf(a.element) - store.elements.indexOf(b.element);
+            });
+
+        visibleElements.forEach(({ element: el }) => {
             let cx = el.x + el.width / 2;
             let cy = el.y + el.height / 2;
 
@@ -170,6 +185,11 @@ const Canvas: Component = () => {
         store.viewState.panY;
         store.selection.length;
         selectionBox();
+        // Track layer changes
+        store.layers.length;
+        store.layers.forEach(l => {
+            l.visible; l.order;
+        });
         requestAnimationFrame(draw);
     });
 
@@ -349,6 +369,12 @@ const Canvas: Component = () => {
         return false;
     };
 
+    // Helper: Check if element can be interacted with (not on locked layer)
+    const canInteractWithElement = (el: DrawingElement): boolean => {
+        const layer = store.layers.find(l => l.id === el.layerId);
+        return layer?.locked !== true;
+    };
+
     const handlePointerDown = (e: PointerEvent) => {
         (e.currentTarget as Element).setPointerCapture(e.pointerId);
         const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
@@ -387,6 +413,9 @@ const Canvas: Component = () => {
 
             for (let i = store.elements.length - 1; i >= 0; i--) {
                 const el = store.elements[i];
+                // Skip elements on locked layers
+                if (!canInteractWithElement(el)) continue;
+
                 if (hitTestElement(el, x, y, threshold)) {
                     hitId = el.id;
                     break;
@@ -465,7 +494,8 @@ const Canvas: Component = () => {
                 seed: Math.floor(Math.random() * 2 ** 31),
                 roundness: null,
                 locked: false,
-                link: null
+                link: null,
+                layerId: store.activeLayerId
             };
             addElement(newElement);
             setEditingId(id);
@@ -517,7 +547,8 @@ const Canvas: Component = () => {
             seed: Math.floor(Math.random() * 2 ** 31),
             roundness: null,
             locked: false,
-            link: null
+            link: null,
+            layerId: store.activeLayerId
         };
 
         addElement(newElement);

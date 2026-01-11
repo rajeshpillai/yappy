@@ -5,6 +5,7 @@ import Toolbar from './components/Toolbar';
 import Menu from './components/Menu';
 import ZoomControls from './components/ZoomControls';
 import PropertyPanel from './components/PropertyPanel';
+import LayerPanel from './components/LayerPanel';
 
 
 const App: Component = () => {
@@ -41,6 +42,7 @@ const App: Component = () => {
       <Toolbar />
 
       <PropertyPanel />
+      <LayerPanel />
       <Menu />
       <ZoomControls />
       <Canvas />
