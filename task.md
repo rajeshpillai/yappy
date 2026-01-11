@@ -138,11 +138,11 @@
   - Visual grid overlay (toggleable)
   - Grid color and opacity settings
   - Optimized rendering (only visible lines)
-- [ ] Snap to grid functionality
-  - Snap while drawing new elements
-  - Snap while moving elements
-  - Snap while resizing elements
-  - Configurable snap threshold
+- [x] Snap to grid functionality
+  - [x] Snap while drawing new elements
+  - [x] Snap while moving elements
+  - [x] Snap while resizing elements
+  - [x] Configurable snap threshold (using grid size)
 - [ ] Snap to objects
   - Snap to edges of other elements
   - Snap to centers of other elements

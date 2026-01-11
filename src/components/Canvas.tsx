@@ -235,6 +235,11 @@ const Canvas: Component = () => {
         store.layers.forEach(l => {
             l.visible; l.order;
         });
+        // Track grid settings changes
+        store.gridSettings.enabled;
+        store.gridSettings.gridSize;
+        store.gridSettings.gridColor;
+        store.gridSettings.gridOpacity;
         requestAnimationFrame(draw);
     });
 
@@ -579,15 +584,25 @@ const Canvas: Component = () => {
         }
 
         isDrawing = true;
-        startX = x;
-        startY = y;
+
+        // Snap start position if enabled
+        let creationX = x;
+        let creationY = y;
+        if (store.gridSettings.snapToGrid) {
+            const snapped = snapPoint(x, y, store.gridSettings.gridSize);
+            creationX = snapped.x;
+            creationY = snapped.y;
+        }
+
+        startX = creationX;
+        startY = creationY;
         currentId = crypto.randomUUID();
 
         const newElement = {
             id: currentId,
             type: store.selectedTool,
-            x,
-            y,
+            x: creationX,
+            y: creationY,
             width: 0,
             height: 0,
             strokeColor: '#000000',
@@ -664,15 +679,21 @@ const Canvas: Component = () => {
                         const cy = el.y + el.height / 2;
                         // Calculate angle
                         const angle = Math.atan2(y - cy, x - cx);
-                        // Handle is at top (-PI/2). So we need to offset.
-                        // But we just want angle of pointer relative to center
-                        // plus 90 deg offset because pointer started at -90 deg relative to center?
-                        // Actually, just simpler: angle from center to mouse, plus 90 degrees (so when mouse is at top, angle is 0).
                         updateElement(id, { angle: angle + Math.PI / 2 });
                     } else {
                         // RESIZING
-                        const dx = x - startX;
-                        const dy = y - startY;
+                        let resizeX = x;
+                        let resizeY = y;
+
+                        // Snap handle position to grid if enabled
+                        if (store.gridSettings.snapToGrid) {
+                            const snapped = snapPoint(x, y, store.gridSettings.gridSize);
+                            resizeX = snapped.x;
+                            resizeY = snapped.y;
+                        }
+
+                        const dx = resizeX - startX;
+                        const dy = resizeY - startY;
 
                         let newX = initialElementX;
                         let newY = initialElementY;
@@ -709,8 +730,6 @@ const Canvas: Component = () => {
 
                         const updates: any = { x: newX, y: newY, width: newWidth, height: newHeight };
 
-
-
                         // Scale points for pencil
                         if (el.type === 'pencil' && initialElementPoints) {
                             const scaleX = newWidth / initialElementWidth;
@@ -736,8 +755,15 @@ const Canvas: Component = () => {
                     }
                 } else {
                     // Move Multiple Items
-                    const dx = x - startX;
-                    const dy = y - startY;
+                    let dx = x - startX;
+                    let dy = y - startY;
+
+                    // Snap delta to grid if enabled
+                    if (store.gridSettings.snapToGrid) {
+                        const gridSize = store.gridSettings.gridSize;
+                        dx = Math.round(dx / gridSize) * gridSize;
+                        dy = Math.round(dy / gridSize) * gridSize;
+                    }
 
                     store.selection.forEach(selId => {
                         const initPos = initialPositions.get(selId);
@@ -770,9 +796,19 @@ const Canvas: Component = () => {
                 updateElement(currentId, { points: [...el.points, { x: x - startX, y: y - startY }] });
             }
         } else {
+            // Apply snap to grid if enabled
+            let finalX = x;
+            let finalY = y;
+
+            if (store.gridSettings.snapToGrid) {
+                const snapped = snapPoint(x, y, store.gridSettings.gridSize);
+                finalX = snapped.x;
+                finalY = snapped.y;
+            }
+
             updateElement(currentId, {
-                width: x - startX,
-                height: y - startY
+                width: finalX - startX,
+                height: finalY - startY
             });
         }
 
