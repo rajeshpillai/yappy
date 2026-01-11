@@ -2,7 +2,7 @@ import { type Component, onMount, createEffect, onCleanup, createSignal, Show } 
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
 import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements } from "../store/appStore";
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse } from "../utils/geometry";
-import type { DrawingElement, Point } from "../types";
+import type { DrawingElement } from "../types";
 import { renderElement } from "../utils/renderElement";
 
 
@@ -727,7 +727,7 @@ const Canvas: Component = () => {
                 if (box) {
                     // Find touching elements
                     const selectedIds: string[] = [];
-                    const threshold = 0; // Strict inside? Or touching? usually touching/intersecting.
+                    // Strict inside? Or touching? usually touching/intersecting.
                     // Box is in World Coordinates (since startX/Y and x/y are world)
 
                     // Normalize Box

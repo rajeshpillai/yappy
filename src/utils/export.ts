@@ -1,7 +1,7 @@
 import { store } from "../store/appStore";
 import { renderElement } from "./renderElement";
 import rough from 'roughjs/bin/rough';
-import type { DrawingElement } from "../types";
+
 
 export const exportToPng = async (scale: number, background: boolean) => {
     const elements = store.elements;
