@@ -7,6 +7,19 @@ This document tracks the complete evolution of the **Yappy** project. It include
 *   **Decisions:** Chosen SolidJS for reactivity and performance. HTML5 Canvas API over SVG for better performance with high element counts (infinite canvas).
 *   **Architecture:** `requestAnimationFrame` loop in `Canvas.tsx` driven by a central `appStore`.
 
+## Phase 7: Pan Tool
+**Goal:** Explicit tool for canvas navigation.
+
+*   **User Request:** Add a "Hand" symbol for panning, similar to Excalidraw.
+*   **Implementation:**
+    *   **Tool:** Added `pan` type to `ElementType` and `Hand` icon to Toolbar.
+    *   **Logic:** In `Canvas.tsx`, handled `pan` tool to allow dragging the canvas (`setViewState` with `movementX/Y`) and updated cursor to `grab`/`grabbing`.
+
+## Current State
+*   **Architecture:** SolidJS Store + HTML5 Canvas.
+*   **Features:** Infinite Canvas, Shapes, Pencil, Text, Selection/Resize/Rotate, Undo/Redo, Save/Load, Eraser, Auto-Scroll, Pan Tool.
+*   **Stability:** Scroll bugs fixed; coordinate systems normalized.
+
 ## Phase 2: UI & Interaction
 **Goal:** Excalidraw-like feel.
 *   **Implementation:** separated styles into `Toolbar`/`Menu`. Implemented `hitTestElement` using point-to-segment distance for lines and ellipse checks for circles to ensure clicking "feels" right (not just bounding boxes).
