@@ -4,26 +4,33 @@ import { store, setStore, undo, redo, deleteElements, clearHistory, toggleTheme,
 import { Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus, Undo2, Redo2, Trash2, Maximize, Moon, Sun, Image as ImageIcon } from "lucide-solid";
 import FileOpenDialog from "./FileOpenDialog";
 import ExportDialog from "./ExportDialog";
+import SaveDialog from "./SaveDialog";
 import "./Menu.css";
 
 const Menu: Component = () => {
     const [drawingId, setDrawingId] = createSignal('default');
     const [isDialogOpen, setIsDialogOpen] = createSignal(false);
     const [isExportOpen, setIsExportOpen] = createSignal(false);
+    const [isSaveOpen, setIsSaveOpen] = createSignal(false);
     const [isMenuOpen, setIsMenuOpen] = createSignal(false);
 
-    const handleSave = async () => {
+    const handleSaveRequest = () => {
+        setIsSaveOpen(true);
+        setIsMenuOpen(false);
+    };
+
+    const performSave = async (filename: string) => {
         try {
-            await storage.saveDrawing(drawingId(), {
+            await storage.saveDrawing(filename, {
                 elements: store.elements,
                 viewState: store.viewState
             });
-            alert('Drawing saved!');
+            setDrawingId(filename);
+            alert(`Drawing saved as "${filename}"!`);
         } catch (e) {
             console.error(e);
             alert('Failed to save');
         }
-        setIsMenuOpen(false);
     };
 
     const handleLoad = async (id?: string) => {
@@ -79,6 +86,9 @@ const Menu: Component = () => {
                 if (e.key === 'o') {
                     e.preventDefault();
                     setIsDialogOpen(true);
+                } else if (e.key === 's') { // Ctrl+S
+                    e.preventDefault();
+                    handleSaveRequest();
                 } else if (e.key.toLowerCase() === 'e' && e.shiftKey) { // Ctrl+Shift+E
                     e.preventDefault();
                     setIsExportOpen(true);
@@ -95,7 +105,6 @@ const Menu: Component = () => {
                 <div class="menu-backdrop" onClick={() => setIsMenuOpen(false)}></div>
             </Show>
 
-            {/* Open File Dialog */}
             <FileOpenDialog
                 isOpen={isDialogOpen()}
                 onClose={() => setIsDialogOpen(false)}
@@ -109,6 +118,18 @@ const Menu: Component = () => {
                 isOpen={isExportOpen()}
                 onClose={() => setIsExportOpen(false)}
             />
+
+            <SaveDialog
+                isOpen={isSaveOpen()}
+                onClose={() => setIsSaveOpen(false)}
+                onSave={performSave}
+                initialFilename={drawingId()}
+            />
+
+            {/* App Title */}
+            <div class="app-title">
+                {drawingId()}
+            </div>
 
             {/* Top Left Menu */}
             <div style={{ position: 'fixed', top: '12px', left: '12px', "z-index": 1001 }}>
@@ -124,9 +145,10 @@ const Menu: Component = () => {
                                 <span class="label">Open</span>
                                 <span class="shortcut">Ctrl+O</span>
                             </button>
-                            <button class="menu-item" onClick={handleSave}>
+                            <button class="menu-item" onClick={handleSaveRequest}>
                                 <Save size={16} />
                                 <span class="label">Save to...</span>
+                                <span class="shortcut">Ctrl+S</span>
                             </button>
                             <button class="menu-item" onClick={() => { setIsExportOpen(true); setIsMenuOpen(false); }}>
                                 <ImageIcon size={16} />
@@ -164,15 +186,8 @@ const Menu: Component = () => {
             </div>
 
             {/* Top Right Controls */}
-            <div style={{ position: 'fixed', top: '12px', right: '300px', "z-index": 100 }}>
+            <div style={{ position: 'fixed', top: '12px', right: '12px', "z-index": 100 }}>
                 <div class="menu-container">
-                    <input
-                        type="text"
-                        class="title-input"
-                        value={drawingId()}
-                        onInput={(e) => setDrawingId(e.currentTarget.value)}
-                    />
-
                     <button class="menu-btn primary" onClick={handleShare} title="Share">
                         <Share2 size={18} />
                         <span style={{ "margin-left": "4px" }}>Share</span>

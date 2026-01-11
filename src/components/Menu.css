@@ -131,3 +131,21 @@
     z-index: 999;
     cursor: default;
 }
+
+.app-title {
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-panel);
+    padding: 6px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+    z-index: 100;
+    font-size: 14px;
+    pointer-events: none;
+    /* Let clicks pass through if needed, but it's a block */
+}

@@ -1,0 +1,30 @@
+{
+  "elements": [
+    {
+      "id": "7372aa01-4320-4e62-86c8-7f53fb8f48b3",
+      "type": "rectangle",
+      "x": 295,
+      "y": 208,
+      "width": 197,
+      "height": 139,
+      "strokeColor": "#000000",
+      "backgroundColor": "transparent",
+      "strokeWidth": 2,
+      "angle": 0,
+      "opacity": 100,
+      "strokeStyle": "solid",
+      "fillStyle": "hachure",
+      "roughness": 1,
+      "renderStyle": "sketch",
+      "seed": 175557743,
+      "roundness": null,
+      "locked": false,
+      "link": null
+    }
+  ],
+  "viewState": {
+    "scale": 1,
+    "panX": 0,
+    "panY": 0
+  }
+}
