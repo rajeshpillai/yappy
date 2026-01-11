@@ -66,6 +66,15 @@
 - [x] Configure static build (base path) <!-- id: 27 -->
 - [x] Deploy to GitHub Pages (gh-pages branch) <!-- id: 28 -->
 
+## Phase 9: Future Enhancements
+- [ ] Implement Export to Image (PNG/SVG) <!-- id: 29 -->
+- [ ] Implement Dark Mode support <!-- id: 30 -->
+- [ ] Implement Groups (selecting multiple items) <!-- id: 31 -->
+
+## Phase 10: Mobile & Pen Support
+- [x] Migrate Mouse Events to Pointer Events in Canvas <!-- id: 32 -->
+- [x] Add touch-action: none to Canvas CSS <!-- id: 33 -->
+
 
 
 

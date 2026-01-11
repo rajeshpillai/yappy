@@ -408,7 +408,8 @@ const Canvas: Component = () => {
         return false;
     };
 
-    const handleMouseDown = (e: MouseEvent) => {
+    const handlePointerDown = (e: PointerEvent) => {
+        (e.currentTarget as Element).setPointerCapture(e.pointerId);
         const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
 
         if (editingId()) {
@@ -551,7 +552,7 @@ const Canvas: Component = () => {
         addElement(newElement);
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handlePointerMove = (e: PointerEvent) => {
         const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
 
         // Update Cursor
@@ -723,7 +724,8 @@ const Canvas: Component = () => {
         }
     };
 
-    const handleMouseUp = () => {
+    const handlePointerUp = (e: PointerEvent) => {
+        (e.currentTarget as Element).releasePointerCapture(e.pointerId);
         if (store.selectedTool === 'pan') {
             isDragging = false;
             setCursor('grab');
@@ -916,9 +918,9 @@ const Canvas: Component = () => {
             <canvas
                 ref={canvasRef}
                 onWheel={handleWheel}
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
                 style={{ display: "block", "touch-action": "none", cursor: cursor() }}
             />
 
