@@ -1,0 +1,69 @@
+{
+  "elements": [
+    {
+      "id": "f0c38a4c-cf2b-43cf-9492-4e311fe9eaac",
+      "type": "rectangle",
+      "x": 466.66668701171875,
+      "y": 187.7777862548828,
+      "width": 137.77777099609375,
+      "height": 93.33332824707031,
+      "strokeColor": "#000000",
+      "backgroundColor": "transparent",
+      "strokeWidth": 2,
+      "angle": 0,
+      "opacity": 100,
+      "strokeStyle": "solid",
+      "fillStyle": "hachure",
+      "roughness": 1,
+      "renderStyle": "sketch",
+      "seed": 658882668,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "default-layer"
+    },
+    {
+      "id": "fa62a943-2f34-41e4-998c-41527fe4cec5",
+      "type": "circle",
+      "x": 721.1111450195312,
+      "y": 330.0000305175781,
+      "width": 123.33331298828125,
+      "height": 122.22219848632812,
+      "strokeColor": "#000000",
+      "backgroundColor": "#6741d9",
+      "strokeWidth": 2,
+      "angle": 0,
+      "opacity": 100,
+      "strokeStyle": "solid",
+      "fillStyle": "hachure",
+      "roughness": 1,
+      "renderStyle": "sketch",
+      "seed": 2010850473,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "188bb8a9-46aa-4002-a0ca-38abe92d2f8b"
+    }
+  ],
+  "viewState": {
+    "scale": 1,
+    "panX": 0,
+    "panY": 0
+  },
+  "layers": [
+    {
+      "id": "default-layer",
+      "name": "Layer 1",
+      "visible": true,
+      "locked": false,
+      "order": 0
+    },
+    {
+      "id": "188bb8a9-46aa-4002-a0ca-38abe92d2f8b",
+      "name": "Layer 2",
+      "visible": true,
+      "locked": false,
+      "order": 1
+    }
+  ]
+}

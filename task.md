@@ -98,7 +98,7 @@
 - [x] Drawing validation (prevent hidden/locked layer drawing)
 - [x] Improved layer deletion UX with user choice
 - [x] Layer name editing (double-click and long-press for mobile)
-- [ ] Drag & drop layer reordering
+- [x] Drag & drop layer reordering
 - [ ] Layer context menu (right-click)
 - [x] Duplicate layer function
 - [x] Move elements between layers UI (in PropertyPanel)

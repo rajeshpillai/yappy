@@ -1,11 +1,13 @@
 import { type Component, For, createSignal, Show } from 'solid-js';
-import { store, addLayer, setActiveLayer, updateLayer, deleteLayer, duplicateLayer } from '../store/appStore';
+import { store, addLayer, setActiveLayer, updateLayer, deleteLayer, duplicateLayer, reorderLayers } from '../store/appStore';
 import './LayerPanel.css';
 
 const LayerPanel: Component = () => {
     const [editingId, setEditingId] = createSignal<string | null>(null);
     const [editingName, setEditingName] = createSignal('');
     const [isCollapsed, setIsCollapsed] = createSignal(false);
+    const [draggedId, setDraggedId] = createSignal<string | null>(null);
+    const [dragOverId, setDragOverId] = createSignal<string | null>(null);
     let longPressTimer: number | null = null;
 
     const handleAddLayer = () => {
@@ -92,6 +94,55 @@ const LayerPanel: Component = () => {
         }
     };
 
+    // Drag and drop handlers
+    const handleDragStart = (id: string, e: DragEvent) => {
+        setDraggedId(id);
+        e.dataTransfer!.effectAllowed = 'move';
+        e.dataTransfer!.setData('text/plain', id);
+        // Add visual feedback
+        setTimeout(() => {
+            (e.target as HTMLElement).style.opacity = '0.5';
+        }, 0);
+    };
+
+    const handleDragEnd = (e: DragEvent) => {
+        (e.target as HTMLElement).style.opacity = '1';
+        setDraggedId(null);
+        setDragOverId(null);
+    };
+
+    const handleDragOver = (id: string, e: DragEvent) => {
+        e.preventDefault();
+        e.dataTransfer!.dropEffect = 'move';
+        setDragOverId(id);
+    };
+
+    const handleDragLeave = () => {
+        setDragOverId(null);
+    };
+
+    const handleDrop = (targetId: string, e: DragEvent) => {
+        e.preventDefault();
+        const sourceId = draggedId();
+
+        if (sourceId && sourceId !== targetId) {
+            // Find indices in current layer order
+            const reversedList = [...store.layers].reverse();
+            const sourceIndex = reversedList.findIndex(l => l.id === sourceId);
+            const targetIndex = reversedList.findIndex(l => l.id === targetId);
+
+            if (sourceIndex !== -1 && targetIndex !== -1) {
+                // Convert back to normal order indices
+                const normalSourceIndex = store.layers.length - 1 - sourceIndex;
+                const normalTargetIndex = store.layers.length - 1 - targetIndex;
+                reorderLayers(normalSourceIndex, normalTargetIndex);
+            }
+        }
+
+        setDraggedId(null);
+        setDragOverId(null);
+    };
+
     // Reverse to show top layers first
     const reversedLayers = () => [...store.layers].reverse();
 
@@ -121,9 +172,19 @@ const LayerPanel: Component = () => {
                     <For each={reversedLayers()}>
                         {(layer) => (
                             <div
-                                class={`layer-item ${store.activeLayerId === layer.id ? 'active' : ''}`}
+                                class={`layer-item ${store.activeLayerId === layer.id ? 'active' : ''} ${dragOverId() === layer.id ? 'drag-over' : ''}`}
                                 onClick={() => handleLayerClick(layer.id)}
+                                draggable={true}
+                                onDragStart={(e) => handleDragStart(layer.id, e)}
+                                onDragEnd={handleDragEnd}
+                                onDragOver={(e) => handleDragOver(layer.id, e)}
+                                onDragLeave={handleDragLeave}
+                                onDrop={(e) => handleDrop(layer.id, e)}
                             >
+                                {/* Drag Handle */}
+                                <span class="drag-handle" title="Drag to reorder">
+                                    ⋮⋮
+                                </span>
                                 <button
                                     class={`layer-visibility-btn ${layer.visible ? 'visible' : 'hidden'}`}
                                     onClick={(e) => handleToggleVisibility(layer.id, e)}
