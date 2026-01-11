@@ -14,6 +14,19 @@ export interface PropertyConfig {
 }
 
 export const properties: PropertyConfig[] = [
+    // Style
+    {
+        key: 'renderStyle',
+        label: 'Style',
+        type: 'select',
+        group: 'style',
+        options: [
+            { label: 'Sketch', value: 'sketch' },
+            { label: 'Architectural', value: 'architectural' }
+        ],
+        applicableTo: ['rectangle', 'circle', 'line', 'arrow'],
+        defaultValue: 'sketch'
+    },
     // Stroke
     {
         key: 'strokeColor',
@@ -188,6 +201,7 @@ export const properties: PropertyConfig[] = [
         applicableTo: 'all',
         defaultValue: false
     },
+
     {
         key: 'link',
         label: 'Link',

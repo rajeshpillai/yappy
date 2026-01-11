@@ -28,6 +28,7 @@ export interface DrawingElement {
     roughness: number;
     opacity: number; // 0-100
     angle: number; // radians
+    renderStyle: 'sketch' | 'architectural';
     seed: number;
     roundness: null | { type: number };
     locked: boolean;

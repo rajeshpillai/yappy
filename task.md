@@ -58,8 +58,10 @@
 ## Phase 8: RoughJS Integration
 - [x] Install roughjs <!-- id: 21 -->
 - [x] Update appStore to generate seeds for elements <!-- id: 22 -->
-- [ ] Refactor Canvas.tsx to use roughjs for rendering <!-- id: 23 -->
-- [ ] Verify fill styles (hachure, solid, etc) <!-- id: 24 -->
+- [x] Refactor Canvas.tsx to use roughjs for rendering <!-- id: 23 -->
+- [x] Verify fill styles (hachure, solid, etc) <!-- id: 24 -->
+- [x] Implement 'renderStyle' ('sketch' vs 'architectural') property <!-- id: 25 -->
+- [x] Implement dual rendering logic in Canvas.tsx <!-- id: 26 -->
 
 
 

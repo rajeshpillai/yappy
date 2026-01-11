@@ -21,6 +21,7 @@ const initialState: AppState = {
         strokeWidth: 1,
         strokeStyle: 'solid',
         roughness: 1,
+        renderStyle: 'sketch',
         opacity: 100,
         angle: 0,
         roundness: null,
