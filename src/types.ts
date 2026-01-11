@@ -20,6 +20,7 @@ export interface DrawingElement {
     isSelected?: boolean;
     rotation: number; // in radians
     opacity: number;  // 0 to 100
+    strokeStyle?: 'solid' | 'dashed' | 'dotted';
 }
 
 export interface ViewState {

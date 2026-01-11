@@ -76,6 +76,15 @@ const Canvas: Component = () => {
             ctx.lineWidth = el.strokeWidth;
             ctx.fillStyle = el.backgroundColor;
 
+            // Stroke Style
+            if (el.strokeStyle === 'dashed') {
+                ctx.setLineDash([10, 10]);
+            } else if (el.strokeStyle === 'dotted') {
+                ctx.setLineDash([5, 10]);
+            } else {
+                ctx.setLineDash([]);
+            }
+
             ctx.beginPath();
             if (el.type === 'rectangle') {
                 ctx.rect(el.x, el.y, el.width, el.height);
@@ -515,7 +524,8 @@ const Canvas: Component = () => {
             strokeWidth: 2,
             points: store.selectedTool === 'pencil' ? [{ x: 0, y: 0 }] : undefined,
             rotation: 0,
-            opacity: 100
+            opacity: 100,
+            strokeStyle: 'solid'
         };
 
         addElement(newElement);

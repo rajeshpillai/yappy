@@ -20,6 +20,16 @@ This document tracks the complete evolution of the **Yappy** project. It include
 *   **Features:** Infinite Canvas, Shapes, Pencil, Text, Selection/Resize/Rotate, Undo/Redo, Save/Load, Eraser, Auto-Scroll, Pan Tool.
 *   **Stability:** Scroll bugs fixed; coordinate systems normalized.
 
+## Phase 8: Property Sidebar Redesign
+**Goal:** Excalidraw-like selection UI.
+
+*   **User Request:** "Select an object -> sidebar appears -> icons for properties".
+*   **Implementation:**
+    *   **Component:** Rewrote `PropertyPanel.tsx`.
+    *   **UI:** Vertical icon strip for Stroke, Background, Properties, Layers, Delete.
+    *   **Popovers:** Implemented flyout panels for color grids and style options.
+    *   **Features:** Added `strokeStyle` (solid/dashed/dotted) support to `DrawingElement` and `Canvas.tsx`.
+
 ## Phase 2: UI & Interaction
 **Goal:** Excalidraw-like feel.
 *   **Implementation:** separated styles into `Toolbar`/`Menu`. Implemented `hitTestElement` using point-to-segment distance for lines and ellipse checks for circles to ensure clicking "feels" right (not just bounding boxes).

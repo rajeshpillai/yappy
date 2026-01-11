@@ -39,6 +39,7 @@
 - [x] Add Eraser Tool to Toolbar
 - [x] Implement Eraser interaction (click/drag to delete)
 - [x] Implement Pan Tool (Hand)
+- [x] Redesign Property Panel (Sidebar with Popovers)
 
 
 

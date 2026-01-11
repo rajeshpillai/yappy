@@ -22,4 +22,7 @@ declare module 'lucide-solid' {
     export const Trash2: Component<{ size?: number; color?: string; strokeWidth?: number }>;
     export const Maximize: Component<{ size?: number; color?: string; strokeWidth?: number }>;
     export const Hand: Component<{ size?: number; color?: string; strokeWidth?: number }>;
+    export const SlidersHorizontal: Component<{ size?: number; color?: string; strokeWidth?: number }>;
+    export const Layers: Component<{ size?: number; color?: string; strokeWidth?: number }>;
+    export const Palette: Component<{ size?: number; color?: string; strokeWidth?: number }>;
 }
