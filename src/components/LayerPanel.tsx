@@ -1,10 +1,11 @@
-import { type Component, For, createSignal } from 'solid-js';
+import { type Component, For, createSignal, Show } from 'solid-js';
 import { store, addLayer, setActiveLayer, updateLayer, deleteLayer, duplicateLayer } from '../store/appStore';
 import './LayerPanel.css';
 
 const LayerPanel: Component = () => {
     const [editingId, setEditingId] = createSignal<string | null>(null);
     const [editingName, setEditingName] = createSignal('');
+    const [isCollapsed, setIsCollapsed] = createSignal(false);
     let longPressTimer: number | null = null;
 
     const handleAddLayer = () => {
@@ -95,82 +96,93 @@ const LayerPanel: Component = () => {
     const reversedLayers = () => [...store.layers].reverse();
 
     return (
-        <div class="layer-panel">
+        <div class={`layer-panel ${isCollapsed() ? 'collapsed' : ''}`}>
             <div class="layer-panel-header">
                 <h3>Layers</h3>
-                <button
-                    class="layer-add-btn"
-                    onClick={handleAddLayer}
-                    title="Add new layer"
-                >
-                    +
-                </button>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                    <button
+                        class="layer-collapse-btn"
+                        onClick={() => setIsCollapsed(!isCollapsed())}
+                        title={isCollapsed() ? 'Expand layers' : 'Collapse layers'}
+                    >
+                        {isCollapsed() ? '▲' : '▼'}
+                    </button>
+                    <button
+                        class="layer-add-btn"
+                        onClick={handleAddLayer}
+                        title="Add new layer"
+                    >
+                        +
+                    </button>
+                </div>
             </div>
-            <div class="layer-list">
-                <For each={reversedLayers()}>
-                    {(layer) => (
-                        <div
-                            class={`layer-item ${store.activeLayerId === layer.id ? 'active' : ''}`}
-                            onClick={() => handleLayerClick(layer.id)}
-                        >
-                            <button
-                                class={`layer-visibility-btn ${layer.visible ? 'visible' : 'hidden'}`}
-                                onClick={(e) => handleToggleVisibility(layer.id, e)}
-                                title={layer.visible ? 'Hide layer' : 'Show layer'}
+            <Show when={!isCollapsed()}>
+                <div class="layer-list">
+                    <For each={reversedLayers()}>
+                        {(layer) => (
+                            <div
+                                class={`layer-item ${store.activeLayerId === layer.id ? 'active' : ''}`}
+                                onClick={() => handleLayerClick(layer.id)}
                             >
-                                {layer.visible ? '👁️' : '🚫'}
-                            </button>
-                            <button
-                                class={`layer-lock-btn ${layer.locked ? 'locked' : ''}`}
-                                onClick={(e) => handleToggleLock(layer.id, e)}
-                                title={layer.locked ? 'Unlock layer' : 'Lock layer'}
-                            >
-                                {layer.locked ? '🔒' : '🔓'}
-                            </button>
-
-                            {editingId() === layer.id ? (
-                                <input
-                                    type="text"
-                                    class="layer-name-input"
-                                    value={editingName()}
-                                    onInput={(e) => setEditingName(e.currentTarget.value)}
-                                    onKeyDown={(e) => handleRenameKeyDown(e, layer.id)}
-                                    onBlur={() => saveRename(layer.id)}
-                                    onClick={(e) => e.stopPropagation()}
-                                    ref={(el) => setTimeout(() => el?.select(), 0)}
-                                />
-                            ) : (
-                                <span
-                                    class="layer-name"
-                                    onDblClick={(e) => startEditing(layer.id, layer.name, e)}
-                                    onPointerDown={(e) => handlePointerDown(layer.id, layer.name, e)}
-                                    onPointerUp={handlePointerUp}
-                                    onPointerCancel={handlePointerUp}
-                                    title="Double-click or long-press to rename"
+                                <button
+                                    class={`layer-visibility-btn ${layer.visible ? 'visible' : 'hidden'}`}
+                                    onClick={(e) => handleToggleVisibility(layer.id, e)}
+                                    title={layer.visible ? 'Hide layer' : 'Show layer'}
                                 >
-                                    {layer.name}
-                                </span>
-                            )}
+                                    {layer.visible ? '👁️' : '🚫'}
+                                </button>
+                                <button
+                                    class={`layer-lock-btn ${layer.locked ? 'locked' : ''}`}
+                                    onClick={(e) => handleToggleLock(layer.id, e)}
+                                    title={layer.locked ? 'Unlock layer' : 'Lock layer'}
+                                >
+                                    {layer.locked ? '🔒' : '🔓'}
+                                </button>
 
-                            <button
-                                class="layer-duplicate-btn"
-                                onClick={(e) => handleDuplicateLayer(layer.id, e)}
-                                title="Duplicate layer"
-                            >
-                                ⎘
-                            </button>
-                            <button
-                                class="layer-delete-btn"
-                                onClick={(e) => handleDeleteLayer(layer.id, e)}
-                                title="Delete layer"
-                                disabled={store.layers.length <= 1}
-                            >
-                                ×
-                            </button>
-                        </div>
-                    )}
-                </For>
-            </div>
+                                {editingId() === layer.id ? (
+                                    <input
+                                        type="text"
+                                        class="layer-name-input"
+                                        value={editingName()}
+                                        onInput={(e) => setEditingName(e.currentTarget.value)}
+                                        onKeyDown={(e) => handleRenameKeyDown(e, layer.id)}
+                                        onBlur={() => saveRename(layer.id)}
+                                        onClick={(e) => e.stopPropagation()}
+                                        ref={(el) => setTimeout(() => el?.select(), 0)}
+                                    />
+                                ) : (
+                                    <span
+                                        class="layer-name"
+                                        onDblClick={(e) => startEditing(layer.id, layer.name, e)}
+                                        onPointerDown={(e) => handlePointerDown(layer.id, layer.name, e)}
+                                        onPointerUp={handlePointerUp}
+                                        onPointerCancel={handlePointerUp}
+                                        title="Double-click or long-press to rename"
+                                    >
+                                        {layer.name}
+                                    </span>
+                                )}
+
+                                <button
+                                    class="layer-duplicate-btn"
+                                    onClick={(e) => handleDuplicateLayer(layer.id, e)}
+                                    title="Duplicate layer"
+                                >
+                                    ⎘
+                                </button>
+                                <button
+                                    class="layer-delete-btn"
+                                    onClick={(e) => handleDeleteLayer(layer.id, e)}
+                                    title="Delete layer"
+                                    disabled={store.layers.length <= 1}
+                                >
+                                    ×
+                                </button>
+                            </div>
+                        )}
+                    </For>
+                </div>
+            </Show>
         </div>
     );
 };

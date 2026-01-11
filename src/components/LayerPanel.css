@@ -52,6 +52,33 @@
     border-color: #3b82f6;
 }
 
+.layer-collapse-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-panel);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.layer-collapse-btn:hover {
+    background: var(--btn-hover);
+    border-color: #3b82f6;
+}
+
+/* Collapsed state */
+.layer-panel.collapsed {
+    height: auto;
+    min-height: auto;
+}
+
 .layer-list {
     flex: 1;
     overflow-y: auto;
