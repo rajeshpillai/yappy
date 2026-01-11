@@ -2,7 +2,8 @@ import { type Component, onMount, createEffect, onCleanup, createSignal, Show } 
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
 import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements } from "../store/appStore";
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse } from "../utils/geometry";
-import type { DrawingElement } from "../types";
+import type { DrawingElement, Point } from "../types";
+import { renderElement } from "../utils/renderElement";
 
 
 const Canvas: Component = () => {
@@ -66,101 +67,13 @@ const Canvas: Component = () => {
 
         // Render Elements
         store.elements.forEach(el => {
-            ctx.save();
-            ctx.globalAlpha = (el.opacity ?? 100) / 100;
-
-            // Apply rotation (center based)
             let cx = el.x + el.width / 2;
             let cy = el.y + el.height / 2;
 
-            if (el.angle) {
-                ctx.translate(cx, cy);
-                ctx.rotate(el.angle);
-                ctx.translate(-cx, -cy);
+            if (el.type !== 'text' || editingId() !== el.id) {
+                const rc = rough.canvas(canvasRef);
+                renderElement(rc, ctx, el);
             }
-
-            // RoughJS Options
-            const options: any = {
-                seed: el.seed,
-                roughness: el.roughness,
-                stroke: el.strokeColor,
-                strokeWidth: el.strokeWidth,
-                fill: el.backgroundColor === 'transparent' ? undefined : el.backgroundColor,
-                fillStyle: el.fillStyle,
-                strokeLineDash: el.strokeStyle === 'dashed' ? [10, 10] : (el.strokeStyle === 'dotted' ? [5, 10] : undefined),
-            };
-
-            const rc = rough.canvas(canvasRef);
-
-            if (el.type === 'rectangle') {
-                rc.rectangle(el.x, el.y, el.width, el.height, options);
-            } else if (el.type === 'circle') {
-                rc.ellipse(el.x + el.width / 2, el.y + el.height / 2, Math.abs(el.width), Math.abs(el.height), options);
-            } else if (el.type === 'line' || el.type === 'arrow') {
-                const endX = el.x + el.width;
-                const endY = el.y + el.height;
-
-                rc.line(el.x, el.y, endX, endY, options);
-
-                if (el.type === 'arrow') {
-                    const angle = Math.atan2(el.height, el.width);
-                    const headLen = 15;
-                    // Draw arrow head as line or polygon?
-                    // Linear path for head
-                    const p1 = { x: endX - headLen * Math.cos(angle - Math.PI / 6), y: endY - headLen * Math.sin(angle - Math.PI / 6) };
-                    const p2 = { x: endX - headLen * Math.cos(angle + Math.PI / 6), y: endY - headLen * Math.sin(angle + Math.PI / 6) };
-
-                    // Simple lines for head to match style
-                    rc.line(endX, endY, p1.x, p1.y, options);
-                    rc.line(endX, endY, p2.x, p2.y, options);
-                }
-            } else if (el.type === 'pencil' && el.points && el.points.length > 0) {
-                // Convert points to [x,y] array
-                // Points are absolute-ish?
-                // In draw logic, we assumed relative?
-                // Wait, existing draw logic:
-                // ctx.moveTo(el.x + el.points[0].x, el.y + el.points[0].y);
-
-                // So we need to map them back to absolute for drawing?
-                // Or translate context? 
-                // Context is already translated by pan/zoom.
-                // But we didn't translate to el.x, el.y for pencil in the old code?
-
-                // Old code:
-                // if (el.points.length > 0) {
-                //    ctx.moveTo(el.x + el.points[0].x, el.y + el.points[0].y);
-                //    ...
-
-                // So yes, points are relative to el.x, el.y.
-
-                const points: [number, number][] = el.points.map(p => [el.x + p.x, el.y + p.y]);
-                rc.linearPath(points, options);
-            }
-            else if (el.type === 'text' && el.text) {
-                if (editingId() !== el.id) {
-                    const fontSize = el.fontSize || 20;
-                    ctx.font = `${fontSize}px sans-serif`;
-
-                    // Text Stretching logic
-                    const metrics = ctx.measureText(el.text);
-                    const actualWidth = metrics.width;
-                    const scaleX = (el.width && actualWidth) ? (el.width / actualWidth) : 1;
-
-                    ctx.fillStyle = el.strokeColor;
-
-                    if (scaleX !== 1) {
-                        ctx.save();
-                        ctx.translate(el.x, el.y);
-                        ctx.scale(scaleX, 1);
-                        ctx.fillText(el.text, 0, fontSize);
-                        ctx.restore();
-                    } else {
-                        ctx.fillText(el.text, el.x, el.y + fontSize);
-                    }
-                }
-            }
-
-            ctx.restore();
 
             // Selection highlight & Handles
             if (store.selection.includes(el.id)) {

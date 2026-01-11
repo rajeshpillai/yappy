@@ -67,7 +67,7 @@
 - [x] Deploy to GitHub Pages (gh-pages branch) <!-- id: 28 -->
 
 ## Phase 9: Future Enhancements
-- [ ] Implement Export to Image (PNG/SVG) <!-- id: 29 -->
+- [x] Implement Export to Image (PNG/SVG) <!-- id: 29 -->
 - [x] Implement Dark Mode support <!-- id: 30 -->
 - [x] Implement Groups (selecting multiple items) <!-- id: 31 -->
 - [x] Implement Delete Drawings (UI and Backend)

@@ -1,13 +1,15 @@
 import { type Component, createSignal, onMount } from "solid-js";
 import { storage } from "../storage/FileSystemStorage";
 import { store, setStore, undo, redo, deleteElements, clearHistory, toggleTheme, zoomToFit } from "../store/appStore";
-import { Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus, Undo2, Redo2, Trash2, Maximize, Moon, Sun } from "lucide-solid";
+import { Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus, Undo2, Redo2, Trash2, Maximize, Moon, Sun, Image as ImageIcon } from "lucide-solid";
 import FileOpenDialog from "./FileOpenDialog";
+import ExportDialog from "./ExportDialog";
 import "./Menu.css";
 
 const Menu: Component = () => {
     const [drawingId, setDrawingId] = createSignal('default');
     const [isDialogOpen, setIsDialogOpen] = createSignal(false);
+    const [isExportOpen, setIsExportOpen] = createSignal(false);
 
     const handleSave = async () => {
         try {
@@ -82,6 +84,11 @@ const Menu: Component = () => {
                 }}
             />
 
+            <ExportDialog
+                isOpen={isExportOpen()}
+                onClose={() => setIsExportOpen(false)}
+            />
+
             {/* Top Left Menu */}
             <div style={{ position: 'fixed', top: '12px', left: '12px', "z-index": 100 }}>
                 <div class="menu-container">
@@ -120,6 +127,9 @@ const Menu: Component = () => {
                     </button>
                     <button class="menu-btn" onClick={() => setIsDialogOpen(true)} title="Open">
                         <FolderOpen size={18} />
+                    </button>
+                    <button class="menu-btn" onClick={() => setIsExportOpen(true)} title="Export to Image">
+                        <ImageIcon size={18} />
                     </button>
                     <button class="menu-btn primary" onClick={handleShare} title="Share">
                         <Share2 size={18} />
