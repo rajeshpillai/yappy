@@ -342,7 +342,7 @@ const Canvas: Component = () => {
             // But valid points are relative. So we need to check distance relative to (el.x, el.y).
             const localP = { x: p.x - el.x, y: p.y - el.y };
             return isPointOnPolyline(localP, el.points, threshold);
-        } else if (el.type === 'text') {
+        } else if (el.type === 'text' || el.type === 'image') {
             return true; // Box check passed
         }
 
