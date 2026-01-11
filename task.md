@@ -38,6 +38,7 @@
 - [x] Implement Keyboard Delete (Delete/Backspace)
 - [x] Add Eraser Tool to Toolbar
 - [x] Implement Eraser interaction (click/drag to delete)
+- [x] Implement Pan Tool (Hand)
 
 
 

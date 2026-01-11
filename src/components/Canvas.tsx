@@ -492,6 +492,12 @@ const Canvas: Component = () => {
             return;
         }
 
+        if (store.selectedTool === 'pan') {
+            isDragging = true;
+            setCursor('grabbing');
+            return;
+        }
+
         isDrawing = true;
         startX = x;
         startY = y;
@@ -519,7 +525,9 @@ const Canvas: Component = () => {
         const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
 
         // Update Cursor
-        if (store.selectedTool === 'selection' && !isDragging) {
+        if (store.selectedTool === 'pan') {
+            setCursor(isDragging ? 'grabbing' : 'grab');
+        } else if (store.selectedTool === 'selection' && !isDragging) {
             const hit = getHandleAtPosition(x, y);
             if (hit) {
                 if (hit.handle === 'rotate') setCursor('grab');
@@ -528,6 +536,16 @@ const Canvas: Component = () => {
             } else {
                 setCursor('default');
             }
+        }
+
+        if (store.selectedTool === 'pan') {
+            if (isDragging) {
+                setViewState({
+                    panX: store.viewState.panX + e.movementX,
+                    panY: store.viewState.panY + e.movementY
+                });
+            }
+            return;
         }
 
         if (store.selectedTool === 'selection') {
@@ -657,6 +675,12 @@ const Canvas: Component = () => {
     };
 
     const handleMouseUp = () => {
+        if (store.selectedTool === 'pan') {
+            isDragging = false;
+            setCursor('grab');
+            return;
+        }
+
         if (store.selectedTool === 'selection') {
             if (isDragging && store.selection.length > 0) {
                 // We finished dragging/resizing.
@@ -818,6 +842,7 @@ const Canvas: Component = () => {
 
         // Center viewport on content center
         // panX = -worldX * scale + screenCX
+        const { scale } = store.viewState;
         const screenCX = window.innerWidth / 2;
         const screenCY = window.innerHeight / 2;
 

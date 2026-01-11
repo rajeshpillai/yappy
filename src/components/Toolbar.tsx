@@ -1,10 +1,11 @@
 import { type Component } from "solid-js";
 import { store, setSelectedTool } from "../store/appStore";
 import type { ElementType } from "../types";
-import { MousePointer2, Square, Circle, Minus, Type, Pencil, MoveUpRight, Eraser } from "lucide-solid";
+import { MousePointer2, Square, Circle, Minus, Type, Pencil, MoveUpRight, Eraser, Hand } from "lucide-solid";
 import "./Toolbar.css";
 
 const tools: { type: ElementType | 'selection'; icon: Component; label: string }[] = [
+    { type: 'pan', icon: Hand, label: 'Pan Tool' },
     { type: 'selection', icon: MousePointer2, label: 'Selection' },
     { type: 'rectangle', icon: Square, label: 'Rectangle' },
     { type: 'circle', icon: Circle, label: 'Circle' },

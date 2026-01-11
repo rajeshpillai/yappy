@@ -21,4 +21,5 @@ declare module 'lucide-solid' {
     export const Eraser: Component<{ size?: number; color?: string; strokeWidth?: number }>;
     export const Trash2: Component<{ size?: number; color?: string; strokeWidth?: number }>;
     export const Maximize: Component<{ size?: number; color?: string; strokeWidth?: number }>;
+    export const Hand: Component<{ size?: number; color?: string; strokeWidth?: number }>;
 }
