@@ -186,3 +186,15 @@
   - [x] Add dedicated Bezier tool to toolbar <!-- id: feat-bezier-tool -->
 - [x] Implement image compression/resizing on upload <!-- id: feat-image-compression -->
 
+## Phase 15: New Shapes & Documentation
+- [x] Implement Diamond Shape (Decision Box)
+  - [x] Toolbar integration
+  - [x] Rendering logic (RoughJS)
+  - [x] Interaction / Hit Testing
+  - [x] Property support (Fill, Stroke, Style)
+  - [x] Connector binding support
+- [x] Update Documentation
+  - [x] `docs/shape.md`: Shape Attribute Matrix & Developer Guide
+  - [x] `docs/api.md`: Added `createDiamond`
+
+
