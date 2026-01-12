@@ -184,6 +184,15 @@
   - [x] Update bezier rendering to support start/end heads
   - [x] Add dedicated Bezier tool to toolbar <!-- id: feat-bezier-tool -->
 - [x] Implement image compression/resizing on upload <!-- id: feat-image-compression -->
+- [ ] Advanced RoughJS Sketch Controls
+  - [ ] Roughness slider (control how "sketchy" shapes look, 0-10)
+  - [ ] Bowing control (make lines more curved/wavy, 0-10)
+  - [ ] Additional fill patterns (cross-hatch, dots, zigzag, dashed)
+  - [ ] Hachure angle control (rotate fill pattern direction)
+  - [ ] Fill density controls (fillWeight, hachureGap)
+  - [ ] Stroke variations (strokeLineDash patterns, dashOffset)
+  - [ ] Curve controls (curveFitting, curveTightness)
+  - [ ] Advanced options (simplification, preserveVertices)
 
 ## Phase 15: New Shapes & Documentation
 - [x] Implement Diamond Shape (Decision Box)
