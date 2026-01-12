@@ -1,7 +1,7 @@
 export type ElementType = 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | 'pencil' | 'eraser' | 'pan' | 'selection' | 'image' | 'bezier' | 'diamond';
 export type FillStyle = 'hachure' | 'solid' | 'cross-hatch';
 export type StrokeStyle = 'solid' | 'dashed' | 'dotted';
-export type FontFamily = 1 | 2 | 3; // 1: Hand-drawn, 2: Normal, 3: Code
+export type FontFamily = 'hand-drawn' | 'sans-serif' | 'monospace';
 export type TextAlign = 'left' | 'center' | 'right';
 export type VerticalAlign = 'top' | 'middle' | 'bottom';
 export type ArrowHead = 'arrow' | 'triangle' | 'dot' | 'circle' | 'bar' | null;

@@ -1512,7 +1512,10 @@ const Canvas: Component = () => {
                                 top: `${centerY}px`,
                                 left: `${centerX}px`,
                                 transform: 'translate(-50%, -50%)',
-                                font: `${20 * scale}px sans-serif`,
+                                font: `${(el.fontSize || 20) * scale}px ${el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
+                                        el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
+                                            'Handlee, cursive'
+                                    }`,
                                 color: el.strokeColor,
                                 background: 'transparent',
                                 border: '1px dashed #007acc',

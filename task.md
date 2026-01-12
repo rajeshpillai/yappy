@@ -289,11 +289,10 @@
 ### Phase 22: Essential UX Improvements
 - [x] Select All (Ctrl+A)
 - [x] Copy/Paste functionality (Ctrl+C, Ctrl+V)
+- [x] Implement Font Options for Text elements
 - [x] Help dialog with keyboard shortcuts (Shift+?)
-- [ ] Undo/Redo UI indicators
 
 ### Phase 23: Templates & Advanced Features
 - [ ] Pre-made diagram templates
 - [ ] Smart connector routing
 - [ ] Minimap/Navigator for large diagrams
-

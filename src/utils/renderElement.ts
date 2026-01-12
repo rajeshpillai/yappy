@@ -153,7 +153,10 @@ export const renderElement = (
         // For now, I'll just render text. Canvas.tsx can control calling this.
 
         const fontSize = el.fontSize || 20;
-        ctx.font = `${fontSize}px sans-serif`;
+        const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
+            el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
+                'Handlee, cursive';
+        ctx.font = `${fontSize}px ${fontFamily}`;
 
         // Text Stretching logic
         const metrics = ctx.measureText(el.text);
@@ -176,7 +179,9 @@ export const renderElement = (
     // Render containerText (text inside shapes)
     if (el.containerText && (el.type === 'rectangle' || el.type === 'circle' || el.type === 'diamond')) {
         const fontSize = el.fontSize || 20;
-        const fontFamily = el.fontFamily === 2 ? 'sans-serif' : el.fontFamily === 3 ? 'monospace' : 'Comic Sans MS';
+        const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
+            el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
+                'Handlee, cursive';
         ctx.font = `${fontSize}px ${fontFamily}`;
         ctx.fillStyle = strokeColor;
         ctx.textAlign = 'center';
@@ -230,7 +235,9 @@ export const renderElement = (
     // Render containerText for lines and arrows (at midpoint)
     if (el.containerText && (el.type === 'line' || el.type === 'arrow')) {
         const fontSize = el.fontSize || 16;
-        const fontFamily = el.fontFamily === 2 ? 'sans-serif' : el.fontFamily === 3 ? 'monospace' : 'Comic Sans MS';
+        const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
+            el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
+                'Handlee, cursive';
         ctx.font = `${fontSize}px ${fontFamily}`;
         ctx.fillStyle = strokeColor;
         ctx.textAlign = 'center';

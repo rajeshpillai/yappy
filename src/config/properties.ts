@@ -188,13 +188,13 @@ export const properties: PropertyConfig[] = [
         label: 'Font',
         type: 'select',
         options: [
-            { label: 'Hand-drawn', value: 1 },
-            { label: 'Normal', value: 2 },
-            { label: 'Code', value: 3 }
+            { label: 'Virgil (Hand)', value: 'hand-drawn' },
+            { label: 'Inter (Sans)', value: 'sans-serif' },
+            { label: 'Cascadia (Code)', value: 'monospace' }
         ],
         group: 'text',
         applicableTo: ['text'],
-        defaultValue: 1
+        defaultValue: 'hand-drawn'
     },
     {
         key: 'textAlign',
