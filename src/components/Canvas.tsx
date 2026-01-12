@@ -691,21 +691,31 @@ const Canvas: Component = () => {
             }
 
             if (hitId) {
-                const isSelected = store.selection.includes(hitId);
+                const hitEl = store.elements.find(e => e.id === hitId);
+                let idsToSelect = [hitId];
+
+                // If element is grouped, select the outermost group
+                if (hitEl && hitEl.groupIds && hitEl.groupIds.length > 0) {
+                    const outermostId = hitEl.groupIds[hitEl.groupIds.length - 1];
+                    idsToSelect = store.elements
+                        .filter(el => el.groupIds && el.groupIds.includes(outermostId))
+                        .map(el => el.id);
+                }
+
+                const isAllSelected = idsToSelect.every(id => store.selection.includes(id));
 
                 if (e.shiftKey) {
-                    // Toggle selection
-                    if (isSelected) {
-                        setStore('selection', s => s.filter(id => id !== hitId));
+                    if (isAllSelected) {
+                        // Toggle off
+                        setStore('selection', s => s.filter(id => !idsToSelect.includes(id)));
                     } else {
-                        setStore('selection', s => [...s, hitId]);
+                        // Toggle on
+                        setStore('selection', s => [...new Set([...s, ...idsToSelect])]);
                     }
                 } else {
-                    // Normal click
-                    if (!isSelected) {
-                        setStore('selection', [hitId]);
+                    if (!isAllSelected) {
+                        setStore('selection', idsToSelect);
                     }
-                    // If already selected, do nothing (keep selection for potential drag)
                 }
 
                 // Initialize Move (if there is selection)

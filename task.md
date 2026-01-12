@@ -273,9 +273,13 @@
 
 
 ### Phase 20: Grouping Elements
-- [ ] Add group/ungroup functionality
-- [ ] Modify selection to handle groups
-- [ ] Update movement logic for grouped elements
+- [x] Implementation
+  - [x] Add `groupSelected` and `ungroupSelected` to store
+  - [x] Implement `Ctrl+G` and `Ctrl+Shift+G` shortcuts
+  - [x] Update canvas selection logic to expand to outermost group
+  - [x] Update double-click logic to handle grouped elements
+  - [x] Update help dialog
+- [x] Testing
 
 ### Phase 21: Connection Points/Anchors
 - [ ] Define anchor points for each shape type

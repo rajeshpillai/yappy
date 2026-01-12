@@ -1,6 +1,6 @@
 import { type Component, createSignal, onMount, Show, onCleanup } from "solid-js";
 import { storage } from "../storage/FileSystemStorage";
-import { store, setStore, deleteElements, clearHistory, toggleTheme, zoomToFit, addLayer, reorderLayers, bringToFront, sendToBack } from "../store/appStore";
+import { store, setStore, deleteElements, clearHistory, toggleTheme, zoomToFit, addLayer, reorderLayers, bringToFront, sendToBack, groupSelected, ungroupSelected } from "../store/appStore";
 import { Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus, Trash2, Maximize, Moon, Sun, Image as ImageIcon, Download, Upload } from "lucide-solid";
 
 // ... (in component)
@@ -218,12 +218,22 @@ const Menu: Component = () => {
                         e.preventDefault();
                         const copiedElements = clipboard();
                         if (copiedElements.length > 0) {
+                            const groupMapping = new Map<string, string>();
+                            copiedElements.forEach(el => {
+                                el.groupIds?.forEach((gid: string) => {
+                                    if (!groupMapping.has(gid)) {
+                                        groupMapping.set(gid, crypto.randomUUID());
+                                    }
+                                });
+                            });
+
                             const offset = 20;
                             const newElements = copiedElements.map(el => ({
                                 ...el,
                                 id: crypto.randomUUID(),
                                 x: el.x + offset,
-                                y: el.y + offset
+                                y: el.y + offset,
+                                groupIds: el.groupIds?.map((gid: string) => groupMapping.get(gid)!)
                             }));
                             setStore('elements', [...store.elements, ...newElements]);
                             setStore('selection', newElements.map(el => el.id));
@@ -234,12 +244,22 @@ const Menu: Component = () => {
                         e.preventDefault();
                         const selectedElements = store.elements.filter(el => store.selection.includes(el.id));
                         if (selectedElements.length > 0) {
+                            const groupMapping = new Map<string, string>();
+                            selectedElements.forEach(el => {
+                                el.groupIds?.forEach((gid: string) => {
+                                    if (!groupMapping.has(gid)) {
+                                        groupMapping.set(gid, crypto.randomUUID());
+                                    }
+                                });
+                            });
+
                             const offset = 20;
                             const newElements = selectedElements.map(el => ({
                                 ...el,
                                 id: crypto.randomUUID(),
                                 x: el.x + offset,
-                                y: el.y + offset
+                                y: el.y + offset,
+                                groupIds: el.groupIds?.map((gid: string) => groupMapping.get(gid)!)
                             }));
                             setStore('elements', [...store.elements, ...newElements]);
                             setStore('selection', newElements.map(el => el.id));
@@ -252,6 +272,15 @@ const Menu: Component = () => {
                         setClipboard(selectedElements);
                         if (selectedElements.length > 0) {
                             deleteElements(store.selection);
+                        }
+                    }
+                } else if (e.key === 'g') { // Ctrl+G - Group
+                    if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+                        e.preventDefault();
+                        if (e.shiftKey) {
+                            ungroupSelected();
+                        } else {
+                            groupSelected();
                         }
                     }
                 }

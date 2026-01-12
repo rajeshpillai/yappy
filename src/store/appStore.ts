@@ -228,6 +228,52 @@ export const duplicateElement = (id: string) => {
     setStore("selection", [newId]); // Select new
 };
 
+export const groupSelected = () => {
+    if (store.selection.length < 2) return;
+
+    pushToHistory();
+    const groupId = crypto.randomUUID();
+
+    setStore("elements",
+        (el) => store.selection.includes(el.id),
+        "groupIds",
+        (ids) => {
+            const currentIds = ids || [];
+            return [...currentIds, groupId];
+        }
+    );
+};
+
+export const ungroupSelected = () => {
+    if (store.selection.length === 0) return;
+
+    // 1. Identify outermost group IDs from selection
+    const outerGroupIds = new Set<string>();
+    store.elements.forEach(el => {
+        if (store.selection.includes(el.id) && el.groupIds && el.groupIds.length > 0) {
+            outerGroupIds.add(el.groupIds[el.groupIds.length - 1]);
+        }
+    });
+
+    if (outerGroupIds.size === 0) return;
+
+    pushToHistory();
+
+    // 2. Remove these IDs from ALL elements that have them as outermost
+    setStore("elements",
+        (el) => {
+            if (!el.groupIds || el.groupIds.length === 0) return false;
+            const lastId = el.groupIds[el.groupIds.length - 1];
+            return outerGroupIds.has(lastId);
+        },
+        "groupIds",
+        (ids) => {
+            if (!ids) return ids;
+            return ids.slice(0, -1);
+        }
+    );
+};
+
 export const moveElementZIndex = (id: string, direction: 'front' | 'back' | 'forward' | 'backward') => {
     const idx = store.elements.findIndex(e => e.id === id);
     if (idx === -1) return;

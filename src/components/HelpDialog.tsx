@@ -190,6 +190,21 @@ const HelpDialog: Component<Props> = (props) => {
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
+                                            <span class="shortcut-label">Group selection</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Ctrl</span>
+                                                <span class="keycap">G</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Ungroup selection</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Ctrl</span>
+                                                <span class="keycap">Shift</span>
+                                                <span class="keycap">G</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
                                             <span class="shortcut-label">Move Canvas</span>
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Space</span>
