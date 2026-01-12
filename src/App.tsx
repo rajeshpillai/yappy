@@ -21,14 +21,14 @@ const App: Component = () => {
       }
 
       // Undo/Redo
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault();
         if (e.shiftKey) {
           redo();
         } else {
           undo();
         }
-      } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y')) {
+      } else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y')) {
         e.preventDefault();
         redo();
       }

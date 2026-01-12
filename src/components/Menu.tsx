@@ -201,19 +201,19 @@ const Menu: Component = () => {
                 } else if (e.key.toLowerCase() === 'e' && e.shiftKey) { // Ctrl+Shift+E
                     e.preventDefault();
                     setIsExportOpen(true);
-                } else if (e.key === 'a') { // Ctrl+A - Select All
+                } else if (e.key.toLowerCase() === 'a') { // Ctrl+A - Select All
                     // Don't select all if user is typing in an input/textarea
                     if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
                         e.preventDefault();
                         setStore('selection', store.elements.map(el => el.id));
                     }
-                } else if (e.key === 'c') { // Ctrl+C - Copy
+                } else if (e.key.toLowerCase() === 'c') { // Ctrl+C - Copy
                     if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
                         e.preventDefault();
                         const selectedElements = store.elements.filter(el => store.selection.includes(el.id));
                         setClipboard(selectedElements);
                     }
-                } else if (e.key === 'v') { // Ctrl+V - Paste
+                } else if (e.key.toLowerCase() === 'v') { // Ctrl+V - Paste
                     if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
                         e.preventDefault();
                         const copiedElements = clipboard();
@@ -239,7 +239,7 @@ const Menu: Component = () => {
                             setStore('selection', newElements.map(el => el.id));
                         }
                     }
-                } else if (e.key === 'd') { // Ctrl+D - Duplicate
+                } else if (e.key.toLowerCase() === 'd') { // Ctrl+D - Duplicate
                     if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
                         e.preventDefault();
                         const selectedElements = store.elements.filter(el => store.selection.includes(el.id));
@@ -265,7 +265,7 @@ const Menu: Component = () => {
                             setStore('selection', newElements.map(el => el.id));
                         }
                     }
-                } else if (e.key === 'x') { // Ctrl+X - Cut
+                } else if (e.key.toLowerCase() === 'x') { // Ctrl+X - Cut
                     if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
                         e.preventDefault();
                         const selectedElements = store.elements.filter(el => store.selection.includes(el.id));
@@ -274,7 +274,7 @@ const Menu: Component = () => {
                             deleteElements(store.selection);
                         }
                     }
-                } else if (e.key === 'g') { // Ctrl+G - Group
+                } else if (e.key.toLowerCase() === 'g') { // Ctrl+G - Group / Ctrl+Shift+G - Ungroup
                     if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
                         e.preventDefault();
                         if (e.shiftKey) {
