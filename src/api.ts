@@ -19,6 +19,8 @@ interface ElementOptions {
     seed?: number;
     layerId?: string;
     curveType?: 'straight' | 'bezier' | 'elbow';
+    startBinding?: { elementId: string; focus: number; gap: number } | null;
+    endBinding?: { elementId: string; focus: number; gap: number } | null;
 }
 
 export const YappyAPI = {
@@ -163,6 +165,54 @@ export const YappyAPI = {
 
     async zoomToFit() {
         zoomToFit();
+    },
+
+    /**
+     * Connect two elements with a line/arrow
+     */
+    connect(sourceId: string, targetId: string, options?: ElementOptions & { type?: 'line' | 'arrow' }) {
+        const source = this.getElement(sourceId);
+        const target = this.getElement(targetId);
+
+        if (!source || !target) {
+            console.error("Source or Target element not found");
+            return null;
+        }
+
+        // Calculate approximate center points for initial placement
+        const sx = source.x + source.width / 2;
+        const sy = source.y + source.height / 2;
+        const tx = target.x + target.width / 2;
+        const ty = target.y + target.height / 2;
+
+        const type = options?.type ?? 'arrow';
+        const curveType = options?.curveType ?? 'bezier'; // Default to fancy bezier
+
+        // Create the line/arrow
+        // Width/Height will be updated by binding logic potentially, but for now delta
+        const width = tx - sx;
+        const height = ty - sy;
+
+        const id = this.createElement(type, sx, sy, width, height, {
+            ...options,
+            curveType,
+            startBinding: { elementId: sourceId, focus: 0, gap: 5 },
+            endBinding: { elementId: targetId, focus: 0, gap: 5 }
+        });
+
+        // We also need to update the boundElements of source and target to know about this line
+        // This logic mimics handlePointerUp binding logic in Canvas.tsx
+        const updateBindings = (el: DrawingElement, lineId: string) => {
+            const existing = el.boundElements || [];
+            if (!existing.find(b => b.id === lineId)) {
+                this.updateElement(el.id, { boundElements: [...existing, { id: lineId, type: type as 'arrow' }] });
+            }
+        };
+
+        updateBindings(source, id);
+        updateBindings(target, id);
+
+        return id;
     }
 };
 
