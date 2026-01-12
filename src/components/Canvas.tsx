@@ -335,6 +335,7 @@ const Canvas: Component = () => {
             e.roughness; e.roundness;
             e.text; e.fontSize; e.fontFamily; e.textAlign;
             e.startArrowhead; e.endArrowhead;
+            e.containerText; e.labelPosition; // Track label properties for immediate updates
         });
         store.viewState.scale;
         store.viewState.panX;

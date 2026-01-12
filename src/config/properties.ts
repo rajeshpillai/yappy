@@ -225,6 +225,19 @@ export const properties: PropertyConfig[] = [
         applicableTo: ['rectangle', 'circle', 'diamond', 'line', 'arrow'],
         defaultValue: ''
     },
+    {
+        key: 'labelPosition',
+        label: 'Label Position',
+        type: 'select',
+        options: [
+            { label: 'Start', value: 'start' },
+            { label: 'Middle', value: 'middle' },
+            { label: 'End', value: 'end' }
+        ],
+        group: 'text',
+        applicableTo: ['line', 'arrow'],
+        defaultValue: 'middle'
+    },
 
     // Linear
     {

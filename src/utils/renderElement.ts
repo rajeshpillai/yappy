@@ -236,13 +236,30 @@ export const renderElement = (
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
-        // Calculate midpoint
+        // Calculate position based on labelPosition (default: middle)
         const startX = el.x;
         const startY = el.y;
         const endX = el.x + el.width;
         const endY = el.y + el.height;
-        const midX = (startX + endX) / 2;
-        const midY = (startY + endY) / 2;
+
+        const position = el.labelPosition || 'middle'; // Default to middle for backward compatibility
+        let labelX: number, labelY: number;
+
+        switch (position) {
+            case 'start':
+                labelX = startX;
+                labelY = startY;
+                break;
+            case 'end':
+                labelX = endX;
+                labelY = endY;
+                break;
+            case 'middle':
+            default:
+                labelX = (startX + endX) / 2;
+                labelY = (startY + endY) / 2;
+                break;
+        }
 
         // Add background for better readability
         const metrics = ctx.measureText(el.containerText);
@@ -252,12 +269,12 @@ export const renderElement = (
 
         ctx.save();
         ctx.fillStyle = isDarkMode ? '#1a1a1a' : '#ffffff';
-        ctx.fillRect(midX - bgWidth / 2, midY - bgHeight / 2, bgWidth, bgHeight);
+        ctx.fillRect(labelX - bgWidth / 2, labelY - bgHeight / 2, bgWidth, bgHeight);
         ctx.restore();
 
         // Render text
         ctx.fillStyle = strokeColor;
-        ctx.fillText(el.containerText, midX, midY);
+        ctx.fillText(el.containerText, labelX, labelY);
 
         // Reset text alignment
         ctx.textAlign = 'start';

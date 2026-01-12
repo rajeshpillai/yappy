@@ -246,10 +246,11 @@
   - [x] Render text at line midpoint
   - [x] Add double-click to edit
   - [x] Property panel integration
-- [ ] Advanced Features (Future)
-  - [ ] Label position controls (start/middle/end)
+- [/] Advanced Features
+  - [x] Label position controls (start/middle/end)
   - [ ] Above/below line placement
   - [ ] Follow line rotation
+
 
 
 ### Phase 20: Grouping Elements

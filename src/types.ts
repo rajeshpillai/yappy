@@ -50,6 +50,7 @@ export interface DrawingElement {
 
     // Text inside shapes (for labels on rectangles, circles, etc.)
     containerText?: string;
+    labelPosition?: 'start' | 'middle' | 'end'; // For line/arrow labels
 
     // Specific to Image
     fileId?: string | null;
