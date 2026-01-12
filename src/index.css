@@ -32,15 +32,6 @@
 /* Dark Mode Overrides */
 [data-theme="dark"] {
   --bg-canvas: #121212;
-  /* Darker paper for canvas, or keep white? User said "canvas not impacted". Let's stick to dark UI but if canvas is transparent it shows body bg. */
-  /* Wait, if I set body bg to #121212, transparent canvas shows that. 
-     If user wants "not impacted", they imply white paper. 
-     So for canvas element itself, we might need a specific background setting.
-     BUT, standard dark mode implies dark background. 
-     Let's set body to dark. If user wants white canvas, we can set canvas explicitly later.
-     Actually, "text in toolbars etc are correctly visible" is the main request.
-  */
-  --bg-canvas: #121212;
   --bg-panel: #1e1e1e;
   --bg-secondary: #2d2d2d;
   --text-primary: #e5e7eb;
@@ -49,6 +40,10 @@
   --btn-bg: #2d2d2d;
   --btn-hover: #3d3d3d;
   --btn-active: #4d4d4d;
+  --primary-color: #60a5fa;
+  /* Lighter blue for dark mode */
+  --danger-color: #f87171;
+  /* Lighter red for dark mode */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
