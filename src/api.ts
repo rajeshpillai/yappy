@@ -171,6 +171,14 @@ export const YappyAPI = {
         setViewState({ scale, panX, panY });
     },
 
+    updateGridSettings(settings: any) {
+        setStore("gridSettings", (s) => ({ ...s, ...settings }));
+    },
+
+    updateDefaultStyles(styles: any) {
+        setStore("defaultElementStyles", (s) => ({ ...s, ...styles }));
+    },
+
     async zoomToFit() {
         zoomToFit();
     },
