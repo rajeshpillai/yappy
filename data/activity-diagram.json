@@ -1,7 +1,7 @@
 {
   "elements": [
     {
-      "id": "4c67bd9f-08f4-43fb-97bd-a5b9a2f41835",
+      "id": "442e386d-2974-47f7-9fc0-285eba908c70",
       "type": "circle",
       "x": 400,
       "y": 50,
@@ -16,7 +16,7 @@
       "roughness": 1,
       "angle": 0,
       "renderStyle": "sketch",
-      "seed": 834029042,
+      "seed": 1580014102,
       "roundness": null,
       "fontFamily": 1,
       "fontSize": 20,
@@ -29,13 +29,13 @@
       "curveType": "straight",
       "boundElements": [
         {
-          "id": "1ecc181c-a9e5-40c4-88ea-a3b6fda87f50",
+          "id": "fa17b3d2-bba1-4574-a726-09f0ddc3d3a6",
           "type": "arrow"
         }
       ]
     },
     {
-      "id": "f917ebf8-2671-404f-8e35-5bdc0705bf48",
+      "id": "8bcfe4a0-203b-44af-be46-7213c7cef23a",
       "type": "rectangle",
       "x": 330,
       "y": 130,
@@ -50,7 +50,7 @@
       "roughness": 1,
       "angle": 0,
       "renderStyle": "sketch",
-      "seed": 1259081328,
+      "seed": 1376583465,
       "roundness": {
         "type": 10
       },
@@ -65,17 +65,17 @@
       "curveType": "straight",
       "boundElements": [
         {
-          "id": "1ecc181c-a9e5-40c4-88ea-a3b6fda87f50",
+          "id": "fa17b3d2-bba1-4574-a726-09f0ddc3d3a6",
           "type": "arrow"
         },
         {
-          "id": "55f7b89b-aaca-46b5-9beb-8c41c43ca89b",
+          "id": "0063d77d-e5c9-4b53-a5c4-640fe0bf91a0",
           "type": "arrow"
         }
       ]
     },
     {
-      "id": "68e4361d-3c26-4089-9017-5e7af2441016",
+      "id": "6c1ffafa-1209-4957-8a4f-b22247825b7f",
       "type": "text",
       "x": 360,
       "y": 145,
@@ -91,7 +91,7 @@
       "roughness": 0,
       "angle": 0,
       "renderStyle": "sketch",
-      "seed": 509329609,
+      "seed": 926469750,
       "roundness": null,
       "fontFamily": 1,
       "fontSize": 20,
@@ -101,7 +101,7 @@
       "layerId": "default-layer"
     },
     {
-      "id": "67f223da-c9ac-4d98-a8a2-18843cd0776b",
+      "id": "d23a62cb-12f5-4fe4-bc49-c1325d57c605",
       "type": "rectangle",
       "x": 350,
       "y": 230,
@@ -116,7 +116,7 @@
       "roughness": 1,
       "angle": 0.7853981633974483,
       "renderStyle": "sketch",
-      "seed": 1863234932,
+      "seed": 922872228,
       "roundness": null,
       "fontFamily": 1,
       "fontSize": 20,
@@ -129,17 +129,17 @@
       "curveType": "straight",
       "boundElements": [
         {
-          "id": "55f7b89b-aaca-46b5-9beb-8c41c43ca89b",
+          "id": "0063d77d-e5c9-4b53-a5c4-640fe0bf91a0",
           "type": "arrow"
         },
         {
-          "id": "d78f4b11-7563-41af-ae73-71c671ac1244",
+          "id": "7aea7236-fde8-481b-befb-efbc61f7423f",
           "type": "arrow"
         }
       ]
     },
     {
-      "id": "cfb6bb19-8149-4337-b6f2-8a5a58a1e5a4",
+      "id": "8b9f8b11-9dc4-4c47-96f6-d01ac20ffd9c",
       "type": "text",
       "x": 380,
       "y": 270,
@@ -155,7 +155,7 @@
       "roughness": 0,
       "angle": 0,
       "renderStyle": "sketch",
-      "seed": 274644930,
+      "seed": 173690132,
       "roundness": null,
       "fontFamily": 1,
       "fontSize": 20,
@@ -165,7 +165,7 @@
       "layerId": "default-layer"
     },
     {
-      "id": "9d08e001-55ee-43ea-bb6e-1a599ee968c5",
+      "id": "e57d5512-2263-4230-aee7-f8b51ca408be",
       "type": "circle",
       "x": 400,
       "y": 380,
@@ -180,7 +180,7 @@
       "roughness": 1,
       "angle": 0,
       "renderStyle": "sketch",
-      "seed": 215197671,
+      "seed": 1119016191,
       "roundness": null,
       "fontFamily": 1,
       "fontSize": 20,
@@ -193,18 +193,18 @@
       "curveType": "straight",
       "boundElements": [
         {
-          "id": "d78f4b11-7563-41af-ae73-71c671ac1244",
+          "id": "7aea7236-fde8-481b-befb-efbc61f7423f",
           "type": "arrow"
         }
       ]
     },
     {
-      "id": "1ecc181c-a9e5-40c4-88ea-a3b6fda87f50",
+      "id": "fa17b3d2-bba1-4574-a726-09f0ddc3d3a6",
       "type": "arrow",
-      "x": 415,
-      "y": 65,
-      "width": -15,
-      "height": 90,
+      "x": 412.5,
+      "y": 80,
+      "width": -8.333333333333314,
+      "height": 50,
       "strokeColor": "#000000",
       "backgroundColor": "transparent",
       "fillStyle": "hachure",
@@ -214,7 +214,7 @@
       "roughness": 1,
       "angle": 0,
       "renderStyle": "sketch",
-      "seed": 1587542660,
+      "seed": 668311774,
       "roundness": null,
       "fontFamily": 1,
       "fontSize": 20,
@@ -226,23 +226,23 @@
       "layerId": "default-layer",
       "curveType": "bezier",
       "startBinding": {
-        "elementId": "4c67bd9f-08f4-43fb-97bd-a5b9a2f41835",
+        "elementId": "442e386d-2974-47f7-9fc0-285eba908c70",
         "focus": 0,
         "gap": 5
       },
       "endBinding": {
-        "elementId": "f917ebf8-2671-404f-8e35-5bdc0705bf48",
+        "elementId": "8bcfe4a0-203b-44af-be46-7213c7cef23a",
         "focus": 0,
         "gap": 5
       }
     },
     {
-      "id": "55f7b89b-aaca-46b5-9beb-8c41c43ca89b",
+      "id": "0063d77d-e5c9-4b53-a5c4-640fe0bf91a0",
       "type": "arrow",
       "x": 400,
-      "y": 155,
+      "y": 180,
       "width": 0,
-      "height": 125,
+      "height": 50,
       "strokeColor": "#000000",
       "backgroundColor": "transparent",
       "fillStyle": "hachure",
@@ -252,7 +252,7 @@
       "roughness": 1,
       "angle": 0,
       "renderStyle": "sketch",
-      "seed": 136708532,
+      "seed": 41142222,
       "roundness": null,
       "fontFamily": 1,
       "fontSize": 20,
@@ -264,23 +264,23 @@
       "layerId": "default-layer",
       "curveType": "bezier",
       "startBinding": {
-        "elementId": "f917ebf8-2671-404f-8e35-5bdc0705bf48",
+        "elementId": "8bcfe4a0-203b-44af-be46-7213c7cef23a",
         "focus": 0,
         "gap": 5
       },
       "endBinding": {
-        "elementId": "67f223da-c9ac-4d98-a8a2-18843cd0776b",
+        "elementId": "d23a62cb-12f5-4fe4-bc49-c1325d57c605",
         "focus": 0,
         "gap": 5
       }
     },
     {
-      "id": "d78f4b11-7563-41af-ae73-71c671ac1244",
+      "id": "7aea7236-fde8-481b-befb-efbc61f7423f",
       "type": "arrow",
-      "x": 400,
-      "y": 280,
-      "width": 15,
-      "height": 115,
+      "x": 406.52173913043475,
+      "y": 330,
+      "width": 6.52173913043481,
+      "height": 50,
       "strokeColor": "#000000",
       "backgroundColor": "transparent",
       "fillStyle": "hachure",
@@ -290,7 +290,7 @@
       "roughness": 1,
       "angle": 0,
       "renderStyle": "sketch",
-      "seed": 966587102,
+      "seed": 1144955331,
       "roundness": null,
       "fontFamily": 1,
       "fontSize": 20,
@@ -302,12 +302,12 @@
       "layerId": "default-layer",
       "curveType": "bezier",
       "startBinding": {
-        "elementId": "67f223da-c9ac-4d98-a8a2-18843cd0776b",
+        "elementId": "d23a62cb-12f5-4fe4-bc49-c1325d57c605",
         "focus": 0,
         "gap": 5
       },
       "endBinding": {
-        "elementId": "9d08e001-55ee-43ea-bb6e-1a599ee968c5",
+        "elementId": "e57d5512-2263-4230-aee7-f8b51ca408be",
         "focus": 0,
         "gap": 5
       }

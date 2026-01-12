@@ -186,14 +186,74 @@ export const YappyAPI = {
         const ty = target.y + target.height / 2;
 
         const type = options?.type ?? 'arrow';
-        const curveType = options?.curveType ?? 'bezier'; // Default to fancy bezier
+        const curveType = options?.curveType ?? 'bezier';
 
-        // Create the line/arrow
-        // Width/Height will be updated by binding logic potentially, but for now delta
-        const width = tx - sx;
-        const height = ty - sy;
+        // Helper to intersect (simple AABB center cast for now)
+        // Ideally we use proper intersection logic, but let's at least snap to edges if we can
+        // For API simplicity, we'll stick to center-to-center logic for now as 'binding' should generally snap visual anyway
+        // BUT if user says "connectors are not connecting", maybe the binding data is not enough for the renderer
+        // if the start/end point is INSIDE the shape.
 
-        const id = this.createElement(type, sx, sy, width, height, {
+        // Let's try to calculate intersection with edge
+        const intersect = (x1: number, y1: number, x2: number, y2: number, rect: DrawingElement) => {
+            // Simple center-to-center intersection with AABB
+            const cx = rect.x + rect.width / 2;
+            const cy = rect.y + rect.height / 2;
+            const w = rect.width / 2;
+            const h = rect.height / 2;
+
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+
+            if (dx === 0 && dy === 0) return { x: x1, y: y1 };
+
+            // Find intersection with box
+            // We use Liang-Barsky or similar, or just Ratio
+            // t near 0 is source, near 1 is target
+
+            // slope
+            const m = dy / (dx || 0.0001);
+
+            let ox = cx;
+            let oy = cy;
+
+            // Let's assume we want to find point on rect boundary that matches angle
+            // This is "good enough" for initial API placement
+            // angle from center
+            const angle = Math.atan2(dy, dx);
+
+            // intersection with vertical edges
+            // x = cx +/- w
+            // y = cy + tan(a) * (x - cx)
+            const rx = dx > 0 ? cx + w : cx - w;
+            const ry = cy + Math.tan(angle) * (rx - cx);
+
+            // intersection with horizontal edges
+            // y = cy +/- h
+            // x = cx + (y - cy) / tan(a)
+            const by = dy > 0 ? cy + h : cy - h;
+            const bx = cx + (by - cy) / Math.tan(angle);
+
+            // check which is valid (within bounds)
+            // intersection is the one closest to center? No, we check if points are on segment
+
+            const onV = (ry >= cy - h - 1 && ry <= cy + h + 1);
+            const onH = (bx >= cx - w - 1 && bx <= cx + w + 1);
+
+            if (onV && onH) {
+                // Corner case, taking V
+                return { x: rx, y: ry };
+            }
+            if (onV) return { x: rx, y: ry };
+            if (onH) return { x: bx, y: by };
+
+            return { x: cx, y: cy }; // Fallback
+        };
+
+        const startP = intersect(sx, sy, tx, ty, source);
+        const endP = intersect(tx, ty, sx, sy, target); // Reverse for target
+
+        const id = this.createElement(type, startP.x, startP.y, endP.x - startP.x, endP.y - startP.y, {
             ...options,
             curveType,
             startBinding: { elementId: sourceId, focus: 0, gap: 5 },
