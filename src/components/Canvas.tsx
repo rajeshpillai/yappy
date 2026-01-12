@@ -793,29 +793,16 @@ const Canvas: Component = () => {
         if (store.selectedTool === 'text') {
             const id = crypto.randomUUID();
             const newElement = {
+                ...store.defaultElementStyles,
                 id,
-                type: 'text' as const,
+                type: 'text',
                 x,
                 y,
                 width: 100,
                 height: 30,
-                strokeColor: '#000000',
-                backgroundColor: 'transparent',
-                strokeWidth: 1,
                 text: '',
-                fontSize: 20,
-                angle: 0,
-                opacity: 100,
-                fillStyle: 'hachure' as 'hachure' | 'solid' | 'cross-hatch',
-                strokeStyle: 'solid' as 'solid' | 'dashed' | 'dotted',
-                roughness: 1,
-                renderStyle: 'sketch' as 'sketch' | 'architectural',
-                seed: Math.floor(Math.random() * 2 ** 31),
-                roundness: null,
-                locked: false,
-                link: null,
                 layerId: store.activeLayerId
-            };
+            } as DrawingElement;
             addElement(newElement);
             setEditingId(id);
             setEditText("");
@@ -858,32 +845,21 @@ const Canvas: Component = () => {
 
         const tool = store.selectedTool;
         const actualType = tool === 'bezier' ? 'line' : tool;
-        const actualCurveType = tool === 'bezier' ? 'bezier' : 'straight';
+        const actualCurveType = tool === 'bezier' ? 'bezier' : (store.defaultElementStyles.curveType || 'straight');
 
         const newElement = {
+            ...store.defaultElementStyles,
             id: currentId,
             type: actualType,
             x: creationX,
             y: creationY,
             width: 0,
             height: 0,
-            strokeColor: '#000000',
-            backgroundColor: 'transparent',
-            strokeWidth: 2,
-            points: tool === 'pencil' ? [{ x: 0, y: 0 }] : undefined,
-            angle: 0,
-            opacity: 100,
-            strokeStyle: 'solid' as 'solid' | 'dashed' | 'dotted',
-            fillStyle: 'hachure' as 'hachure' | 'solid' | 'cross-hatch',
-            roughness: 1,
-            renderStyle: 'sketch' as 'sketch' | 'architectural',
             seed: Math.floor(Math.random() * 2 ** 31),
-            roundness: null,
-            locked: false,
-            link: null,
             layerId: store.activeLayerId,
-            curveType: actualCurveType as 'straight' | 'bezier' | 'elbow'
-        };
+            curveType: actualCurveType as 'straight' | 'bezier' | 'elbow',
+            points: tool === 'pencil' ? [{ x: 0, y: 0 }] : undefined,
+        } as DrawingElement;
 
         addElement(newElement);
     };
