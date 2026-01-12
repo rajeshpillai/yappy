@@ -206,6 +206,37 @@ export const intersectElementWithLine = (
             return rotatePoint(ix, iy, cx, cy, element.angle);
         }
         return { x: ix, y: iy };
+    } else if (element.type === 'diamond') {
+        let p = { x: a.x, y: a.y };
+        // Diamonds can also be rotated
+        if (element.angle) {
+            p = rotatePoint(a.x, a.y, cx, cy, -element.angle);
+        }
+
+        const w = (element.width / 2) + gap;
+        const h = (element.height / 2) + gap;
+        const dx = p.x - cx;
+        const dy = p.y - cy;
+
+        if (dx === 0 && dy === 0) return { x: cx, y: cy };
+
+        const angle = Math.atan2(dy, dx);
+        const absTan = Math.abs(Math.tan(angle));
+
+        // Exact diamond intersection: |x|/w + |y|/h = 1
+        // x = dX, y = dX * tan(a)
+        // |dX|/w + |dX * tan(a)|/h = 1
+        // |dX| * (1/w + absTan/h) = 1
+        // |dX| = 1 / (1/w + absTan/h)
+        const absDx = 1 / ((1 / w) + (absTan / h));
+
+        const ix = cx + (dx > 0 ? 1 : -1) * absDx;
+        const iy = cy + (dx > 0 ? 1 : -1) * absDx * Math.tan(angle);
+
+        if (element.angle) {
+            return rotatePoint(ix, iy, cx, cy, element.angle);
+        }
+        return { x: ix, y: iy };
     }
 
     return null;
