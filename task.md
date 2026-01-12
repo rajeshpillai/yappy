@@ -292,9 +292,17 @@
 - [x] Testing
 
 ### Phase 21: Connection Points/Anchors
-- [ ] Define anchor points for each shape type
-- [ ] Add visual anchors on hover
-- [ ] Implement snap-to-anchor for connectors
+- [x] Define anchor points for each shape type
+  - [x] Rectangles: 8 anchors (4 edges + 4 corners)
+  - [x] Circles: 4 anchors (cardinal points)
+  - [x] Diamonds: 4 anchors (vertices)
+- [x] Add visual anchors on hover
+  - [x] Blue dots appear during line/arrow drawing
+  - [x] Anchors highlight when within snap distance
+- [x] Implement snap-to-anchor for connectors
+  - [x] 15px snap threshold
+  - [x] Falls back to edge intersection if no anchor nearby
+  - [x] Supports rotated shapes
 
 ### Phase 22: Essential UX Improvements
 - [x] Select All (Ctrl+A)
