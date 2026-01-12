@@ -66,6 +66,15 @@ export const renderElement = (
         rc.rectangle(el.x, el.y, el.width, el.height, options);
     } else if (el.type === 'circle') {
         rc.ellipse(el.x + el.width / 2, el.y + el.height / 2, Math.abs(el.width), Math.abs(el.height), options);
+    } else if (el.type === 'diamond') {
+        const cx = el.x + el.width / 2;
+        const cy = el.y + el.height / 2;
+        rc.polygon([
+            [cx, el.y],
+            [el.x + el.width, cy],
+            [cx, el.y + el.height],
+            [el.x, cy]
+        ], options);
     } else if (el.type === 'line' || el.type === 'arrow') {
         const endX = el.x + el.width;
         const endY = el.y + el.height;

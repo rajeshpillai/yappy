@@ -166,6 +166,7 @@ yappy/
 - [x] Smart Line Selection (Endpoint handles)
 - [x] Bezier Connectors (Curved lines)
 - [x] Dedicated Bezier Tool
+- [x] Diamond Shape (Decision Box)
 - [x] Configurable Start/End Arrowheads
 - [x] Programmatic API (window.Yappy) for sketches and diagrams
 

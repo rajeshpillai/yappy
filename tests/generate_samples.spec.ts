@@ -64,7 +64,7 @@ test.describe('Generate Sample Diagrams', () => {
             cy += 100;
 
             // Decision
-            const d1 = window.Yappy.createElement('rectangle', cx - 50, cy, 100, 100, { angle: Math.PI / 4, backgroundColor: '#fff' });
+            const d1 = window.Yappy.createDiamond(cx - 50, cy, 100, 100, { backgroundColor: '#fff' });
             // Keep text unrotated? Hard with current API, let's just place text over
             const dText = window.Yappy.createText(cx - 20, cy + 40, "Pass?");
             cy += 150;

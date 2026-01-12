@@ -1,10 +1,10 @@
 {
   "elements": [
     {
-      "id": "442e386d-2974-47f7-9fc0-285eba908c70",
+      "id": "e30c20f3-1aba-4384-88e0-8ef69a77bb76",
       "type": "circle",
-      "x": 598.888916015625,
-      "y": 236.6666717529297,
+      "x": 400,
+      "y": 50,
       "width": 30,
       "height": 30,
       "strokeColor": "#000000",
@@ -16,7 +16,7 @@
       "roughness": 1,
       "angle": 0,
       "renderStyle": "sketch",
-      "seed": 1580014102,
+      "seed": 805468285,
       "roundness": null,
       "fontFamily": 1,
       "fontSize": 20,
@@ -29,16 +29,16 @@
       "curveType": "straight",
       "boundElements": [
         {
-          "id": "fa17b3d2-bba1-4574-a726-09f0ddc3d3a6",
+          "id": "d2a8f5dc-9e55-4c85-8335-f89e0d10bbe3",
           "type": "arrow"
         }
       ]
     },
     {
-      "id": "8bcfe4a0-203b-44af-be46-7213c7cef23a",
+      "id": "0eed7e09-811f-47c3-922e-445ccd21b0ab",
       "type": "rectangle",
-      "x": 528.888916015625,
-      "y": 316.6666717529297,
+      "x": 330,
+      "y": 130,
       "width": 140,
       "height": 50,
       "strokeColor": "#000000",
@@ -50,7 +50,7 @@
       "roughness": 1,
       "angle": 0,
       "renderStyle": "sketch",
-      "seed": 1376583465,
+      "seed": 188179989,
       "roundness": {
         "type": 10
       },
@@ -65,20 +65,20 @@
       "curveType": "straight",
       "boundElements": [
         {
-          "id": "fa17b3d2-bba1-4574-a726-09f0ddc3d3a6",
+          "id": "d2a8f5dc-9e55-4c85-8335-f89e0d10bbe3",
           "type": "arrow"
         },
         {
-          "id": "0063d77d-e5c9-4b53-a5c4-640fe0bf91a0",
+          "id": "5db81ef3-949b-4f8d-b439-a4bda5ff1f13",
           "type": "arrow"
         }
       ]
     },
     {
-      "id": "6c1ffafa-1209-4957-8a4f-b22247825b7f",
+      "id": "201ca82e-f4c9-4f22-a5a2-ba1e4dbcc6d6",
       "type": "text",
-      "x": 558.888916015625,
-      "y": 331.6666717529297,
+      "x": 360,
+      "y": 145,
       "width": 120,
       "height": 30,
       "text": "Write Code",
@@ -91,7 +91,7 @@
       "roughness": 0,
       "angle": 0,
       "renderStyle": "sketch",
-      "seed": 926469750,
+      "seed": 298222933,
       "roundness": null,
       "fontFamily": 1,
       "fontSize": 20,
@@ -101,10 +101,10 @@
       "layerId": "default-layer"
     },
     {
-      "id": "d23a62cb-12f5-4fe4-bc49-c1325d57c605",
-      "type": "rectangle",
-      "x": 548.888916015625,
-      "y": 416.6666717529297,
+      "id": "3b1868ca-9f6e-4e13-8d73-7813f414269c",
+      "type": "diamond",
+      "x": 350,
+      "y": 230,
       "width": 100,
       "height": 100,
       "strokeColor": "#000000",
@@ -114,9 +114,9 @@
       "strokeStyle": "solid",
       "opacity": 100,
       "roughness": 1,
-      "angle": 0.7853981633974483,
+      "angle": 0,
       "renderStyle": "sketch",
-      "seed": 922872228,
+      "seed": 1672700914,
       "roundness": null,
       "fontFamily": 1,
       "fontSize": 20,
@@ -129,20 +129,20 @@
       "curveType": "straight",
       "boundElements": [
         {
-          "id": "0063d77d-e5c9-4b53-a5c4-640fe0bf91a0",
+          "id": "5db81ef3-949b-4f8d-b439-a4bda5ff1f13",
           "type": "arrow"
         },
         {
-          "id": "7aea7236-fde8-481b-befb-efbc61f7423f",
+          "id": "5ce49fc7-125d-4405-954e-4fa53b79a824",
           "type": "arrow"
         }
       ]
     },
     {
-      "id": "8b9f8b11-9dc4-4c47-96f6-d01ac20ffd9c",
+      "id": "7054c90a-d026-4939-bb1c-b3bfa51c6bdf",
       "type": "text",
-      "x": 578.888916015625,
-      "y": 456.6666717529297,
+      "x": 380,
+      "y": 270,
       "width": 60,
       "height": 30,
       "text": "Pass?",
@@ -155,7 +155,7 @@
       "roughness": 0,
       "angle": 0,
       "renderStyle": "sketch",
-      "seed": 173690132,
+      "seed": 375757256,
       "roundness": null,
       "fontFamily": 1,
       "fontSize": 20,
@@ -165,10 +165,10 @@
       "layerId": "default-layer"
     },
     {
-      "id": "e57d5512-2263-4230-aee7-f8b51ca408be",
+      "id": "5cadc5d9-ab7b-46a0-9b78-be195f56c77e",
       "type": "circle",
-      "x": 598.888916015625,
-      "y": 566.6666717529297,
+      "x": 400,
+      "y": 380,
       "width": 30,
       "height": 30,
       "strokeColor": "#000000",
@@ -180,7 +180,7 @@
       "roughness": 1,
       "angle": 0,
       "renderStyle": "sketch",
-      "seed": 1119016191,
+      "seed": 1226796409,
       "roundness": null,
       "fontFamily": 1,
       "fontSize": 20,
@@ -193,18 +193,18 @@
       "curveType": "straight",
       "boundElements": [
         {
-          "id": "7aea7236-fde8-481b-befb-efbc61f7423f",
+          "id": "5ce49fc7-125d-4405-954e-4fa53b79a824",
           "type": "arrow"
         }
       ]
     },
     {
-      "id": "fa17b3d2-bba1-4574-a726-09f0ddc3d3a6",
+      "id": "d2a8f5dc-9e55-4c85-8335-f89e0d10bbe3",
       "type": "arrow",
-      "x": 611.388916015625,
-      "y": 266.6666717529297,
-      "width": -6.905690654410137,
-      "height": 40.21772821771947,
+      "x": 412.5,
+      "y": 80,
+      "width": -8.333333333333314,
+      "height": 50,
       "strokeColor": "#000000",
       "backgroundColor": "transparent",
       "fillStyle": "hachure",
@@ -214,7 +214,7 @@
       "roughness": 1,
       "angle": 0,
       "renderStyle": "sketch",
-      "seed": 668311774,
+      "seed": 618167031,
       "roundness": null,
       "fontFamily": 1,
       "fontSize": 20,
@@ -226,23 +226,23 @@
       "layerId": "default-layer",
       "curveType": "bezier",
       "startBinding": {
-        "elementId": "442e386d-2974-47f7-9fc0-285eba908c70",
+        "elementId": "e30c20f3-1aba-4384-88e0-8ef69a77bb76",
         "focus": 0,
         "gap": 5
       },
       "endBinding": {
-        "elementId": "8bcfe4a0-203b-44af-be46-7213c7cef23a",
+        "elementId": "0eed7e09-811f-47c3-922e-445ccd21b0ab",
         "focus": 0,
         "gap": 5
       }
     },
     {
-      "id": "0063d77d-e5c9-4b53-a5c4-640fe0bf91a0",
+      "id": "5db81ef3-949b-4f8d-b439-a4bda5ff1f13",
       "type": "arrow",
-      "x": 598.888916015625,
-      "y": 366.6666717529297,
-      "width": -0.06963105302884287,
-      "height": 17.526058146610126,
+      "x": 400,
+      "y": 180,
+      "width": 0,
+      "height": 150,
       "strokeColor": "#000000",
       "backgroundColor": "transparent",
       "fillStyle": "hachure",
@@ -252,7 +252,7 @@
       "roughness": 1,
       "angle": 0,
       "renderStyle": "sketch",
-      "seed": 41142222,
+      "seed": 1553218402,
       "roundness": null,
       "fontFamily": 1,
       "fontSize": 20,
@@ -264,23 +264,23 @@
       "layerId": "default-layer",
       "curveType": "bezier",
       "startBinding": {
-        "elementId": "8bcfe4a0-203b-44af-be46-7213c7cef23a",
+        "elementId": "0eed7e09-811f-47c3-922e-445ccd21b0ab",
         "focus": 0,
         "gap": 5
       },
       "endBinding": {
-        "elementId": "d23a62cb-12f5-4fe4-bc49-c1325d57c605",
+        "elementId": "3b1868ca-9f6e-4e13-8d73-7813f414269c",
         "focus": 0,
         "gap": 5
       }
     },
     {
-      "id": "7aea7236-fde8-481b-befb-efbc61f7423f",
+      "id": "5ce49fc7-125d-4405-954e-4fa53b79a824",
       "type": "arrow",
-      "x": 605.4106551460598,
-      "y": 516.6666717529297,
-      "width": 0.0196874244513765,
-      "height": 32.186336983930914,
+      "x": 405.7692307692308,
+      "y": 324.2307692307692,
+      "width": 7.274247491638789,
+      "height": 55.769230769230774,
       "strokeColor": "#000000",
       "backgroundColor": "transparent",
       "fillStyle": "hachure",
@@ -290,7 +290,7 @@
       "roughness": 1,
       "angle": 0,
       "renderStyle": "sketch",
-      "seed": 1144955331,
+      "seed": 1955203097,
       "roundness": null,
       "fontFamily": 1,
       "fontSize": 20,
@@ -302,12 +302,12 @@
       "layerId": "default-layer",
       "curveType": "bezier",
       "startBinding": {
-        "elementId": "d23a62cb-12f5-4fe4-bc49-c1325d57c605",
+        "elementId": "3b1868ca-9f6e-4e13-8d73-7813f414269c",
         "focus": 0,
         "gap": 5
       },
       "endBinding": {
-        "elementId": "e57d5512-2263-4230-aee7-f8b51ca408be",
+        "elementId": "5cadc5d9-ab7b-46a0-9b78-be195f56c77e",
         "focus": 0,
         "gap": 5
       }
@@ -336,5 +336,6 @@
     "gridOpacity": 0.5,
     "style": "lines"
   },
-  "canvasBackgroundColor": "#fafafa"
+  "canvasBackgroundColor": "#fafafa",
+  "version": 1
 }

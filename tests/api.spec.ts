@@ -27,6 +27,18 @@ test.describe('Yappy API', () => {
 
         expect(elementExists).toBeTruthy();
 
+        // Create a Diamond via API
+        const diaId = await page.evaluate(() => {
+            return window.Yappy.createDiamond(400, 100, 100, 100, {
+                backgroundColor: '#0000ff'
+            });
+        });
+        const diamondExists = await page.evaluate((id) => {
+            const el = window.Yappy.getElement(id);
+            return el && el.type === 'diamond' && el.width === 100;
+        }, diaId);
+        expect(diamondExists).toBeTruthy();
+
         // Create a Text element
         const textId = await page.evaluate(() => {
             return window.Yappy.createText(400, 200, "Hello World from API", { fontSize: 30 });

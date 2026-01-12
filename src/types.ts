@@ -1,4 +1,4 @@
-export type ElementType = 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | 'pencil' | 'eraser' | 'pan' | 'selection' | 'image' | 'bezier';
+export type ElementType = 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | 'pencil' | 'eraser' | 'pan' | 'selection' | 'image' | 'bezier' | 'diamond';
 export type FillStyle = 'hachure' | 'solid' | 'cross-hatch';
 export type StrokeStyle = 'solid' | 'dashed' | 'dotted';
 export type FontFamily = 1 | 2 | 3; // 1: Hand-drawn, 2: Normal, 3: Code

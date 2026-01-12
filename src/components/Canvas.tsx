@@ -1212,7 +1212,8 @@ const Canvas: Component = () => {
                 }
 
                 // Logic for normalization...
-                if (el.type === 'rectangle' || el.type === 'circle') {
+                // Logic for normalization...
+                if (el.type === 'rectangle' || el.type === 'circle' || el.type === 'diamond') {
                     if (el.width < 0) {
                         updateElement(currentId, { x: el.x + el.width, width: Math.abs(el.width) });
                     }
@@ -1231,7 +1232,7 @@ const Canvas: Component = () => {
             // Switch back to selection tool after drawing (except for pencil/eraser?) 
             // User requested "After a shape is drawn". Usually pencil is continuous.
             // Let's reset for Shapes (Rect, Circle, Line, Arrow, Bezier).
-            if (['rectangle', 'circle', 'line', 'arrow', 'image', 'bezier'].includes(store.selectedTool)) {
+            if (['rectangle', 'circle', 'line', 'arrow', 'image', 'bezier', 'diamond'].includes(store.selectedTool)) {
                 setSelectedTool('selection');
             }
         }

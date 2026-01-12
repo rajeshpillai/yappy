@@ -21,6 +21,9 @@ Creates a rectangle.
 - **options**: Style options (see below).
 - **Returns**: `id` (string) of created element.
 
+#### `createDiamond(x, y, width, height, options)`
+Creates a diamond (rhombus).
+
 #### `createCircle(x, y, width, height, options)`
 Creates a circle/ellipse.
 

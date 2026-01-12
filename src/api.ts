@@ -80,6 +80,10 @@ export const YappyAPI = {
         return this.createElement('circle', x, y, width, height, options);
     },
 
+    createDiamond(x: number, y: number, width: number, height: number, options?: ElementOptions) {
+        return this.createElement('diamond', x, y, width, height, options);
+    },
+
     createLine(x1: number, y1: number, x2: number, y2: number, options?: ElementOptions) {
         // Line width/height logic is relative
         const width = x2 - x1;
@@ -207,15 +211,22 @@ export const YappyAPI = {
 
             if (dx === 0 && dy === 0) return { x: x1, y: y1 };
 
+            // Diamond specific intersection
+            if (rect.type === 'diamond') {
+                const angle = Math.atan2(dy, dx);
+                // |dx|/w + |dy|/h = 1
+                const absTan = Math.abs(Math.tan(angle));
+                const absDx = 1 / ((1 / w) + (absTan / h));
+
+                const dX = (dx > 0 ? 1 : -1) * absDx;
+                const dY = dX * Math.tan(angle);
+
+                return { x: cx + dX, y: cy + dY };
+            }
+
             // Find intersection with box
             // We use Liang-Barsky or similar, or just Ratio
             // t near 0 is source, near 1 is target
-
-            // slope
-            const m = dy / (dx || 0.0001);
-
-            let ox = cx;
-            let oy = cy;
 
             // Let's assume we want to find point on rect boundary that matches angle
             // This is "good enough" for initial API placement
