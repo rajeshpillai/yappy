@@ -104,10 +104,20 @@ const Menu: Component = () => {
     };
 
     const handleNew = () => {
-        if (confirm('Clear canvas?')) {
+        if (confirm('Start new sketch? Unsaved changes will be lost.')) {
             setStore("elements", []);
             setStore("viewState", { scale: 1, panX: 0, panY: 0 });
             setStore("selection", []);
+            setStore("layers", [
+                {
+                    id: 'default-layer',
+                    name: 'Layer 1',
+                    visible: true,
+                    locked: false,
+                    order: 0
+                }
+            ]);
+            setStore("activeLayerId", 'default-layer');
             clearHistory();
             setDrawingId('untitled');
         }
@@ -260,7 +270,7 @@ const Menu: Component = () => {
                             <div class="menu-separator"></div>
                             <button class="menu-item" onClick={handleNew}>
                                 <FilePlus size={16} />
-                                <span class="label">Reset Canvas</span>
+                                <span class="label">New Sketch</span>
                             </button>
                             <div class="menu-separator"></div>
                             <div style={{ padding: '4px 12px', "font-size": '12px', color: 'var(--text-secondary)' }}>
