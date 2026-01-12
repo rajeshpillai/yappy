@@ -48,6 +48,15 @@ test.describe('Yappy API', () => {
         }, diaId);
         expect(isDiaSelected).toBeTruthy();
 
+        // Verify Diamond Style
+        const diaStyle = await page.evaluate((id) => {
+            const el = window.Yappy.getElement(id);
+            return el ? { bg: el.backgroundColor, fill: el.fillStyle } : null;
+        }, diaId);
+        expect(diaStyle).toEqual({ bg: '#0000ff', fill: 'hachure' }); // Default fillStyle is hachure if not specified
+        // Note: The createDiamond call in test earlier passed backgroundColor: '#0000ff'
+        // And defaults.fillStyle is hachure.
+
         // Create a Text element
         const textId = await page.evaluate(() => {
             return window.Yappy.createText(400, 200, "Hello World from API", { fontSize: 30 });
