@@ -39,45 +39,84 @@ const Toolbar: Component = () => {
                 const img = new Image();
                 img.src = dataURL;
                 img.onload = () => {
-                    // Limit initial size
-                    const maxSize = 500;
+                    // Compression Logic
+                    const MAX_DIMENSION = 1500; // Increased max dimension for better quality
                     let width = img.width;
                     let height = img.height;
-                    if (width > maxSize || height > maxSize) {
+
+                    if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
                         const ratio = width / height;
                         if (width > height) {
-                            width = maxSize;
+                            width = MAX_DIMENSION;
                             height = width / ratio;
                         } else {
-                            height = maxSize;
+                            height = MAX_DIMENSION;
                             width = height * ratio;
                         }
                     }
 
-                    addElement({
-                        id: crypto.randomUUID(),
-                        type: 'image',
-                        x: 100,
-                        y: 100,
-                        width: width,
-                        height: height,
-                        strokeColor: "transparent",
-                        backgroundColor: "transparent",
-                        fillStyle: "solid",
-                        strokeWidth: 0,
-                        strokeStyle: "solid",
-                        roughness: 0,
-                        opacity: 100,
-                        angle: 0,
-                        renderStyle: "sketch",
-                        seed: Math.floor(Math.random() * 2 ** 31),
-                        roundness: null,
-                        locked: false,
-                        link: null,
-                        dataURL: dataURL,
-                        mimeType: file.type,
-                        layerId: store.activeLayerId
-                    });
+                    // Create off-screen canvas for resizing & compression
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+
+                    if (ctx) {
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        // Compress to JPEG with 0.8 quality
+                        // If original was PNG with transparency, this forces white background if using JPEG.
+                        // To support transparency, we should check file type.
+                        // But JPEG saves the most space for photos.
+                        // Let's stick with original mime type if possible, but limit quality/size.
+                        // Actually, to ensure space saving, usually WEBP or JPEG is best.
+                        // Let's use image/webp if supported (mostly yes), or fallback to jpeg.
+                        // WebP supports transparency.
+
+                        const compressedDataURL = canvas.toDataURL('image/webp', 0.8);
+
+                        // Initial display dimensions (visual only, independent of data resolution)
+                        // We keep roughly the same 500px limit for initial on-screen size
+                        const VISUAL_MAX = 500;
+                        let visualW = width;
+                        let visualH = height;
+
+                        if (visualW > VISUAL_MAX || visualH > VISUAL_MAX) {
+                            const ratio = visualW / visualH;
+                            if (visualW > visualH) {
+                                visualW = VISUAL_MAX;
+                                visualH = visualW / ratio;
+                            } else {
+                                visualH = VISUAL_MAX;
+                                visualW = visualH * ratio;
+                            }
+                        }
+
+                        addElement({
+                            id: crypto.randomUUID(),
+                            type: 'image',
+                            x: 100,
+                            y: 100,
+                            width: visualW,
+                            height: visualH,
+                            strokeColor: "transparent",
+                            backgroundColor: "transparent",
+                            fillStyle: "solid",
+                            strokeWidth: 0,
+                            strokeStyle: "solid",
+                            roughness: 0,
+                            opacity: 100,
+                            angle: 0,
+                            renderStyle: "sketch",
+                            seed: Math.floor(Math.random() * 2 ** 31),
+                            roundness: null,
+                            locked: false,
+                            link: null,
+                            dataURL: compressedDataURL, // Use stored compressed version
+                            mimeType: 'image/webp',
+                            layerId: store.activeLayerId
+                        });
+                    }
                 };
             }
         };

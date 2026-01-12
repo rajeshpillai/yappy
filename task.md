@@ -171,4 +171,5 @@
 - [ ] Layer effects/filters (blur, brightness, saturation)
 - [x] Fix Line/Arrow interaction (resize/move) in Canvas <!-- id: bug-fix-line -->
 
+- [x] Implement image compression/resizing on upload <!-- id: feat-image-compression -->
 
