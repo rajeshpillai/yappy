@@ -1,4 +1,4 @@
-import { type Component, onMount, onCleanup } from 'solid-js';
+import { type Component, onMount, onCleanup, createSignal } from 'solid-js';
 import { undo, redo, store, deleteElements } from './store/appStore';
 import Canvas from './components/Canvas';
 import Toolbar from './components/Toolbar';
@@ -7,10 +7,12 @@ import ZoomControls from './components/ZoomControls';
 import PropertyPanel from './components/PropertyPanel';
 import LayerPanel from './components/LayerPanel';
 
-
 const App: Component = () => {
+  // Removed showHelp state as it is now in Menu.tsx
+
   onMount(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Undo/Redo
       if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
         e.preventDefault();
         if (e.shiftKey) {
@@ -21,11 +23,10 @@ const App: Component = () => {
       } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y')) {
         e.preventDefault();
         redo();
-      } else if (e.key === 'Delete' || e.key === 'Backspace') {
-        // Prevent Backspace from navigating back if not in text input
+      }
+      // Delete
+      else if (e.key === 'Delete' || e.key === 'Backspace') {
         if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
-          // Only prevent default if we actually have a selection to delete?
-          // Assuming user wants to delete selection.
           e.preventDefault();
           if (store.selection.length > 0) {
             deleteElements(store.selection);
@@ -40,7 +41,6 @@ const App: Component = () => {
   return (
     <div>
       <Toolbar />
-
       <PropertyPanel />
       <LayerPanel />
       <Menu />

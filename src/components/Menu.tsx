@@ -1,7 +1,11 @@
 import { type Component, createSignal, onMount, Show, onCleanup } from "solid-js";
 import { storage } from "../storage/FileSystemStorage";
-import { store, setStore, undo, redo, deleteElements, clearHistory, toggleTheme, zoomToFit } from "../store/appStore";
+import { store, setStore, undo, redo, deleteElements, clearHistory, toggleTheme, zoomToFit, addLayer, reorderLayers } from "../store/appStore";
 import { Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus, Undo2, Redo2, Trash2, Maximize, Moon, Sun, Image as ImageIcon, Download, Upload } from "lucide-solid";
+
+// ... (in component)
+
+import HelpDialog from "./HelpDialog";
 import FileOpenDialog from "./FileOpenDialog";
 import ExportDialog from "./ExportDialog";
 import SaveDialog from "./SaveDialog";
@@ -14,6 +18,7 @@ const Menu: Component = () => {
     const [isExportOpen, setIsExportOpen] = createSignal(false);
     const [isSaveOpen, setIsSaveOpen] = createSignal(false);
     const [isMenuOpen, setIsMenuOpen] = createSignal(false);
+    const [showHelp, setShowHelp] = createSignal(false);
     let fileInputRef: HTMLInputElement | undefined;
 
     const [saveIntent, setSaveIntent] = createSignal<'workspace' | 'disk'>('workspace');
@@ -188,29 +193,29 @@ const Menu: Component = () => {
                     e.preventDefault();
                     setIsExportOpen(true);
                 }
+            } else if (e.key === '?' && e.shiftKey) { // Shift+?
+                if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                    setShowHelp(true);
+                }
             } else if (e.shiftKey && e.key.toLowerCase() === 'n') { // Shift+N = New Layer
                 e.preventDefault();
-                import('../store/appStore').then(mod => mod.addLayer());
+                addLayer();
             } else if (e.altKey) {
                 if (e.key === '[') { // Alt + [ = Move Layer Down
                     e.preventDefault();
-                    // Logic to move layer down
-                    import('../store/appStore').then(mod => {
-                        const layers = mod.store.layers;
-                        const idx = layers.findIndex(l => l.id === mod.store.activeLayerId);
-                        if (idx > 0) {
-                            mod.reorderLayers(idx, idx - 1);
-                        }
-                    });
+                    const layers = store.layers;
+                    const idx = layers.findIndex(l => l.id === store.activeLayerId);
+                    if (idx > 0) {
+                        reorderLayers(idx, idx - 1);
+                    }
                 } else if (e.key === ']') { // Alt + ] = Move Layer Up
                     e.preventDefault();
-                    import('../store/appStore').then(mod => {
-                        const layers = mod.store.layers;
-                        const idx = layers.findIndex(l => l.id === mod.store.activeLayerId);
-                        if (idx !== -1 && idx < layers.length - 1) {
-                            mod.reorderLayers(idx, idx + 1);
-                        }
-                    });
+                    const layers = store.layers;
+                    const idx = layers.findIndex(l => l.id === store.activeLayerId);
+                    if (idx !== -1 && idx < layers.length - 1) {
+                        reorderLayers(idx, idx + 1);
+                    }
                 }
             }
         };
@@ -252,6 +257,8 @@ const Menu: Component = () => {
                 onSave={performSave}
                 initialFilename={drawingId()}
             />
+
+            <HelpDialog isOpen={showHelp()} onClose={() => setShowHelp(false)} />
 
             {/* App Title */}
             <div class="app-title">
@@ -328,6 +335,20 @@ const Menu: Component = () => {
                     <button class="menu-btn primary" onClick={handleShare} title="Share">
                         <Share2 size={18} />
                         <span style={{ "margin-left": "4px" }}>Share</span>
+                    </button>
+                    <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
+                    <button class="menu-btn" onClick={() => setShowHelp(true)} title="Help & Shortcuts (?)">
+                        <div style={{
+                            width: '20px',
+                            height: '20px',
+                            "border-radius": '50%',
+                            border: '2px solid currentColor',
+                            display: 'flex',
+                            "align-items": 'center',
+                            "justify-content": 'center',
+                            "font-weight": 'bold',
+                            "font-size": '14px'
+                        }}>?</div>
                     </button>
                     <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
                     <button class="menu-btn" onClick={toggleTheme} title="Toggle Theme">
