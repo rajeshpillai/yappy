@@ -326,9 +326,9 @@
     - [x] Integration with Menu and appStore
   - [x] Flowchart template (Basic flowchart with decision logic)
   - [x] Mind map template (Radial structure with 4 branches)
-  - [ ] Wireframe template
-  - [ ] Org chart template
-  - [ ] Network diagram template
+  - [x] Wireframe template (Website layout with header, sidebar, content, footer)
+  - [x] Org chart template (Company hierarchy with CEO and department heads)
+  - [x] Network diagram template (Infrastructure topology with servers and firewall)
 - [x] Element property normalization
   - [x] Added `normalizeElement()` function in migration.ts
   - [x] Automatic defaults for all required properties

@@ -50,6 +50,9 @@ class TemplateRegistry {
         // Register diagram templates
         this.registerTemplate(diagramTemplates.flowchartTemplate);
         this.registerTemplate(diagramTemplates.mindmapTemplate);
+        this.registerTemplate(diagramTemplates.wireframeTemplate);
+        this.registerTemplate(diagramTemplates.orgChartTemplate);
+        this.registerTemplate(diagramTemplates.networkDiagramTemplate);
     }
 
     /**
