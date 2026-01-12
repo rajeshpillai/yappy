@@ -11,8 +11,15 @@ test.describe('Generate Sample Diagrams', () => {
 
         // Helper to save current state
         const saveState = async (filename: string) => {
-            const elements = await page.evaluate(() => window.Yappy.state.elements);
-            fs.writeFileSync(path.join(outDir, filename), JSON.stringify(elements, null, 2));
+            const data = await page.evaluate(() => ({
+                elements: window.Yappy.state.elements,
+                viewState: window.Yappy.state.viewState,
+                layers: window.Yappy.state.layers,
+                gridSettings: window.Yappy.state.gridSettings,
+                canvasBackgroundColor: window.Yappy.state.canvasBackgroundColor,
+                version: 1
+            }));
+            fs.writeFileSync(path.join(outDir, filename), JSON.stringify(data, null, 2));
             console.log(`Saved ${filename}`);
         };
 
