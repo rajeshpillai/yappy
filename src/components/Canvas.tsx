@@ -1,6 +1,6 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show } from "solid-js";
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
-import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties } from "../store/appStore";
+import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool } from "../store/appStore";
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse, intersectElementWithLine } from "../utils/geometry";
 import type { DrawingElement } from "../types";
 import { renderElement } from "../utils/renderElement";
@@ -288,6 +288,13 @@ const Canvas: Component = () => {
                 ctx.strokeStyle = '#f59e0b'; // Amber
                 ctx.lineWidth = 2 / scale;
                 ctx.strokeRect(target.x - 4 / scale, target.y - 4 / scale, target.width + 8 / scale, target.height + 8 / scale);
+
+                // Draw Snap Point
+                ctx.fillStyle = '#f59e0b';
+                ctx.beginPath();
+                ctx.arc(binding.px, binding.py, 5 / scale, 0, Math.PI * 2);
+                ctx.fill();
+
                 ctx.restore();
             }
         }
@@ -506,6 +513,55 @@ const Canvas: Component = () => {
     const canInteractWithElement = (el: DrawingElement): boolean => {
         const layer = store.layers.find(l => l.id === el.layerId);
         return layer?.locked !== true;
+    };
+
+    // Helper: Binding Check
+    const checkBinding = (x: number, y: number, excludeId: string) => {
+        const threshold = 40 / store.viewState.scale;
+        let bindingHit = null;
+
+        for (let i = store.elements.length - 1; i >= 0; i--) {
+            const target = store.elements[i];
+            if (target.id === excludeId || target.layerId !== store.activeLayerId || !canInteractWithElement(target)) continue;
+            // Allow binding across layers? Maybe. For now restrict to active layer or just visible?
+            // "target.layerId !== el.layerId" was in previous logic. Let's relax it to visible & unlocked.
+            const layer = store.layers.find(l => l.id === target.layerId);
+            if (!layer?.visible || layer?.locked) continue;
+
+            if (target.type === 'rectangle' || target.type === 'circle' || target.type === 'image' || target.type === 'text') {
+                let isHit = false;
+                const cx = target.x + target.width / 2;
+                const cy = target.y + target.height / 2;
+
+                if (target.type === 'circle') {
+                    const rx = target.width / 2;
+                    const ry = target.height / 2;
+                    const dx = x - cx;
+                    const dy = y - cy;
+                    // Check normalized distance (allow slightly outside)
+                    const dist = (dx * dx) / ((rx + threshold) * (rx + threshold)) + (dy * dy) / ((ry + threshold) * (ry + threshold));
+                    if (dist <= 1) isHit = true;
+                } else {
+                    if (x >= target.x - threshold && x <= target.x + target.width + threshold &&
+                        y >= target.y - threshold && y <= target.y + target.height + threshold) {
+                        isHit = true;
+                    }
+                }
+
+                if (isHit) {
+                    bindingHit = target;
+                    break;
+                }
+            }
+        }
+
+        if (bindingHit) {
+            const snapPoint = intersectElementWithLine(bindingHit, { x, y }, 5);
+            if (snapPoint) {
+                return { element: bindingHit, snapPoint };
+            }
+        }
+        return null;
     };
 
     const handlePointerDown = (e: PointerEvent) => {
@@ -759,32 +815,11 @@ const Canvas: Component = () => {
                 if (draggingHandle) {
                     // Binding Logic for Lines/Arrows
                     if ((el.type === 'line' || el.type === 'arrow') && (draggingHandle === 'tl' || draggingHandle === 'br')) {
-                        const threshold = 20 / store.viewState.scale;
-                        let bindingHit = null;
-                        for (let i = store.elements.length - 1; i >= 0; i--) {
-                            const target = store.elements[i];
-                            if (target.id === el.id || target.layerId !== el.layerId || !canInteractWithElement(target)) continue;
-                            if (target.type === 'rectangle' || target.type === 'circle' || target.type === 'image' || target.type === 'text') {
-                                if (hitTestElement(target, x, y, threshold)) {
-                                    bindingHit = target;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (bindingHit) {
-                            const isStart = draggingHandle === 'tl';
-                            const otherEndX = isStart ? el.x + el.width : el.x;
-                            const otherEndY = isStart ? el.y + el.height : el.y;
-
-                            const snapPoint = intersectElementWithLine(bindingHit, { x: otherEndX, y: otherEndY }, 5);
-                            if (snapPoint) {
-                                setSuggestedBinding({ elementId: bindingHit.id, px: snapPoint.x, py: snapPoint.y });
-                                x = snapPoint.x;
-                                y = snapPoint.y;
-                            } else {
-                                setSuggestedBinding(null);
-                            }
+                        const match = checkBinding(x, y, el.id);
+                        if (match) {
+                            setSuggestedBinding({ elementId: match.element.id, px: match.snapPoint.x, py: match.snapPoint.y });
+                            x = match.snapPoint.x;
+                            y = match.snapPoint.y;
                         } else {
                             setSuggestedBinding(null);
                         }
@@ -952,7 +987,22 @@ const Canvas: Component = () => {
             let finalX = x;
             let finalY = y;
 
-            if (store.gridSettings.snapToGrid) {
+            if (store.selectedTool === 'line' || store.selectedTool === 'arrow') {
+                if (currentId) {
+                    const match = checkBinding(x, y, currentId);
+                    if (match) {
+                        setSuggestedBinding({ elementId: match.element.id, px: match.snapPoint.x, py: match.snapPoint.y });
+                        finalX = match.snapPoint.x;
+                        finalY = match.snapPoint.y;
+                    } else {
+                        setSuggestedBinding(null);
+                    }
+                }
+            } else {
+                setSuggestedBinding(null);
+            }
+
+            if (!suggestedBinding() && store.gridSettings.snapToGrid) {
                 const snapped = snapPoint(x, y, store.gridSettings.gridSize);
                 finalX = snapped.x;
                 finalY = snapped.y;
@@ -1072,6 +1122,23 @@ const Canvas: Component = () => {
         if (isDrawing && currentId) {
             const el = store.elements.find(e => e.id === currentId);
             if (el) {
+                // Binding for new lines/arrows
+                if ((el.type === 'line' || el.type === 'arrow') && suggestedBinding()) {
+                    const binding = suggestedBinding()!;
+                    const bindingData = { elementId: binding.elementId, focus: 0, gap: 5 };
+                    // New lines are drawn from x,y (TopLeft) to x+width, y+height.
+                    // The end point (width/height) is where the mouse is.
+                    // So we update 'endBinding'.
+                    updateElement(currentId, { endBinding: bindingData });
+
+                    const target = store.elements.find(e => e.id === binding.elementId);
+                    if (target) {
+                        const existing = target.boundElements || [];
+                        updateElement(target.id, { boundElements: [...existing, { id: currentId, type: el.type as 'arrow' }] });
+                    }
+                    setSuggestedBinding(null);
+                }
+
                 // Logic for normalization...
                 if (el.type === 'rectangle' || el.type === 'circle') {
                     if (el.width < 0) {
@@ -1088,11 +1155,13 @@ const Canvas: Component = () => {
                     }
                 }
             }
-            // Finished drawing, state is already updated (addElement called pushToHistory BEFORE adding).
-            // So we are good?
-            // `addElement` calls `pushToHistory` -> Saves "Empty Canvas".
-            // Then adds element. "Canvas with Element".
-            // Undo -> "Empty Canvas". Correct.
+
+            // Switch back to selection tool after drawing (except for pencil/eraser?) 
+            // User requested "After a shape is drawn". Usually pencil is continuous.
+            // Let's reset for Shapes (Rect, Circle, Line, Arrow).
+            if (['rectangle', 'circle', 'line', 'arrow', 'image'].includes(store.selectedTool)) {
+                setSelectedTool('selection');
+            }
         }
         isDrawing = false;
         currentId = null;
