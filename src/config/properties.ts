@@ -273,7 +273,8 @@ export const properties: PropertyConfig[] = [
         type: 'select',
         options: [
             { label: 'Straight', value: 'straight' },
-            { label: 'Curved', value: 'bezier' }
+            { label: 'Curved', value: 'bezier' },
+            { label: 'Smart (Elbow)', value: 'elbow' }
         ],
         group: 'style',
         applicableTo: ['arrow', 'line'],

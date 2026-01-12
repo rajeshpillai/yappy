@@ -2,6 +2,7 @@ import { type Component, onMount, createEffect, onCleanup, createSignal, Show } 
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
 import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool } from "../store/appStore";
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse, intersectElementWithLine, isPointOnBezier } from "../utils/geometry";
+import { calculateSmartElbowRoute } from "../utils/routing";
 import type { DrawingElement } from "../types";
 import { renderElement } from "../utils/renderElement";
 import ContextMenu from "./ContextMenu";
@@ -357,6 +358,19 @@ const Canvas: Component = () => {
         requestAnimationFrame(draw);
     });
 
+    // Auto-refresh elbow points if curveType changes or bound elements move
+    createEffect(() => {
+        store.elements.forEach(el => {
+            if ((el.type === 'line' || el.type === 'arrow') && el.curveType === 'elbow') {
+                const newPoints = refreshLinePoints(el);
+                if (newPoints && JSON.stringify(newPoints) !== JSON.stringify(el.points)) {
+                    // Update WITHOUT pushing to history to avoid infinite history spam during drag
+                    updateElement(el.id, { points: newPoints }, false);
+                }
+            }
+        });
+    });
+
     const getClientCoordinates = (e: MouseEvent | WheelEvent) => {
         return { x: e.clientX, y: e.clientY };
     };
@@ -591,8 +605,6 @@ const Canvas: Component = () => {
         for (let i = store.elements.length - 1; i >= 0; i--) {
             const target = store.elements[i];
             if (target.id === excludeId || target.layerId !== store.activeLayerId || !canInteractWithElement(target)) continue;
-            // Allow binding across layers? Maybe. For now restrict to active layer or just visible?
-            // "target.layerId !== el.layerId" was in previous logic. Let's relax it to visible & unlocked.
             const layer = store.layers.find(l => l.id === target.layerId);
             if (!layer?.visible || layer?.locked) continue;
 
@@ -606,16 +618,9 @@ const Canvas: Component = () => {
                     const ry = target.height / 2;
                     const dx = x - cx;
                     const dy = y - cy;
-                    // Check normalized distance (allow slightly outside)
                     const dist = (dx * dx) / ((rx + threshold) * (rx + threshold)) + (dy * dy) / ((ry + threshold) * (ry + threshold));
                     if (dist <= 1) isHit = true;
                 } else if (target.type === 'diamond') {
-                    // Similar to box check but more permissive for binding?
-                    // For binding, we usually check AABB for simplicity or proximity.
-                    // But if we want precise binding highlight, we might want to check rhombus dist.
-                    // For now, allow simple box check for binding activation (broad phase).
-                    // Or reuse the hit test logic? 
-                    // Let's use AABB for binding trigger to be generous.
                     if (x >= target.x - threshold && x <= target.x + target.width + threshold &&
                         y >= target.y - threshold && y <= target.y + target.height + threshold) {
                         isHit = true;
@@ -641,6 +646,30 @@ const Canvas: Component = () => {
             }
         }
         return null;
+    };
+
+    const refreshLinePoints = (line: DrawingElement, overrideStartX?: number, overrideStartY?: number, overrideEndX?: number, overrideEndY?: number) => {
+        const sx = overrideStartX ?? line.x;
+        const sy = overrideStartY ?? line.y;
+        const ex = overrideEndX ?? (line.x + line.width);
+        const ey = overrideEndY ?? (line.y + line.height);
+
+        if (line.curveType === 'elbow') {
+            const startEl = store.elements.find(e => e.id === line.startBinding?.elementId);
+            const endEl = store.elements.find(e => e.id === line.endBinding?.elementId);
+
+            const rawPoints = calculateSmartElbowRoute(
+                { x: sx, y: sy },
+                { x: ex, y: ey },
+                store.elements,
+                startEl,
+                endEl
+            );
+
+            // Convert world points to relative points for storage
+            return rawPoints.map(p => ({ x: p.x - sx, y: p.y - sy }));
+        }
+        return undefined;
     };
 
     const handlePointerDown = (e: PointerEvent) => {
@@ -1005,6 +1034,11 @@ const Canvas: Component = () => {
                                 updates.width = newWidth;
                             }
                         }
+
+                        if (el.type === 'line' || el.type === 'arrow') {
+                            updates.points = refreshLinePoints(el, newX, newY, newX + newWidth, newY + newHeight);
+                        }
+
                         updateElement(id, updates);
                     }
                 } else {
@@ -1046,11 +1080,13 @@ const Canvas: Component = () => {
                                         }
 
                                         if (changed) {
+                                            const points = refreshLinePoints(line, startX, startY, endX, endY);
                                             updateElement(line.id, {
                                                 x: startX,
                                                 y: startY,
                                                 width: endX - startX,
-                                                height: endY - startY
+                                                height: endY - startY,
+                                                points
                                             });
                                         }
                                     }
@@ -1513,8 +1549,8 @@ const Canvas: Component = () => {
                                 left: `${centerX}px`,
                                 transform: 'translate(-50%, -50%)',
                                 font: `${(el.fontSize || 20) * scale}px ${el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
-                                        el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
-                                            'Handlee, cursive'
+                                    el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
+                                        'Handlee, cursive'
                                     }`,
                                 color: el.strokeColor,
                                 background: 'transparent',

@@ -110,6 +110,27 @@ export const renderElement = (
                 drawArrowhead(rc, endX, endY, angle, el.endArrowhead, options);
             }
 
+        } else if (el.curveType === 'elbow') {
+            const drawPoints: [number, number][] = (el.points && el.points.length > 0)
+                ? el.points.map(p => [el.x + p.x, el.y + p.y])
+                : [[el.x, el.y], [endX, endY]];
+
+            rc.linearPath(drawPoints, options);
+
+            if (el.startArrowhead && drawPoints.length >= 2) {
+                const p0 = drawPoints[0];
+                const p1 = drawPoints[1];
+                const angle = Math.atan2(p0[1] - p1[1], p0[0] - p1[0]);
+                drawArrowhead(rc, p0[0], p0[1], angle, el.startArrowhead, options);
+            }
+
+            if (el.endArrowhead && drawPoints.length >= 2) {
+                const pn = drawPoints[drawPoints.length - 1];
+                const pn_1 = drawPoints[drawPoints.length - 2];
+                const angle = Math.atan2(pn[1] - pn_1[1], pn[0] - pn_1[0]);
+                drawArrowhead(rc, pn[0], pn[1], angle, el.endArrowhead, options);
+            }
+
         } else {
             // Straight Line (Default)
             rc.line(el.x, el.y, endX, endY, options);

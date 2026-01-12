@@ -309,5 +309,9 @@
 
 ### Phase 23: Templates & Advanced Features
 - [ ] Pre-made diagram templates
-- [ ] Smart connector routing
+- [x] Smart connector routing
+    - [x] Grid-based A* routing in `routing.ts`
+    - [x] Obstacle avoidance for non-linear shapes
+    - [x] Integration with Property Panel and Rendering
+    - [x] Reactive updates in `Canvas.tsx`
 - [ ] Minimap/Navigator for large diagrams
