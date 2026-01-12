@@ -3,7 +3,7 @@ import { storage } from "../storage/FileSystemStorage";
 import {
     store, setStore, deleteElements, clearHistory, toggleTheme, zoomToFit,
     addLayer, reorderLayers, bringToFront, sendToBack, groupSelected, ungroupSelected,
-    togglePropertyPanel, toggleLayerPanel
+    togglePropertyPanel, toggleLayerPanel, loadTemplate
 } from "../store/appStore";
 import {
     Menu as MenuIcon, FolderOpen, Share2, FilePlus, Trash2, Maximize,
@@ -16,6 +16,8 @@ import FileOpenDialog from "./FileOpenDialog";
 import ExportDialog from "./ExportDialog";
 import SaveDialog from "./SaveDialog";
 import { migrateDrawingData } from "../utils/migration";
+import TemplateBrowser from "./TemplateBrowser";
+import type { Template } from "../types/templateTypes";
 import "./Menu.css";
 
 const Menu: Component = () => {
@@ -31,6 +33,7 @@ const Menu: Component = () => {
 
     const [saveIntent, setSaveIntent] = createSignal<'workspace' | 'disk'>('workspace');
     const [clipboard, setClipboard] = createSignal<any[]>([]);
+    const [isTemplateBrowserOpen, setIsTemplateBrowserOpen] = createSignal(false);
 
     const handleSaveRequest = (intent: 'workspace' | 'disk') => {
         setSaveIntent(intent);
@@ -146,9 +149,19 @@ const Menu: Component = () => {
     };
 
     const handleShare = () => {
-        const url = `${window.location.origin}${window.location.pathname}?id = ${drawingId()} `;
+        const url = `${window.location.origin}${window.location.pathname}?id=${drawingId()}`;
         navigator.clipboard.writeText(url);
-        alert(`Link copied: ${url} `);
+        alert(`Link copied: ${url}`);
+    };
+
+    const handleTemplateSelect = (template: Template) => {
+        if (store.elements.length > 0) {
+            if (!confirm('Loading a template will clear the current canvas. Continue?')) {
+                return;
+            }
+        }
+        loadTemplate(template.data);
+        setIsTemplateBrowserOpen(false);
     };
 
     const handleOpenJson = (e: Event) => {
@@ -391,6 +404,12 @@ const Menu: Component = () => {
                 onExportImage={() => { setIsLoadExportOpen(false); setIsExportOpen(true); }}
             />
 
+            <TemplateBrowser
+                isOpen={isTemplateBrowserOpen()}
+                onClose={() => setIsTemplateBrowserOpen(false)}
+                onSelectTemplate={handleTemplateSelect}
+            />
+
             <div class="app-title">
                 {drawingId()}
             </div>
@@ -432,6 +451,10 @@ const Menu: Component = () => {
                             <button class="menu-item" onClick={handleNew}>
                                 <FilePlus size={16} />
                                 <span class="label">New Sketch</span>
+                            </button>
+                            <button class="menu-item" onClick={() => { setIsTemplateBrowserOpen(true); setIsMenuOpen(false); }}>
+                                <Layout size={16} />
+                                <span class="label">Templates</span>
                             </button>
                             <div class="menu-separator"></div>
                             <div style={{ padding: '4px 12px', "font-size": '12px', color: 'var(--text-secondary)' }}>

@@ -601,3 +601,30 @@ export const distributeSelectedElements = (type: DistributionType) => {
         );
     }
 };
+
+/**
+ * Load a template into the canvas
+ * Clears existing content and loads template data
+ */
+export const loadTemplate = (templateData: {
+    elements: DrawingElement[];
+    layers: Layer[];
+    viewState?: ViewState;
+    gridSettings?: GridSettings;
+    canvasBackgroundColor?: string;
+}) => {
+    // Clear history and reset canvas
+    clearHistory();
+
+    // Load template data
+    setStore({
+        elements: templateData.elements,
+        layers: templateData.layers,
+        activeLayerId: templateData.layers[0]?.id || 'default-layer',
+        viewState: templateData.viewState || { scale: 1, panX: 0, panY: 0 },
+        gridSettings: templateData.gridSettings || store.gridSettings,
+        canvasBackgroundColor: templateData.canvasBackgroundColor || store.canvasBackgroundColor,
+        selection: []
+    });
+};
+

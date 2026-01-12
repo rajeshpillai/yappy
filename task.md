@@ -318,12 +318,21 @@
 
 
 ### Phase 23: Templates & Advanced Features
-- [ ] Pre-made diagram templates
-  - [ ] Flowchart template
-  - [ ] Mind map template
+- [x] Pre-made diagram templates
+  - [x] Extensible template system architecture
+    - [x] Template type definitions (`src/types/templateTypes.ts`)
+    - [x] Template registry with category management (`src/templates/registry.ts`)
+    - [x] Template browser UI component (`src/components/TemplateBrowser.tsx`)
+    - [x] Integration with Menu and appStore
+  - [x] Flowchart template (Basic flowchart with decision logic)
+  - [x] Mind map template (Radial structure with 4 branches)
   - [ ] Wireframe template
   - [ ] Org chart template
   - [ ] Network diagram template
+- [x] Element property normalization
+  - [x] Added `normalizeElement()` function in migration.ts
+  - [x] Automatic defaults for all required properties
+  - [x] Prevents runtime errors from missing properties
 - [x] Smart connector routing
     - [x] Grid-based A* routing in `routing.ts`
     - [x] Obstacle avoidance for non-linear shapes
