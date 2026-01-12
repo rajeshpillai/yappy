@@ -163,6 +163,10 @@ export const YappyAPI = {
         }
     },
 
+    setSelected(ids: string[]) {
+        setStore("selection", ids);
+    },
+
     setView(scale: number, panX: number, panY: number) {
         setViewState({ scale, panX, panY });
     },

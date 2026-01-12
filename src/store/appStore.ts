@@ -456,3 +456,35 @@ export const setGridStyle = (style: 'lines' | 'dots') => {
 
 // Initialize theme on load
 document.documentElement.setAttribute('data-theme', initialState.theme);
+
+import { calculateAlignment, calculateDistribution, type AlignmentType, type DistributionType } from "../utils/alignment";
+
+export const alignSelectedElements = (type: AlignmentType) => {
+    if (store.selection.length < 2) return;
+    const updates = calculateAlignment(store.selection, store.elements, type);
+    if (updates.length > 0) {
+        pushToHistory();
+        setStore('elements',
+            (el) => updates.some(u => u.id === el.id),
+            (el) => {
+                const update = updates.find(u => u.id === el.id)?.updates;
+                return update ? { ...el, ...update } : el;
+            }
+        );
+    }
+};
+
+export const distributeSelectedElements = (type: DistributionType) => {
+    if (store.selection.length < 3) return;
+    const updates = calculateDistribution(store.selection, store.elements, type);
+    if (updates.length > 0) {
+        pushToHistory();
+        setStore('elements',
+            (el) => updates.some(u => u.id === el.id),
+            (el) => {
+                const update = updates.find(u => u.id === el.id)?.updates;
+                return update ? { ...el, ...update } : el;
+            }
+        );
+    }
+};

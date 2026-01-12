@@ -79,6 +79,10 @@ Adjusts the viewport to fit all elements.
 #### `setView(scale, panX, panY)`
 Manually sets the viewport view state.
 
+#### `setSelected(ids)`
+Sets the current selection.
+- **ids**: Array of element IDs to select.
+
 ## Types
 
 ### ElementOptions

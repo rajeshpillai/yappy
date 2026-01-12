@@ -302,7 +302,9 @@ input[type="text"] {
     .property-group {
         margin-bottom: 16px;
     }
-}.swatch-row {
+}
+
+.swatch-row {
     display: flex;
     gap: 8px;
     align-items: center;
@@ -359,4 +361,34 @@ input[type="text"] {
 .swatch-circle.rainbow.active .rainbow-gradient {
     border: 2px solid white;
     box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.alignment-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    background: var(--bg-secondary);
+    padding: 6px;
+    border-radius: 6px;
+    gap: 4px;
+}
+
+.icon-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 6px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.icon-btn:hover {
+    background: var(--btn-hover);
+    color: var(--text-primary);
+    border-color: var(--border-color);
 }

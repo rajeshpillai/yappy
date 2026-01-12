@@ -197,4 +197,12 @@
   - [x] `docs/shape.md`: Shape Attribute Matrix & Developer Guide
   - [x] `docs/api.md`: Added `createDiamond`
 
+### Phase 16: Alignment Tools
+- [x] Implement Alignment & Distribution Tools
+  - [x] Logic: `src/utils/alignment.ts`
+  - [x] Store Actions: `src/store/appStore.ts`
+  - [x] UI: `src/components/PropertyPanel.tsx` (Icons & Conditional Display)
+  - [x] API: `setSelected` method added
+  - [x] Tests: `tests/alignment.spec.ts` verified
+
 

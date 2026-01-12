@@ -1,8 +1,31 @@
 import { type Component, Show, createMemo, For, createSignal, createEffect } from "solid-js";
-import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle } from "../store/appStore";
-import { Copy, ChevronsDown, ChevronDown, ChevronUp, ChevronsUp, Trash2, Palette } from "lucide-solid";
+import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, alignSelectedElements, distributeSelectedElements } from "../store/appStore";
+import {
+    Copy, ChevronsDown, ChevronDown, ChevronUp, ChevronsUp, Trash2, Palette,
+    AlignLeft, AlignCenterHorizontal, AlignRight,
+    AlignStartVertical, AlignCenterVertical, AlignEndVertical,
+    AlignHorizontalDistributeCenter, AlignVerticalDistributeCenter
+} from "lucide-solid";
 import "./PropertyPanel.css";
 import { properties, type PropertyConfig } from "../config/properties";
+
+const AlignmentControls: Component = () => (
+    <div class="property-group">
+        <div class="group-title">ALIGNMENT</div>
+        <div class="alignment-row">
+            <button class="icon-btn" onClick={() => alignSelectedElements('left')} title="Align Left"><AlignLeft size={18} /></button>
+            <button class="icon-btn" onClick={() => alignSelectedElements('center')} title="Align Horizontal Center"><AlignCenterHorizontal size={18} /></button>
+            <button class="icon-btn" onClick={() => alignSelectedElements('right')} title="Align Right"><AlignRight size={18} /></button>
+            <button class="icon-btn" onClick={() => distributeSelectedElements('horizontal')} title="Distribute Horizontal"><AlignHorizontalDistributeCenter size={18} /></button>
+        </div>
+        <div class="alignment-row">
+            <button class="icon-btn" onClick={() => alignSelectedElements('top')} title="Align Top"><AlignStartVertical size={18} /></button>
+            <button class="icon-btn" onClick={() => alignSelectedElements('middle')} title="Align Vertical Center"><AlignCenterVertical size={18} /></button>
+            <button class="icon-btn" onClick={() => alignSelectedElements('bottom')} title="Align Bottom"><AlignEndVertical size={18} /></button>
+            <button class="icon-btn" onClick={() => distributeSelectedElements('vertical')} title="Distribute Vertical"><AlignVerticalDistributeCenter size={18} /></button>
+        </div>
+    </div>
+);
 
 const ColorControl: Component<{ prop: PropertyConfig, value: any, onChange: (val: any) => void }> = (props) => {
     const hasOptions = () => props.prop.options && props.prop.options.length > 0;
@@ -280,7 +303,7 @@ const PropertyPanel: Component = () => {
         <Show when={activeTarget()}>
             <div class="property-panel-container">
                 <div class="property-header">
-                    <h3>{activeTarget()?.type === 'element' ? 'Properties' : activeTarget()?.type === 'canvas' ? 'Canvas' : 'Defaults'}</h3>
+                    <h3>{activeTarget()?.type === 'element' ? 'Properties' : activeTarget()?.type === 'canvas' ? 'Canvas' : activeTarget()?.type === 'multi' ? 'Selection' : 'Defaults'}</h3>
                     <Show when={activeTarget()?.type === 'element'}>
                         <div class="header-actions">
                             <button onClick={() => duplicateElement(activeTarget()!.data!.id!)} title="Duplicate">
@@ -294,6 +317,9 @@ const PropertyPanel: Component = () => {
                 </div>
 
                 <div class="property-content">
+                    <Show when={activeTarget()?.type === 'multi'}>
+                        <AlignmentControls />
+                    </Show>
                     <For each={Object.entries(groupedProperties())}>
                         {([group, props]) => (
                             <div class="property-group">
@@ -380,4 +406,8 @@ const PropertyPanel: Component = () => {
     );
 };
 
+
+
+
 export default PropertyPanel;
+
