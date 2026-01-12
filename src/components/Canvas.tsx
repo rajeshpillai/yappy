@@ -6,6 +6,7 @@ import type { DrawingElement } from "../types";
 import { renderElement } from "../utils/renderElement";
 import ContextMenu from "./ContextMenu";
 import { snapPoint } from "../utils/snapHelpers";
+import { setImageLoadCallback } from "../utils/imageCache";
 
 
 const Canvas: Component = () => {
@@ -574,8 +575,9 @@ const Canvas: Component = () => {
         return false;
     };
 
-    // Helper: Check if element can be interacted with (not on locked layer)
+    // Helper: Check if element can be interacted with (not on locked layer or locked itself)
     const canInteractWithElement = (el: DrawingElement): boolean => {
+        if (el.locked) return false;
         const layer = store.layers.find(l => l.id === el.layerId);
         return layer?.locked !== true;
     };
@@ -892,6 +894,12 @@ const Canvas: Component = () => {
                 const id = store.selection[0];
                 const el = store.elements.find(e => e.id === id);
                 if (!el) return;
+
+                // Don't allow moving/resizing locked elements
+                if (!canInteractWithElement(el)) {
+                    return;
+                }
+
 
                 if (draggingHandle) {
                     // Binding Logic for Lines/Arrows
@@ -1381,6 +1389,11 @@ const Canvas: Component = () => {
     };
 
     onMount(() => {
+        // Register callback to trigger redraw when images load
+        setImageLoadCallback(() => {
+            draw();
+        });
+
         window.addEventListener("resize", handleResize);
         handleResize();
         onCleanup(() => window.removeEventListener("resize", handleResize));

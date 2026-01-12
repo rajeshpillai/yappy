@@ -273,7 +273,7 @@ export const properties: PropertyConfig[] = [
         label: 'Locked',
         type: 'toggle',
         group: 'advanced',
-        applicableTo: 'all',
+        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'text', 'pencil', 'image', 'diamond'],
         defaultValue: false
     },
 

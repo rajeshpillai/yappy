@@ -1,6 +1,11 @@
 
 const imageCache = new Map<string, HTMLImageElement>();
 const pendingImages = new Set<string>();
+let onImageLoadCallback: (() => void) | null = null;
+
+export const setImageLoadCallback = (callback: () => void) => {
+    onImageLoadCallback = callback;
+};
 
 export const getImage = (dataURL: string): HTMLImageElement | null => {
     if (imageCache.has(dataURL)) {
@@ -14,14 +19,10 @@ export const getImage = (dataURL: string): HTMLImageElement | null => {
         img.onload = () => {
             imageCache.set(dataURL, img);
             pendingImages.delete(dataURL);
-            // Trigger a redraw if needed? 
-            // Since we use requestAnimationFrame in Canvas.tsx loop, it picks it up next frame?
-            // "draw" loop runs continuously? 
-            // "createEffect" triggers on store changes.
-            // If image loads, nothing in store changes.
-            // We might need to force update.
-            // But usually user interaction triggers it.
-            // For now, let's assume subsequent interactions will show it, or we can expose a trigger.
+            // Trigger redraw when image loads
+            if (onImageLoadCallback) {
+                onImageLoadCallback();
+            }
         };
         img.onerror = () => {
             pendingImages.delete(dataURL);

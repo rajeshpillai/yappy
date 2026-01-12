@@ -211,3 +211,15 @@
   - [x] Investigate `Canvas.tsx` rendering and hit testing
   - [x] Removed redundant transform after grid drawing
   - [x] Verify fix
+
+### Phase 18: Minor Fixes
+- [x] Fix Locked Functionality
+  - [x] Investigate locked layer/element behavior
+  - [x] Fix locked element interaction (check both element and layer)
+  - [x] Verify fix
+- [x] Fix Image Visibility on Load
+  - [x] Investigate image loading/rendering
+  - [x] Added callback mechanism to trigger redraw on image load
+  - [x] Verify fix
+
+
