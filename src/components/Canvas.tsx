@@ -215,7 +215,11 @@ const Canvas: Component = () => {
                 ctx.strokeStyle = '#3b82f6';
                 ctx.lineWidth = 1 / scale;
                 const padding = 2 / scale;
-                ctx.strokeRect(el.x - padding, el.y - padding, el.width + padding * 2, el.height + padding * 2);
+
+                // Only draw bounding box for non-linear elements
+                if (el.type !== 'line' && el.type !== 'arrow') {
+                    ctx.strokeRect(el.x - padding, el.y - padding, el.width + padding * 2, el.height + padding * 2);
+                }
 
                 // Handles (Only if single selection)
                 if (store.selection.length === 1) {
@@ -224,35 +228,57 @@ const Canvas: Component = () => {
                     ctx.strokeStyle = '#3b82f6';
                     ctx.lineWidth = 2 / scale;
 
-                    const handles = [
-                        { x: el.x - padding, y: el.y - padding }, // TL
-                        { x: el.x + el.width + padding, y: el.y - padding }, // TR
-                        { x: el.x + el.width + padding, y: el.y + el.height + padding }, // BR
-                        { x: el.x - padding, y: el.y + el.height + padding }, // BL
-                        // Side Handles
-                        { x: el.x + el.width / 2, y: el.y - padding }, // TM
-                        { x: el.x + el.width + padding, y: el.y + el.height / 2 }, // RM
-                        { x: el.x + el.width / 2, y: el.y + el.height + padding }, // BM
-                        { x: el.x - padding, y: el.y + el.height / 2 } // LM
-                    ];
+                    if (el.type === 'line' || el.type === 'arrow') {
+                        // Line/Arrow Specific Handles (Start and End only)
+                        const startX = el.x;
+                        const startY = el.y;
+                        const endX = el.x + el.width;
+                        const endY = el.y + el.height;
 
-                    handles.forEach(h => {
-                        ctx.fillRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
-                        ctx.strokeRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
-                    });
+                        const handles = [
+                            { x: startX, y: startY }, // Start (TL)
+                            { x: endX, y: endY }      // End (BR)
+                        ];
 
-                    // Rotate Handle
-                    const rotH = { x: el.x + el.width / 2, y: el.y - padding - 20 / scale };
-                    ctx.beginPath();
-                    ctx.moveTo(el.x + el.width / 2, el.y - padding);
-                    ctx.lineTo(rotH.x, rotH.y);
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.arc(rotH.x, rotH.y, handleSize / 2, 0, 2 * Math.PI);
-                    ctx.fill();
-                    ctx.stroke();
+                        handles.forEach(h => {
+                            ctx.beginPath();
+                            ctx.arc(h.x, h.y, handleSize / 1.5, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.stroke();
+                        });
 
-                    ctx.stroke();
+                    } else {
+                        // Standard Box Handles
+                        const handles = [
+                            { x: el.x - padding, y: el.y - padding }, // TL
+                            { x: el.x + el.width + padding, y: el.y - padding }, // TR
+                            { x: el.x + el.width + padding, y: el.y + el.height + padding }, // BR
+                            { x: el.x - padding, y: el.y + el.height + padding }, // BL
+                            // Side Handles
+                            { x: el.x + el.width / 2, y: el.y - padding }, // TM
+                            { x: el.x + el.width + padding, y: el.y + el.height / 2 }, // RM
+                            { x: el.x + el.width / 2, y: el.y + el.height + padding }, // BM
+                            { x: el.x - padding, y: el.y + el.height / 2 } // LM
+                        ];
+
+                        handles.forEach(h => {
+                            ctx.fillRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
+                            ctx.strokeRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
+                        });
+
+                        // Rotate Handle (Not for lines? Or maybe lines can rotate?)
+                        // Lines usually just move endpoints. Rotating a line is same as moving endpoints.
+                        // So hide rotate handle for lines.
+                        const rotH = { x: el.x + el.width / 2, y: el.y - padding - 20 / scale };
+                        ctx.beginPath();
+                        ctx.moveTo(el.x + el.width / 2, el.y - padding);
+                        ctx.lineTo(rotH.x, rotH.y);
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.arc(rotH.x, rotH.y, handleSize / 2, 0, 2 * Math.PI);
+                        ctx.fill();
+                        ctx.stroke();
+                    }
 
                     ctx.restore();
                 } else {
@@ -421,7 +447,7 @@ const Canvas: Component = () => {
             const padding = 2 / scale;
 
             // Check corners and sides
-            const handles = [
+            let handles = [
                 { type: 'tl', x: el.x - padding, y: el.y - padding },
                 { type: 'tr', x: el.x + el.width + padding, y: el.y - padding },
                 { type: 'br', x: el.x + el.width + padding, y: el.y + el.height + padding },
@@ -431,6 +457,15 @@ const Canvas: Component = () => {
                 { type: 'bm', x: el.x + el.width / 2, y: el.y + el.height + padding },
                 { type: 'lm', x: el.x - padding, y: el.y + el.height / 2 }
             ];
+
+            if (el.type === 'line' || el.type === 'arrow') {
+                // For lines, only TL (Start) and BR (End) are valid handles essentially.
+                // We map them to the exact points.
+                handles = [
+                    { type: 'tl', x: el.x, y: el.y },
+                    { type: 'br', x: el.x + el.width, y: el.y + el.height }
+                ];
+            }
 
             for (const h of handles) {
                 if (Math.abs(local.x - h.x) <= handleSize / 2 && Math.abs(local.y - h.y) <= handleSize / 2) {
