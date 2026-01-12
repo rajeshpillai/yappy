@@ -8,12 +8,68 @@ export interface PropertyConfig {
     min?: number;
     max?: number;
     step?: number;
-    applicableTo: ElementType[] | 'all';
+    applicableTo: (ElementType | 'canvas')[] | 'all';
     defaultValue?: any;
-    group: 'style' | 'stroke' | 'background' | 'text' | 'dimensions' | 'advanced';
+    group: 'style' | 'stroke' | 'background' | 'text' | 'dimensions' | 'advanced' | 'canvas';
 }
 
 export const properties: PropertyConfig[] = [
+    // Canvas Properties
+    {
+        key: 'canvasBackgroundColor',
+        label: 'Background',
+        type: 'color',
+        group: 'canvas',
+        applicableTo: ['canvas'],
+        defaultValue: '#fafafa'
+    },
+    {
+        key: 'gridEnabled',
+        label: 'Show Grid',
+        type: 'toggle',
+        group: 'canvas',
+        applicableTo: ['canvas'],
+        defaultValue: false
+    },
+    {
+        key: 'snapToGrid',
+        label: 'Snap to Grid',
+        type: 'toggle',
+        group: 'canvas',
+        applicableTo: ['canvas'],
+        defaultValue: false
+    },
+    {
+        key: 'gridStyle',
+        label: 'Grid Style',
+        type: 'select',
+        options: [
+            { label: 'Lines', value: 'lines' },
+            { label: 'Dots', value: 'dots' }
+        ],
+        group: 'canvas',
+        applicableTo: ['canvas'],
+        defaultValue: 'lines'
+    },
+    {
+        key: 'gridColor',
+        label: 'Grid Color',
+        type: 'color',
+        group: 'canvas',
+        applicableTo: ['canvas'],
+        defaultValue: '#e0e0e0'
+    },
+    {
+        key: 'gridOpacity',
+        label: 'Grid Opacity',
+        type: 'slider',
+        min: 0.1,
+        max: 1,
+        step: 0.1,
+        group: 'canvas',
+        applicableTo: ['canvas'],
+        defaultValue: 0.5
+    },
     // Style
     {
         key: 'renderStyle',

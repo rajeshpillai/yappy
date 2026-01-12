@@ -1,5 +1,5 @@
 import { type Component, Show, createMemo, For } from "solid-js";
-import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer } from "../store/appStore";
+import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle } from "../store/appStore";
 import { Copy, ChevronsDown, ChevronDown, ChevronUp, ChevronsUp, Trash2 } from "lucide-solid";
 import "./PropertyPanel.css";
 import { properties, type PropertyConfig } from "../config/properties";
@@ -13,19 +13,21 @@ const PropertyPanel: Component = () => {
             return el ? { type: 'element' as const, data: el } : null;
         } else if (store.selection.length > 1) {
             return { type: 'multi' as const, data: null };
+        } else {
+            // Default to Canvas properties when nothing selected
+            return { type: 'canvas' as const, data: null };
         }
-        // else if (store.selection.length === 0) { ... } -> USER wants hidden
 
-        return null;
+        return null; // Unreachable now but keeps types happy if needed
     });
 
     const activeProperties = createMemo(() => {
         const target = activeTarget();
         if (!target) return [];
 
-        if (target.type === 'multi') return []; // TODO: Implement shared properties for multi-selection
+        if (target.type === 'multi') return [];
 
-        const targetType = target.data.type;
+        const targetType = target.type === 'canvas' ? 'canvas' : target.data!.type;
 
         return properties.filter(p => {
             if (p.applicableTo === 'all') return true;
@@ -41,10 +43,34 @@ const PropertyPanel: Component = () => {
         if (!target) return;
 
         if (target.type === 'element') {
-            updateElement(target.data.id!, { [key]: value }, true); // record history on change? careful with sliders
+            updateElement(target.data.id!, { [key]: value }, true);
+        } else if (target.type === 'canvas') {
+            if (key === 'canvasBackgroundColor') setCanvasBackgroundColor(value);
+            else if (key === 'gridEnabled') updateGridSettings({ enabled: value });
+            else if (key === 'snapToGrid') updateGridSettings({ snapToGrid: value });
+            else if (key === 'gridStyle') setGridStyle(value);
+            else if (key === 'gridColor') updateGridSettings({ gridColor: value });
+            else if (key === 'gridOpacity') updateGridSettings({ gridOpacity: value });
         } else {
             updateDefaultStyles({ [key]: value });
         }
+    };
+
+    const getPropertyValue = (prop: PropertyConfig) => {
+        const target = activeTarget();
+        if (!target) return undefined;
+
+        if (target.type === 'canvas') {
+            if (prop.key === 'canvasBackgroundColor') return store.canvasBackgroundColor;
+            if (prop.key === 'gridEnabled') return store.gridSettings.enabled;
+            if (prop.key === 'gridStyle') return store.gridSettings.style;
+            if (['snapToGrid', 'gridColor', 'gridOpacity'].includes(prop.key)) {
+                return (store.gridSettings as any)[prop.key];
+            }
+            return (store as any)[prop.key];
+        }
+        if (target.type === 'element') return (target.data as any)[prop.key];
+        return undefined;
     };
 
     const handleDelete = () => {
@@ -203,7 +229,7 @@ const PropertyPanel: Component = () => {
         <Show when={activeTarget()}>
             <div class="property-panel-container">
                 <div class="property-header">
-                    <h3>{activeTarget()?.type === 'element' ? 'Properties' : 'Defaults'}</h3>
+                    <h3>{activeTarget()?.type === 'element' ? 'Properties' : activeTarget()?.type === 'canvas' ? 'Canvas' : 'Defaults'}</h3>
                     <Show when={activeTarget()?.type === 'element'}>
                         <div class="header-actions">
                             <button onClick={() => duplicateElement(activeTarget()!.data!.id!)} title="Duplicate">
@@ -222,7 +248,7 @@ const PropertyPanel: Component = () => {
                             <div class="property-group">
                                 <div class="group-title">{group.toUpperCase()}</div>
                                 <For each={props}>
-                                    {(prop) => renderControl(prop, (activeTarget()?.data as any)[prop.key])}
+                                    {(prop) => renderControl(prop, getPropertyValue(prop))}
                                 </For>
                             </div>
                         )}
