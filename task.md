@@ -148,11 +148,11 @@
   - [x] Snap while moving elements
   - [x] Snap while resizing elements
   - [x] Configurable snap threshold (using grid size)
-- [ ] Snap to objects
-  - Snap to edges of other elements
-  - Snap to centers of other elements
-  - Visual snap guides (dashed lines)
-  - Smart distance indicators
+- [x] Snap to objects
+  - [x] Snap to edges of other elements
+  - [x] Snap to centers of other elements
+  - [x] Visual snap guides (dashed lines)
+  - [x] Automated tests (snapping.spec.ts)
 - [ ] Rulers (optional)
   - Horizontal and vertical rulers
   - Show coordinates on hover
