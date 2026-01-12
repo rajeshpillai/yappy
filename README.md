@@ -155,6 +155,7 @@ yappy/
 - [x] Layer system with full controls
 - [x] Grid visualization and context menu
 - [x] Snap to grid functionality
+- [x] Canvas properties persistence (Grid & Background)
 
 ### Planned
 - [ ] Layer grouping (hierarchical folders)
