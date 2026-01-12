@@ -200,6 +200,12 @@ const Menu: Component = () => {
                 } else if (e.key.toLowerCase() === 'e' && e.shiftKey) { // Ctrl+Shift+E
                     e.preventDefault();
                     setIsExportOpen(true);
+                } else if (e.key === 'a') { // Ctrl+A - Select All
+                    // Don't select all if user is typing in an input/textarea
+                    if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+                        e.preventDefault();
+                        setStore('selection', store.elements.map(el => el.id));
+                    }
                 }
             } else if (e.key === '?' && e.shiftKey) { // Shift+?
                 if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
