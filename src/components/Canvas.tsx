@@ -1,7 +1,7 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show } from "solid-js";
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
 import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties } from "../store/appStore";
-import { distanceToSegment, isPointOnPolyline, isPointInEllipse } from "../utils/geometry";
+import { distanceToSegment, isPointOnPolyline, isPointInEllipse, intersectElementWithLine } from "../utils/geometry";
 import type { DrawingElement } from "../types";
 import { renderElement } from "../utils/renderElement";
 import ContextMenu from "./ContextMenu";
@@ -52,6 +52,7 @@ const Canvas: Component = () => {
     let draggingHandle: string | null = null;
     const [selectionBox, setSelectionBox] = createSignal<{ x: number, y: number, w: number, h: number } | null>(null);
     let initialPositions = new Map<string, { x: number, y: number }>();
+    const [suggestedBinding, setSuggestedBinding] = createSignal<{ elementId: string; px: number; py: number } | null>(null);
 
     let initialElementX = 0;
     let initialElementY = 0;
@@ -276,6 +277,19 @@ const Canvas: Component = () => {
             ctx.fillRect(box.x, box.y, box.w, box.h);
             ctx.strokeRect(box.x, box.y, box.w, box.h);
             ctx.restore();
+        }
+
+        // Draw Suggested Binding Highlight
+        const binding = suggestedBinding();
+        if (binding) {
+            const target = store.elements.find(e => e.id === binding.elementId);
+            if (target) {
+                ctx.save();
+                ctx.strokeStyle = '#f59e0b'; // Amber
+                ctx.lineWidth = 2 / scale;
+                ctx.strokeRect(target.x - 4 / scale, target.y - 4 / scale, target.width + 8 / scale, target.height + 8 / scale);
+                ctx.restore();
+            }
         }
 
     };
@@ -696,7 +710,7 @@ const Canvas: Component = () => {
     };
 
     const handlePointerMove = (e: PointerEvent) => {
-        const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
+        let { x, y } = getWorldCoordinates(e.clientX, e.clientY);
 
         // Update Cursor
         if (store.selectedTool === 'pan') {
@@ -743,6 +757,41 @@ const Canvas: Component = () => {
                 if (!el) return;
 
                 if (draggingHandle) {
+                    // Binding Logic for Lines/Arrows
+                    if ((el.type === 'line' || el.type === 'arrow') && (draggingHandle === 'tl' || draggingHandle === 'br')) {
+                        const threshold = 20 / store.viewState.scale;
+                        let bindingHit = null;
+                        for (let i = store.elements.length - 1; i >= 0; i--) {
+                            const target = store.elements[i];
+                            if (target.id === el.id || target.layerId !== el.layerId || !canInteractWithElement(target)) continue;
+                            if (target.type === 'rectangle' || target.type === 'circle' || target.type === 'image' || target.type === 'text') {
+                                if (hitTestElement(target, x, y, threshold)) {
+                                    bindingHit = target;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (bindingHit) {
+                            const isStart = draggingHandle === 'tl';
+                            const otherEndX = isStart ? el.x + el.width : el.x;
+                            const otherEndY = isStart ? el.y + el.height : el.y;
+
+                            const snapPoint = intersectElementWithLine(bindingHit, { x: otherEndX, y: otherEndY }, 5);
+                            if (snapPoint) {
+                                setSuggestedBinding({ elementId: bindingHit.id, px: snapPoint.x, py: snapPoint.y });
+                                x = snapPoint.x;
+                                y = snapPoint.y;
+                            } else {
+                                setSuggestedBinding(null);
+                            }
+                        } else {
+                            setSuggestedBinding(null);
+                        }
+                    } else {
+                        setSuggestedBinding(null);
+                    }
+
                     // Resize/Rotate logic
                     if (draggingHandle === 'rotate') {
                         const cx = el.x + el.width / 2;
@@ -839,6 +888,39 @@ const Canvas: Component = () => {
                         const initPos = initialPositions.get(selId);
                         if (initPos) {
                             updateElement(selId, { x: initPos.x + dx, y: initPos.y + dy });
+
+                            // Update Bound Lines
+                            const movedEl = store.elements.find(e => e.id === selId);
+                            if (movedEl && movedEl.boundElements) {
+                                movedEl.boundElements.forEach(b => {
+                                    const line = store.elements.find(l => l.id === b.id);
+                                    if (line) {
+                                        let startX = line.x;
+                                        let startY = line.y;
+                                        let endX = line.x + line.width;
+                                        let endY = line.y + line.height;
+                                        let changed = false;
+
+                                        if (line.startBinding?.elementId === movedEl.id) {
+                                            const p = intersectElementWithLine(movedEl, { x: endX, y: endY }, line.startBinding.gap);
+                                            if (p) { startX = p.x; startY = p.y; changed = true; }
+                                        }
+                                        if (line.endBinding?.elementId === movedEl.id) {
+                                            const p = intersectElementWithLine(movedEl, { x: startX, y: startY }, line.endBinding.gap);
+                                            if (p) { endX = p.x; endY = p.y; changed = true; }
+                                        }
+
+                                        if (changed) {
+                                            updateElement(line.id, {
+                                                x: startX,
+                                                y: startY,
+                                                width: endX - startX,
+                                                height: endY - startY
+                                            });
+                                        }
+                                    }
+                                });
+                            }
                         }
                     });
                 }
@@ -955,6 +1037,30 @@ const Canvas: Component = () => {
                 }
                 isSelecting = false;
                 setSelectionBox(null);
+            }
+
+            if (isDragging) {
+                const binding = suggestedBinding();
+                if (binding && store.selection.length === 1 && draggingHandle) {
+                    const elId = store.selection[0];
+                    const el = store.elements.find(e => e.id === elId);
+                    if (el && (el.type === 'line' || el.type === 'arrow')) {
+                        const isStart = draggingHandle === 'tl';
+                        const bindingData = { elementId: binding.elementId, focus: 0, gap: 5 };
+
+                        updateElement(elId, isStart ? { startBinding: bindingData } : { endBinding: bindingData });
+
+                        // Update Target Bound Elements
+                        const target = store.elements.find(e => e.id === binding.elementId);
+                        if (target) {
+                            const existing = target.boundElements || [];
+                            if (!existing.find(b => b.id === elId)) {
+                                updateElement(target.id, { boundElements: [...existing, { id: elId, type: el.type as 'arrow' }] });
+                            }
+                        }
+                    }
+                }
+                setSuggestedBinding(null);
             }
 
             isDragging = false;

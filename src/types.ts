@@ -61,6 +61,8 @@ export interface DrawingElement {
     boundElements?: { id: string; type: 'arrow' | 'text' }[] | null;
     isSelected?: boolean;
     layerId: string; // Reference to parent layer
+    startBinding?: { elementId: string; focus: number; gap: number } | null;
+    endBinding?: { elementId: string; focus: number; gap: number } | null;
 }
 
 export interface Layer {

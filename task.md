@@ -80,7 +80,7 @@
   - Prevention of drawing on hidden/locked layers (with alerts)
   - User confirmation dialog for layer deletion with elements
   - History/undo-redo support for all layer operations
-- [ ] Implement shape connectors (able to link shapes to crete flow chart, data flow like diagrams)
+- [x] Implement shape connectors (able to link shapes to crete flow chart, data flow like diagrams)
 
 ## Phase 10: Mobile & Pen Support
 - [x] Migrate Mouse Events to Pointer Events in Canvas <!-- id: 32 -->

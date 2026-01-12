@@ -97,3 +97,94 @@ export const isPointNearEllipseStroke = (p: Point, x: number, y: number, w: numb
     // And for stroke... maybe just allow 'inside' for now as it's easier to select.
     return Math.abs(val - 1) < (threshold / Math.min(rx, ry)); // Very rough
 };
+
+// Helper: Rotate point (x,y) around center (cx,cy) by angle
+export const rotatePoint = (x: number, y: number, cx: number, cy: number, angle: number) => {
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    return {
+        x: (cos * (x - cx)) - (sin * (y - cy)) + cx,
+        y: (sin * (x - cx)) + (cos * (y - cy)) + cy
+    };
+};
+
+export const intersectElementWithLine = (
+    element: any,
+    a: Point,
+    gap: number = 0
+): Point | null => {
+    const cx = element.x + element.width / 2;
+    const cy = element.y + element.height / 2;
+
+    if (element.type === 'rectangle' || element.type === 'image' || element.type === 'text') {
+        let p = { x: a.x, y: a.y };
+        if (element.angle) {
+            p = rotatePoint(a.x, a.y, cx, cy, -element.angle);
+        }
+
+        const w = element.width;
+        const h = element.height;
+        const x1 = cx - w / 2 - gap;
+        const x2 = cx + w / 2 + gap;
+        const y1 = cy - h / 2 - gap;
+        const y2 = cy + h / 2 + gap;
+
+        const dx = p.x - cx;
+        const dy = p.y - cy;
+
+        if (dx === 0 && dy === 0) return { x: cx, y: cy };
+
+        let t = Infinity;
+
+        if (dx !== 0) {
+            const tx1 = (x1 - cx) / dx;
+            if (tx1 > 0) t = Math.min(t, tx1);
+            const tx2 = (x2 - cx) / dx;
+            if (tx2 > 0) t = Math.min(t, tx2);
+        }
+
+        if (dy !== 0) {
+            const ty1 = (y1 - cy) / dy;
+            if (ty1 > 0) t = Math.min(t, ty1);
+            const ty2 = (y2 - cy) / dy;
+            if (ty2 > 0) t = Math.min(t, ty2);
+        }
+
+        if (t === Infinity) return null;
+
+        const ix = cx + dx * t;
+        const iy = cy + dy * t;
+
+        if (element.angle) {
+            return rotatePoint(ix, iy, cx, cy, element.angle);
+        }
+        return { x: ix, y: iy };
+
+    } else if (element.type === 'circle') {
+        const rx = element.width / 2 + gap;
+        const ry = element.height / 2 + gap;
+
+        let p = { x: a.x, y: a.y };
+        if (element.angle) {
+            p = rotatePoint(a.x, a.y, cx, cy, -element.angle);
+        }
+
+        const dx = p.x - cx;
+        const dy = p.y - cy;
+
+        if (dx === 0 && dy === 0) return null;
+
+        const A = (dx * dx) / (rx * rx) + (dy * dy) / (ry * ry);
+        const t = 1 / Math.sqrt(A);
+
+        const ix = cx + dx * t;
+        const iy = cy + dy * t;
+
+        if (element.angle) {
+            return rotatePoint(ix, iy, cx, cy, element.angle);
+        }
+        return { x: ix, y: iy };
+    }
+
+    return null;
+};
