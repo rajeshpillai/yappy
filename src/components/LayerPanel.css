@@ -13,6 +13,13 @@
     box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
     z-index: 50;
     pointer-events: auto;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.layer-panel.minimized {
+    height: 48px;
+    min-height: 48px;
+    overflow: hidden;
 }
 
 .layer-panel-header {
@@ -73,31 +80,28 @@
     border-color: #3b82f6;
 }
 
-.layer-collapse-btn {
-    width: 28px;
-    height: 28px;
-    border-radius: 4px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-panel);
-    color: var(--text-primary);
-    font-size: 14px;
-    line-height: 1;
+.close-btn,
+.minimize-btn {
+    background: transparent;
+    border: none;
     cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    color: var(--text-secondary);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
 }
 
-.layer-collapse-btn:hover {
+.close-btn:hover,
+.minimize-btn:hover {
     background: var(--btn-hover);
-    border-color: #3b82f6;
+    color: var(--text-primary);
 }
 
-/* Collapsed state */
-.layer-panel.collapsed {
-    height: auto;
-    min-height: auto;
+.close-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger-color);
 }
 
 .layer-list {

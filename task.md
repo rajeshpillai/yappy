@@ -291,6 +291,13 @@
 - [x] Select All (Ctrl+A)
 - [x] Copy/Paste functionality (Ctrl+C, Ctrl+V)
 - [x] Implement Font Options for Text elements
+- [x]- Phase 22: Advanced Shapes & UX (In Progress)
+    - [x] Panel Refactor: Collapsible & Closable Drawers
+    - [x] Implement "Zen Mode" (Alt+\) and keyboard shortcuts (Alt+P, Alt+L)
+    - [x] Add Menu options for panel visibility
+    - [ ] Add Search/Filter for Layers
+    - [ ] Implement Polygon tool (Triangles, Pentagons, etc)
+    - [ ] Improved Gradient Picker with presets
 - [x] Help dialog with keyboard shortcuts (Shift+?)
 
 ### Phase 23: Templates & Advanced Features

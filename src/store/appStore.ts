@@ -15,6 +15,11 @@ interface AppState {
     canvasBackgroundColor: string;
     undoStackLength: number;
     redoStackLength: number;
+    // Panel Visibility
+    showPropertyPanel: boolean;
+    showLayerPanel: boolean;
+    isPropertyPanelMinimized: boolean;
+    isLayerPanelMinimized: boolean;
 }
 
 const initialState: AppState = {
@@ -64,7 +69,11 @@ const initialState: AppState = {
     showCanvasProperties: false,
     canvasBackgroundColor: '#ffffff',
     undoStackLength: 0,
-    redoStackLength: 0
+    redoStackLength: 0,
+    showPropertyPanel: true,
+    showLayerPanel: true,
+    isPropertyPanelMinimized: false,
+    isLayerPanelMinimized: false
 }; // Default light background
 
 export const [store, setStore] = createStore<AppState>(initialState);
@@ -538,6 +547,23 @@ export const setCanvasBackgroundColor = (color: string) => {
 
 export const setGridStyle = (style: 'lines' | 'dots') => {
     setStore('gridSettings', 'style', style);
+};
+
+// Panel Management
+export const togglePropertyPanel = (visible?: boolean) => {
+    setStore('showPropertyPanel', (v) => visible ?? !v);
+};
+
+export const toggleLayerPanel = (visible?: boolean) => {
+    setStore('showLayerPanel', (v) => visible ?? !v);
+};
+
+export const minimizePropertyPanel = (minimized?: boolean) => {
+    setStore('isPropertyPanelMinimized', (v) => minimized ?? !v);
+};
+
+export const minimizeLayerPanel = (minimized?: boolean) => {
+    setStore('isLayerPanelMinimized', (v) => minimized ?? !v);
 };
 
 // Initialize theme on load

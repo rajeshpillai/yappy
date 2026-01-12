@@ -1,12 +1,12 @@
 import { type Component, For, createSignal, Show } from 'solid-js';
-import { store, addLayer, setActiveLayer, updateLayer, deleteLayer, duplicateLayer, reorderLayers } from '../store/appStore';
+import { store, addLayer, setActiveLayer, updateLayer, deleteLayer, duplicateLayer, reorderLayers, toggleLayerPanel, minimizeLayerPanel } from '../store/appStore';
+import { X, Minus, ChevronUp } from 'lucide-solid';
 import LayerContextMenu from './LayerContextMenu';
 import './LayerPanel.css';
 
 const LayerPanel: Component = () => {
     const [editingId, setEditingId] = createSignal<string | null>(null);
     const [editingName, setEditingName] = createSignal('');
-    const [isCollapsed, setIsCollapsed] = createSignal(false);
     const [draggedId, setDraggedId] = createSignal<string | null>(null);
     const [dragOverId, setDragOverId] = createSignal<string | null>(null);
     const [contextMenu, setContextMenu] = createSignal<{ x: number; y: number; layerId: string } | null>(null);
@@ -48,14 +48,12 @@ const LayerPanel: Component = () => {
         duplicateLayer(id);
     };
 
-    // Start editing layer name
     const startEditing = (id: string, currentName: string, e: Event) => {
         e.stopPropagation();
         setEditingId(id);
         setEditingName(currentName);
     };
 
-    // Save layer rename
     const saveRename = (id: string) => {
         const newName = editingName().trim();
         if (newName && newName !== store.layers.find(l => l.id === id)?.name) {
@@ -65,13 +63,11 @@ const LayerPanel: Component = () => {
         setEditingName('');
     };
 
-    // Cancel editing
     const cancelEditing = () => {
         setEditingId(null);
         setEditingName('');
     };
 
-    // Handle keyboard in rename input
     const handleRenameKeyDown = (e: KeyboardEvent, id: string) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -82,11 +78,10 @@ const LayerPanel: Component = () => {
         }
     };
 
-    // Long press for mobile
     const handlePointerDown = (id: string, name: string, e: PointerEvent) => {
         longPressTimer = window.setTimeout(() => {
             startEditing(id, name, e);
-        }, 500); // 500ms long press
+        }, 500);
     };
 
     const handlePointerUp = () => {
@@ -96,12 +91,10 @@ const LayerPanel: Component = () => {
         }
     };
 
-    // Drag and drop handlers
     const handleDragStart = (id: string, e: DragEvent) => {
         setDraggedId(id);
         e.dataTransfer!.effectAllowed = 'move';
         e.dataTransfer!.setData('text/plain', id);
-        // Add visual feedback
         setTimeout(() => {
             (e.target as HTMLElement).style.opacity = '0.5';
         }, 0);
@@ -128,13 +121,11 @@ const LayerPanel: Component = () => {
         const sourceId = draggedId();
 
         if (sourceId && sourceId !== targetId) {
-            // Find indices in current layer order
             const reversedList = [...store.layers].reverse();
             const sourceIndex = reversedList.findIndex(l => l.id === sourceId);
             const targetIndex = reversedList.findIndex(l => l.id === targetId);
 
             if (sourceIndex !== -1 && targetIndex !== -1) {
-                // Convert back to normal order indices
                 const normalSourceIndex = store.layers.length - 1 - sourceIndex;
                 const normalTargetIndex = store.layers.length - 1 - targetIndex;
                 reorderLayers(normalSourceIndex, normalTargetIndex);
@@ -145,88 +136,103 @@ const LayerPanel: Component = () => {
         setDragOverId(null);
     };
 
-    // Reverse to show top layers first
     const reversedLayers = () => [...store.layers].reverse();
 
     return (
-        <div class={`layer-panel ${isCollapsed() ? 'collapsed' : ''}`}>
-            <div class="layer-panel-header">
-                <h3>Layers</h3>
-                <div style={{ display: 'flex', gap: '4px' }}>
-                    <button
-                        class="layer-collapse-btn"
-                        onClick={() => setIsCollapsed(!isCollapsed())}
-                        title={isCollapsed() ? 'Expand layers' : 'Collapse layers'}
-                    >
-                        {isCollapsed() ? '▲' : '▼'}
-                    </button>
-                    <button
-                        class="layer-add-btn"
-                        onClick={handleAddLayer}
-                        title="Add new layer"
-                    >
-                        +
-                    </button>
-                </div>
-            </div>
-            <Show when={!isCollapsed()}>
-                <div class="layer-properties">
-                    {/* Opacity Control for Active Layer */}
-                    <div class="opacity-control">
-                        <span class="label">Opacity</span>
-                        <input
-                            type="range"
-                            min="0"
-                            max="1"
-                            step="0.01"
-                            value={store.layers.find(l => l.id === store.activeLayerId)?.opacity ?? 1}
-                            onInput={(e) => {
-                                const val = parseFloat(e.currentTarget.value);
-                                updateLayer(store.activeLayerId, { opacity: val });
-                            }}
-                            title={`Opacity: ${Math.round((store.layers.find(l => l.id === store.activeLayerId)?.opacity ?? 1) * 100)}%`}
-                        />
+        <Show when={store.showLayerPanel}>
+            <div
+                class="layer-panel"
+                classList={{ minimized: store.isLayerPanelMinimized }}
+            >
+                <div class="layer-panel-header">
+                    <div style={{ display: 'flex', 'align-items': 'center', gap: '8px' }}>
+                        <Show when={store.isLayerPanelMinimized}>
+                            <button class="minimize-btn" onClick={() => minimizeLayerPanel(false)} title="Expand">
+                                <ChevronUp size={16} />
+                            </button>
+                        </Show>
+                        <h3>Layers</h3>
+                    </div>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                        <Show when={!store.isLayerPanelMinimized}>
+                            <button
+                                class="layer-add-btn"
+                                onClick={handleAddLayer}
+                                title="Add new layer"
+                            >
+                                +
+                            </button>
+                            <button
+                                class="minimize-btn"
+                                onClick={() => minimizeLayerPanel(true)}
+                                title="Minimize"
+                            >
+                                <Minus size={16} />
+                            </button>
+                        </Show>
+                        <button
+                            class="close-btn"
+                            onClick={() => toggleLayerPanel(false)}
+                            title="Close"
+                        >
+                            <X size={16} />
+                        </button>
                     </div>
                 </div>
-                <div class="layer-list">
-                    <For each={reversedLayers()}>
-                        {(layer) => (
-                            <div
-                                class={`layer-item ${store.activeLayerId === layer.id ? 'active' : ''} ${dragOverId() === layer.id ? 'drag-over' : ''}`}
-                                onClick={() => handleLayerClick(layer.id)}
-                                onContextMenu={(e) => {
-                                    e.preventDefault();
-                                    setContextMenu({ x: e.clientX, y: e.clientY, layerId: layer.id });
+                <Show when={!store.isLayerPanelMinimized}>
+                    <div class="layer-properties">
+                        <div class="opacity-control">
+                            <span class="label">Opacity</span>
+                            <input
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.01"
+                                value={store.layers.find(l => l.id === store.activeLayerId)?.opacity ?? 1}
+                                onInput={(e) => {
+                                    const val = parseFloat(e.currentTarget.value);
+                                    updateLayer(store.activeLayerId, { opacity: val });
                                 }}
-                                draggable={true}
-                                onDragStart={(e) => handleDragStart(layer.id, e)}
-                                onDragEnd={handleDragEnd}
-                                onDragOver={(e) => handleDragOver(layer.id, e)}
-                                onDragLeave={handleDragLeave}
-                                onDrop={(e) => handleDrop(layer.id, e)}
-                            >
-
-                                {/* Drag Handle */}
-                                <span class="drag-handle" title="Drag to reorder">
-                                    ⋮⋮
-                                </span>
-                                <button
-                                    class={`layer-visibility-btn ${layer.visible ? 'visible' : 'hidden'}`}
-                                    onClick={(e) => handleToggleVisibility(layer.id, e)}
-                                    title={layer.visible ? 'Hide layer' : 'Show layer'}
+                                title={`Opacity: ${Math.round((store.layers.find(l => l.id === store.activeLayerId)?.opacity ?? 1) * 100)}%`}
+                            />
+                        </div>
+                    </div>
+                    <div class="layer-list">
+                        <For each={reversedLayers()}>
+                            {(layer) => (
+                                <div
+                                    class={`layer-item ${store.activeLayerId === layer.id ? 'active' : ''} ${dragOverId() === layer.id ? 'drag-over' : ''}`}
+                                    onClick={() => handleLayerClick(layer.id)}
+                                    onContextMenu={(e) => {
+                                        e.preventDefault();
+                                        setContextMenu({ x: e.clientX, y: e.clientY, layerId: layer.id });
+                                    }}
+                                    draggable={true}
+                                    onDragStart={(e) => handleDragStart(layer.id, e)}
+                                    onDragEnd={handleDragEnd}
+                                    onDragOver={(e) => handleDragOver(layer.id, e)}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={(e) => handleDrop(layer.id, e)}
                                 >
-                                    {layer.visible ? '👁️' : '🚫'}
-                                </button>
-                                <button
-                                    class={`layer-lock-btn ${layer.locked ? 'locked' : ''}`}
-                                    onClick={(e) => handleToggleLock(layer.id, e)}
-                                    title={layer.locked ? 'Unlock layer' : 'Lock layer'}
-                                >
-                                    {layer.locked ? '🔒' : '🔓'}
-                                </button>
+                                    <span class="drag-handle" title="Drag to reorder">
+                                        ⋮⋮
+                                    </span>
+                                    <button
+                                        class={`layer-visibility-btn ${layer.visible ? 'visible' : 'hidden'}`}
+                                        onClick={(e) => handleToggleVisibility(layer.id, e)}
+                                        title={layer.visible ? 'Hide layer' : 'Show layer'}
+                                    >
+                                        {layer.visible ? '👁️' : '🚫'}
+                                    </button>
+                                    <button
+                                        class={`layer-lock-btn ${layer.locked ? 'locked' : ''}`}
+                                        onClick={(e) => handleToggleLock(layer.id, e)}
+                                        title={layer.locked ? 'Unlock layer' : 'Lock layer'}
+                                    >
+                                        {layer.locked ? '🔒' : '🔓'}
+                                    </button>
 
-                                {
-                                    editingId() === layer.id ? (
+                                    {editingId() === layer.id ? (
                                         <input
                                             type="text"
                                             class="layer-name-input"
@@ -248,38 +254,38 @@ const LayerPanel: Component = () => {
                                         >
                                             {layer.name}
                                         </span>
-                                    )
-                                }
+                                    )}
 
-                                <button
-                                    class="layer-duplicate-btn"
-                                    onClick={(e) => handleDuplicateLayer(layer.id, e)}
-                                    title="Duplicate layer"
-                                >
-                                    ⎘
-                                </button>
-                                <button
-                                    class="layer-delete-btn"
-                                    onClick={(e) => handleDeleteLayer(layer.id, e)}
-                                    title="Delete layer"
-                                    disabled={store.layers.length <= 1}
-                                >
-                                    ×
-                                </button>
-                            </div >
-                        )}
-                    </For >
-                </div >
-            </Show>
-            <Show when={contextMenu()}>
-                <LayerContextMenu
-                    x={contextMenu()!.x}
-                    y={contextMenu()!.y}
-                    layerId={contextMenu()!.layerId}
-                    onClose={() => setContextMenu(null)}
-                />
-            </Show>
-        </div>
+                                    <button
+                                        class="layer-duplicate-btn"
+                                        onClick={(e) => handleDuplicateLayer(layer.id, e)}
+                                        title="Duplicate layer"
+                                    >
+                                        ⎘
+                                    </button>
+                                    <button
+                                        class="layer-delete-btn"
+                                        onClick={(e) => handleDeleteLayer(layer.id, e)}
+                                        title="Delete layer"
+                                        disabled={store.layers.length <= 1}
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            )}
+                        </For>
+                    </div>
+                </Show>
+                <Show when={contextMenu()}>
+                    <LayerContextMenu
+                        x={contextMenu()!.x}
+                        y={contextMenu()!.y}
+                        layerId={contextMenu()!.layerId}
+                        onClose={() => setContextMenu(null)}
+                    />
+                </Show>
+            </div>
+        </Show>
     );
 };
 

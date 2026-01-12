@@ -1,10 +1,15 @@
 import { type Component, createSignal, onMount, Show, onCleanup } from "solid-js";
 import { storage } from "../storage/FileSystemStorage";
-import { store, setStore, deleteElements, clearHistory, toggleTheme, zoomToFit, addLayer, reorderLayers, bringToFront, sendToBack, groupSelected, ungroupSelected } from "../store/appStore";
-import { Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus, Trash2, Maximize, Moon, Sun, Image as ImageIcon, Download, Upload } from "lucide-solid";
-
-// ... (in component)
-
+import {
+    store, setStore, deleteElements, clearHistory, toggleTheme, zoomToFit,
+    addLayer, reorderLayers, bringToFront, sendToBack, groupSelected, ungroupSelected,
+    togglePropertyPanel, toggleLayerPanel
+} from "../store/appStore";
+import {
+    Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus, Trash2, Maximize,
+    Moon, Sun, Image as ImageIcon, Download, Upload, Layout,
+    Layers, Check
+} from "lucide-solid";
 import HelpDialog from "./HelpDialog";
 import FileOpenDialog from "./FileOpenDialog";
 import ExportDialog from "./ExportDialog";
@@ -31,7 +36,6 @@ const Menu: Component = () => {
     };
 
     const performSave = async (filename: string) => {
-        // Update drawing title
         setDrawingId(filename);
 
         if (saveIntent() === 'workspace') {
@@ -49,7 +53,6 @@ const Menu: Component = () => {
                 alert('Failed to save to workspace');
             }
         } else {
-            // Save to Disk (Download/Share)
             const data = JSON.stringify({
                 elements: store.elements,
                 viewState: store.viewState,
@@ -63,7 +66,6 @@ const Menu: Component = () => {
             const fileNameWithExt = `${filename}.json`;
             const file = new File([blob], fileNameWithExt, { type: 'application/json' });
 
-            // Try using Web Share API first (great for mobile)
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 try {
                     await navigator.share({
@@ -79,7 +81,6 @@ const Menu: Component = () => {
                 }
             }
 
-            // Fallback to standard download
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -165,7 +166,6 @@ const Menu: Component = () => {
                         gridSettings: migrated.gridSettings || { enabled: false, snapToGrid: false, gridSize: 20, gridColor: '#e0e0e0', gridOpacity: 0.5, style: 'lines' },
                         canvasBackgroundColor: migrated.canvasBackgroundColor || '#fafafa'
                     });
-                    // Set title from filename without extension
                     const name = file.name.replace(/\.json$/i, '');
                     setDrawingId(name);
                 } else {
@@ -178,7 +178,6 @@ const Menu: Component = () => {
         };
         reader.readAsText(file);
         setIsMenuOpen(false);
-        // Reset input
         (e.target as HTMLInputElement).value = '';
     };
 
@@ -195,25 +194,24 @@ const Menu: Component = () => {
                 if (e.key === 'o') {
                     e.preventDefault();
                     setIsDialogOpen(true);
-                } else if (e.key === 's') { // Ctrl+S
+                } else if (e.key === 's') {
                     e.preventDefault();
                     handleSaveRequest('workspace');
-                } else if (e.key.toLowerCase() === 'e' && e.shiftKey) { // Ctrl+Shift+E
+                } else if (e.key.toLowerCase() === 'e' && e.shiftKey) {
                     e.preventDefault();
                     setIsExportOpen(true);
-                } else if (e.key.toLowerCase() === 'a') { // Ctrl+A - Select All
-                    // Don't select all if user is typing in an input/textarea
+                } else if (e.key.toLowerCase() === 'a') {
                     if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
                         e.preventDefault();
                         setStore('selection', store.elements.map(el => el.id));
                     }
-                } else if (e.key.toLowerCase() === 'c') { // Ctrl+C - Copy
+                } else if (e.key.toLowerCase() === 'c') {
                     if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
                         e.preventDefault();
                         const selectedElements = store.elements.filter(el => store.selection.includes(el.id));
                         setClipboard(selectedElements);
                     }
-                } else if (e.key.toLowerCase() === 'v') { // Ctrl+V - Paste
+                } else if (e.key.toLowerCase() === 'v') {
                     if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
                         e.preventDefault();
                         const copiedElements = clipboard();
@@ -239,7 +237,7 @@ const Menu: Component = () => {
                             setStore('selection', newElements.map(el => el.id));
                         }
                     }
-                } else if (e.key.toLowerCase() === 'd') { // Ctrl+D - Duplicate
+                } else if (e.key.toLowerCase() === 'd') {
                     if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
                         e.preventDefault();
                         const selectedElements = store.elements.filter(el => store.selection.includes(el.id));
@@ -265,7 +263,7 @@ const Menu: Component = () => {
                             setStore('selection', newElements.map(el => el.id));
                         }
                     }
-                } else if (e.key.toLowerCase() === 'x') { // Ctrl+X - Cut
+                } else if (e.key.toLowerCase() === 'x') {
                     if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
                         e.preventDefault();
                         const selectedElements = store.elements.filter(el => store.selection.includes(el.id));
@@ -274,7 +272,7 @@ const Menu: Component = () => {
                             deleteElements(store.selection);
                         }
                     }
-                } else if (e.key.toLowerCase() === 'g') { // Ctrl+G - Group / Ctrl+Shift+G - Ungroup
+                } else if (e.key.toLowerCase() === 'g') {
                     if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
                         e.preventDefault();
                         if (e.shiftKey) {
@@ -283,42 +281,51 @@ const Menu: Component = () => {
                             groupSelected();
                         }
                     }
-                }
-            } else if (e.ctrlKey) {
-                if (e.key === ']') { // Ctrl+] - Bring to Front
+                } else if (e.key === ']') {
                     e.preventDefault();
                     if (store.selection.length > 0) {
                         bringToFront(store.selection);
                     }
-                } else if (e.key === '[') { // Ctrl+[ - Send to Back
+                } else if (e.key === '[') {
                     e.preventDefault();
                     if (store.selection.length > 0) {
                         sendToBack(store.selection);
                     }
                 }
-            } else if (e.key === '?' && e.shiftKey) { // Shift+?
+            } else if (e.key === '?' && e.shiftKey) {
                 if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
                     e.preventDefault();
                     setShowHelp(true);
                 }
-            } else if (e.shiftKey && e.key.toLowerCase() === 'n') { // Shift+N = New Layer
+            } else if (e.shiftKey && e.key.toLowerCase() === 'n') {
                 e.preventDefault();
                 addLayer();
             } else if (e.altKey) {
-                if (e.key === '[') { // Alt + [ = Move Layer Down
+                if (e.key === '[') {
                     e.preventDefault();
                     const layers = store.layers;
                     const idx = layers.findIndex(l => l.id === store.activeLayerId);
                     if (idx > 0) {
                         reorderLayers(idx, idx - 1);
                     }
-                } else if (e.key === ']') { // Alt + ] = Move Layer Up
+                } else if (e.key === ']') {
                     e.preventDefault();
                     const layers = store.layers;
                     const idx = layers.findIndex(l => l.id === store.activeLayerId);
                     if (idx !== -1 && idx < layers.length - 1) {
                         reorderLayers(idx, idx + 1);
                     }
+                } else if (e.key.toLowerCase() === 'p') {
+                    e.preventDefault();
+                    togglePropertyPanel();
+                } else if (e.key.toLowerCase() === 'l') {
+                    e.preventDefault();
+                    toggleLayerPanel();
+                } else if (e.key === '\\') {
+                    e.preventDefault();
+                    const anyVisible = store.showPropertyPanel || store.showLayerPanel;
+                    togglePropertyPanel(!anyVisible);
+                    toggleLayerPanel(!anyVisible);
                 }
             } else if (e.key === 'Escape') {
                 setIsDialogOpen(false);
@@ -369,12 +376,10 @@ const Menu: Component = () => {
 
             <HelpDialog isOpen={showHelp()} onClose={() => setShowHelp(false)} />
 
-            {/* App Title */}
             <div class="app-title">
                 {drawingId()}
             </div>
 
-            {/* Top Left Menu */}
             <div style={{ position: 'fixed', top: '12px', left: '12px', "z-index": 1001 }}>
                 <div class="menu-container" style={{ position: 'relative' }}>
                     <button class={`menu-btn ${isMenuOpen() ? 'active' : ''}`} title="Menu" onClick={() => setIsMenuOpen(!isMenuOpen())}>
@@ -386,12 +391,16 @@ const Menu: Component = () => {
                             <button class="menu-item" onClick={() => { setIsDialogOpen(true); setIsMenuOpen(false); }}>
                                 <FolderOpen size={16} />
                                 <span class="label">Open from Workspace...</span>
-                                <span class="shortcut">Ctrl+O</span>
+                                <div class="menu-item-right">
+                                    <span class="shortcut">Ctrl+O</span>
+                                </div>
                             </button>
                             <button class="menu-item" onClick={() => handleSaveRequest('workspace')}>
                                 <Save size={16} />
                                 <span class="label">Save to Workspace...</span>
-                                <span class="shortcut">Ctrl+S</span>
+                                <div class="menu-item-right">
+                                    <span class="shortcut">Ctrl+S</span>
+                                </div>
                             </button>
                             <div class="menu-separator"></div>
                             <button class="menu-item" onClick={() => { fileInputRef?.click(); setIsMenuOpen(false); }}>
@@ -406,8 +415,27 @@ const Menu: Component = () => {
                             <button class="menu-item" onClick={() => { setIsExportOpen(true); setIsMenuOpen(false); }}>
                                 <ImageIcon size={16} />
                                 <span class="label">Export image...</span>
-                                <span class="shortcut">Ctrl+Shift+E</span>
+                                <div class="menu-item-right">
+                                    <span class="shortcut">Ctrl+Shift+E</span>
+                                </div>
                             </button>
+                            <div class="menu-separator"></div>
+                            <div class="menu-item" onClick={() => { togglePropertyPanel(); setIsMenuOpen(false); }}>
+                                <Layout size={16} />
+                                <span class="label">Properties Panel</span>
+                                <div class="menu-item-right">
+                                    <Show when={store.showPropertyPanel}><Check size={14} class="check-icon" /></Show>
+                                    <span class="shortcut">Alt+P</span>
+                                </div>
+                            </div>
+                            <div class="menu-item" onClick={() => { toggleLayerPanel(); setIsMenuOpen(false); }}>
+                                <Layers size={16} />
+                                <span class="label">Layers Panel</span>
+                                <div class="menu-item-right">
+                                    <Show when={store.showLayerPanel}><Check size={14} class="check-icon" /></Show>
+                                    <span class="shortcut">Alt+L</span>
+                                </div>
+                            </div>
                             <div class="menu-separator"></div>
                             <button class="menu-item" onClick={handleNew}>
                                 <FilePlus size={16} />
@@ -431,7 +459,6 @@ const Menu: Component = () => {
                 </div>
             </div>
 
-            {/* Top Right Controls */}
             <div style={{ position: 'fixed', top: '12px', right: '12px', "z-index": 100 }}>
                 <div class="menu-container">
                     <button class="menu-btn primary" onClick={handleShare} title="Share">

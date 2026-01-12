@@ -1,10 +1,11 @@
 import { type Component, Show, createMemo, For, createSignal, createEffect } from "solid-js";
-import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, alignSelectedElements, distributeSelectedElements } from "../store/appStore";
+import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, alignSelectedElements, distributeSelectedElements, togglePropertyPanel, minimizePropertyPanel } from "../store/appStore";
 import {
     Copy, ChevronsDown, ChevronDown, ChevronUp, ChevronsUp, Trash2, Palette,
     AlignLeft, AlignCenterHorizontal, AlignRight,
     AlignStartVertical, AlignCenterVertical, AlignEndVertical,
-    AlignHorizontalDistributeCenter, AlignVerticalDistributeCenter
+    AlignHorizontalDistributeCenter, AlignVerticalDistributeCenter,
+    Minus, X
 } from "lucide-solid";
 import "./PropertyPanel.css";
 import { properties, type PropertyConfig } from "../config/properties";
@@ -130,8 +131,6 @@ const PropertyPanel: Component = () => {
             }
             return null;
         }
-
-        return null; // Unreachable now but keeps types happy if needed
     });
 
     const activeProperties = createMemo(() => {
@@ -300,114 +299,134 @@ const PropertyPanel: Component = () => {
     });
 
     return (
-        <Show when={activeTarget()}>
-            <div class="property-panel-container">
+        <Show when={activeTarget() && store.showPropertyPanel}>
+            <div
+                class="property-panel-container"
+                classList={{ minimized: store.isPropertyPanelMinimized }}
+            >
                 <div class="property-header">
-                    <h3>{activeTarget()?.type === 'element' ? 'Properties' : activeTarget()?.type === 'canvas' ? 'Canvas' : activeTarget()?.type === 'multi' ? 'Selection' : 'Defaults'}</h3>
-                    <Show when={activeTarget()?.type === 'element'}>
-                        <div class="header-actions">
+                    <div style={{ display: 'flex', 'align-items': 'center', gap: '8px' }}>
+                        <Show when={store.isPropertyPanelMinimized}>
+                            <button class="minimize-btn" onClick={() => minimizePropertyPanel(false)} title="Expand">
+                                <ChevronUp size={16} />
+                            </button>
+                        </Show>
+                        <h3>{activeTarget()?.type === 'element' ? 'Properties' : activeTarget()?.type === 'canvas' ? 'Canvas' : activeTarget()?.type === 'multi' ? 'Selection' : 'Defaults'}</h3>
+                    </div>
+
+                    <div class="header-actions">
+                        <Show when={activeTarget()?.type === 'element' && !store.isPropertyPanelMinimized}>
                             <button onClick={() => duplicateElement(activeTarget()!.data!.id!)} title="Duplicate">
                                 <Copy size={16} />
                             </button>
                             <button class="delete-btn" onClick={handleDelete} title="Delete">
                                 <Trash2 size={16} />
                             </button>
-                        </div>
-                    </Show>
+                            <div class="vertical-separator"></div>
+                        </Show>
+
+                        <Show when={!store.isPropertyPanelMinimized}>
+                            <button onClick={() => minimizePropertyPanel(true)} title="Minimize">
+                                <Minus size={16} />
+                            </button>
+                        </Show>
+
+                        <button class="close-btn" onClick={() => togglePropertyPanel(false)} title="Close">
+                            <X size={16} />
+                        </button>
+                    </div>
                 </div>
 
-                <div class="property-content">
-                    <Show when={activeTarget()?.type === 'multi'}>
-                        <AlignmentControls />
-                    </Show>
-                    <For each={Object.entries(groupedProperties())}>
-                        {([group, props]) => (
-                            <div class="property-group">
-                                <div class="group-title">{group.toUpperCase()}</div>
-                                <For each={props}>
-                                    {(prop) => renderControl(prop)}
-                                </For>
-                            </div>
-                        )}
-                    </For>
-
-                    {/* Layers for elements */}
-                    <Show when={activeTarget() && (activeTarget()!.type === 'element' || activeTarget()!.type === 'multi')}>
-                        <div class="property-group">
-                            <div class="group-title">LAYERS</div>
-
-                            {/* Layer Selection Dropdown */}
-                            <div class="control-row">
-                                <label>Layer</label>
-                                <select
-                                    value={(() => {
-                                        const target = activeTarget();
-                                        if (target?.type === 'element') {
-                                            return (target.data as any).layerId;
-                                        }
-                                        if (target?.type === 'multi') {
-                                            // Check if all have same layer
-                                            const ids = store.selection;
-                                            const elements = store.elements.filter(e => ids.includes(e.id));
-                                            const firstLayer = elements[0]?.layerId;
-                                            const allSame = elements.every(e => e.layerId === firstLayer);
-                                            return allSame ? firstLayer : "";
-                                        }
-                                        return "";
-                                    })()}
-                                    onChange={(e) => {
-                                        const targetLayerId = e.currentTarget.value;
-                                        if (!targetLayerId) return; // mixed selection placeholder selected?
-
-                                        const target = activeTarget();
-                                        if (target?.type === 'element') {
-                                            const elementId = (target.data as any).id;
-                                            updateElement(elementId, { layerId: targetLayerId }, true);
-                                        } else if (target?.type === 'multi') {
-                                            // Move all selected to this layer
-                                            moveElementsToLayer(store.selection, targetLayerId);
-                                        }
-                                    }}
-                                >
-                                    <Show when={activeTarget()?.type === 'multi' &&
-                                        !store.elements.filter(e => store.selection.includes(e.id))
-                                            .every((e, _, arr) => e.layerId === arr[0].layerId)}>
-                                        <option value="">(Mixed)</option>
-                                    </Show>
-                                    <For each={store.layers}>
-                                        {(layer) => (
-                                            <option value={layer.id}>
-                                                {layer.name}
-                                                {!layer.visible ? ' (hidden)' : ''}
-                                                {layer.locked ? ' (locked)' : ''}
-                                            </option>
-                                        )}
+                <Show when={!store.isPropertyPanelMinimized}>
+                    <div class="property-content">
+                        <Show when={activeTarget()?.type === 'multi'}>
+                            <AlignmentControls />
+                        </Show>
+                        <For each={Object.entries(groupedProperties())}>
+                            {([group, props]) => (
+                                <div class="property-group">
+                                    <div class="group-title">{group.toUpperCase()}</div>
+                                    <For each={props}>
+                                        {(prop) => renderControl(prop)}
                                     </For>
-                                </select>
-                            </div>
+                                </div>
+                            )}
+                        </For>
 
-                            {/* Z-Index Controls - Only for single selection or if we want to implement multi-z moves later */}
-                            <Show when={activeTarget()?.type === 'element'}>
+                        {/* Layers for elements */}
+                        <Show when={activeTarget() && (activeTarget()!.type === 'element' || activeTarget()!.type === 'multi')}>
+                            <div class="property-group">
+                                <div class="group-title">LAYERS</div>
+
+                                {/* Layer Selection Dropdown */}
                                 <div class="control-row">
-                                    <label>Z-Order</label>
+                                    <label>Layer</label>
+                                    <select
+                                        value={(() => {
+                                            const target = activeTarget();
+                                            if (target?.type === 'element') {
+                                                return (target.data as any).layerId;
+                                            }
+                                            if (target?.type === 'multi') {
+                                                // Check if all have same layer
+                                                const ids = store.selection;
+                                                const elements = store.elements.filter(e => ids.includes(e.id));
+                                                const firstLayer = elements[0]?.layerId;
+                                                const allSame = elements.every(e => e.layerId === firstLayer);
+                                                return allSame ? firstLayer : "";
+                                            }
+                                            return "";
+                                        })()}
+                                        onChange={(e) => {
+                                            const targetLayerId = e.currentTarget.value;
+                                            if (!targetLayerId) return; // mixed selection placeholder selected?
+
+                                            const target = activeTarget();
+                                            if (target?.type === 'element') {
+                                                const elementId = (target.data as any).id;
+                                                updateElement(elementId, { layerId: targetLayerId }, true);
+                                            } else if (target?.type === 'multi') {
+                                                // Move all selected to this layer
+                                                moveElementsToLayer(store.selection, targetLayerId);
+                                            }
+                                        }}
+                                    >
+                                        <Show when={activeTarget()?.type === 'multi' &&
+                                            !store.elements.filter(e => store.selection.includes(e.id))
+                                                .every((e, _, arr) => e.layerId === arr[0].layerId)}>
+                                            <option value="">(Mixed)</option>
+                                        </Show>
+                                        <For each={store.layers}>
+                                            {(layer) => (
+                                                <option value={layer.id}>
+                                                    {layer.name}
+                                                    {!layer.visible ? ' (hidden)' : ''}
+                                                    {layer.locked ? ' (locked)' : ''}
+                                                </option>
+                                            )}
+                                        </For>
+                                    </select>
                                 </div>
-                                <div class="layer-controls">
-                                    <button onClick={() => moveElementZIndex((activeTarget()!.data as any).id, 'front')} title="To Front"><ChevronsUp size={16} /></button>
-                                    <button onClick={() => moveElementZIndex((activeTarget()!.data as any).id, 'forward')} title="Forward"><ChevronUp size={16} /></button>
-                                    <button onClick={() => moveElementZIndex((activeTarget()!.data as any).id, 'backward')} title="Backward"><ChevronDown size={16} /></button>
-                                    <button onClick={() => moveElementZIndex((activeTarget()!.data as any).id, 'back')} title="To Back"><ChevronsDown size={16} /></button>
-                                </div>
-                            </Show>
-                        </div>
-                    </Show>
-                </div>
+
+                                {/* Z-Index Controls - Only for single selection or if we want to implement multi-z moves later */}
+                                <Show when={activeTarget()?.type === 'element'}>
+                                    <div class="control-row">
+                                        <label>Z-Order</label>
+                                    </div>
+                                    <div class="layer-controls">
+                                        <button onClick={() => moveElementZIndex((activeTarget()!.data as any).id, 'front')} title="To Front"><ChevronsUp size={16} /></button>
+                                        <button onClick={() => moveElementZIndex((activeTarget()!.data as any).id, 'forward')} title="Forward"><ChevronUp size={16} /></button>
+                                        <button onClick={() => moveElementZIndex((activeTarget()!.data as any).id, 'backward')} title="Backward"><ChevronDown size={16} /></button>
+                                        <button onClick={() => moveElementZIndex((activeTarget()!.data as any).id, 'back')} title="To Back"><ChevronsDown size={16} /></button>
+                                    </div>
+                                </Show>
+                            </div>
+                        </Show>
+                    </div>
+                </Show>
             </div>
         </Show>
     );
 };
 
-
-
-
 export default PropertyPanel;
-
