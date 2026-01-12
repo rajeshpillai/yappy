@@ -106,7 +106,7 @@ const Menu: Component = () => {
                     viewState: data.viewState || { scale: 1, panX: 0, panY: 0 },
                     layers: migrated.layers,
                     activeLayerId: migrated.layers[0]?.id || 'default-layer',
-                    gridSettings: migrated.gridSettings || { enabled: false, snapToGrid: false, gridSize: 20, gridColor: '#e0e0e0', gridOpacity: 0.5, style: 'lines' },
+                    gridSettings: migrated.gridSettings || { enabled: false, snapToGrid: false, objectSnapping: false, gridSize: 20, gridColor: '#e0e0e0', gridOpacity: 0.5, style: 'lines' },
                     canvasBackgroundColor: migrated.canvasBackgroundColor || '#fafafa'
                 });
                 setDrawingId(targetId);
@@ -166,7 +166,7 @@ const Menu: Component = () => {
                         viewState: json.viewState || { scale: 1, panX: 0, panY: 0 },
                         layers: migrated.layers,
                         activeLayerId: migrated.layers[0]?.id || 'default-layer',
-                        gridSettings: migrated.gridSettings || { enabled: false, snapToGrid: false, gridSize: 20, gridColor: '#e0e0e0', gridOpacity: 0.5, style: 'lines' },
+                        gridSettings: migrated.gridSettings || { enabled: false, snapToGrid: false, objectSnapping: false, gridSize: 20, gridColor: '#e0e0e0', gridOpacity: 0.5, style: 'lines' },
                         canvasBackgroundColor: migrated.canvasBackgroundColor || '#fafafa'
                     });
                     const name = file.name.replace(/\.json$/i, '');
