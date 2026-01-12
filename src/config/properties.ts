@@ -217,6 +217,14 @@ export const properties: PropertyConfig[] = [
         applicableTo: ['text'],
         defaultValue: ''
     },
+    {
+        key: 'containerText',
+        label: 'Label',
+        type: 'textarea',
+        group: 'text',
+        applicableTo: ['rectangle', 'circle', 'diamond'],
+        defaultValue: ''
+    },
 
     // Linear
     {

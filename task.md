@@ -223,3 +223,40 @@
   - [x] Verify fix
 
 
+## Feature Roadmap (Prioritized)
+
+### Phase 19: Text Inside Shapes
+- [x] Design & Planning
+  - [x] Define how text should be positioned within shapes
+  - [x] Determine auto-sizing behavior
+  - [x] Plan double-click to edit interaction
+- [x] Implementation
+  - [x] Add `containerText` property to shape elements
+  - [x] Implement text rendering inside shapes
+  - [x] Add double-click to edit text
+  - [x] Handle text wrapping and alignment
+- [x] Testing & Verification
+  - [x] Fixed browser context menu on double-click
+  - [x] Added Escape key to discard changes
+
+
+### Phase 20: Grouping Elements
+- [ ] Add group/ungroup functionality
+- [ ] Modify selection to handle groups
+- [ ] Update movement logic for grouped elements
+
+### Phase 21: Connection Points/Anchors
+- [ ] Define anchor points for each shape type
+- [ ] Add visual anchors on hover
+- [ ] Implement snap-to-anchor for connectors
+
+### Phase 22: Essential UX Improvements
+- [ ] Copy/Paste functionality
+- [ ] Keyboard shortcuts panel
+- [ ] Undo/Redo UI indicators
+
+### Phase 23: Templates & Advanced Features
+- [ ] Pre-made diagram templates
+- [ ] Smart connector routing
+- [ ] Minimap/Navigator for large diagrams
+

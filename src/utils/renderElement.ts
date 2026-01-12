@@ -173,5 +173,59 @@ export const renderElement = (
         }
     }
 
+    // Render containerText (text inside shapes)
+    if (el.containerText && (el.type === 'rectangle' || el.type === 'circle' || el.type === 'diamond')) {
+        const fontSize = el.fontSize || 20;
+        const fontFamily = el.fontFamily === 2 ? 'sans-serif' : el.fontFamily === 3 ? 'monospace' : 'Comic Sans MS';
+        ctx.font = `${fontSize}px ${fontFamily}`;
+        ctx.fillStyle = strokeColor;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Calculate available width for text (with padding)
+        const padding = 10;
+        let maxWidth = el.width - padding * 2;
+
+        // Adjust for circles and diamonds (inscribed area is smaller)
+        if (el.type === 'circle' || el.type === 'diamond') {
+            maxWidth = maxWidth * 0.7; // ~70% for inscribed square
+        }
+
+        // Wrap text if needed
+        const words = el.containerText.split(' ');
+        const lines: string[] = [];
+        let currentLine = '';
+
+        for (const word of words) {
+            const testLine = currentLine ? `${currentLine} ${word}` : word;
+            const metrics = ctx.measureText(testLine);
+
+            if (metrics.width > maxWidth && currentLine) {
+                lines.push(currentLine);
+                currentLine = word;
+            } else {
+                currentLine = testLine;
+            }
+        }
+        if (currentLine) {
+            lines.push(currentLine);
+        }
+
+        // Render lines centered
+        const lineHeight = fontSize * 1.2;
+        const totalHeight = lines.length * lineHeight;
+        const centerX = el.x + el.width / 2;
+        const startY = el.y + (el.height - totalHeight) / 2 + lineHeight / 2;
+
+        lines.forEach((line, index) => {
+            const y = startY + index * lineHeight;
+            ctx.fillText(line, centerX, y, maxWidth);
+        });
+
+        // Reset text alignment
+        ctx.textAlign = 'start';
+        ctx.textBaseline = 'alphabetic';
+    }
+
     ctx.restore();
 };

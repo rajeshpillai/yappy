@@ -48,6 +48,9 @@ export interface DrawingElement {
     verticalAlign?: VerticalAlign;
     containerId?: string | null;
 
+    // Text inside shapes (for labels on rectangles, circles, etc.)
+    containerText?: string;
+
     // Specific to Image
     fileId?: string | null;
     scale?: [number, number]; // [x, y]

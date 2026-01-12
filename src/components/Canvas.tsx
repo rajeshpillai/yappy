@@ -1265,34 +1265,65 @@ const Canvas: Component = () => {
 
     const commitText = () => {
         const id = editingId();
-        if (id) {
-            const text = editText().trim();
-            if (text) {
-                const el = store.elements.find(e => e.id === id);
+        if (!id) return;
+        const el = store.elements.find(e => e.id === id);
+        if (!el) return;
+
+        const newText = editText().trim();
+
+        // For standalone text elements, update text property and calculate dimensions
+        if (el.type === 'text') {
+            if (newText) {
                 let width = 0;
                 let height = 0;
-                if (canvasRef && el) {
+                if (canvasRef) {
                     const ctx = canvasRef.getContext("2d");
                     if (ctx) {
                         const fontSize = el.fontSize || 20;
                         ctx.font = `${fontSize}px sans-serif`;
-                        const metrics = ctx.measureText(text);
+                        const metrics = ctx.measureText(newText);
                         width = metrics.width;
-                        height = fontSize; // Approximate height as font size is standard for single line
+                        height = fontSize;
                     }
                 }
-                // Fallback or min dimensions
                 width = Math.max(width, 10);
                 height = Math.max(height, 10);
-
-                updateElement(id, { text: editText(), width, height }, true);
+                updateElement(id, { text: newText, width, height }, true);
             } else {
                 deleteElements([id]);
             }
-            setEditingId(null);
-            setEditText("");
-            // Force redraw immediately to prevent flicker
-            requestAnimationFrame(draw);
+        } else {
+            // For shapes with containerText
+            updateElement(id, { containerText: newText }, true);
+        }
+
+        setEditingId(null);
+        setEditText("");
+        requestAnimationFrame(draw);
+    };
+
+    const handleDoubleClick = (e: MouseEvent) => {
+        e.preventDefault(); // Prevent browser context menu
+        if (store.selectedTool !== 'selection') return;
+
+        const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
+        const threshold = 10 / store.viewState.scale;
+
+        // Find element under cursor
+        for (let i = store.elements.length - 1; i >= 0; i--) {
+            const el = store.elements[i];
+            if (!canInteractWithElement(el)) continue;
+
+            if (hitTestElement(el, x, y, threshold)) {
+                // Only allow editing containerText for shapes
+                if (el.type === 'rectangle' || el.type === 'circle' || el.type === 'diamond') {
+                    setEditingId(el.id);
+                    setEditText(el.containerText || '');
+                    setTimeout(() => textInputRef?.focus(), 0);
+                    return;
+                }
+                break;
+            }
         }
     };
 
@@ -1407,12 +1438,13 @@ const Canvas: Component = () => {
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
+                onDblClick={handleDoubleClick}
                 onContextMenu={(e) => {
                     e.preventDefault();
                     setContextMenuPos({ x: e.clientX, y: e.clientY });
                     setContextMenuOpen(true);
                 }}
-                style={{ display: "block", "touch-action": "none", cursor: cursor() }}
+                style={{ display: "block", "touch-action": "none", cursor: cursor(), "user-select": "none" }}
             />
 
             <Show when={showScrollBack()}>
@@ -1455,6 +1487,13 @@ const Canvas: Component = () => {
                             value={editText()}
                             onInput={(e) => setEditText(e.currentTarget.value)}
                             onBlur={handleTextBlur}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Escape') {
+                                    e.preventDefault();
+                                    setEditingId(null);
+                                    setEditText("");
+                                }
+                            }}
                             style={{
                                 position: 'absolute',
                                 top: `${screenY}px`,
