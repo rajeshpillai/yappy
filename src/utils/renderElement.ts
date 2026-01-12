@@ -45,6 +45,23 @@ export const renderElement = (
         strokeLineDash: el.strokeStyle === 'dashed' ? [10, 10] : (el.strokeStyle === 'dotted' ? [5, 10] : undefined),
     };
 
+    // Helper to draw arrowheads
+    const drawArrowhead = (rc: any, x: number, y: number, angle: number, type: string, options: any) => {
+        const headLen = 15;
+        if (type === 'arrow') {
+            const p1 = { x: x - headLen * Math.cos(angle - Math.PI / 6), y: y - headLen * Math.sin(angle - Math.PI / 6) };
+            const p2 = { x: x - headLen * Math.cos(angle + Math.PI / 6), y: y - headLen * Math.sin(angle + Math.PI / 6) };
+            rc.line(x, y, p1.x, p1.y, options);
+            rc.line(x, y, p2.x, p2.y, options);
+        } else if (type === 'triangle') {
+            const p1 = { x: x - headLen * Math.cos(angle - Math.PI / 6), y: y - headLen * Math.sin(angle - Math.PI / 6) };
+            const p2 = { x: x - headLen * Math.cos(angle + Math.PI / 6), y: y - headLen * Math.sin(angle + Math.PI / 6) };
+            rc.polygon([[x, y], [p1.x, p1.y], [p2.x, p2.y]], { ...options, fill: options.stroke, fillStyle: 'solid' });
+        } else if (type === 'dot') {
+            rc.circle(x - (headLen / 2) * Math.cos(angle), y - (headLen / 2) * Math.sin(angle), headLen, { ...options, fill: options.stroke, fillStyle: 'solid' });
+        }
+    };
+
     if (el.type === 'rectangle') {
         rc.rectangle(el.x, el.y, el.width, el.height, options);
     } else if (el.type === 'circle') {
@@ -72,29 +89,32 @@ export const renderElement = (
             const path = `M ${el.x} ${el.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${endX} ${endY}`;
             rc.path(path, options);
 
-            if (el.type === 'arrow') {
-                // Calculate angle for arrowhead based on last control point (cp2)
-                const angle = Math.atan2(endY - cp2.y, endX - cp2.x);
-                const headLen = 15;
-                const p1 = { x: endX - headLen * Math.cos(angle - Math.PI / 6), y: endY - headLen * Math.sin(angle - Math.PI / 6) };
-                const p2 = { x: endX - headLen * Math.cos(angle + Math.PI / 6), y: endY - headLen * Math.sin(angle + Math.PI / 6) };
+            // Start Arrowhead (at p0, angle from cp1 -> p0)
+            if (el.startArrowhead) {
+                const angle = Math.atan2(el.y - cp1.y, el.x - cp1.x);
+                drawArrowhead(rc, el.x, el.y, angle, el.startArrowhead, options);
+            }
 
-                rc.line(endX, endY, p1.x, p1.y, options);
-                rc.line(endX, endY, p2.x, p2.y, options);
+            // End Arrowhead (at p3, angle from cp2 -> p3)
+            if (el.endArrowhead) {
+                const angle = Math.atan2(endY - cp2.y, endX - cp2.x);
+                drawArrowhead(rc, endX, endY, angle, el.endArrowhead, options);
             }
 
         } else {
             // Straight Line (Default)
             rc.line(el.x, el.y, endX, endY, options);
 
-            if (el.type === 'arrow') {
-                const angle = Math.atan2(el.height, el.width);
-                const headLen = 15;
-                const p1 = { x: endX - headLen * Math.cos(angle - Math.PI / 6), y: endY - headLen * Math.sin(angle - Math.PI / 6) };
-                const p2 = { x: endX - headLen * Math.cos(angle + Math.PI / 6), y: endY - headLen * Math.sin(angle + Math.PI / 6) };
+            const angle = Math.atan2(el.height, el.width);
 
-                rc.line(endX, endY, p1.x, p1.y, options);
-                rc.line(endX, endY, p2.x, p2.y, options);
+            // Start Arrowhead (at start, pointing backwards)
+            if (el.startArrowhead) {
+                drawArrowhead(rc, el.x, el.y, angle + Math.PI, el.startArrowhead, options);
+            }
+
+            // End Arrowhead
+            if (el.endArrowhead) {
+                drawArrowhead(rc, endX, endY, angle, el.endArrowhead, options);
             }
         }
     } else if (el.type === 'pencil' && el.points && el.points.length > 0) {

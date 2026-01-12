@@ -175,5 +175,10 @@
   - [x] Implement Bezier curve calculation (rendering) using RoughJS
   - [x] Update hit testing for curves
   - [x] Add controls to toggle between Straight/Curved lines
+
+- [x] Implement Start/End Arrowheads <!-- id: feat-arrowheads -->
+  - [x] Implement `drawArrowhead` helper
+  - [x] Update straight line rendering to start/end heads
+  - [x] Update bezier rendering to support start/end heads
 - [x] Implement image compression/resizing on upload <!-- id: feat-image-compression -->
 
