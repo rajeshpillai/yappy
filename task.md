@@ -300,6 +300,13 @@
     - [ ] Improved Gradient Picker with presets
 - [x] Help dialog with keyboard shortcuts (Shift+?)
 
+### Phase 24: Unified Load/Save Experience
+    - [ ] Design/Implement `LoadExportDialog` component
+    - [ ] Consolidate "Open from Workspace/Disk" into Load tab/dialog
+    - [ ] Consolidate "Save to Workspace/Disk/Image" into Save/Export tab/dialog
+    - [ ] Update `Menu.tsx` to launch unified dialogs
+    - [ ] Add tooltips and descriptions for each storage mode
+
 ### Phase 23: Templates & Advanced Features
 - [ ] Pre-made diagram templates
 - [ ] Smart connector routing

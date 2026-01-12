@@ -6,11 +6,12 @@ import {
     togglePropertyPanel, toggleLayerPanel
 } from "../store/appStore";
 import {
-    Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus, Trash2, Maximize,
-    Moon, Sun, Image as ImageIcon, Download, Upload, Layout,
+    Menu as MenuIcon, FolderOpen, Share2, FilePlus, Trash2, Maximize,
+    Moon, Sun, Download, Layout,
     Layers, Check
 } from "lucide-solid";
 import HelpDialog from "./HelpDialog";
+import LoadExportDialog from "./LoadExportDialog";
 import FileOpenDialog from "./FileOpenDialog";
 import ExportDialog from "./ExportDialog";
 import SaveDialog from "./SaveDialog";
@@ -22,6 +23,8 @@ const Menu: Component = () => {
     const [isDialogOpen, setIsDialogOpen] = createSignal(false);
     const [isExportOpen, setIsExportOpen] = createSignal(false);
     const [isSaveOpen, setIsSaveOpen] = createSignal(false);
+    const [isLoadExportOpen, setIsLoadExportOpen] = createSignal(false);
+    const [loadExportInitialTab, setLoadExportInitialTab] = createSignal<'load' | 'save'>('load');
     const [isMenuOpen, setIsMenuOpen] = createSignal(false);
     const [showHelp, setShowHelp] = createSignal(false);
     let fileInputRef: HTMLInputElement | undefined;
@@ -143,9 +146,9 @@ const Menu: Component = () => {
     };
 
     const handleShare = () => {
-        const url = `${window.location.origin}${window.location.pathname}?id=${drawingId()}`;
+        const url = `${window.location.origin}${window.location.pathname}?id = ${drawingId()} `;
         navigator.clipboard.writeText(url);
-        alert(`Link copied: ${url}`);
+        alert(`Link copied: ${url} `);
     };
 
     const handleOpenJson = (e: Event) => {
@@ -333,6 +336,7 @@ const Menu: Component = () => {
                 setIsSaveOpen(false);
                 setIsMenuOpen(false);
                 setShowHelp(false);
+                setIsLoadExportOpen(false);
             }
         };
         window.addEventListener('keydown', handleKeyDown);
@@ -376,48 +380,36 @@ const Menu: Component = () => {
 
             <HelpDialog isOpen={showHelp()} onClose={() => setShowHelp(false)} />
 
+            <LoadExportDialog
+                isOpen={isLoadExportOpen()}
+                initialTab={loadExportInitialTab()}
+                onClose={() => setIsLoadExportOpen(false)}
+                onLoadWorkspace={() => { setIsLoadExportOpen(false); setIsDialogOpen(true); }}
+                onLoadDisk={() => { setIsLoadExportOpen(false); fileInputRef?.click(); }}
+                onSaveWorkspace={() => { setIsLoadExportOpen(false); handleSaveRequest('workspace'); }}
+                onSaveDisk={() => { setIsLoadExportOpen(false); handleSaveRequest('disk'); }}
+                onExportImage={() => { setIsLoadExportOpen(false); setIsExportOpen(true); }}
+            />
+
             <div class="app-title">
                 {drawingId()}
             </div>
 
             <div style={{ position: 'fixed', top: '12px', left: '12px', "z-index": 1001 }}>
                 <div class="menu-container" style={{ position: 'relative' }}>
-                    <button class={`menu-btn ${isMenuOpen() ? 'active' : ''}`} title="Menu" onClick={() => setIsMenuOpen(!isMenuOpen())}>
+                    <button class={`menu - btn ${isMenuOpen() ? 'active' : ''} `} title="Menu" onClick={() => setIsMenuOpen(!isMenuOpen())}>
                         <MenuIcon size={20} />
                     </button>
 
                     <Show when={isMenuOpen()}>
                         <div class="menu-dropdown">
-                            <button class="menu-item" onClick={() => { setIsDialogOpen(true); setIsMenuOpen(false); }}>
+                            <button class="menu-item" onClick={() => { setLoadExportInitialTab('load'); setIsLoadExportOpen(true); setIsMenuOpen(false); }}>
                                 <FolderOpen size={16} />
-                                <span class="label">Open from Workspace...</span>
-                                <div class="menu-item-right">
-                                    <span class="shortcut">Ctrl+O</span>
-                                </div>
+                                <span class="label">Load Sketch...</span>
                             </button>
-                            <button class="menu-item" onClick={() => handleSaveRequest('workspace')}>
-                                <Save size={16} />
-                                <span class="label">Save to Workspace...</span>
-                                <div class="menu-item-right">
-                                    <span class="shortcut">Ctrl+S</span>
-                                </div>
-                            </button>
-                            <div class="menu-separator"></div>
-                            <button class="menu-item" onClick={() => { fileInputRef?.click(); setIsMenuOpen(false); }}>
-                                <Upload size={16} />
-                                <span class="label">Open from Disk...</span>
-                            </button>
-                            <button class="menu-item" onClick={() => handleSaveRequest('disk')}>
+                            <button class="menu-item" onClick={() => { setLoadExportInitialTab('save'); setIsLoadExportOpen(true); setIsMenuOpen(false); }}>
                                 <Download size={16} />
-                                <span class="label">Save to Disk...</span>
-                            </button>
-                            <div class="menu-separator"></div>
-                            <button class="menu-item" onClick={() => { setIsExportOpen(true); setIsMenuOpen(false); }}>
-                                <ImageIcon size={16} />
-                                <span class="label">Export image...</span>
-                                <div class="menu-item-right">
-                                    <span class="shortcut">Ctrl+Shift+E</span>
-                                </div>
+                                <span class="label">Export / Save...</span>
                             </button>
                             <div class="menu-separator"></div>
                             <div class="menu-item" onClick={() => { togglePropertyPanel(); setIsMenuOpen(false); }}>
