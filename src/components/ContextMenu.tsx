@@ -4,10 +4,11 @@ import './ContextMenu.css';
 export interface MenuItem {
     label: string;
     shortcut?: string;
-    onClick: () => void;
+    onClick?: () => void;
     checked?: boolean;
     separator?: boolean;
     disabled?: boolean;
+    submenu?: MenuItem[];
 }
 
 interface ContextMenuProps {
@@ -15,62 +16,81 @@ interface ContextMenuProps {
     y: number;
     items: MenuItem[];
     onClose: () => void;
+    parent?: boolean; // Internal use for styling
 }
 
 const ContextMenu: Component<ContextMenuProps> = (props) => {
     let menuRef: HTMLDivElement | undefined;
     const [position, setPosition] = createSignal({ x: props.x, y: props.y });
+    const [activeSubmenu, setActiveSubmenu] = createSignal<number | null>(null);
 
     onMount(() => {
-        // Adjust position if menu would go off-screen
-        if (menuRef) {
-            const rect = menuRef.getBoundingClientRect();
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
+        if (!props.parent) { // Only adjust position for root menu
+            // Adjust position if menu would go off-screen
+            if (menuRef) {
+                const rect = menuRef.getBoundingClientRect();
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
 
-            let adjustedX = props.x;
-            let adjustedY = props.y;
+                let adjustedX = props.x;
+                let adjustedY = props.y;
 
-            // Adjust horizontal position
-            if (props.x + rect.width > viewportWidth) {
-                adjustedX = viewportWidth - rect.width - 10;
+                // Adjust horizontal position
+                if (props.x + rect.width > viewportWidth) {
+                    adjustedX = viewportWidth - rect.width - 10;
+                }
+
+                // Adjust vertical position
+                if (props.y + rect.height > viewportHeight) {
+                    adjustedY = viewportHeight - rect.height - 10;
+                }
+
+                setPosition({ x: adjustedX, y: adjustedY });
             }
 
-            // Adjust vertical position
-            if (props.y + rect.height > viewportHeight) {
-                adjustedY = viewportHeight - rect.height - 10;
-            }
+            // Close on click outside
+            const handleClickOutside = (e: MouseEvent) => {
+                // Check if click is inside any context menu (including submenus)
+                if ((e.target as Element).closest('.context-menu')) return;
+                props.onClose();
+            };
 
-            setPosition({ x: adjustedX, y: adjustedY });
+            // Close on ESC key
+            const handleKeyDown = (e: KeyboardEvent) => {
+                if (e.key === 'Escape') {
+                    props.onClose();
+                }
+            };
+
+            document.addEventListener('mousedown', handleClickOutside);
+            document.addEventListener('keydown', handleKeyDown);
+
+            onCleanup(() => {
+                document.removeEventListener('mousedown', handleClickOutside);
+                document.removeEventListener('keydown', handleKeyDown);
+            });
         }
-
-        // Close on click outside
-        const handleClickOutside = (e: MouseEvent) => {
-            if (menuRef && !menuRef.contains(e.target as Node)) {
-                props.onClose();
-            }
-        };
-
-        // Close on ESC key
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                props.onClose();
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        document.addEventListener('keydown', handleKeyDown);
-
-        onCleanup(() => {
-            document.removeEventListener('mousedown', handleClickOutside);
-            document.removeEventListener('keydown', handleKeyDown);
-        });
     });
 
-    const handleItemClick = (item: MenuItem) => {
-        if (!item.disabled && !item.separator) {
-            item.onClick();
-            props.onClose();
+    const handleItemClick = (item: MenuItem, index: number) => {
+        if (item.disabled || item.separator) return;
+
+        if (item.submenu) {
+            // Toggle submenu? Or open on hover?
+            // For click, toggle.
+            setActiveSubmenu(activeSubmenu() === index ? null : index);
+        } else {
+            item.onClick?.();
+            if (!props.parent) props.onClose(); // Only close root if leaf clicked
+        }
+    };
+
+    const handleMouseEnter = (index: number) => {
+        const item = props.items[index];
+        if (item.submenu) {
+            setActiveSubmenu(index);
+        } else {
+            setActiveSubmenu(null);
         }
     };
 
@@ -79,30 +99,52 @@ const ContextMenu: Component<ContextMenuProps> = (props) => {
             ref={menuRef}
             class="context-menu"
             style={{
-                left: `${position().x}px`,
-                top: `${position().y}px`
+                left: props.parent ? '100%' : `${position().x}px`,
+                top: props.parent ? '0' : `${position().y}px`,
+                position: props.parent ? 'absolute' : 'fixed',
+                "margin-left": props.parent ? '-4px' : '0'
             }}
         >
             <For each={props.items}>
-                {(item) => (
-                    <Show
-                        when={!item.separator}
-                        fallback={<div class="context-menu-separator"></div>}
+                {(item, index) => (
+                    <div
+                        class="menu-item-wrapper"
+                        style={{ position: 'relative' }}
+                        onMouseEnter={() => handleMouseEnter(index())}
                     >
-                        <button
-                            class={`context-menu-item ${item.disabled ? 'disabled' : ''}`}
-                            onClick={() => handleItemClick(item)}
-                            disabled={item.disabled}
+                        <Show
+                            when={!item.separator}
+                            fallback={<div class="context-menu-separator"></div>}
                         >
-                            <span class="menu-item-check">
-                                {item.checked ? '✓' : ''}
-                            </span>
-                            <span class="menu-item-label">{item.label}</span>
-                            <Show when={item.shortcut}>
-                                <span class="menu-item-shortcut">{item.shortcut}</span>
+                            <button
+                                class={`context-menu-item ${item.disabled ? 'disabled' : ''} ${activeSubmenu() === index() ? 'active' : ''}`}
+                                onClick={() => handleItemClick(item, index())}
+                                disabled={item.disabled}
+                            >
+                                <span class="menu-item-check">
+                                    {item.checked ? '✓' : ''}
+                                </span>
+                                <span class="menu-item-label">{item.label}</span>
+                                <Show when={item.shortcut}>
+                                    <span class="menu-item-shortcut">{item.shortcut}</span>
+                                </Show>
+                                <Show when={item.submenu}>
+                                    <span class="menu-item-arrow">▶</span>
+                                </Show>
+                            </button>
+
+                            {/* Submenu rendering */}
+                            <Show when={item.submenu && activeSubmenu() === index()}>
+                                <ContextMenu
+                                    x={0}
+                                    y={0}
+                                    items={item.submenu!}
+                                    onClose={props.onClose}
+                                    parent={true}
+                                />
                             </Show>
-                        </button>
-                    </Show>
+                        </Show>
+                    </div>
                 )}
             </For>
         </div>

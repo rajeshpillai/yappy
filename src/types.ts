@@ -78,6 +78,7 @@ export interface GridSettings {
     gridSize: number;       // Grid spacing in pixels (default 20)
     gridColor: string;      // Grid line color
     gridOpacity: number;    // Grid opacity (0-1)
+    style: 'lines' | 'dots'; // Grid style
 }
 
 export interface ViewState {

@@ -1,6 +1,6 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show } from "solid-js";
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
-import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer } from "../store/appStore";
+import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setCanvasBackgroundColor, setGridStyle } from "../store/appStore";
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse } from "../utils/geometry";
 import type { DrawingElement } from "../types";
 import { renderElement } from "../utils/renderElement";
@@ -87,7 +87,12 @@ const Canvas: Component = () => {
 
         // Background color
         const isDarkMode = store.theme === 'dark';
-        ctx.fillStyle = isDarkMode ? "#121212" : "#fafafa";
+        // Use store background color, but fallback to theme default if needed
+        let bgColor = store.canvasBackgroundColor;
+        if (!bgColor) {
+            bgColor = isDarkMode ? "#121212" : "#fafafa";
+        }
+        ctx.fillStyle = bgColor;
         ctx.fillRect(0, 0, canvasRef.width, canvasRef.height);
 
         ctx.save();
@@ -104,17 +109,16 @@ const Canvas: Component = () => {
 
             // Adjust grid color for dark mode if using default
             if (isDarkMode && gridColor === '#e0e0e0') {
-                gridColor = '#2d2d2d'; // darker but visible on #121212? No, needs to be lighter.
-                // Actually #e0e0e0 is very light gray. On #121212 it's high contrast.
-                // Maybe too high? Let's try a subtle gray.
                 gridColor = '#333333';
             }
 
             const gridOpacity = store.gridSettings.gridOpacity;
+            const gridStyle = store.gridSettings.style || 'lines';
 
             ctx.save();
-            ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform for grid
+            ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform for grid optimization
             ctx.strokeStyle = gridColor;
+            ctx.fillStyle = gridColor;
             ctx.globalAlpha = gridOpacity;
             ctx.lineWidth = 1;
 
@@ -124,20 +128,41 @@ const Canvas: Component = () => {
             const startY = Math.floor((-panY / scale) / gridSize) * gridSize;
             const endY = Math.ceil((canvasRef.height - panY) / scale / gridSize) * gridSize;
 
-            // Draw vertical lines
-            ctx.beginPath();
-            for (let x = startX; x <= endX; x += gridSize) {
-                const screenX = x * scale + panX;
-                ctx.moveTo(screenX, 0);
-                ctx.lineTo(screenX, canvasRef.height);
+            if (gridStyle === 'lines') {
+                // Draw vertical lines
+                ctx.beginPath();
+                for (let x = startX; x <= endX; x += gridSize) {
+                    const screenX = x * scale + panX;
+                    ctx.moveTo(screenX, 0);
+                    ctx.lineTo(screenX, canvasRef.height);
+                }
+                // Draw horizontal lines
+                for (let y = startY; y <= endY; y += gridSize) {
+                    const screenY = y * scale + panY;
+                    ctx.moveTo(0, screenY);
+                    ctx.lineTo(canvasRef.width, screenY);
+                }
+                ctx.stroke();
+            } else {
+                // Draw DOTS
+                const dotSize = 2; // Fixed dot size in pixels
+
+                for (let x = startX; x <= endX; x += gridSize) {
+                    for (let y = startY; y <= endY; y += gridSize) {
+                        const screenX = x * scale + panX;
+                        const screenY = y * scale + panY;
+
+                        // Optimization: Only draw if on screen
+                        if (screenX >= -dotSize && screenX <= canvasRef.width + dotSize &&
+                            screenY >= -dotSize && screenY <= canvasRef.height + dotSize) {
+                            ctx.beginPath();
+                            ctx.arc(screenX, screenY, dotSize / 2, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    }
+                }
             }
-            // Draw horizontal lines
-            for (let y = startY; y <= endY; y += gridSize) {
-                const screenY = y * scale + panY;
-                ctx.moveTo(0, screenY);
-                ctx.lineTo(canvasRef.width, screenY);
-            }
-            ctx.stroke();
+
             ctx.restore();
 
             // Restore transform for elements
@@ -277,6 +302,8 @@ const Canvas: Component = () => {
         store.gridSettings.gridSize;
         store.gridSettings.gridColor;
         store.gridSettings.gridOpacity;
+        store.gridSettings.style;
+        store.canvasBackgroundColor;
         requestAnimationFrame(draw);
     });
 
@@ -1186,22 +1213,30 @@ const Canvas: Component = () => {
                         },
                         { separator: true } as any,
                         {
-                            label: 'Show grid',
-                            shortcut: "Ctrl+'",
-                            onClick: toggleGrid,
-                            checked: store.gridSettings.enabled
+                            label: 'Canvas Background',
+                            submenu: [
+                                { label: 'White', onClick: () => setCanvasBackgroundColor('#ffffff'), checked: store.canvasBackgroundColor === '#ffffff' },
+                                { label: 'Paper', onClick: () => setCanvasBackgroundColor('#fdf6e3'), checked: store.canvasBackgroundColor === '#fdf6e3' },
+                                { label: 'Dark Gray', onClick: () => setCanvasBackgroundColor('#121212'), checked: store.canvasBackgroundColor === '#121212' },
+                                { label: 'Deep Black', onClick: () => setCanvasBackgroundColor('#000000'), checked: store.canvasBackgroundColor === '#000000' }
+                            ]
                         },
                         {
-                            label: 'Snap to grid',
-                            shortcut: "Ctrl+Shift+'",
-                            onClick: toggleSnapToGrid,
-                            checked: store.gridSettings.snapToGrid
+                            label: 'Grid',
+                            submenu: [
+                                { label: 'Show Grid', onClick: toggleGrid, checked: store.gridSettings.enabled, shortcut: "Shift+'" },
+                                { label: 'Snap to Grid', onClick: toggleSnapToGrid, checked: store.gridSettings.snapToGrid, shortcut: "Shift+;" },
+                                { separator: true } as any,
+                                { label: 'Lines', onClick: () => setGridStyle('lines'), checked: (store.gridSettings.style || 'lines') === 'lines' },
+                                { label: 'Dots', onClick: () => setGridStyle('dots'), checked: store.gridSettings.style === 'dots' }
+                            ]
                         },
                         { separator: true } as any,
                         {
                             label: 'Reset view',
-                            shortcut: 'Ctrl+0',
-                            onClick: () => setViewState({ scale: 1, panX: 0, panY: 0 })
+                            onClick: () => {
+                                setViewState({ scale: 1, panX: 0, panY: 0 });
+                            }
                         }
                     ]}
                     onClose={() => setContextMenuOpen(false)}

@@ -11,6 +11,7 @@ interface AppState {
     layers: Layer[];
     activeLayerId: string;
     gridSettings: GridSettings;
+    canvasBackgroundColor: string;
 }
 
 const initialState: AppState = {
@@ -54,8 +55,10 @@ const initialState: AppState = {
         snapToGrid: false,
         gridSize: 20,
         gridColor: '#e0e0e0',
-        gridOpacity: 0.5
-    }
+        gridOpacity: 0.5,
+        style: 'lines'
+    },
+    canvasBackgroundColor: '#fafafa' // Default light background
 };
 
 export const [store, setStore] = createStore<AppState>(initialState);
@@ -435,6 +438,14 @@ export const toggleSnapToGrid = () => {
 
 export const updateGridSettings = (updates: Partial<GridSettings>) => {
     setStore('gridSettings', updates as any);
+};
+
+export const setCanvasBackgroundColor = (color: string) => {
+    setStore('canvasBackgroundColor', color);
+};
+
+export const setGridStyle = (style: 'lines' | 'dots') => {
+    setStore('gridSettings', 'style', style);
 };
 
 // Initialize theme on load
