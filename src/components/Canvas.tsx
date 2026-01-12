@@ -145,7 +145,12 @@ const Canvas: Component = () => {
                 ctx.stroke();
             } else {
                 // Draw DOTS
-                const dotSize = 2; // Fixed dot size in pixels
+                const dotSize = 3; // Slightly larger for visibility
+
+                // Enhance contrast for dots in light mode
+                if (!isDarkMode && gridStyle === 'dots' && (gridColor === '#e0e0e0' || gridColor === '#fafafa')) {
+                    ctx.fillStyle = '#b0b0b0'; // Darker gray for dots
+                }
 
                 for (let x = startX; x <= endX; x += gridSize) {
                     for (let y = startY; y <= endY; y += gridSize) {
