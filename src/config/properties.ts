@@ -87,7 +87,7 @@ export const properties: PropertyConfig[] = [
             { label: 'Sketch', value: 'sketch' },
             { label: 'Architectural', value: 'architectural' }
         ],
-        applicableTo: ['rectangle', 'circle', 'line', 'arrow'],
+        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'diamond'],
         defaultValue: 'sketch'
     },
     // Stroke
@@ -104,7 +104,7 @@ export const properties: PropertyConfig[] = [
         label: 'Background',
         type: 'color',
         group: 'background',
-        applicableTo: ['rectangle', 'circle', 'text'], // text bg? maybe
+        applicableTo: ['rectangle', 'circle', 'text', 'diamond'], // text bg? maybe
         defaultValue: 'transparent'
     },
     {
@@ -117,7 +117,7 @@ export const properties: PropertyConfig[] = [
             { label: 'Hachure', value: 'hachure' },
             { label: 'Cross-Hatch', value: 'cross-hatch' }
         ],
-        applicableTo: ['rectangle', 'circle'],
+        applicableTo: ['rectangle', 'circle', 'diamond'],
         defaultValue: 'hachure'
     },
     {
@@ -128,7 +128,7 @@ export const properties: PropertyConfig[] = [
         max: 20,
         step: 1,
         group: 'stroke',
-        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'pencil'], // Exclude text
+        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'pencil', 'diamond'], // Exclude text
         defaultValue: 1
     },
     {
@@ -141,7 +141,7 @@ export const properties: PropertyConfig[] = [
             { label: 'Dashed', value: 'dashed' },
             { label: 'Dotted', value: 'dotted' }
         ],
-        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'pencil'], // Exclude text
+        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'pencil', 'diamond'], // Exclude text
         defaultValue: 'solid'
     },
     {
@@ -152,7 +152,7 @@ export const properties: PropertyConfig[] = [
         max: 3,
         step: 0.1,
         group: 'style',
-        applicableTo: ['rectangle', 'circle', 'line', 'arrow'],
+        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'diamond'],
         defaultValue: 1
     },
     {
