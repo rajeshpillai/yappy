@@ -148,6 +148,20 @@ const HelpDialog: Component<Props> = (props) => {
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
+                                            <span class="shortcut-label">Copy</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Ctrl</span>
+                                                <span class="keycap">C</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Paste</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Ctrl</span>
+                                                <span class="keycap">V</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
                                             <span class="shortcut-label">Move Canvas</span>
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Space</span>

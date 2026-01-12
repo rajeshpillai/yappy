@@ -252,6 +252,15 @@
   - [ ] Follow line rotation
 
 
+### Phase 19c: Copy/Paste
+- [x] Implementation
+  - [x] Add clipboard state management
+  - [x] Implement Ctrl+C to copy selected elements
+  - [x] Implement Ctrl+V to paste with offset
+  - [x] Update help dialog
+- [/] Testing
+
+
 
 ### Phase 20: Grouping Elements
 - [ ] Add group/ungroup functionality

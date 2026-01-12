@@ -22,6 +22,7 @@ const Menu: Component = () => {
     let fileInputRef: HTMLInputElement | undefined;
 
     const [saveIntent, setSaveIntent] = createSignal<'workspace' | 'disk'>('workspace');
+    const [clipboard, setClipboard] = createSignal<any[]>([]);
 
     const handleSaveRequest = (intent: 'workspace' | 'disk') => {
         setSaveIntent(intent);
@@ -205,6 +206,28 @@ const Menu: Component = () => {
                     if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
                         e.preventDefault();
                         setStore('selection', store.elements.map(el => el.id));
+                    }
+                } else if (e.key === 'c') { // Ctrl+C - Copy
+                    if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+                        e.preventDefault();
+                        const selectedElements = store.elements.filter(el => store.selection.includes(el.id));
+                        setClipboard(selectedElements);
+                    }
+                } else if (e.key === 'v') { // Ctrl+V - Paste
+                    if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+                        e.preventDefault();
+                        const copiedElements = clipboard();
+                        if (copiedElements.length > 0) {
+                            const offset = 20;
+                            const newElements = copiedElements.map(el => ({
+                                ...el,
+                                id: crypto.randomUUID(),
+                                x: el.x + offset,
+                                y: el.y + offset
+                            }));
+                            setStore('elements', [...store.elements, ...newElements]);
+                            setStore('selection', newElements.map(el => el.id));
+                        }
                     }
                 }
             } else if (e.key === '?' && e.shiftKey) { // Shift+?
