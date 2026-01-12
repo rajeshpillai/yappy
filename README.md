@@ -158,6 +158,9 @@ yappy/
 - [x] Canvas properties persistence (Grid & Background)
 - [x] Shape Connectors (Flowchart-style linking)
 - [x] Smart Line Selection (Endpoint handles)
+- [x] Bezier Connectors (Curved lines)
+- [x] Dedicated Bezier Tool
+- [x] Configurable Start/End Arrowheads
 
 ### Planned
 - [ ] Layer grouping (hierarchical folders)
