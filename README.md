@@ -108,6 +108,12 @@ npm run deploy
 
 This builds the app with the correct base path and pushes to the `gh-pages` branch.
 
+## Sample Diagrams
+The `data/` directory contains sample JSON files generated via the API, which can be loaded into Yappy:
+- `flow-chart.json`: A deployment pipeline flowchart.
+- `activity-diagram.json`: A logic flow activity diagram.
+- `sequence-diagram.json`: A usage sequence diagram.
+
 ## Project Structure
 
 ```
