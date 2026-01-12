@@ -320,6 +320,12 @@ const Menu: Component = () => {
                         reorderLayers(idx, idx + 1);
                     }
                 }
+            } else if (e.key === 'Escape') {
+                setIsDialogOpen(false);
+                setIsExportOpen(false);
+                setIsSaveOpen(false);
+                setIsMenuOpen(false);
+                setShowHelp(false);
             }
         };
         window.addEventListener('keydown', handleKeyDown);

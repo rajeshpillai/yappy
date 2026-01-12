@@ -217,6 +217,7 @@
   - [x] Fix locked element interaction (check both element and layer)
   - [x] Verify fix
 - [x] Fix Image Visibility on Load
+- [x] Close dialogs with Esc key
   - [x] Investigate image loading/rendering
   - [x] Added callback mechanism to trigger redraw on image load
   - [x] Verify fix
