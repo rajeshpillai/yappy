@@ -156,6 +156,8 @@ yappy/
 - [x] Grid visualization and context menu
 - [x] Snap to grid functionality
 - [x] Canvas properties persistence (Grid & Background)
+- [x] Shape Connectors (Flowchart-style linking)
+- [x] Smart Line Selection (Endpoint handles)
 
 ### Planned
 - [ ] Layer grouping (hierarchical folders)
