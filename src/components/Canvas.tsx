@@ -1478,8 +1478,10 @@ const Canvas: Component = () => {
                 {(_) => {
                     const el = activeTextElement()!;
                     const { scale, panX, panY } = store.viewState;
-                    const screenX = el.x * scale + panX;
-                    const screenY = el.y * scale + panY;
+
+                    // Center the textarea in the shape
+                    const centerX = (el.x + el.width / 2) * scale + panX;
+                    const centerY = (el.y + el.height / 2) * scale + panY;
 
                     return (
                         <textarea
@@ -1496,19 +1498,21 @@ const Canvas: Component = () => {
                             }}
                             style={{
                                 position: 'absolute',
-                                top: `${screenY}px`,
-                                left: `${screenX}px`,
+                                top: `${centerY}px`,
+                                left: `${centerX}px`,
+                                transform: 'translate(-50%, -50%)',
                                 font: `${20 * scale}px sans-serif`,
                                 color: el.strokeColor,
                                 background: 'transparent',
                                 border: '1px dashed #007acc',
                                 outline: 'none',
                                 margin: 0,
-                                padding: 0,
+                                padding: '4px',
                                 resize: 'none',
                                 overflow: 'hidden',
                                 'min-width': '50px',
-                                'min-height': '1em'
+                                'min-height': '1em',
+                                'text-align': 'center'
                             }}
                         />
                     );
