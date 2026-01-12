@@ -6,11 +6,14 @@ import Menu from './components/Menu';
 import ZoomControls from './components/ZoomControls';
 import PropertyPanel from './components/PropertyPanel';
 import LayerPanel from './components/LayerPanel';
+import { initAPI } from './api';
 
 const App: Component = () => {
   // Removed showHelp state as it is now in Menu.tsx
 
   onMount(() => {
+    initAPI();
+
     const handleKeyDown = (e: KeyboardEvent) => {
       // Undo/Redo
       if ((e.ctrlKey || e.metaKey) && e.key === 'z') {

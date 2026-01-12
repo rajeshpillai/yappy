@@ -225,8 +225,8 @@
     {
       "id": "5aa4f66c-a686-4fac-a396-2115e0440ed2",
       "type": "rectangle",
-      "x": 948.8889770507812,
-      "y": 277.7778015136719,
+      "x": 1071.1112670898438,
+      "y": 234.44448852539062,
       "width": 152.2222900390625,
       "height": 97.77777099609375,
       "strokeColor": "#000000",
@@ -247,6 +247,10 @@
         {
           "id": "e2ffc842-33cb-493f-a3fc-09a0d8d877cf",
           "type": "arrow"
+        },
+        {
+          "id": "de8b0917-2963-4097-862b-11e0fd1e4648",
+          "type": "line"
         }
       ]
     },
@@ -333,38 +337,6 @@
       "layerId": "default-layer",
       "endBinding": {
         "elementId": "5ca69c4b-7295-4ec1-a9a5-6a9f4a2a4399",
-        "focus": 0,
-        "gap": 5
-      },
-      "startBinding": {
-        "elementId": "7468eae9-256b-4178-a8d2-cc67593a259c",
-        "focus": 0,
-        "gap": 5
-      }
-    },
-    {
-      "id": "e2ffc842-33cb-493f-a3fc-09a0d8d877cf",
-      "type": "arrow",
-      "x": 734.1340372912927,
-      "y": 201.66672897338867,
-      "width": 209.7549397594886,
-      "height": 115.48944168462486,
-      "strokeColor": "#000000",
-      "backgroundColor": "transparent",
-      "strokeWidth": 2,
-      "angle": 0,
-      "opacity": 100,
-      "strokeStyle": "solid",
-      "fillStyle": "hachure",
-      "roughness": 1,
-      "renderStyle": "sketch",
-      "seed": 2112907175,
-      "roundness": null,
-      "locked": false,
-      "link": null,
-      "layerId": "default-layer",
-      "endBinding": {
-        "elementId": "5aa4f66c-a686-4fac-a396-2115e0440ed2",
         "focus": 0,
         "gap": 5
       },
@@ -497,6 +469,35 @@
         "focus": 0,
         "gap": 5
       }
+    },
+    {
+      "id": "de8b0917-2963-4097-862b-11e0fd1e4648",
+      "type": "line",
+      "x": 735.5556030273438,
+      "y": 157.77778798562505,
+      "width": 330.5556640625,
+      "height": 100.81723666776176,
+      "strokeColor": "#000000",
+      "backgroundColor": "transparent",
+      "strokeWidth": 2,
+      "angle": 0,
+      "opacity": 100,
+      "strokeStyle": "solid",
+      "fillStyle": "hachure",
+      "roughness": 1,
+      "renderStyle": "sketch",
+      "seed": 662273989,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "default-layer",
+      "curveType": "bezier",
+      "endBinding": {
+        "elementId": "5aa4f66c-a686-4fac-a396-2115e0440ed2",
+        "focus": 0,
+        "gap": 5
+      },
+      "startArrowhead": "dot"
     }
   ],
   "viewState": {

@@ -165,7 +165,7 @@
   - Guide color customization
 
 ## Nice to have
-- [ ] Api based drawing (so that programatically design can be created)
+- [x] Api based drawing (so that programatically design can be created)
 - [ ] Animation (Need to plan)
 - [ ] Layer blend modes (multiply, screen, overlay, etc.)
 - [ ] Layer effects/filters (blur, brightness, saturation)
