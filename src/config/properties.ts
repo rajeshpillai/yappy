@@ -47,6 +47,14 @@ export const properties: PropertyConfig[] = [
         defaultValue: false
     },
     {
+        key: 'objectSnapping',
+        label: 'Smart Snapping',
+        type: 'toggle',
+        group: 'canvas',
+        applicableTo: ['canvas'],
+        defaultValue: true
+    },
+    {
         key: 'gridStyle',
         label: 'Grid Style',
         type: 'select',

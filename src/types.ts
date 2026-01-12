@@ -83,6 +83,7 @@ export interface Layer {
 export interface GridSettings {
     enabled: boolean;       // Show grid
     snapToGrid: boolean;    // Snap to grid
+    objectSnapping: boolean; // Snap to other elements
     gridSize: number;       // Grid spacing in pixels (default 20)
     gridColor: string;      // Grid line color
     gridOpacity: number;    // Grid opacity (0-1)

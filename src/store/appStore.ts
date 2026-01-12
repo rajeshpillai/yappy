@@ -61,6 +61,7 @@ const initialState: AppState = {
     gridSettings: {
         enabled: false,
         snapToGrid: false,
+        objectSnapping: true,
         gridSize: 20,
         gridColor: '#cccccc',
         gridOpacity: 0.5,

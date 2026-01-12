@@ -163,6 +163,7 @@ const PropertyPanel: Component = () => {
             else if (key === 'gridStyle') setGridStyle(value);
             else if (key === 'gridColor') updateGridSettings({ gridColor: value });
             else if (key === 'gridOpacity') updateGridSettings({ gridOpacity: value });
+            else if (key === 'objectSnapping') updateGridSettings({ objectSnapping: value });
         } else {
             updateDefaultStyles({ [key]: value });
         }
@@ -176,7 +177,7 @@ const PropertyPanel: Component = () => {
             if (prop.key === 'canvasBackgroundColor') return store.canvasBackgroundColor;
             if (prop.key === 'gridEnabled') return store.gridSettings.enabled;
             if (prop.key === 'gridStyle') return store.gridSettings.style;
-            if (['snapToGrid', 'gridColor', 'gridOpacity'].includes(prop.key)) {
+            if (['snapToGrid', 'gridColor', 'gridOpacity', 'objectSnapping'].includes(prop.key)) {
                 return (store.gridSettings as any)[prop.key];
             }
             return (store as any)[prop.key];

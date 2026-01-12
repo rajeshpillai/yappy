@@ -8,6 +8,8 @@ import { renderElement } from "../utils/renderElement";
 import ContextMenu from "./ContextMenu";
 import { snapPoint } from "../utils/snapHelpers";
 import { setImageLoadCallback } from "../utils/imageCache";
+import { getSnappingGuides } from "../utils/objectSnapping";
+import type { SnappingGuide } from "../utils/objectSnapping";
 
 
 const Canvas: Component = () => {
@@ -55,6 +57,7 @@ const Canvas: Component = () => {
     const [selectionBox, setSelectionBox] = createSignal<{ x: number, y: number, w: number, h: number } | null>(null);
     let initialPositions = new Map<string, { x: number, y: number }>();
     const [suggestedBinding, setSuggestedBinding] = createSignal<{ elementId: string; px: number; py: number } | null>(null);
+    const [snappingGuides, setSnappingGuides] = createSignal<SnappingGuide[]>([]);
 
     let initialElementX = 0;
     let initialElementY = 0;
@@ -79,7 +82,7 @@ const Canvas: Component = () => {
     const [contextMenuOpen, setContextMenuOpen] = createSignal(false);
     const [contextMenuPos, setContextMenuPos] = createSignal({ x: 0, y: 0 });
 
-    const draw = () => {
+    function draw() {
         if (!canvasRef) return;
         const ctx = canvasRef.getContext("2d");
         if (!ctx) return;
@@ -323,6 +326,29 @@ const Canvas: Component = () => {
             }
         }
 
+        // Draw Snapping Guides
+        const guides = snappingGuides();
+        if (guides.length > 0) {
+            ctx.save();
+            ctx.strokeStyle = '#ff00ff';
+            ctx.setLineDash([5 / store.viewState.scale, 5 / store.viewState.scale]);
+            ctx.lineWidth = 1 / store.viewState.scale;
+
+            guides.forEach(g => {
+                ctx.beginPath();
+                if (g.type === 'vertical') {
+                    ctx.moveTo(g.coordinate, -100000);
+                    ctx.lineTo(g.coordinate, 100000);
+                } else {
+                    ctx.moveTo(-100000, g.coordinate);
+                    ctx.lineTo(100000, g.coordinate);
+                }
+                ctx.stroke();
+            });
+            ctx.restore();
+        }
+
+        ctx.restore(); // Restore for line 104
     };
 
     createEffect(() => {
@@ -355,6 +381,7 @@ const Canvas: Component = () => {
         store.gridSettings.gridOpacity;
         store.gridSettings.style;
         store.canvasBackgroundColor;
+        snappingGuides();
         requestAnimationFrame(draw);
     });
 
@@ -1022,8 +1049,18 @@ const Canvas: Component = () => {
                     let dx = x - startX;
                     let dy = y - startY;
 
-                    // Snap delta to grid if enabled
-                    if (store.gridSettings.snapToGrid) {
+                    // Object Snapping
+                    if (store.gridSettings.objectSnapping && !e.shiftKey) {
+                        const snap = getSnappingGuides(store.selection, store.elements, dx, dy, 5 / store.viewState.scale);
+                        dx = snap.dx;
+                        dy = snap.dy;
+                        setSnappingGuides(snap.guides);
+                    } else {
+                        setSnappingGuides([]);
+                    }
+
+                    // Snap delta to grid if enabled and no object snapping guides
+                    if (store.gridSettings.snapToGrid && !e.shiftKey && snappingGuides().length === 0) {
                         const gridSize = store.gridSettings.gridSize;
                         dx = Math.round(dx / gridSize) * gridSize;
                         dy = Math.round(dy / gridSize) * gridSize;
@@ -1234,6 +1271,7 @@ const Canvas: Component = () => {
             isDragging = false;
             draggingHandle = null;
             initialPositions.clear();
+            setSnappingGuides([]);
             return;
         }
 
@@ -1582,6 +1620,11 @@ const Canvas: Component = () => {
                             shortcut: "Shift+;",
                             onClick: toggleSnapToGrid,
                             checked: store.gridSettings.snapToGrid
+                        },
+                        {
+                            label: 'Smart Snapping',
+                            onClick: () => setStore('gridSettings', 'objectSnapping', !store.gridSettings.objectSnapping),
+                            checked: store.gridSettings.objectSnapping
                         },
                         { separator: true } as any,
                         {

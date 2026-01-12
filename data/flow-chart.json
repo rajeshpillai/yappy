@@ -3,8 +3,8 @@
     {
       "id": "32b25cc4-ff47-486d-b3d9-d6f1193fdea2",
       "type": "rectangle",
-      "x": 100,
-      "y": 100,
+      "x": 320.0000915527344,
+      "y": 247.77780151367188,
       "width": 140,
       "height": 60,
       "strokeColor": "#000000",
@@ -32,39 +32,14 @@
           "id": "0857c04e-671c-42ba-8d75-c7880ae9fbac",
           "type": "arrow"
         }
-      ]
-    },
-    {
-      "id": "0f8f7b75-b734-4453-82f8-f77f2edb2fe0",
-      "type": "text",
-      "x": 130,
-      "y": 120,
-      "width": 108,
-      "height": 30,
-      "text": "Push Code",
-      "strokeColor": "#000000",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 1,
-      "strokeStyle": "solid",
-      "opacity": 100,
-      "roughness": 0,
-      "angle": 0,
-      "renderStyle": "sketch",
-      "seed": 1862811190,
-      "roundness": null,
-      "fontFamily": 1,
-      "fontSize": 20,
-      "textAlign": "left",
-      "locked": false,
-      "link": null,
-      "layerId": "default-layer"
+      ],
+      "containerText": "Push Code"
     },
     {
       "id": "f6d80583-b590-45be-8b3f-e6894f4ed621",
       "type": "rectangle",
-      "x": 300,
-      "y": 100,
+      "x": 522.2222595214844,
+      "y": 242.22222900390625,
       "width": 140,
       "height": 60,
       "strokeColor": "#000000",
@@ -96,39 +71,14 @@
           "id": "2e8567bc-44cc-43fe-afe6-b2bfbf92a1c1",
           "type": "arrow"
         }
-      ]
-    },
-    {
-      "id": "432c7e16-43c4-449a-8229-bc2013587ddb",
-      "type": "text",
-      "x": 330,
-      "y": 120,
-      "width": 60,
-      "height": 30,
-      "text": "Build",
-      "strokeColor": "#000000",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 1,
-      "strokeStyle": "solid",
-      "opacity": 100,
-      "roughness": 0,
-      "angle": 0,
-      "renderStyle": "sketch",
-      "seed": 1708370135,
-      "roundness": null,
-      "fontFamily": 1,
-      "fontSize": 20,
-      "textAlign": "left",
-      "locked": false,
-      "link": null,
-      "layerId": "default-layer"
+      ],
+      "containerText": "Build"
     },
     {
       "id": "4c90e0ca-2ba9-4b09-95c8-09c0ebbebf57",
       "type": "rectangle",
-      "x": 500,
-      "y": 100,
+      "x": 720.0000915527344,
+      "y": 247.77780151367188,
       "width": 140,
       "height": 60,
       "strokeColor": "#000000",
@@ -160,39 +110,14 @@
           "id": "1fdb7700-0fa5-434e-ba5d-52fd3803ca92",
           "type": "arrow"
         }
-      ]
-    },
-    {
-      "id": "1994121b-9bba-4e7a-ad2f-33c361793f0d",
-      "type": "text",
-      "x": 530,
-      "y": 120,
-      "width": 48,
-      "height": 30,
-      "text": "Test",
-      "strokeColor": "#000000",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 1,
-      "strokeStyle": "solid",
-      "opacity": 100,
-      "roughness": 0,
-      "angle": 0,
-      "renderStyle": "sketch",
-      "seed": 390243933,
-      "roundness": null,
-      "fontFamily": 1,
-      "fontSize": 20,
-      "textAlign": "left",
-      "locked": false,
-      "link": null,
-      "layerId": "default-layer"
+      ],
+      "containerText": "Test"
     },
     {
       "id": "1407d5c2-b272-4c41-96e6-b5193378ef02",
       "type": "rectangle",
-      "x": 500,
-      "y": 250,
+      "x": 720.0000915527344,
+      "y": 397.7778015136719,
       "width": 140,
       "height": 60,
       "strokeColor": "#000000",
@@ -220,41 +145,16 @@
           "id": "1fdb7700-0fa5-434e-ba5d-52fd3803ca92",
           "type": "arrow"
         }
-      ]
-    },
-    {
-      "id": "e7fa25e6-4495-4b92-9240-e987a3a9c70d",
-      "type": "text",
-      "x": 530,
-      "y": 270,
-      "width": 72,
-      "height": 30,
-      "text": "Deploy",
-      "strokeColor": "#000000",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 1,
-      "strokeStyle": "solid",
-      "opacity": 100,
-      "roughness": 0,
-      "angle": 0,
-      "renderStyle": "sketch",
-      "seed": 2136808520,
-      "roundness": null,
-      "fontFamily": 1,
-      "fontSize": 20,
-      "textAlign": "left",
-      "locked": false,
-      "link": null,
-      "layerId": "default-layer"
+      ],
+      "containerText": "Deploy"
     },
     {
       "id": "0857c04e-671c-42ba-8d75-c7880ae9fbac",
       "type": "arrow",
-      "x": 240,
-      "y": 130,
-      "width": 60,
-      "height": 0,
+      "x": 460.0000915527344,
+      "y": 277.7778015136719,
+      "width": 57.22216796875,
+      "height": -2.4043010956492026,
       "strokeColor": "#000000",
       "backgroundColor": "transparent",
       "fillStyle": "hachure",
@@ -289,10 +189,10 @@
     {
       "id": "2e8567bc-44cc-43fe-afe6-b2bfbf92a1c1",
       "type": "arrow",
-      "x": 440,
-      "y": 130,
-      "width": 60,
-      "height": 0,
+      "x": 667.2222595214844,
+      "y": 275.47017275894564,
+      "width": 42.77783203125,
+      "height": 1.852533232000269,
       "strokeColor": "#000000",
       "backgroundColor": "transparent",
       "fillStyle": "hachure",
@@ -327,10 +227,10 @@
     {
       "id": "1fdb7700-0fa5-434e-ba5d-52fd3803ca92",
       "type": "arrow",
-      "x": 570,
-      "y": 160,
-      "width": 0,
-      "height": 90,
+      "x": 790.0000915527344,
+      "y": 307.7778015136719,
+      "width": 0.03420011591367711,
+      "height": 80,
       "strokeColor": "#000000",
       "backgroundColor": "transparent",
       "fillStyle": "hachure",
@@ -360,7 +260,25 @@
         "elementId": "1407d5c2-b272-4c41-96e6-b5193378ef02",
         "focus": 0,
         "gap": 5
-      }
+      },
+      "points": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 4.444427490234375
+        },
+        {
+          "x": 0,
+          "y": 10
+        },
+        {
+          "x": 0,
+          "y": 80
+        }
+      ]
     }
   ],
   "viewState": {
@@ -386,6 +304,5 @@
     "gridOpacity": 0.5,
     "style": "lines"
   },
-  "canvasBackgroundColor": "#fafafa",
-  "version": 1
+  "canvasBackgroundColor": "#fafafa"
 }
