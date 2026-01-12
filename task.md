@@ -206,3 +206,8 @@
   - [x] Tests: `tests/alignment.spec.ts` verified
 
 
+### Phase 17: Bug Fixes
+- [x] Fix Grid Mode Selection Sync
+  - [x] Investigate `Canvas.tsx` rendering and hit testing
+  - [x] Removed redundant transform after grid drawing
+  - [x] Verify fix

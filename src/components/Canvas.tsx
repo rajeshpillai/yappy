@@ -170,10 +170,6 @@ const Canvas: Component = () => {
             }
 
             ctx.restore();
-
-            // Restore transform for elements
-            ctx.translate(panX, panY);
-            ctx.scale(scale, scale);
         }
 
         // Render Elements - Sort by layer order and filter by visibility
