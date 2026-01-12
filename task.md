@@ -166,6 +166,9 @@
 
 ## Nice to have
 - [x] Api based drawing (so that programatically design can be created)
+  - [x] Basic shape creation (Rect, Circle, Text, Line)
+  - [x] Programmatic connections (Yappy.connect)
+  - [x] Viewport control (zoomToFit)
 - [ ] Animation (Need to plan)
 - [ ] Layer blend modes (multiply, screen, overlay, etc.)
 - [ ] Layer effects/filters (blur, brightness, saturation)

@@ -161,12 +161,12 @@ yappy/
 - [x] Bezier Connectors (Curved lines)
 - [x] Dedicated Bezier Tool
 - [x] Configurable Start/End Arrowheads
+- [x] Programmatic API (window.Yappy) for sketches and diagrams
 
 ### Planned
 - [ ] Layer grouping (hierarchical folders)
 - [ ] Snap to objects with visual guides
 - [ ] Viewport culling optimization
-- [ ] API-based programmatic drawing
 - [ ] Animation system
 
 ## Contributing
