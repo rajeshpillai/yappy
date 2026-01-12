@@ -1,4 +1,4 @@
-import { type Component, createSignal, Show, For, createEffect } from "solid-js";
+import { type Component, createSignal, Show, createEffect } from "solid-js";
 import {
     X, Upload, Download, FolderOpen, Save,
     Image as ImageIcon, HelpCircle, AlertTriangle
