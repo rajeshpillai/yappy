@@ -5,7 +5,8 @@ import { getImage } from "./imageCache";
 export const renderElement = (
     rc: RoughCanvas,
     ctx: CanvasRenderingContext2D,
-    el: DrawingElement
+    el: DrawingElement,
+    isDarkMode: boolean = false
 ) => {
     ctx.save();
     ctx.globalAlpha = (el.opacity ?? 100) / 100;
@@ -20,14 +21,26 @@ export const renderElement = (
         ctx.translate(-cx, -cy);
     }
 
+    // Color Inversion Helper for Dark Mode
+    const adjustColor = (color: string) => {
+        if (!isDarkMode) return color;
+        if (color === '#000000' || color === 'black') return '#ffffff';
+        // Basic inversion for now. Complex colors stay as is.
+        return color;
+    };
+
+    const strokeColor = adjustColor(el.strokeColor);
+    const backgroundColor = el.backgroundColor === 'transparent' ? undefined : adjustColor(el.backgroundColor);
+    const fillStyle = el.fillStyle; // Usually 'hachure', 'solid' etc.
+
     // RoughJS Options
     const options: any = {
         seed: el.seed,
         roughness: el.roughness,
-        stroke: el.strokeColor,
+        stroke: strokeColor,
         strokeWidth: el.strokeWidth,
-        fill: el.backgroundColor === 'transparent' ? undefined : el.backgroundColor,
-        fillStyle: el.fillStyle,
+        fill: backgroundColor,
+        fillStyle: fillStyle,
         strokeLineDash: el.strokeStyle === 'dashed' ? [10, 10] : (el.strokeStyle === 'dotted' ? [5, 10] : undefined),
     };
 
@@ -85,7 +98,7 @@ export const renderElement = (
         const actualWidth = metrics.width;
         const scaleX = (el.width && actualWidth) ? (el.width / actualWidth) : 1;
 
-        ctx.fillStyle = el.strokeColor;
+        ctx.fillStyle = strokeColor;
 
         if (scaleX !== 1) {
             ctx.save();

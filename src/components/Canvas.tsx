@@ -86,7 +86,8 @@ const Canvas: Component = () => {
         ctx.clearRect(0, 0, canvasRef.width, canvasRef.height);
 
         // Background color
-        ctx.fillStyle = "#fafafa";
+        const isDarkMode = store.theme === 'dark';
+        ctx.fillStyle = isDarkMode ? "#121212" : "#fafafa";
         ctx.fillRect(0, 0, canvasRef.width, canvasRef.height);
 
         ctx.save();
@@ -99,7 +100,16 @@ const Canvas: Component = () => {
         // Draw Grid if enabled
         if (store.gridSettings.enabled) {
             const gridSize = store.gridSettings.gridSize;
-            const gridColor = store.gridSettings.gridColor;
+            let gridColor = store.gridSettings.gridColor;
+
+            // Adjust grid color for dark mode if using default
+            if (isDarkMode && gridColor === '#e0e0e0') {
+                gridColor = '#2d2d2d'; // darker but visible on #121212? No, needs to be lighter.
+                // Actually #e0e0e0 is very light gray. On #121212 it's high contrast.
+                // Maybe too high? Let's try a subtle gray.
+                gridColor = '#333333';
+            }
+
             const gridOpacity = store.gridSettings.gridOpacity;
 
             ctx.save();
@@ -157,7 +167,7 @@ const Canvas: Component = () => {
 
             if (el.type !== 'text' || editingId() !== el.id) {
                 const rc = rough.canvas(canvasRef);
-                renderElement(rc, ctx, el);
+                renderElement(rc, ctx, el, isDarkMode);
             }
 
             // Selection highlight & Handles
@@ -240,6 +250,7 @@ const Canvas: Component = () => {
     };
 
     createEffect(() => {
+        store.theme; // Track theme changes
         store.elements.length;
         store.elements.forEach(e => {
             e.x; e.y; e.width; e.height;
