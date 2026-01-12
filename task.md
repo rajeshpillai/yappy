@@ -316,11 +316,52 @@
 - [x] Update `Menu.tsx` to launch unified dialogs
 - [x] Add tooltips and descriptions for each storage mode
 
+
 ### Phase 23: Templates & Advanced Features
 - [ ] Pre-made diagram templates
+  - [ ] Flowchart template
+  - [ ] Mind map template
+  - [ ] Wireframe template
+  - [ ] Org chart template
+  - [ ] Network diagram template
 - [x] Smart connector routing
     - [x] Grid-based A* routing in `routing.ts`
     - [x] Obstacle avoidance for non-linear shapes
     - [x] Integration with Property Panel and Rendering
     - [x] Reactive updates in `Canvas.tsx`
 - [ ] Minimap/Navigator for large diagrams
+  - [ ] Small overview showing full diagram
+  - [ ] Draggable viewport indicator
+  - [ ] Click to jump to location
+  - [ ] Toggle visibility
+
+### Phase 25: Keyboard Shortcuts & Productivity
+- [ ] Tool shortcuts (R=rectangle, C=circle, T=text, L=line, etc.)
+- [ ] Layer navigation (Alt+1-9 for quick layer switching)
+- [ ] Quick style toggles (cycle fill styles, stroke styles)
+- [ ] Nudge selected elements (Arrow keys for precise positioning)
+
+### Phase 26: Command Palette & Search
+- [ ] Command Palette (Cmd+K / Ctrl+K)
+  - [ ] Search actions (group, align, distribute, etc.)
+  - [ ] Search layers by name
+  - [ ] Recent files quick access
+  - [ ] Tool switching via search
+- [ ] Layer panel search/filter
+
+### Phase 27: Advanced Layer Features
+- [ ] Layer opacity control (affects all elements)
+- [ ] Layer context menu (right-click)
+  - [ ] Rename, Duplicate, Delete
+  - [ ] Merge down
+  - [ ] Flatten all
+  - [ ] Isolate layer (hide all others)
+- [ ] Layer thumbnails/previews (50x50px visual indicator)
+- [ ] Multi-select in layer panel (Ctrl+Click, Shift+Click)
+- [ ] Bulk operations (move to layer, lock/unlock, show/hide)
+
+### Phase 28: Smart Spacing Guides
+- [ ] Distance indicators between elements
+- [ ] Consistent spacing suggestions
+- [ ] Align with padding/margin visualization
+
