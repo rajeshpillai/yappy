@@ -1,8 +1,95 @@
-import { type Component, Show, createMemo, For } from "solid-js";
-import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle } from "../store/appStore";
-import { Copy, ChevronsDown, ChevronDown, ChevronUp, ChevronsUp, Trash2 } from "lucide-solid";
+import { type Component, Show, createMemo, For, createSignal, createEffect } from "solid-js";
+import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, setShowCanvasProperties } from "../store/appStore";
+import { Copy, ChevronsDown, ChevronDown, ChevronUp, ChevronsUp, Trash2, Palette } from "lucide-solid";
 import "./PropertyPanel.css";
 import { properties, type PropertyConfig } from "../config/properties";
+
+const ColorControl: Component<{ prop: PropertyConfig, value: any, onChange: (val: any) => void }> = (props) => {
+    const hasOptions = () => props.prop.options && props.prop.options.length > 0;
+    const [showPicker, setShowPicker] = createSignal(false);
+
+    createEffect(() => {
+        if (hasOptions() && props.value) {
+            const isPreset = props.prop.options?.some(o => o.value === props.value);
+            if (!isPreset && !showPicker()) setShowPicker(true);
+        }
+    });
+
+    return (
+        <div class="control-col">
+            <label>{props.prop.label}</label>
+            <div class="color-picker-container">
+                <Show when={hasOptions()}>
+                    <div class="swatch-row">
+                        <For each={props.prop.options}>
+                            {(opt) => (
+                                <button
+                                    class="swatch-circle"
+                                    classList={{ selected: props.value === opt.value }}
+                                    style={{ background: opt.value, border: opt.value === '#ffffff' ? '1px solid #e0e0e0' : 'none' }}
+                                    title={opt.label}
+                                    onClick={() => {
+                                        props.onChange(opt.value);
+                                        setShowPicker(false);
+                                    }}
+                                />
+                            )}
+                        </For>
+                        <button
+                            class="swatch-circle rainbow"
+                            classList={{ active: showPicker() }}
+                            title="Custom Color"
+                            onClick={() => setShowPicker(!showPicker())}
+                        >
+                            <Palette size={14} class="rainbow-icon" />
+                        </button>
+                    </div>
+                </Show>
+
+                <Show when={!hasOptions() || showPicker()}>
+                    <Show when={!hasOptions()}>
+                        <div class="color-grid">
+                            <For each={[
+                                'transparent', '#ffffff', '#f8f9fa', '#f1f3f5', '#fff5f5', '#fff0f6',
+                                '#f3f0ff', '#e03131', '#e8590c', '#fcc419', '#2f9e44', '#1971c2',
+                                '#6741d9', '#c2255c', '#343a40'
+                            ]}>
+                                {(c) => (
+                                    <button
+                                        class="color-swatch"
+                                        classList={{ selected: props.value === c }}
+                                        style={{ background: c === 'transparent' ? 'white' : c }}
+                                        onClick={() => props.onChange(c)}
+                                        title={c}
+                                    >
+                                        {c === 'transparent' && <div class="diagonal-line-sm"></div>}
+                                    </button>
+                                )}
+                            </For>
+                        </div>
+                    </Show>
+
+                    <div class="hex-input-row" style={{ "margin-top": hasOptions() ? "12px" : "0" }}>
+                        <span class="hash">#</span>
+                        <input
+                            type="text"
+                            class="hex-input"
+                            value={props.value?.replace('#', '') || ''}
+                            onInput={(e) => props.onChange('#' + e.currentTarget.value)}
+                        />
+                        <div class="system-picker-wrapper">
+                            <input
+                                type="color"
+                                value={props.value?.startsWith('#') ? props.value : '#000000'}
+                                onInput={(e) => props.onChange(e.currentTarget.value)}
+                            />
+                        </div>
+                    </div>
+                </Show>
+            </div>
+        </div>
+    );
+};
 
 const PropertyPanel: Component = () => {
 
@@ -14,8 +101,11 @@ const PropertyPanel: Component = () => {
         } else if (store.selection.length > 1) {
             return { type: 'multi' as const, data: null };
         } else {
-            // Default to Canvas properties when nothing selected
-            return { type: 'canvas' as const, data: null };
+            // Only show Canvas properties if explicitly requested
+            if (store.showCanvasProperties) {
+                return { type: 'canvas' as const, data: null };
+            }
+            return null;
         }
 
         return null; // Unreachable now but keeps types happy if needed
@@ -80,59 +170,15 @@ const PropertyPanel: Component = () => {
     };
 
     // Helper to render a control based on config
-    const renderControl = (prop: PropertyConfig, currentValue: any) => {
+    const renderControl = (prop: PropertyConfig) => {
         switch (prop.type) {
             case 'color':
-                const predefinedColors = [
-                    'transparent', '#ffffff', '#f8f9fa', '#f1f3f5', '#fff5f5', '#fff0f6',
-                    '#f3f0ff', '#e03131', '#e8590c', '#fcc419', '#2f9e44', '#1971c2',
-                    '#6741d9', '#c2255c', '#343a40'
-                ];
-
                 return (
-                    <div class="control-col">
-                        <label>{prop.label}</label>
-                        <div class="color-picker-container">
-                            {/* Palette Grid */}
-                            <div class="color-grid">
-                                <For each={predefinedColors}>
-                                    {(c) => (
-                                        <button
-                                            class={`color-swatch ${currentValue === c ? 'selected' : ''}`}
-                                            style={{ background: c === 'transparent' ? 'white' : c }}
-                                            onClick={() => handleChange(prop.key, c)}
-                                            title={c}
-                                        >
-                                            {c === 'transparent' && <div class="diagonal-line-sm"></div>}
-                                        </button>
-                                    )}
-                                </For>
-                            </div>
-
-                            {/* Hex Input & Picker */}
-                            <div class="hex-input-row">
-                                <span class="hash">#</span>
-                                <input
-                                    type="text"
-                                    class="hex-input"
-                                    value={currentValue?.replace('#', '') || ''}
-                                    onInput={(e) => {
-                                        let val = e.currentTarget.value;
-                                        // Simple validation/formatting could go here
-                                        handleChange(prop.key, '#' + val);
-                                    }}
-                                />
-                                <div class="system-picker-wrapper">
-                                    <input
-                                        type="color"
-                                        value={currentValue?.startsWith('#') ? currentValue : '#000000'}
-                                        onInput={(e) => handleChange(prop.key, e.currentTarget.value)}
-                                        title="Custom Color"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <ColorControl
+                        prop={prop}
+                        value={getPropertyValue(prop)}
+                        onChange={(val) => handleChange(prop.key, val)}
+                    />
                 );
             case 'slider':
                 return (
@@ -142,10 +188,10 @@ const PropertyPanel: Component = () => {
                             <input
                                 type="range"
                                 min={prop.min} max={prop.max} step={prop.step}
-                                value={currentValue ?? prop.defaultValue}
+                                value={getPropertyValue(prop) ?? prop.defaultValue}
                                 onInput={(e) => handleChange(prop.key, Number(e.currentTarget.value))}
                             />
-                            <span class="value-display">{currentValue}</span>
+                            <span class="value-display">{getPropertyValue(prop)}</span>
                         </div>
                     </div>
                 );
@@ -154,7 +200,7 @@ const PropertyPanel: Component = () => {
                     <div class="control-row">
                         <label>{prop.label}</label>
                         <select
-                            value={currentValue ?? prop.defaultValue}
+                            value={getPropertyValue(prop) ?? prop.defaultValue}
                             onChange={(e) => {
                                 const val = e.currentTarget.value;
                                 // Try to parse number if options are numbers
@@ -174,7 +220,7 @@ const PropertyPanel: Component = () => {
                         <label>{prop.label}</label>
                         <input
                             type="checkbox"
-                            checked={!!currentValue}
+                            checked={!!getPropertyValue(prop)}
                             onChange={(e) => handleChange(prop.key, e.currentTarget.checked)}
                         />
                     </div>
@@ -185,7 +231,7 @@ const PropertyPanel: Component = () => {
                         <label>{prop.label}</label>
                         <input
                             type="text"
-                            value={currentValue || ''}
+                            value={getPropertyValue(prop) || ''}
                             onInput={(e) => handleChange(prop.key, e.currentTarget.value)}
                         />
                     </div>
@@ -194,19 +240,23 @@ const PropertyPanel: Component = () => {
                 return (
                     <div class="control-col">
                         <label>{prop.label}</label>
-                        <textarea
-                            value={currentValue || ''}
-                            onInput={(e) => handleChange(prop.key, e.currentTarget.value)}
-                            rows={3}
-                            style={{
-                                width: '100%',
-                                padding: '8px',
-                                border: '1px solid #d1d5db',
-                                "border-radius": '6px',
-                                "font-family": 'inherit',
-                                "font-size": '13px',
-                                resize: 'vertical'
-                            }}
+                        <div class="textarea-wrapper">
+                            <textarea
+                                value={getPropertyValue(prop) || ''}
+                                onInput={(e) => handleChange(prop.key, e.currentTarget.value)}
+                                rows={3}
+                            />
+                        </div>
+                    </div>
+                );
+            case 'number':
+                return (
+                    <div class="control-row">
+                        <label>{prop.label}</label>
+                        <input
+                            type="number"
+                            value={getPropertyValue(prop) ?? 0}
+                            onInput={(e) => handleChange(prop.key, Number(e.currentTarget.value))}
                         />
                     </div>
                 );
@@ -214,6 +264,7 @@ const PropertyPanel: Component = () => {
                 return null;
         }
     };
+
 
     // Group properties
     const groupedProperties = createMemo(() => {
@@ -248,7 +299,7 @@ const PropertyPanel: Component = () => {
                             <div class="property-group">
                                 <div class="group-title">{group.toUpperCase()}</div>
                                 <For each={props}>
-                                    {(prop) => renderControl(prop, getPropertyValue(prop))}
+                                    {(prop) => renderControl(prop)}
                                 </For>
                             </div>
                         )}

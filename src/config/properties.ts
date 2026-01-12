@@ -19,6 +19,13 @@ export const properties: PropertyConfig[] = [
         key: 'canvasBackgroundColor',
         label: 'Background',
         type: 'color',
+        options: [
+            { label: 'White', value: '#ffffff' },
+            { label: 'Light Gray', value: '#fafafa' },
+            { label: 'Paper', value: '#fdf6e3' },
+            { label: 'Dark Gray', value: '#121212' },
+            { label: 'Deep Black', value: '#000000' }
+        ],
         group: 'canvas',
         applicableTo: ['canvas'],
         defaultValue: '#fafafa'

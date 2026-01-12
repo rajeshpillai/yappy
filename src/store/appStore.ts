@@ -11,6 +11,7 @@ interface AppState {
     layers: Layer[];
     activeLayerId: string;
     gridSettings: GridSettings;
+    showCanvasProperties: boolean;
     canvasBackgroundColor: string;
 }
 
@@ -58,6 +59,7 @@ const initialState: AppState = {
         gridOpacity: 0.5,
         style: 'lines'
     },
+    showCanvasProperties: false,
     canvasBackgroundColor: '#fafafa' // Default light background
 };
 
@@ -123,6 +125,10 @@ export const redo = () => {
 export const addElement = (element: DrawingElement) => {
     pushToHistory(); // Save state BEFORE adding
     setStore("elements", (els) => [...els, element]);
+};
+
+export const setShowCanvasProperties = (visible: boolean) => {
+    setStore("showCanvasProperties", visible);
 };
 
 export const deleteElements = (ids: string[]) => {

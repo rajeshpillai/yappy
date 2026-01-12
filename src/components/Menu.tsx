@@ -38,7 +38,9 @@ const Menu: Component = () => {
                 await storage.saveDrawing(filename, {
                     elements: store.elements,
                     viewState: store.viewState,
-                    layers: store.layers
+                    layers: store.layers,
+                    gridSettings: store.gridSettings,
+                    canvasBackgroundColor: store.canvasBackgroundColor
                 });
                 alert(`Drawing saved as "${filename}"!`);
             } catch (e) {
@@ -51,6 +53,8 @@ const Menu: Component = () => {
                 elements: store.elements,
                 viewState: store.viewState,
                 layers: store.layers,
+                gridSettings: store.gridSettings,
+                canvasBackgroundColor: store.canvasBackgroundColor,
                 version: 1
             }, null, 2);
 
@@ -96,7 +100,9 @@ const Menu: Component = () => {
                     elements: migrated.elements,
                     viewState: data.viewState || { scale: 1, panX: 0, panY: 0 },
                     layers: migrated.layers,
-                    activeLayerId: migrated.layers[0]?.id || 'default-layer'
+                    activeLayerId: migrated.layers[0]?.id || 'default-layer',
+                    gridSettings: migrated.gridSettings || { enabled: false, snapToGrid: false, gridSize: 20, gridColor: '#e0e0e0', gridOpacity: 0.5, style: 'lines' },
+                    canvasBackgroundColor: migrated.canvasBackgroundColor || '#fafafa'
                 });
                 setDrawingId(targetId);
             } else {
@@ -154,7 +160,9 @@ const Menu: Component = () => {
                         elements: migrated.elements,
                         viewState: json.viewState || { scale: 1, panX: 0, panY: 0 },
                         layers: migrated.layers,
-                        activeLayerId: migrated.layers[0]?.id || 'default-layer'
+                        activeLayerId: migrated.layers[0]?.id || 'default-layer',
+                        gridSettings: migrated.gridSettings || { enabled: false, snapToGrid: false, gridSize: 20, gridColor: '#e0e0e0', gridOpacity: 0.5, style: 'lines' },
+                        canvasBackgroundColor: migrated.canvasBackgroundColor || '#fafafa'
                     });
                     // Set title from filename without extension
                     const name = file.name.replace(/\.json$/i, '');

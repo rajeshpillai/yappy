@@ -11,7 +11,8 @@
       "backgroundColor": "transparent",
       "strokeWidth": 2,
       "rotation": 0,
-      "opacity": 100
+      "opacity": 100,
+      "layerId": "default-layer"
     },
     {
       "id": "f11341e0-8fe7-4a51-aa14-fa2d0d19108a",
@@ -24,7 +25,8 @@
       "backgroundColor": "transparent",
       "strokeWidth": 2,
       "rotation": 0,
-      "opacity": 100
+      "opacity": 100,
+      "layerId": "default-layer"
     },
     {
       "id": "aa5fddaa-8c9d-4e9a-af49-aacb37a85741",
@@ -303,7 +305,8 @@
         }
       ],
       "rotation": 0,
-      "opacity": 100
+      "opacity": 100,
+      "layerId": "default-layer"
     },
     {
       "id": "3663a79f-3b0e-4bd1-ad96-9d224a306e2f",
@@ -498,7 +501,8 @@
         }
       ],
       "rotation": 0,
-      "opacity": 100
+      "opacity": 100,
+      "layerId": "default-layer"
     },
     {
       "id": "e09624b4-e0bd-4e87-a2a3-10686be0280a",
@@ -520,13 +524,14 @@
       "seed": 2131203264,
       "roundness": null,
       "locked": false,
-      "link": null
+      "link": null,
+      "layerId": "default-layer"
     },
     {
       "id": "7468eae9-256b-4178-a8d2-cc67593a259c",
       "type": "rectangle",
       "x": 411,
-      "y": 135,
+      "y": 133.88890075683594,
       "width": 163,
       "height": 75,
       "strokeColor": "#000000",
@@ -540,7 +545,8 @@
       "seed": 2091933624,
       "roundness": null,
       "locked": false,
-      "link": null
+      "link": null,
+      "layerId": "default-layer"
     },
     {
       "id": "5ca69c4b-7295-4ec1-a9a5-6a9f4a2a4399",
@@ -560,7 +566,8 @@
       "seed": 1893262200,
       "roundness": null,
       "locked": false,
-      "link": null
+      "link": null,
+      "layerId": "default-layer"
     },
     {
       "id": "5fa3a69f-a93b-43f5-98b2-43e4aa5d4c5e",
@@ -580,12 +587,22 @@
       "seed": 108468430,
       "roundness": null,
       "locked": false,
-      "link": null
+      "link": null,
+      "layerId": "default-layer"
     }
   ],
   "viewState": {
     "scale": 1,
     "panX": 0,
     "panY": 0
-  }
+  },
+  "layers": [
+    {
+      "id": "default-layer",
+      "name": "Layer 1",
+      "visible": true,
+      "locked": false,
+      "order": 0
+    }
+  ]
 }

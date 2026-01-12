@@ -1,9 +1,11 @@
-import type { DrawingElement, ViewState, Layer } from "../types";
+import type { DrawingElement, ViewState, Layer, GridSettings } from "../types";
 
 export interface DrawingData {
     elements: DrawingElement[];
     viewState: ViewState;
     layers?: Layer[]; // Optional for backward compatibility
+    gridSettings?: GridSettings;
+    canvasBackgroundColor?: string;
 }
 
 export interface StorageInterface {

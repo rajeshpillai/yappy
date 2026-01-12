@@ -1,6 +1,6 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show } from "solid-js";
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
-import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setCanvasBackgroundColor, setGridStyle } from "../store/appStore";
+import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties } from "../store/appStore";
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse } from "../utils/geometry";
 import type { DrawingElement } from "../types";
 import { renderElement } from "../utils/renderElement";
@@ -579,6 +579,7 @@ const Canvas: Component = () => {
                 // Clicked empty space
                 if (!e.shiftKey) {
                     setStore('selection', []);
+                    setShowCanvasProperties(false); // Hide canvas properties on click away
                 }
                 // Start Selection Box
                 isSelecting = true;
@@ -1218,27 +1219,28 @@ const Canvas: Component = () => {
                         },
                         { separator: true } as any,
                         {
-                            label: 'Canvas Background',
-                            submenu: [
-                                { label: 'White', onClick: () => setCanvasBackgroundColor('#ffffff'), checked: store.canvasBackgroundColor === '#ffffff' },
-                                { label: 'Paper', onClick: () => setCanvasBackgroundColor('#fdf6e3'), checked: store.canvasBackgroundColor === '#fdf6e3' },
-                                { label: 'Dark Gray', onClick: () => setCanvasBackgroundColor('#121212'), checked: store.canvasBackgroundColor === '#121212' },
-                                { label: 'Deep Black', onClick: () => setCanvasBackgroundColor('#000000'), checked: store.canvasBackgroundColor === '#000000' }
-                            ]
-                        },
-                        {
-                            label: 'Grid',
-                            submenu: [
-                                { label: 'Show Grid', onClick: toggleGrid, checked: store.gridSettings.enabled, shortcut: "Shift+'" },
-                                { label: 'Snap to Grid', onClick: toggleSnapToGrid, checked: store.gridSettings.snapToGrid, shortcut: "Shift+;" },
-                                { separator: true } as any,
-                                { label: 'Lines', onClick: () => setGridStyle('lines'), checked: (store.gridSettings.style || 'lines') === 'lines' },
-                                { label: 'Dots', onClick: () => setGridStyle('dots'), checked: store.gridSettings.style === 'dots' }
-                            ]
+                            label: 'Canvas Properties',
+                            onClick: () => {
+                                setStore('selection', []);
+                                setShowCanvasProperties(true);
+                            }
                         },
                         { separator: true } as any,
                         {
-                            label: 'Reset view',
+                            label: store.gridSettings.enabled ? 'Hide Grid' : 'Show Grid',
+                            shortcut: "Shift+'",
+                            onClick: toggleGrid,
+                            checked: store.gridSettings.enabled
+                        },
+                        {
+                            label: 'Snap to Grid',
+                            shortcut: "Shift+;",
+                            onClick: toggleSnapToGrid,
+                            checked: store.gridSettings.snapToGrid
+                        },
+                        { separator: true } as any,
+                        {
+                            label: 'Reset View',
                             onClick: () => {
                                 setViewState({ scale: 1, panX: 0, panY: 0 });
                             }

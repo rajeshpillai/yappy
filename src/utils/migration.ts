@@ -1,4 +1,4 @@
-import type { DrawingElement, Layer } from '../types';
+import type { DrawingElement, Layer, GridSettings } from '../types';
 
 const DEFAULT_LAYER_ID = 'default-layer';
 
@@ -9,7 +9,12 @@ export const migrateElements = (elements: DrawingElement[]): DrawingElement[] =>
     }));
 };
 
-export const migrateDrawingData = (data: any): { elements: DrawingElement[]; layers: Layer[] } => {
+export const migrateDrawingData = (data: any): {
+    elements: DrawingElement[];
+    layers: Layer[];
+    gridSettings?: GridSettings;
+    canvasBackgroundColor?: string;
+} => {
     // Use existing layers or create default
     const layers: Layer[] = data.layers || [
         {
@@ -17,6 +22,7 @@ export const migrateDrawingData = (data: any): { elements: DrawingElement[]; lay
             name: 'Layer 1',
             visible: true,
             locked: false,
+            opacity: 1,
             order: 0
         }
     ];
@@ -24,5 +30,10 @@ export const migrateDrawingData = (data: any): { elements: DrawingElement[]; lay
     // Ensure all elements have a layerId
     const elements = migrateElements(data.elements || []);
 
-    return { elements, layers };
+    return {
+        elements,
+        layers,
+        gridSettings: data.gridSettings,
+        canvasBackgroundColor: data.canvasBackgroundColor
+    };
 };
