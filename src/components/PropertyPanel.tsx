@@ -1,5 +1,5 @@
 import { type Component, Show, createMemo, For } from "solid-js";
-import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles } from "../store/appStore";
+import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer } from "../store/appStore";
 import { Copy, ChevronsDown, ChevronDown, ChevronUp, ChevronsUp, Trash2 } from "lucide-solid";
 import "./PropertyPanel.css";
 import { properties, type PropertyConfig } from "../config/properties";
@@ -11,16 +11,19 @@ const PropertyPanel: Component = () => {
         if (store.selection.length === 1) {
             const el = store.elements.find(e => e.id === store.selection[0]);
             return el ? { type: 'element' as const, data: el } : null;
+        } else if (store.selection.length > 1) {
+            return { type: 'multi' as const, data: null };
         }
         // else if (store.selection.length === 0) { ... } -> USER wants hidden
 
         return null;
-        return null; // Multiple selection not handled yet for detailed props, just basics maybe?
     });
 
     const activeProperties = createMemo(() => {
         const target = activeTarget();
         if (!target) return [];
+
+        if (target.type === 'multi') return []; // TODO: Implement shared properties for multi-selection
 
         const targetType = target.data.type;
 
@@ -203,7 +206,7 @@ const PropertyPanel: Component = () => {
                     <h3>{activeTarget()?.type === 'element' ? 'Properties' : 'Defaults'}</h3>
                     <Show when={activeTarget()?.type === 'element'}>
                         <div class="header-actions">
-                            <button onClick={() => duplicateElement(activeTarget()!.data.id!)} title="Duplicate">
+                            <button onClick={() => duplicateElement(activeTarget()!.data!.id!)} title="Duplicate">
                                 <Copy size={16} />
                             </button>
                             <button class="delete-btn" onClick={handleDelete} title="Delete">
@@ -226,7 +229,7 @@ const PropertyPanel: Component = () => {
                     </For>
 
                     {/* Layers for elements */}
-                    <Show when={activeTarget()?.type === 'element'}>
+                    <Show when={activeTarget() && (activeTarget()!.type === 'element' || activeTarget()!.type === 'multi')}>
                         <div class="property-group">
                             <div class="group-title">LAYERS</div>
 
@@ -234,13 +237,40 @@ const PropertyPanel: Component = () => {
                             <div class="control-row">
                                 <label>Layer</label>
                                 <select
-                                    value={(activeTarget()!.data as any).layerId}
+                                    value={(() => {
+                                        const target = activeTarget();
+                                        if (target?.type === 'element') {
+                                            return (target.data as any).layerId;
+                                        }
+                                        if (target?.type === 'multi') {
+                                            // Check if all have same layer
+                                            const ids = store.selection;
+                                            const elements = store.elements.filter(e => ids.includes(e.id));
+                                            const firstLayer = elements[0]?.layerId;
+                                            const allSame = elements.every(e => e.layerId === firstLayer);
+                                            return allSame ? firstLayer : "";
+                                        }
+                                        return "";
+                                    })()}
                                     onChange={(e) => {
                                         const targetLayerId = e.currentTarget.value;
-                                        const elementId = (activeTarget()!.data as any).id;
-                                        updateElement(elementId, { layerId: targetLayerId }, true);
+                                        if (!targetLayerId) return; // mixed selection placeholder selected?
+
+                                        const target = activeTarget();
+                                        if (target?.type === 'element') {
+                                            const elementId = (target.data as any).id;
+                                            updateElement(elementId, { layerId: targetLayerId }, true);
+                                        } else if (target?.type === 'multi') {
+                                            // Move all selected to this layer
+                                            moveElementsToLayer(store.selection, targetLayerId);
+                                        }
                                     }}
                                 >
+                                    <Show when={activeTarget()?.type === 'multi' &&
+                                        !store.elements.filter(e => store.selection.includes(e.id))
+                                            .every((e, _, arr) => e.layerId === arr[0].layerId)}>
+                                        <option value="">(Mixed)</option>
+                                    </Show>
                                     <For each={store.layers}>
                                         {(layer) => (
                                             <option value={layer.id}>
@@ -253,16 +283,18 @@ const PropertyPanel: Component = () => {
                                 </select>
                             </div>
 
-                            {/* Z-Index Controls */}
-                            <div class="control-row">
-                                <label>Z-Order</label>
-                            </div>
-                            <div class="layer-controls">
-                                <button onClick={() => moveElementZIndex((activeTarget()!.data as any).id, 'front')} title="To Front"><ChevronsUp size={16} /></button>
-                                <button onClick={() => moveElementZIndex((activeTarget()!.data as any).id, 'forward')} title="Forward"><ChevronUp size={16} /></button>
-                                <button onClick={() => moveElementZIndex((activeTarget()!.data as any).id, 'backward')} title="Backward"><ChevronDown size={16} /></button>
-                                <button onClick={() => moveElementZIndex((activeTarget()!.data as any).id, 'back')} title="To Back"><ChevronsDown size={16} /></button>
-                            </div>
+                            {/* Z-Index Controls - Only for single selection or if we want to implement multi-z moves later */}
+                            <Show when={activeTarget()?.type === 'element'}>
+                                <div class="control-row">
+                                    <label>Z-Order</label>
+                                </div>
+                                <div class="layer-controls">
+                                    <button onClick={() => moveElementZIndex((activeTarget()!.data as any).id, 'front')} title="To Front"><ChevronsUp size={16} /></button>
+                                    <button onClick={() => moveElementZIndex((activeTarget()!.data as any).id, 'forward')} title="Forward"><ChevronUp size={16} /></button>
+                                    <button onClick={() => moveElementZIndex((activeTarget()!.data as any).id, 'backward')} title="Backward"><ChevronDown size={16} /></button>
+                                    <button onClick={() => moveElementZIndex((activeTarget()!.data as any).id, 'back')} title="To Back"><ChevronsDown size={16} /></button>
+                                </div>
+                            </Show>
                         </div>
                     </Show>
                 </div>
