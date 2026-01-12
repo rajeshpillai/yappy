@@ -1315,8 +1315,8 @@ const Canvas: Component = () => {
             if (!canInteractWithElement(el)) continue;
 
             if (hitTestElement(el, x, y, threshold)) {
-                // Only allow editing containerText for shapes
-                if (el.type === 'rectangle' || el.type === 'circle' || el.type === 'diamond') {
+                // Only allow editing containerText for shapes and lines
+                if (el.type === 'rectangle' || el.type === 'circle' || el.type === 'diamond' || el.type === 'line' || el.type === 'arrow') {
                     setEditingId(el.id);
                     setEditText(el.containerText || '');
                     setTimeout(() => textInputRef?.focus(), 0);

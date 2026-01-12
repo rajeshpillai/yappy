@@ -227,5 +227,42 @@ export const renderElement = (
         ctx.textBaseline = 'alphabetic';
     }
 
+    // Render containerText for lines and arrows (at midpoint)
+    if (el.containerText && (el.type === 'line' || el.type === 'arrow')) {
+        const fontSize = el.fontSize || 16;
+        const fontFamily = el.fontFamily === 2 ? 'sans-serif' : el.fontFamily === 3 ? 'monospace' : 'Comic Sans MS';
+        ctx.font = `${fontSize}px ${fontFamily}`;
+        ctx.fillStyle = strokeColor;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Calculate midpoint
+        const startX = el.x;
+        const startY = el.y;
+        const endX = el.x + el.width;
+        const endY = el.y + el.height;
+        const midX = (startX + endX) / 2;
+        const midY = (startY + endY) / 2;
+
+        // Add background for better readability
+        const metrics = ctx.measureText(el.containerText);
+        const padding = 4;
+        const bgWidth = metrics.width + padding * 2;
+        const bgHeight = fontSize + padding * 2;
+
+        ctx.save();
+        ctx.fillStyle = isDarkMode ? '#1a1a1a' : '#ffffff';
+        ctx.fillRect(midX - bgWidth / 2, midY - bgHeight / 2, bgWidth, bgHeight);
+        ctx.restore();
+
+        // Render text
+        ctx.fillStyle = strokeColor;
+        ctx.fillText(el.containerText, midX, midY);
+
+        // Reset text alignment
+        ctx.textAlign = 'start';
+        ctx.textBaseline = 'alphabetic';
+    }
+
     ctx.restore();
 };

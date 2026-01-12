@@ -240,6 +240,18 @@
   - [x] Added Escape key to discard changes
 
 
+### Phase 19b: Labels on Lines/Arrows
+- [x] Basic Implementation (Middle-aligned)
+  - [x] Enable containerText for line/arrow types
+  - [x] Render text at line midpoint
+  - [x] Add double-click to edit
+  - [x] Property panel integration
+- [ ] Advanced Features (Future)
+  - [ ] Label position controls (start/middle/end)
+  - [ ] Above/below line placement
+  - [ ] Follow line rotation
+
+
 ### Phase 20: Grouping Elements
 - [ ] Add group/ungroup functionality
 - [ ] Modify selection to handle groups

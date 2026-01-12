@@ -222,7 +222,7 @@ export const properties: PropertyConfig[] = [
         label: 'Label',
         type: 'textarea',
         group: 'text',
-        applicableTo: ['rectangle', 'circle', 'diamond'],
+        applicableTo: ['rectangle', 'circle', 'diamond', 'line', 'arrow'],
         defaultValue: ''
     },
 
