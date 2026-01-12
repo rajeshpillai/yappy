@@ -180,5 +180,6 @@
   - [x] Implement `drawArrowhead` helper
   - [x] Update straight line rendering to start/end heads
   - [x] Update bezier rendering to support start/end heads
+  - [x] Add dedicated Bezier tool to toolbar <!-- id: feat-bezier-tool -->
 - [x] Implement image compression/resizing on upload <!-- id: feat-image-compression -->
 

@@ -799,9 +799,13 @@ const Canvas: Component = () => {
         startY = creationY;
         currentId = crypto.randomUUID();
 
+        const tool = store.selectedTool;
+        const actualType = tool === 'bezier' ? 'line' : tool;
+        const actualCurveType = tool === 'bezier' ? 'bezier' : 'straight';
+
         const newElement = {
             id: currentId,
-            type: store.selectedTool,
+            type: actualType,
             x: creationX,
             y: creationY,
             width: 0,
@@ -809,7 +813,7 @@ const Canvas: Component = () => {
             strokeColor: '#000000',
             backgroundColor: 'transparent',
             strokeWidth: 2,
-            points: store.selectedTool === 'pencil' ? [{ x: 0, y: 0 }] : undefined,
+            points: tool === 'pencil' ? [{ x: 0, y: 0 }] : undefined,
             angle: 0,
             opacity: 100,
             strokeStyle: 'solid' as 'solid' | 'dashed' | 'dotted',
@@ -820,7 +824,8 @@ const Canvas: Component = () => {
             roundness: null,
             locked: false,
             link: null,
-            layerId: store.activeLayerId
+            layerId: store.activeLayerId,
+            curveType: actualCurveType as 'straight' | 'bezier' | 'elbow'
         };
 
         addElement(newElement);
@@ -1048,7 +1053,7 @@ const Canvas: Component = () => {
             let finalX = x;
             let finalY = y;
 
-            if (store.selectedTool === 'line' || store.selectedTool === 'arrow') {
+            if (store.selectedTool === 'line' || store.selectedTool === 'arrow' || store.selectedTool === 'bezier') {
                 if (currentId) {
                     const match = checkBinding(x, y, currentId);
                     if (match) {
@@ -1189,7 +1194,7 @@ const Canvas: Component = () => {
         if (isDrawing && currentId) {
             const el = store.elements.find(e => e.id === currentId);
             if (el) {
-                // Binding for new lines/arrows
+                // Binding for new lines/arrows/bezier
                 if ((el.type === 'line' || el.type === 'arrow') && suggestedBinding()) {
                     const binding = suggestedBinding()!;
                     const bindingData = { elementId: binding.elementId, focus: 0, gap: 5 };
@@ -1225,8 +1230,8 @@ const Canvas: Component = () => {
 
             // Switch back to selection tool after drawing (except for pencil/eraser?) 
             // User requested "After a shape is drawn". Usually pencil is continuous.
-            // Let's reset for Shapes (Rect, Circle, Line, Arrow).
-            if (['rectangle', 'circle', 'line', 'arrow', 'image'].includes(store.selectedTool)) {
+            // Let's reset for Shapes (Rect, Circle, Line, Arrow, Bezier).
+            if (['rectangle', 'circle', 'line', 'arrow', 'image', 'bezier'].includes(store.selectedTool)) {
                 setSelectedTool('selection');
             }
         }
