@@ -2,6 +2,7 @@ import { type Component, onMount, createEffect, onCleanup, createSignal, Show } 
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
 import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool } from "../store/appStore";
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse, intersectElementWithLine, isPointOnBezier } from "../utils/geometry";
+import { getAnchorPoints, findClosestAnchor } from "../utils/anchorPoints";
 import { calculateSmartElbowRoute } from "../utils/routing";
 import type { DrawingElement } from "../types";
 import { renderElement } from "../utils/renderElement";
@@ -348,6 +349,59 @@ const Canvas: Component = () => {
             ctx.restore();
         }
 
+        // Render Connection Anchors (when drawing lines/arrows)
+        if ((store.selectedTool === 'line' || store.selectedTool === 'arrow') && isDrawing && currentId) {
+            const currentEl = store.elements.find(e => e.id === currentId);
+            if (currentEl && (currentEl.type === 'line' || currentEl.type === 'arrow')) {
+                const endX = currentEl.x + currentEl.width;
+                const endY = currentEl.y + currentEl.height;
+
+                // Show anchors on nearby shapes
+                const threshold = 200 / store.viewState.scale;
+                const anchorSnapThreshold = 15 / store.viewState.scale;
+
+                ctx.save();
+                for (const element of store.elements) {
+                    if (element.id === currentId) continue;
+                    if (!canInteractWithElement(element)) continue;
+                    if (element.type === 'line' || element.type === 'arrow' || element.type === 'pencil' || element.type === 'bezier') continue;
+                    if (element.layerId !== store.activeLayerId) continue;
+
+                    const cx = element.x + element.width / 2;
+                    const cy = element.y + element.height / 2;
+                    const dist = Math.sqrt((cx - endX) ** 2 + (cy - endY) ** 2);
+
+                    if (dist < threshold) {
+                        const anchors = getAnchorPoints(element);
+
+                        for (const anchor of anchors) {
+                            const dx = anchor.x - endX;
+                            const dy = anchor.y - endY;
+                            const anchorDist = Math.sqrt(dx * dx + dy * dy);
+
+                            const isHovered = anchorDist < anchorSnapThreshold;
+                            const radius = isHovered ? (6 / store.viewState.scale) : (4 / store.viewState.scale);
+
+                            ctx.beginPath();
+                            ctx.arc(anchor.x, anchor.y, radius, 0, Math.PI * 2);
+
+                            if (isHovered) {
+                                ctx.fillStyle = '#3b82f6'; // Blue
+                                ctx.fill();
+                            } else {
+                                ctx.fillStyle = 'rgba(59, 130, 246, 0.4)'; // Semi-transparent blue
+                                ctx.fill();
+                                ctx.strokeStyle = '#3b82f6';
+                                ctx.lineWidth = 1 / store.viewState.scale;
+                                ctx.stroke();
+                            }
+                        }
+                    }
+                }
+                ctx.restore();
+            }
+        }
+
         ctx.restore(); // Restore for line 104
     };
 
@@ -627,46 +681,59 @@ const Canvas: Component = () => {
     // Helper: Binding Check
     const checkBinding = (x: number, y: number, excludeId: string) => {
         const threshold = 40 / store.viewState.scale;
+        const anchorSnapThreshold = 15 / store.viewState.scale; // Smaller threshold for anchor snap
         let bindingHit = null;
 
-        for (let i = store.elements.length - 1; i >= 0; i--) {
-            const target = store.elements[i];
-            if (target.id === excludeId || target.layerId !== store.activeLayerId || !canInteractWithElement(target)) continue;
-            const layer = store.layers.find(l => l.id === target.layerId);
-            if (!layer?.visible || layer?.locked) continue;
+        for (const target of store.elements) {
+            if (target.id === excludeId) continue;
+            if (!canInteractWithElement(target)) continue;
+            if (target.type === 'line' || target.type === 'arrow' || target.type === 'pencil' || target.type === 'bezier') continue;
 
-            if (target.type === 'rectangle' || target.type === 'circle' || target.type === 'image' || target.type === 'text' || target.type === 'diamond') {
-                let isHit = false;
+            const activeLayer = store.layers.find(l => l.id === store.activeLayerId);
+            if (!activeLayer) continue;
+            if (target.layerId !== activeLayer.id) continue;
+
+            let isHit = false;
+
+            if (target.type === 'text' || target.type === 'image' || target.type === 'rectangle') {
+                if (x >= target.x - threshold && x <= target.x + target.width + threshold &&
+                    y >= target.y - threshold && y <= target.y + target.height + threshold) {
+                    isHit = true;
+                }
+            } else if (target.type === 'circle') {
                 const cx = target.x + target.width / 2;
                 const cy = target.y + target.height / 2;
-
-                if (target.type === 'circle') {
-                    const rx = target.width / 2;
-                    const ry = target.height / 2;
-                    const dx = x - cx;
-                    const dy = y - cy;
-                    const dist = (dx * dx) / ((rx + threshold) * (rx + threshold)) + (dy * dy) / ((ry + threshold) * (ry + threshold));
-                    if (dist <= 1) isHit = true;
-                } else if (target.type === 'diamond') {
-                    if (x >= target.x - threshold && x <= target.x + target.width + threshold &&
-                        y >= target.y - threshold && y <= target.y + target.height + threshold) {
-                        isHit = true;
-                    }
-                } else {
-                    if (x >= target.x - threshold && x <= target.x + target.width + threshold &&
-                        y >= target.y - threshold && y <= target.y + target.height + threshold) {
-                        isHit = true;
-                    }
+                const rx = target.width / 2 + threshold;
+                const ry = target.height / 2 + threshold;
+                if (((x - cx) ** 2) / (rx ** 2) + ((y - cy) ** 2) / (ry ** 2) <= 1) {
+                    isHit = true;
                 }
-
-                if (isHit) {
-                    bindingHit = target;
-                    break;
+            } else if (target.type === 'diamond') {
+                if (x >= target.x - threshold && x <= target.x + target.width + threshold &&
+                    y >= target.y - threshold && y <= target.y + target.height + threshold) {
+                    isHit = true;
                 }
+            } else {
+                if (x >= target.x - threshold && x <= target.x + target.width + threshold &&
+                    y >= target.y - threshold && y <= target.y + target.height + threshold) {
+                    isHit = true;
+                }
+            }
+
+            if (isHit) {
+                bindingHit = target;
+                break;
             }
         }
 
         if (bindingHit) {
+            // **ENHANCEMENT**: Try anchor snap first
+            const closestAnchor = findClosestAnchor(bindingHit, { x, y }, anchorSnapThreshold);
+            if (closestAnchor) {
+                return { element: bindingHit, snapPoint: { x: closestAnchor.x, y: closestAnchor.y } };
+            }
+
+            // Fallback to existing edge intersection logic
             const snapPoint = intersectElementWithLine(bindingHit, { x, y }, 5);
             if (snapPoint) {
                 return { element: bindingHit, snapPoint };
