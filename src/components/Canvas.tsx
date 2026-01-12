@@ -517,9 +517,14 @@ const Canvas: Component = () => {
         const p = unrotatePoint(x, y, cx, cy, el.angle || 0);
 
         // Check if inside bounding box (broad phase)
-        // Add threshold to box check
-        if (p.x < el.x - threshold || p.x > el.x + el.width + threshold ||
-            p.y < el.y - threshold || p.y > el.y + el.height + threshold) {
+        // Normalize bounds to handle negative width/height
+        const x1 = Math.min(el.x, el.x + el.width);
+        const x2 = Math.max(el.x, el.x + el.width);
+        const y1 = Math.min(el.y, el.y + el.height);
+        const y2 = Math.max(el.y, el.y + el.height);
+
+        if (p.x < x1 - threshold || p.x > x2 + threshold ||
+            p.y < y1 - threshold || p.y > y2 + threshold) {
             return false;
         }
 
@@ -1104,9 +1109,15 @@ const Canvas: Component = () => {
                         const elW = el.width;
                         const elH = el.height;
 
+                        // Normalize bounds
+                        const ex1 = Math.min(elX, elX + elW);
+                        const ex2 = Math.max(elX, elX + elW);
+                        const ey1 = Math.min(elY, elY + elH);
+                        const ey2 = Math.max(elY, elY + elH);
+
                         // Intersection
-                        if (bx < elX + elW && bx + bw > elX &&
-                            by < elY + elH && by + bh > elY) {
+                        if (bx < ex2 && bx + bw > ex1 &&
+                            by < ey2 && by + bh > ey1) {
                             selectedIds.push(el.id);
                         }
                     });

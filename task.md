@@ -169,5 +169,6 @@
 - [ ] Animation (Need to plan)
 - [ ] Layer blend modes (multiply, screen, overlay, etc.)
 - [ ] Layer effects/filters (blur, brightness, saturation)
+- [x] Fix Line/Arrow interaction (resize/move) in Canvas <!-- id: bug-fix-line -->
 
 
