@@ -59,7 +59,6 @@
 - [x] Install roughjs <!-- id: 21 -->
 - [x] Update appStore to generate seeds for elements <!-- id: 22 -->
 - [x] Refactor Canvas.tsx to use roughjs for rendering <!-- id: 23 -->
-- [x] Refactor Canvas.tsx to use roughjs for rendering <!-- id: 23 -->
 - [x] Verify fill styles (hachure, solid, etc) <!-- id: 24 -->
 - [x] Implement 'renderStyle' ('sketch' vs 'architectural') property <!-- id: 25 -->
 - [x] Implement dual rendering logic in Canvas.tsx <!-- id: 26 -->
@@ -258,7 +257,8 @@
   - [x] Implement Ctrl+C to copy selected elements
   - [x] Implement Ctrl+V to paste with offset
   - [x] Update help dialog
-- [/] Testing
+- [x] Testing
+
 
 
 
@@ -273,8 +273,9 @@
 - [ ] Implement snap-to-anchor for connectors
 
 ### Phase 22: Essential UX Improvements
-- [ ] Copy/Paste functionality
-- [ ] Keyboard shortcuts panel
+- [x] Select All (Ctrl+A)
+- [x] Copy/Paste functionality (Ctrl+C, Ctrl+V)
+- [x] Help dialog with keyboard shortcuts (Shift+?)
 - [ ] Undo/Redo UI indicators
 
 ### Phase 23: Templates & Advanced Features
