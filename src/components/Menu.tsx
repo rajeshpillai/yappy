@@ -1,7 +1,7 @@
 import { type Component, createSignal, onMount, Show, onCleanup } from "solid-js";
 import { storage } from "../storage/FileSystemStorage";
-import { store, setStore, undo, redo, deleteElements, clearHistory, toggleTheme, zoomToFit, addLayer, reorderLayers } from "../store/appStore";
-import { Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus, Undo2, Redo2, Trash2, Maximize, Moon, Sun, Image as ImageIcon, Download, Upload } from "lucide-solid";
+import { store, setStore, deleteElements, clearHistory, toggleTheme, zoomToFit, addLayer, reorderLayers, bringToFront, sendToBack } from "../store/appStore";
+import { Menu as MenuIcon, Save, FolderOpen, Share2, FilePlus, Trash2, Maximize, Moon, Sun, Image as ImageIcon, Download, Upload } from "lucide-solid";
 
 // ... (in component)
 
@@ -229,6 +229,43 @@ const Menu: Component = () => {
                             setStore('selection', newElements.map(el => el.id));
                         }
                     }
+                } else if (e.key === 'd') { // Ctrl+D - Duplicate
+                    if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+                        e.preventDefault();
+                        const selectedElements = store.elements.filter(el => store.selection.includes(el.id));
+                        if (selectedElements.length > 0) {
+                            const offset = 20;
+                            const newElements = selectedElements.map(el => ({
+                                ...el,
+                                id: crypto.randomUUID(),
+                                x: el.x + offset,
+                                y: el.y + offset
+                            }));
+                            setStore('elements', [...store.elements, ...newElements]);
+                            setStore('selection', newElements.map(el => el.id));
+                        }
+                    }
+                } else if (e.key === 'x') { // Ctrl+X - Cut
+                    if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+                        e.preventDefault();
+                        const selectedElements = store.elements.filter(el => store.selection.includes(el.id));
+                        setClipboard(selectedElements);
+                        if (selectedElements.length > 0) {
+                            deleteElements(store.selection);
+                        }
+                    }
+                }
+            } else if (e.ctrlKey) {
+                if (e.key === ']') { // Ctrl+] - Bring to Front
+                    e.preventDefault();
+                    if (store.selection.length > 0) {
+                        bringToFront(store.selection);
+                    }
+                } else if (e.key === '[') { // Ctrl+[ - Send to Back
+                    e.preventDefault();
+                    if (store.selection.length > 0) {
+                        sendToBack(store.selection);
+                    }
                 }
             } else if (e.key === '?' && e.shiftKey) { // Shift+?
                 if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
@@ -348,13 +385,6 @@ const Menu: Component = () => {
                         </div>
                     </Show>
 
-                    <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
-                    <button class="menu-btn" onClick={undo} title="Undo (Ctrl+Z)">
-                        <Undo2 size={18} />
-                    </button>
-                    <button class="menu-btn" onClick={redo} title="Redo (Ctrl+Y)">
-                        <Redo2 size={18} />
-                    </button>
                     <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
                     <button class="menu-btn" onClick={() => deleteElements(store.selection)} title="Delete" disabled={store.selection.length === 0}>
                         <Trash2 size={18} />

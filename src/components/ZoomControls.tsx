@@ -1,5 +1,5 @@
 import { type Component } from "solid-js";
-import { store, setViewState } from "../store/appStore";
+import { store, setViewState, undo, redo } from "../store/appStore";
 import { Plus, Minus, Undo2, Redo2 } from "lucide-solid"; // Using lucide-solid
 import "./ZoomControls.css";
 
@@ -33,10 +33,20 @@ const ZoomControls: Component = () => {
             </div>
 
             <div class="zoom-group" style={{ "margin-left": "12px" }}>
-                <button class="zoom-btn" title="Undo (Coming Soon)">
+                <button
+                    class="zoom-btn"
+                    onClick={undo}
+                    disabled={store.undoStackLength === 0}
+                    title="Undo (Ctrl+Z)"
+                >
                     <Undo2 size={16} />
                 </button>
-                <button class="zoom-btn" title="Redo (Coming Soon)">
+                <button
+                    class="zoom-btn"
+                    onClick={redo}
+                    disabled={store.redoStackLength === 0}
+                    title="Redo (Ctrl+Y)"
+                >
                     <Redo2 size={16} />
                 </button>
             </div>

@@ -13,6 +13,8 @@ interface AppState {
     gridSettings: GridSettings;
     showCanvasProperties: boolean;
     canvasBackgroundColor: string;
+    undoStackLength: number;
+    redoStackLength: number;
 }
 
 const initialState: AppState = {
@@ -55,13 +57,15 @@ const initialState: AppState = {
         enabled: false,
         snapToGrid: false,
         gridSize: 20,
-        gridColor: '#e0e0e0',
+        gridColor: '#cccccc',
         gridOpacity: 0.5,
         style: 'lines'
     },
     showCanvasProperties: false,
-    canvasBackgroundColor: '#fafafa' // Default light background
-};
+    canvasBackgroundColor: '#ffffff',
+    undoStackLength: 0,
+    redoStackLength: 0
+}; // Default light background
 
 export const [store, setStore] = createStore<AppState>(initialState);
 
@@ -84,6 +88,10 @@ export const pushToHistory = () => {
     if (undoStack.length > 50) undoStack.shift();
     // Clear redo
     redoStack.length = 0;
+
+    // Update store for reactivity
+    setStore("undoStackLength", undoStack.length);
+    setStore("redoStackLength", 0);
 };
 
 export const undo = () => {
@@ -101,7 +109,12 @@ export const undo = () => {
     if (previousState) {
         setStore("elements", previousState.elements);
         setStore("layers", previousState.layers);
+        setStore("selection", []); // Clear selection to avoid stale IDs
     }
+
+    // Update store for reactivity
+    setStore("undoStackLength", undoStack.length);
+    setStore("redoStackLength", redoStack.length);
 };
 
 export const redo = () => {
@@ -119,7 +132,12 @@ export const redo = () => {
     if (nextState) {
         setStore("elements", nextState.elements);
         setStore("layers", nextState.layers);
+        setStore("selection", []); // Clear selection to avoid stale IDs
     }
+
+    // Update store for reactivity
+    setStore("undoStackLength", undoStack.length);
+    setStore("redoStackLength", redoStack.length);
 };
 
 export const addElement = (element: DrawingElement) => {
@@ -136,6 +154,26 @@ export const deleteElements = (ids: string[]) => {
     pushToHistory(); // Save state before deletion
     setStore("elements", (els) => els.filter(el => !ids.includes(el.id)));
     setStore("selection", []); // Clear selection
+};
+
+export const bringToFront = (ids: string[]) => {
+    if (ids.length === 0) return;
+    pushToHistory();
+    setStore("elements", (els) => {
+        const selected = els.filter(el => ids.includes(el.id));
+        const others = els.filter(el => !ids.includes(el.id));
+        return [...others, ...selected];
+    });
+};
+
+export const sendToBack = (ids: string[]) => {
+    if (ids.length === 0) return;
+    pushToHistory();
+    setStore("elements", (els) => {
+        const selected = els.filter(el => ids.includes(el.id));
+        const others = els.filter(el => !ids.includes(el.id));
+        return [...selected, ...others];
+    });
 };
 
 export const updateElement = (id: string, updates: Partial<DrawingElement>, recordHistory = false) => {
@@ -159,6 +197,8 @@ export const updateDefaultStyles = (updates: Partial<DrawingElement>) => {
 export const clearHistory = () => {
     undoStack.length = 0;
     redoStack.length = 0;
+    setStore("undoStackLength", 0);
+    setStore("redoStackLength", 0);
 };
 
 export const duplicateElement = (id: string) => {

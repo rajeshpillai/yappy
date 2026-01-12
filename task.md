@@ -260,6 +260,16 @@
 - [x] Testing
 
 
+### Phase 19d: Quick Wins
+- [x] Implementation
+  - [x] Ctrl+D - Duplicate
+  - [x] Ctrl+X - Cut
+  - [x] Bring to Front / Send to Back
+  - [x] Undo/Redo UI indicators (Fixed reactivity and styling)
+
+
+
+
 
 
 ### Phase 20: Grouping Elements

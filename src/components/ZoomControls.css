@@ -9,10 +9,10 @@
 
 .zoom-group {
     display: flex;
-    background: white;
+    background: var(--bg-panel, white);
     border-radius: 6px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-color, #e5e7eb);
     overflow: hidden;
 }
 
@@ -24,9 +24,9 @@
     height: 32px;
     padding: 0;
     border: none;
-    border-right: 1px solid #e5e7eb;
-    background-color: white;
-    color: #4b5563;
+    border-right: 1px solid var(--border-color, #e5e7eb);
+    background-color: var(--btn-bg, white);
+    color: var(--text-primary, #4b5563);
     cursor: pointer;
     transition: all 0.2s;
 }
@@ -35,8 +35,13 @@
     border-right: none;
 }
 
-.zoom-btn:hover {
-    background-color: #f9fafb;
+.zoom-btn:hover:not(:disabled) {
+    background-color: var(--btn-hover, #f9fafb);
+}
+
+.zoom-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
 }
 
 .zoom-btn.text-btn {

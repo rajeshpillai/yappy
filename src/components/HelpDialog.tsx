@@ -162,6 +162,34 @@ const HelpDialog: Component<Props> = (props) => {
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
+                                            <span class="shortcut-label">Cut</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Ctrl</span>
+                                                <span class="keycap">X</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Duplicate</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Ctrl</span>
+                                                <span class="keycap">D</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Bring to Front</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Ctrl</span>
+                                                <span class="keycap">]</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Send to Back</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Ctrl</span>
+                                                <span class="keycap">[</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
                                             <span class="shortcut-label">Move Canvas</span>
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Space</span>

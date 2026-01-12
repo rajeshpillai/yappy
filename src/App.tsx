@@ -15,6 +15,11 @@ const App: Component = () => {
     initAPI();
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't handle shortcuts if typing in an input/textarea
+      if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') {
+        return;
+      }
+
       // Undo/Redo
       if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
         e.preventDefault();
@@ -29,11 +34,9 @@ const App: Component = () => {
       }
       // Delete
       else if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
-          e.preventDefault();
-          if (store.selection.length > 0) {
-            deleteElements(store.selection);
-          }
+        e.preventDefault();
+        if (store.selection.length > 0) {
+          deleteElements(store.selection);
         }
       }
     };
