@@ -1,5 +1,5 @@
 import { type Component, Show, createMemo, For, createSignal, createEffect } from "solid-js";
-import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, setShowCanvasProperties } from "../store/appStore";
+import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle } from "../store/appStore";
 import { Copy, ChevronsDown, ChevronDown, ChevronUp, ChevronsUp, Trash2, Palette } from "lucide-solid";
 import "./PropertyPanel.css";
 import { properties, type PropertyConfig } from "../config/properties";
