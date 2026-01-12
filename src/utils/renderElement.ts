@@ -6,10 +6,11 @@ export const renderElement = (
     rc: RoughCanvas,
     ctx: CanvasRenderingContext2D,
     el: DrawingElement,
-    isDarkMode: boolean = false
+    isDarkMode: boolean = false,
+    layerOpacity: number = 1
 ) => {
     ctx.save();
-    ctx.globalAlpha = (el.opacity ?? 100) / 100;
+    ctx.globalAlpha = ((el.opacity ?? 100) / 100) * layerOpacity;
 
     // Apply rotation (center based)
     const cx = el.x + el.width / 2;

@@ -44,6 +44,7 @@ const initialState: AppState = {
             name: 'Layer 1',
             visible: true,
             locked: false,
+            opacity: 1,
             order: 0
         }
     ],
@@ -278,6 +279,7 @@ export const addLayer = (name?: string) => {
         name: name || `Layer ${store.layers.length + 1}`,
         visible: true,
         locked: false,
+        opacity: 1,
         order: maxOrder + 1
     };
     setStore('layers', [...store.layers, newLayer]);
@@ -356,6 +358,7 @@ export const duplicateLayer = (id: string) => {
         ...layer,
         id: newLayerId,
         name: `${layer.name} Copy`,
+        opacity: layer.opacity ?? 1,
         order: layer.order + 0.5 // Place right above original
     };
 

@@ -114,6 +114,7 @@ const Menu: Component = () => {
                     name: 'Layer 1',
                     visible: true,
                     locked: false,
+                    opacity: 1,
                     order: 0
                 }
             ]);
@@ -186,6 +187,30 @@ const Menu: Component = () => {
                 } else if (e.key.toLowerCase() === 'e' && e.shiftKey) { // Ctrl+Shift+E
                     e.preventDefault();
                     setIsExportOpen(true);
+                }
+            } else if (e.shiftKey && e.key.toLowerCase() === 'n') { // Shift+N = New Layer
+                e.preventDefault();
+                import('../store/appStore').then(mod => mod.addLayer());
+            } else if (e.altKey) {
+                if (e.key === '[') { // Alt + [ = Move Layer Down
+                    e.preventDefault();
+                    // Logic to move layer down
+                    import('../store/appStore').then(mod => {
+                        const layers = mod.store.layers;
+                        const idx = layers.findIndex(l => l.id === mod.store.activeLayerId);
+                        if (idx > 0) {
+                            mod.reorderLayers(idx, idx - 1);
+                        }
+                    });
+                } else if (e.key === ']') { // Alt + ] = Move Layer Up
+                    e.preventDefault();
+                    import('../store/appStore').then(mod => {
+                        const layers = mod.store.layers;
+                        const idx = layers.findIndex(l => l.id === mod.store.activeLayerId);
+                        if (idx !== -1 && idx < layers.length - 1) {
+                            mod.reorderLayers(idx, idx + 1);
+                        }
+                    });
                 }
             }
         };

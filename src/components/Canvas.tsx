@@ -161,13 +161,14 @@ const Canvas: Component = () => {
                 return store.elements.indexOf(a.element) - store.elements.indexOf(b.element);
             });
 
-        visibleElements.forEach(({ element: el }) => {
+        visibleElements.forEach(({ element: el, layer }) => {
             let cx = el.x + el.width / 2;
             let cy = el.y + el.height / 2;
 
             if (el.type !== 'text' || editingId() !== el.id) {
                 const rc = rough.canvas(canvasRef);
-                renderElement(rc, ctx, el, isDarkMode);
+                const layerOpacity = (layer?.opacity ?? 1);
+                renderElement(rc, ctx, el, isDarkMode, layerOpacity);
             }
 
             // Selection highlight & Handles
@@ -269,7 +270,7 @@ const Canvas: Component = () => {
         // Track layer changes
         store.layers.length;
         store.layers.forEach(l => {
-            l.visible; l.order;
+            l.visible; l.order; l.opacity;
         });
         // Track grid settings changes
         store.gridSettings.enabled;

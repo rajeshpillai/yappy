@@ -1,5 +1,6 @@
 import { type Component, For, createSignal, Show } from 'solid-js';
 import { store, addLayer, setActiveLayer, updateLayer, deleteLayer, duplicateLayer, reorderLayers } from '../store/appStore';
+import LayerContextMenu from './LayerContextMenu';
 import './LayerPanel.css';
 
 const LayerPanel: Component = () => {
@@ -8,6 +9,7 @@ const LayerPanel: Component = () => {
     const [isCollapsed, setIsCollapsed] = createSignal(false);
     const [draggedId, setDraggedId] = createSignal<string | null>(null);
     const [dragOverId, setDragOverId] = createSignal<string | null>(null);
+    const [contextMenu, setContextMenu] = createSignal<{ x: number; y: number; layerId: string } | null>(null);
     let longPressTimer: number | null = null;
 
     const handleAddLayer = () => {
@@ -168,12 +170,34 @@ const LayerPanel: Component = () => {
                 </div>
             </div>
             <Show when={!isCollapsed()}>
+                <div class="layer-properties">
+                    {/* Opacity Control for Active Layer */}
+                    <div class="opacity-control">
+                        <span class="label">Opacity</span>
+                        <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value={store.layers.find(l => l.id === store.activeLayerId)?.opacity ?? 1}
+                            onInput={(e) => {
+                                const val = parseFloat(e.currentTarget.value);
+                                updateLayer(store.activeLayerId, { opacity: val });
+                            }}
+                            title={`Opacity: ${Math.round((store.layers.find(l => l.id === store.activeLayerId)?.opacity ?? 1) * 100)}%`}
+                        />
+                    </div>
+                </div>
                 <div class="layer-list">
                     <For each={reversedLayers()}>
                         {(layer) => (
                             <div
                                 class={`layer-item ${store.activeLayerId === layer.id ? 'active' : ''} ${dragOverId() === layer.id ? 'drag-over' : ''}`}
                                 onClick={() => handleLayerClick(layer.id)}
+                                onContextMenu={(e) => {
+                                    e.preventDefault();
+                                    setContextMenu({ x: e.clientX, y: e.clientY, layerId: layer.id });
+                                }}
                                 draggable={true}
                                 onDragStart={(e) => handleDragStart(layer.id, e)}
                                 onDragEnd={handleDragEnd}
@@ -181,6 +205,7 @@ const LayerPanel: Component = () => {
                                 onDragLeave={handleDragLeave}
                                 onDrop={(e) => handleDrop(layer.id, e)}
                             >
+
                                 {/* Drag Handle */}
                                 <span class="drag-handle" title="Drag to reorder">
                                     ⋮⋮
@@ -200,29 +225,31 @@ const LayerPanel: Component = () => {
                                     {layer.locked ? '🔒' : '🔓'}
                                 </button>
 
-                                {editingId() === layer.id ? (
-                                    <input
-                                        type="text"
-                                        class="layer-name-input"
-                                        value={editingName()}
-                                        onInput={(e) => setEditingName(e.currentTarget.value)}
-                                        onKeyDown={(e) => handleRenameKeyDown(e, layer.id)}
-                                        onBlur={() => saveRename(layer.id)}
-                                        onClick={(e) => e.stopPropagation()}
-                                        ref={(el) => setTimeout(() => el?.select(), 0)}
-                                    />
-                                ) : (
-                                    <span
-                                        class="layer-name"
-                                        onDblClick={(e) => startEditing(layer.id, layer.name, e)}
-                                        onPointerDown={(e) => handlePointerDown(layer.id, layer.name, e)}
-                                        onPointerUp={handlePointerUp}
-                                        onPointerCancel={handlePointerUp}
-                                        title="Double-click or long-press to rename"
-                                    >
-                                        {layer.name}
-                                    </span>
-                                )}
+                                {
+                                    editingId() === layer.id ? (
+                                        <input
+                                            type="text"
+                                            class="layer-name-input"
+                                            value={editingName()}
+                                            onInput={(e) => setEditingName(e.currentTarget.value)}
+                                            onKeyDown={(e) => handleRenameKeyDown(e, layer.id)}
+                                            onBlur={() => saveRename(layer.id)}
+                                            onClick={(e) => e.stopPropagation()}
+                                            ref={(el) => setTimeout(() => el?.select(), 0)}
+                                        />
+                                    ) : (
+                                        <span
+                                            class="layer-name"
+                                            onDblClick={(e) => startEditing(layer.id, layer.name, e)}
+                                            onPointerDown={(e) => handlePointerDown(layer.id, layer.name, e)}
+                                            onPointerUp={handlePointerUp}
+                                            onPointerCancel={handlePointerUp}
+                                            title="Double-click or long-press to rename"
+                                        >
+                                            {layer.name}
+                                        </span>
+                                    )
+                                }
 
                                 <button
                                     class="layer-duplicate-btn"
@@ -239,10 +266,18 @@ const LayerPanel: Component = () => {
                                 >
                                     ×
                                 </button>
-                            </div>
+                            </div >
                         )}
-                    </For>
-                </div>
+                    </For >
+                </div >
+            </Show>
+            <Show when={contextMenu()}>
+                <LayerContextMenu
+                    x={contextMenu()!.x}
+                    y={contextMenu()!.y}
+                    layerId={contextMenu()!.layerId}
+                    onClose={() => setContextMenu(null)}
+                />
             </Show>
         </div>
     );
