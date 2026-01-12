@@ -39,6 +39,15 @@ test.describe('Yappy API', () => {
         }, diaId);
         expect(diamondExists).toBeTruthy();
 
+        // Verify Diamond Selection (Hit Test)
+        // Simulate click on diamond center to select it
+        await page.mouse.click(450, 150); // Center of diamond at 400,100 (100x100)
+
+        const isDiaSelected = await page.evaluate((id) => {
+            return window.Yappy.state.selection.includes(id as string);
+        }, diaId);
+        expect(isDiaSelected).toBeTruthy();
+
         // Create a Text element
         const textId = await page.evaluate(() => {
             return window.Yappy.createText(400, 200, "Hello World from API", { fontSize: 30 });

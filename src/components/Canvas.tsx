@@ -531,6 +531,14 @@ const Canvas: Component = () => {
         if (el.type === 'rectangle') {
             // Check if inside
             return true;
+        } else if (el.type === 'diamond') {
+            const cx = el.x + el.width / 2;
+            const cy = el.y + el.height / 2;
+            const dx = Math.abs(p.x - cx);
+            const dy = Math.abs(p.y - cy);
+            // Diamond equation: |dx|/(w/2) + |dy|/(h/2) <= 1
+            // 2*dx/w + 2*dy/h <= 1
+            return (2 * dx / el.width) + (2 * dy / el.height) <= 1;
         } else if (el.type === 'circle') {
             return isPointInEllipse(p, el.x, el.y, el.width, el.height);
         } else if (el.type === 'line' || el.type === 'arrow') {
@@ -589,7 +597,7 @@ const Canvas: Component = () => {
             const layer = store.layers.find(l => l.id === target.layerId);
             if (!layer?.visible || layer?.locked) continue;
 
-            if (target.type === 'rectangle' || target.type === 'circle' || target.type === 'image' || target.type === 'text') {
+            if (target.type === 'rectangle' || target.type === 'circle' || target.type === 'image' || target.type === 'text' || target.type === 'diamond') {
                 let isHit = false;
                 const cx = target.x + target.width / 2;
                 const cy = target.y + target.height / 2;
@@ -602,6 +610,17 @@ const Canvas: Component = () => {
                     // Check normalized distance (allow slightly outside)
                     const dist = (dx * dx) / ((rx + threshold) * (rx + threshold)) + (dy * dy) / ((ry + threshold) * (ry + threshold));
                     if (dist <= 1) isHit = true;
+                } else if (target.type === 'diamond') {
+                    // Similar to box check but more permissive for binding?
+                    // For binding, we usually check AABB for simplicity or proximity.
+                    // But if we want precise binding highlight, we might want to check rhombus dist.
+                    // For now, allow simple box check for binding activation (broad phase).
+                    // Or reuse the hit test logic? 
+                    // Let's use AABB for binding trigger to be generous.
+                    if (x >= target.x - threshold && x <= target.x + target.width + threshold &&
+                        y >= target.y - threshold && y <= target.y + target.height + threshold) {
+                        isHit = true;
+                    }
                 } else {
                     if (x >= target.x - threshold && x <= target.x + target.width + threshold &&
                         y >= target.y - threshold && y <= target.y + target.height + threshold) {
