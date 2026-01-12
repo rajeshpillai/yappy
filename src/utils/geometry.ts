@@ -42,6 +42,28 @@ export const distanceToSegment = (p: Point, a: Point, b: Point): number => {
     return Math.sqrt(dx * dx + dy * dy);
 };
 
+const cubicBezier = (p0: number, p1: number, p2: number, p3: number, t: number) => {
+    const k = 1 - t;
+    return k * k * k * p0 + 3 * k * k * t * p1 + 3 * k * t * t * p2 + t * t * t * p3;
+};
+
+export const getBezierPoints = (start: Point, cp1: Point, cp2: Point, end: Point, segments: number = 20) => {
+    const points: Point[] = [];
+    for (let i = 0; i <= segments; i++) {
+        const t = i / segments;
+        points.push({
+            x: cubicBezier(start.x, cp1.x, cp2.x, end.x, t),
+            y: cubicBezier(start.y, cp1.y, cp2.y, end.y, t)
+        });
+    }
+    return points;
+};
+
+export const isPointOnBezier = (p: Point, start: Point, cp1: Point, cp2: Point, end: Point, threshold: number): boolean => {
+    const points = getBezierPoints(start, cp1, cp2, end, 20); // 20 segments for precision
+    return isPointOnPolyline(p, points, threshold);
+};
+
 export const isPointOnPolyline = (p: Point, points: Point[], threshold: number): boolean => {
     if (points.length < 2) return false;
     for (let i = 0; i < points.length - 1; i++) {

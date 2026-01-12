@@ -53,17 +53,49 @@ export const renderElement = (
         const endX = el.x + el.width;
         const endY = el.y + el.height;
 
-        rc.line(el.x, el.y, endX, endY, options);
+        if (el.curveType === 'bezier') {
+            // Bezier Curve Logic
+            const w = el.width;
+            const h = el.height;
+            let cp1 = { x: el.x, y: el.y };
+            let cp2 = { x: endX, y: endY };
 
-        if (el.type === 'arrow') {
-            const angle = Math.atan2(el.height, el.width);
-            const headLen = 15;
-            // Linear path for head
-            const p1 = { x: endX - headLen * Math.cos(angle - Math.PI / 6), y: endY - headLen * Math.sin(angle - Math.PI / 6) };
-            const p2 = { x: endX - headLen * Math.cos(angle + Math.PI / 6), y: endY - headLen * Math.sin(angle + Math.PI / 6) };
+            // Simple heuristic: if width > height, assume horizontal flow
+            if (Math.abs(w) > Math.abs(h)) {
+                cp1 = { x: el.x + w / 2, y: el.y };
+                cp2 = { x: endX - w / 2, y: endY };
+            } else {
+                cp1 = { x: el.x, y: el.y + h / 2 };
+                cp2 = { x: endX, y: endY - h / 2 };
+            }
 
-            rc.line(endX, endY, p1.x, p1.y, options);
-            rc.line(endX, endY, p2.x, p2.y, options);
+            const path = `M ${el.x} ${el.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${endX} ${endY}`;
+            rc.path(path, options);
+
+            if (el.type === 'arrow') {
+                // Calculate angle for arrowhead based on last control point (cp2)
+                const angle = Math.atan2(endY - cp2.y, endX - cp2.x);
+                const headLen = 15;
+                const p1 = { x: endX - headLen * Math.cos(angle - Math.PI / 6), y: endY - headLen * Math.sin(angle - Math.PI / 6) };
+                const p2 = { x: endX - headLen * Math.cos(angle + Math.PI / 6), y: endY - headLen * Math.sin(angle + Math.PI / 6) };
+
+                rc.line(endX, endY, p1.x, p1.y, options);
+                rc.line(endX, endY, p2.x, p2.y, options);
+            }
+
+        } else {
+            // Straight Line (Default)
+            rc.line(el.x, el.y, endX, endY, options);
+
+            if (el.type === 'arrow') {
+                const angle = Math.atan2(el.height, el.width);
+                const headLen = 15;
+                const p1 = { x: endX - headLen * Math.cos(angle - Math.PI / 6), y: endY - headLen * Math.sin(angle - Math.PI / 6) };
+                const p2 = { x: endX - headLen * Math.cos(angle + Math.PI / 6), y: endY - headLen * Math.sin(angle + Math.PI / 6) };
+
+                rc.line(endX, endY, p1.x, p1.y, options);
+                rc.line(endX, endY, p2.x, p2.y, options);
+            }
         }
     } else if (el.type === 'pencil' && el.points && el.points.length > 0) {
         const points: [number, number][] = el.points.map(p => [el.x + p.x, el.y + p.y]);

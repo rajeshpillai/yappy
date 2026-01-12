@@ -1,7 +1,7 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show } from "solid-js";
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
 import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool } from "../store/appStore";
-import { distanceToSegment, isPointOnPolyline, isPointInEllipse, intersectElementWithLine } from "../utils/geometry";
+import { distanceToSegment, isPointOnPolyline, isPointInEllipse, intersectElementWithLine, isPointOnBezier } from "../utils/geometry";
 import type { DrawingElement } from "../types";
 import { renderElement } from "../utils/renderElement";
 import ContextMenu from "./ContextMenu";
@@ -534,8 +534,29 @@ const Canvas: Component = () => {
         } else if (el.type === 'circle') {
             return isPointInEllipse(p, el.x, el.y, el.width, el.height);
         } else if (el.type === 'line' || el.type === 'arrow') {
-            // Line
-            return distanceToSegment(p, { x: el.x, y: el.y }, { x: el.x + el.width, y: el.y + el.height }) <= threshold;
+            const endX = el.x + el.width;
+            const endY = el.y + el.height;
+
+            if (el.curveType === 'bezier') {
+                const w = el.width;
+                const h = el.height;
+                let cp1 = { x: el.x, y: el.y };
+                let cp2 = { x: endX, y: endY };
+
+                if (Math.abs(w) > Math.abs(h)) {
+                    cp1 = { x: el.x + w / 2, y: el.y };
+                    cp2 = { x: endX - w / 2, y: endY };
+                } else {
+                    cp1 = { x: el.x, y: el.y + h / 2 };
+                    cp2 = { x: endX, y: endY - h / 2 };
+                }
+                // Use threshold / scale? No, threshold is already correct?
+                // The threshold passed to hitTestElement is "10 / scale".
+                return isPointOnBezier(p, { x: el.x, y: el.y }, cp1, cp2, { x: endX, y: endY }, threshold);
+            } else {
+                // Line
+                return distanceToSegment(p, { x: el.x, y: el.y }, { x: el.x + el.width, y: el.y + el.height }) <= threshold;
+            }
         } else if (el.type === 'pencil' && el.points) {
             // For pencil, points are now relative to el.x, el.y
             // The point p is in local unrotated space matches el.x/y system.

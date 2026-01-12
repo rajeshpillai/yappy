@@ -246,6 +246,18 @@ export const properties: PropertyConfig[] = [
         applicableTo: ['arrow', 'line'],
         defaultValue: 'arrow'
     },
+    {
+        key: 'curveType',
+        label: 'Line Type',
+        type: 'select',
+        options: [
+            { label: 'Straight', value: 'straight' },
+            { label: 'Curved', value: 'bezier' }
+        ],
+        group: 'style',
+        applicableTo: ['arrow', 'line'],
+        defaultValue: 'straight'
+    },
 
     // Advanced / Common
     {

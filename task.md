@@ -170,6 +170,10 @@
 - [ ] Layer blend modes (multiply, screen, overlay, etc.)
 - [ ] Layer effects/filters (blur, brightness, saturation)
 - [x] Fix Line/Arrow interaction (resize/move) in Canvas <!-- id: bug-fix-line -->
-
+- [x] Implement Bezier/Curved Connectors <!-- id: feat-bezier-connectors -->
+  - [x] Update types to support `curve` property for lines/arrows
+  - [x] Implement Bezier curve calculation (rendering) using RoughJS
+  - [x] Update hit testing for curves
+  - [x] Add controls to toggle between Straight/Curved lines
 - [x] Implement image compression/resizing on upload <!-- id: feat-image-compression -->
 

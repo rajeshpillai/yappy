@@ -62,7 +62,9 @@ export interface DrawingElement {
     isSelected?: boolean;
     layerId: string; // Reference to parent layer
     startBinding?: { elementId: string; focus: number; gap: number } | null;
+
     endBinding?: { elementId: string; focus: number; gap: number } | null;
+    curveType?: 'straight' | 'bezier' | 'elbow';
 }
 
 export interface Layer {
