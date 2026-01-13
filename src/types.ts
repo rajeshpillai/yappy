@@ -90,6 +90,7 @@ export interface Layer {
     opacity: number;    // 0-1
     order: number;      // Z-index for layer ordering (lower = background)
     backgroundColor?: string; // HEX or transparent
+    colorTag?: string;     // Color name or hex for organizational tagging
 }
 
 export interface GridSettings {

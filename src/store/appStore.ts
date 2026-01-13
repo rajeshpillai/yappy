@@ -60,7 +60,8 @@ const initialState: AppState = {
             locked: false,
             opacity: 1,
             order: 0,
-            backgroundColor: 'transparent'
+            backgroundColor: 'transparent',
+            colorTag: undefined
         }
     ],
     activeLayerId: 'default-layer',
@@ -413,7 +414,8 @@ export const addLayer = (name?: string) => {
         locked: false,
         opacity: 1,
         order: maxOrder + 1,
-        backgroundColor: 'transparent'
+        backgroundColor: 'transparent',
+        colorTag: undefined
     };
     setStore('layers', [...store.layers, newLayer]);
     setStore('activeLayerId', newId);

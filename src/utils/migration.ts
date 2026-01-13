@@ -81,7 +81,8 @@ export const migrateDrawingData = (data: any): {
             locked: false,
             opacity: 1,
             order: 0,
-            backgroundColor: 'transparent'
+            backgroundColor: 'transparent',
+            colorTag: undefined
         }
     ];
 

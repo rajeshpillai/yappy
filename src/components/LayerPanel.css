@@ -38,7 +38,8 @@
 }
 
 .opacity-control,
-.background-control {
+.background-control,
+.color-tag-control {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -46,8 +47,43 @@
     color: var(--text-secondary);
 }
 
-.background-control {
+.background-control,
+.color-tag-control {
     margin-top: 4px;
+}
+
+.color-tag-options {
+    display: flex;
+    gap: 4px;
+}
+
+.color-tag-option {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.color-tag-option.active {
+    border-color: var(--text-primary);
+    transform: scale(1.2);
+}
+
+.color-tag-option.none {
+    border: 1px solid var(--border-color);
+    position: relative;
+}
+
+.color-tag-option.none::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #ff0000;
+    transform: rotate(45deg);
 }
 
 .opacity-control input[type="range"] {
@@ -258,6 +294,21 @@
     text-overflow: ellipsis;
     cursor: pointer;
     user-select: none;
+}
+
+.layer-name-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.layer-color-tag {
+    width: 3px;
+    height: 16px;
+    border-radius: 1px;
+    flex-shrink: 0;
 }
 
 .layer-name-input {

@@ -1,6 +1,6 @@
 import { type Component, For, createSignal, Show } from 'solid-js';
 import { store, addLayer, setActiveLayer, updateLayer, deleteLayer, duplicateLayer, reorderLayers, toggleLayerPanel, minimizeLayerPanel } from '../store/appStore';
-import { X, Minus, ChevronUp } from 'lucide-solid';
+import { X, Minus, ChevronUp, Eye, EyeOff, Plus, Maximize2 } from 'lucide-solid';
 import LayerContextMenu from './LayerContextMenu';
 import './LayerPanel.css';
 
@@ -12,9 +12,6 @@ const LayerPanel: Component = () => {
     const [contextMenu, setContextMenu] = createSignal<{ x: number; y: number; layerId: string } | null>(null);
     let longPressTimer: number | null = null;
 
-    const handleAddLayer = () => {
-        addLayer();
-    };
 
     const handleLayerClick = (id: string) => {
         setActiveLayer(id);
@@ -28,13 +25,6 @@ const LayerPanel: Component = () => {
         }
     };
 
-    const handleToggleLock = (id: string, e: MouseEvent) => {
-        e.stopPropagation();
-        const layer = store.layers.find(l => l.id === id);
-        if (layer) {
-            updateLayer(id, { locked: !layer.locked });
-        }
-    };
 
     const handleDeleteLayer = (id: string, e: MouseEvent) => {
         e.stopPropagation();
@@ -138,13 +128,20 @@ const LayerPanel: Component = () => {
 
     const reversedLayers = () => [...store.layers].reverse();
 
+    const colorTags = [
+        { name: 'None', value: undefined, color: 'transparent' },
+        { name: 'Red', value: '#ff4d4d', color: '#ff4d4d' },
+        { name: 'Orange', value: '#ffab40', color: '#ffab40' },
+        { name: 'Yellow', value: '#ffd740', color: '#ffd740' },
+        { name: 'Green', value: '#69f0ae', color: '#69f0ae' },
+        { name: 'Blue', value: '#40c4ff', color: '#40c4ff' },
+        { name: 'Purple', value: '#e040fb', color: '#e040fb' },
+    ];
+
     return (
         <Show when={store.showLayerPanel}>
-            <div
-                class="layer-panel"
-                classList={{ minimized: store.isLayerPanelMinimized }}
-            >
-                <div class="layer-panel-header">
+            <div class={`layer-panel ${store.isLayerPanelMinimized ? 'minimized' : ''}`}>
+                <div class="layer-panel-header" onDblClick={() => minimizeLayerPanel(!store.isLayerPanelMinimized)}>
                     <div style={{ display: 'flex', 'align-items': 'center', gap: '8px' }}>
                         <Show when={store.isLayerPanelMinimized}>
                             <button class="minimize-btn" onClick={() => minimizeLayerPanel(false)} title="Expand">
@@ -153,32 +150,27 @@ const LayerPanel: Component = () => {
                         </Show>
                         <h3>Layers</h3>
                     </div>
-                    <div style={{ display: 'flex', gap: '4px' }}>
+
+                    <div class="header-actions">
                         <Show when={!store.isLayerPanelMinimized}>
-                            <button
-                                class="layer-add-btn"
-                                onClick={handleAddLayer}
-                                title="Add new layer"
-                            >
-                                +
+                            <button class="icon-button" onClick={() => addLayer()} title="New Layer">
+                                <Plus size={16} />
                             </button>
-                            <button
-                                class="minimize-btn"
-                                onClick={() => minimizeLayerPanel(true)}
-                                title="Minimize"
-                            >
+                            <button class="icon-button" onClick={() => minimizeLayerPanel(true)} title="Minimize">
                                 <Minus size={16} />
                             </button>
                         </Show>
-                        <button
-                            class="close-btn"
-                            onClick={() => toggleLayerPanel(false)}
-                            title="Close"
-                        >
+                        <Show when={store.isLayerPanelMinimized}>
+                            <button class="icon-button" onClick={() => minimizeLayerPanel(false)} title="Expand">
+                                <Maximize2 size={16} />
+                            </button>
+                        </Show>
+                        <button class="icon-button" onClick={() => toggleLayerPanel(false)} title="Close">
                             <X size={16} />
                         </button>
                     </div>
                 </div>
+
                 <Show when={!store.isLayerPanelMinimized}>
                     <div class="layer-properties">
                         <div class="opacity-control">
@@ -219,7 +211,6 @@ const LayerPanel: Component = () => {
                                 <Show when={store.layers.find(l => l.id === store.activeLayerId)?.backgroundColor !== 'transparent'}>
                                     <input
                                         type="color"
-                                        class="color-picker-mini-visible"
                                         style={{ width: '24px', height: '20px', padding: '0', border: 'none', cursor: 'pointer' }}
                                         value={store.layers.find(l => l.id === store.activeLayerId)?.backgroundColor || '#ffffff'}
                                         onInput={(e) => {
@@ -229,12 +220,27 @@ const LayerPanel: Component = () => {
                                 </Show>
                             </div>
                         </div>
+                        <div class="color-tag-control">
+                            <span class="label">Tag</span>
+                            <div class="color-tag-options">
+                                <For each={colorTags}>
+                                    {(tag) => (
+                                        <div
+                                            class={`color-tag-option ${tag.value === undefined ? 'none' : ''} ${store.layers.find(l => l.id === store.activeLayerId)?.colorTag === tag.value ? 'active' : ''}`}
+                                            style={{ 'background-color': tag.color }}
+                                            onClick={() => updateLayer(store.activeLayerId, { colorTag: tag.value })}
+                                            title={tag.name}
+                                        />
+                                    )}
+                                </For>
+                            </div>
+                        </div>
                     </div>
                     <div class="layer-list">
                         <For each={reversedLayers()}>
                             {(layer) => (
                                 <div
-                                    class={`layer-item ${store.activeLayerId === layer.id ? 'active' : ''} ${dragOverId() === layer.id ? 'drag-over' : ''}`}
+                                    class={`layer-item ${layer.id === store.activeLayerId ? 'active' : ''} ${dragOverId() === layer.id ? 'drag-over' : ''} ${layer.visible === false ? 'hidden' : ''} ${layer.locked ? 'locked' : ''}`}
                                     onClick={() => handleLayerClick(layer.id)}
                                     onContextMenu={(e) => {
                                         e.preventDefault();
@@ -247,68 +253,48 @@ const LayerPanel: Component = () => {
                                     onDragLeave={handleDragLeave}
                                     onDrop={(e) => handleDrop(layer.id, e)}
                                 >
-                                    <span class="drag-handle" title="Drag to reorder">
-                                        ⋮⋮
-                                    </span>
-                                    <button
-                                        class={`layer-visibility-btn ${layer.visible ? 'visible' : 'hidden'}`}
-                                        onClick={(e) => handleToggleVisibility(layer.id, e)}
-                                        title={layer.visible ? 'Hide layer' : 'Show layer'}
-                                    >
-                                        {layer.visible ? '👁️' : '🚫'}
-                                    </button>
-                                    <button
-                                        class={`layer-lock-btn ${layer.locked ? 'locked' : ''}`}
-                                        onClick={(e) => handleToggleLock(layer.id, e)}
-                                        title={layer.locked ? 'Unlock layer' : 'Lock layer'}
-                                    >
-                                        {layer.locked ? '🔒' : '🔓'}
-                                    </button>
-
-                                    {editingId() === layer.id ? (
-                                        <input
-                                            type="text"
-                                            class="layer-name-input"
-                                            value={editingName()}
-                                            onInput={(e) => setEditingName(e.currentTarget.value)}
-                                            onKeyDown={(e) => handleRenameKeyDown(e, layer.id)}
-                                            onBlur={() => saveRename(layer.id)}
-                                            onClick={(e) => e.stopPropagation()}
-                                            ref={(el) => setTimeout(() => el?.select(), 0)}
-                                        />
-                                    ) : (
-                                        <span
+                                    <span class="drag-handle" title="Drag to reorder">⋮⋮</span>
+                                    <div class="layer-visibility" onClick={(e) => handleToggleVisibility(layer.id, e)}>
+                                        {layer.visible !== false ? <Eye size={14} /> : <EyeOff size={14} />}
+                                    </div>
+                                    <div class="layer-name-container">
+                                        <Show when={layer.colorTag}>
+                                            <div class="layer-color-tag" style={{ 'background-color': layer.colorTag }} />
+                                        </Show>
+                                        <div
                                             class="layer-name"
                                             onDblClick={(e) => startEditing(layer.id, layer.name, e)}
                                             onPointerDown={(e) => handlePointerDown(layer.id, layer.name, e)}
                                             onPointerUp={handlePointerUp}
                                             onPointerCancel={handlePointerUp}
-                                            title="Double-click or long-press to rename"
                                         >
-                                            {layer.name}
-                                        </span>
-                                    )}
-
-                                    <button
-                                        class="layer-duplicate-btn"
-                                        onClick={(e) => handleDuplicateLayer(layer.id, e)}
-                                        title="Duplicate layer"
-                                    >
-                                        ⎘
-                                    </button>
-                                    <button
-                                        class="layer-delete-btn"
-                                        onClick={(e) => handleDeleteLayer(layer.id, e)}
-                                        title="Delete layer"
-                                        disabled={store.layers.length <= 1}
-                                    >
-                                        ×
-                                    </button>
+                                            <Show when={editingId() === layer.id} fallback={layer.name}>
+                                                <input
+                                                    type="text"
+                                                    value={editingName()}
+                                                    onInput={(e) => setEditingName(e.currentTarget.value)}
+                                                    onKeyDown={(e) => handleRenameKeyDown(e, layer.id)}
+                                                    onBlur={() => saveRename(layer.id)}
+                                                    autofocus
+                                                    onClick={(e) => e.stopPropagation()}
+                                                />
+                                            </Show>
+                                        </div>
+                                    </div>
+                                    <div class="layer-actions">
+                                        <button class="icon-button" onClick={(e) => handleDuplicateLayer(layer.id, e)} title="Duplicate">
+                                            ⎘
+                                        </button>
+                                        <button class="icon-button" onClick={(e) => handleDeleteLayer(layer.id, e)} title="Delete" disabled={store.layers.length <= 1}>
+                                            ×
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </For>
                     </div>
                 </Show>
+
                 <Show when={contextMenu()}>
                     <LayerContextMenu
                         x={contextMenu()!.x}
