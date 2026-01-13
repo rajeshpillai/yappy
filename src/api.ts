@@ -1,4 +1,9 @@
-import { store, addElement, updateElement, deleteElements, setViewState, pushToHistory, setStore, zoomToFit } from "./store/appStore";
+import {
+    store, addElement, updateElement, deleteElements, setViewState, pushToHistory, setStore, zoomToFit,
+    undo, redo, groupSelected, ungroupSelected, duplicateElement, toggleTheme,
+    addLayer, deleteLayer, setActiveLayer, mergeLayerDown, flattenLayers, isolateLayer, showAllLayers,
+    toggleGrid, toggleSnapToGrid, toggleCommandPalette
+} from "./store/appStore";
 import type { ElementType, DrawingElement, FillStyle, StrokeStyle, FontFamily, TextAlign, ArrowHead } from "./types";
 
 interface ElementOptions {
@@ -296,7 +301,35 @@ export const YappyAPI = {
         updateBindings(target, id);
 
         return id;
-    }
+    },
+
+    // History
+    undo() { undo(); },
+    redo() { redo(); },
+
+    // Grouping
+    groupSelection() { groupSelected(); },
+    ungroupSelection() { ungroupSelected(); },
+
+    // Transformation
+    duplicate(id: string) { duplicateElement(id); },
+    toggleTheme() { toggleTheme(); },
+
+    // Layers
+    addLayer(name?: string) { return addLayer(name); },
+    deleteLayer(id: string) { deleteLayer(id); },
+    setActiveLayer(id: string) { setActiveLayer(id); },
+    mergeLayerDown(id: string) { mergeLayerDown(id); },
+    flattenLayers() { flattenLayers(); },
+    isolateLayer(id: string) { isolateLayer(id); },
+    showAllLayers() { showAllLayers(); },
+
+    // Grid & Snapping
+    toggleGrid() { toggleGrid(); },
+    toggleSnapToGrid() { toggleSnapToGrid(); },
+
+    // Command Palette
+    toggleCommandPalette(visible?: boolean) { toggleCommandPalette(visible); }
 };
 
 declare global {

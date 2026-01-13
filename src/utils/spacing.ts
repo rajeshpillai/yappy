@@ -153,34 +153,25 @@ export const getSpacingGuides = (
             if (Math.abs(correction) < minDistX) {
                 minDistX = Math.abs(correction);
                 bestDx = correction;
-                // We save this guide. But wait, if we have multiple candidates, we pick best.
-                // Clear previous worse guides?
-                // Actually spacing guides are rare. We can just push candidate.
-                // But we only return guides if they match bestDx.
             }
 
-            if (Math.abs(correction) < 0.5 && Math.abs(correction) <= threshold) {
-                // It matches our best or is very close
-                // Construct guide data
-                // Common Y for arrows: average of centers
-                const avgY = (Left.centerY + Mid.centerY + Right.centerY) / 3;
-
-                foundGuides.push({
-                    type: 'gap',
-                    orientation: 'horizontal',
-                    gap: (gap1 + gap2) / 2, // approximate
-                    start: Left.maxX,
-                    variableCoordinate: avgY,
-                    elements: [Left.id, Mid.id, Right.id],
-                    segments: [
-                        { from: Left.maxX, to: Mid.minX },
-                        { from: Mid.maxX, to: Right.minX }
-                    ]
-                });
-            }
+            // Store candidate guides to filter later by bestDx
+            foundGuides.push({
+                type: 'gap',
+                orientation: 'horizontal',
+                gap: (gap1 + gap2) / 2,
+                start: Left.maxX,
+                variableCoordinate: (Left.centerY + Mid.centerY + Right.centerY) / 3,
+                elements: [Left.id, Mid.id, Right.id],
+                segments: [
+                    { from: Left.maxX, to: Mid.minX },
+                    { from: Mid.maxX, to: Right.minX }
+                ],
+                // @ts-ignore
+                _correction: correction
+            });
         }
     }
-
 
     // --- Vertical Spacing (Gaps along Y axis) ---
     const isHorizontallyOverlapping = (el1: any, el2: any) => {
@@ -224,48 +215,41 @@ export const getSpacingGuides = (
                 bestDy = correction;
             }
 
-            if (Math.abs(correction) < 0.5 && Math.abs(correction) <= threshold) {
-                const avgX = (Top.centerX + Mid.centerX + Bottom.centerX) / 3;
-                foundGuides.push({
-                    type: 'gap',
-                    orientation: 'vertical',
-                    gap: (gap1 + gap2) / 2,
-                    start: Top.maxY,
-                    variableCoordinate: avgX,
-                    elements: [Top.id, Mid.id, Bottom.id],
-                    segments: [
-                        { from: Top.maxY, to: Mid.minY },
-                        { from: Mid.maxY, to: Bottom.minY }
-                    ]
-                });
-            }
+            foundGuides.push({
+                type: 'gap',
+                orientation: 'vertical',
+                gap: (gap1 + gap2) / 2,
+                start: Top.maxY,
+                variableCoordinate: (Top.centerX + Mid.centerX + Bottom.centerX) / 3,
+                elements: [Top.id, Mid.id, Bottom.id],
+                segments: [
+                    { from: Top.maxY, to: Mid.minY },
+                    { from: Mid.maxY, to: Bottom.minY }
+                ],
+                // @ts-ignore
+                _correction: correction
+            });
         }
     }
 
-    // Filter guides that don't match the FINAL bestDx/bestDy
-    const validGuides = foundGuides.filter(g => {
+    // Filter guides that match the FINAL bestDx/bestDy within threshold
+    const finalDx = minDistX <= threshold ? bestDx : 0;
+    const finalDy = minDistY <= threshold ? bestDy : 0;
+
+    const validGuides = foundGuides.filter((g: any) => {
         if (g.orientation === 'horizontal') {
-            // Must match bestDx logic? 
-            // The guide was generated ASSUMING correction applied.
-            // If we apply bestDx, does this guide hold?
-            // If we generated it when correction < 0.5 (meaning it matches bestDx approx), yes.
-            // But wait, if I found a guide with correction 0.01, and another with 5.0 (which was previous best),
-            // best is 0.01. The 5.0 one shouldn't show.
-            // Current logic pushes if abs(correction) < 0.5. It assumes we ALREADY snapped?
-            // No.
-            // We need to re-verify if this guide corresponds to the best snap.
-            // Or simpler: Only push if correction matches current minDistance.
-            // But minDistance updates.
-            return true; // Simplified for first pass. 
-            // Real logic: We should clear foundGuides when we find a BETTER minDistance.
+            return finalDx !== 0 && Math.abs(g._correction - finalDx) < 0.1;
+        } else {
+            return finalDy !== 0 && Math.abs(g._correction - finalDy) < 0.1;
         }
-        return true;
     });
 
-    // We strictly return 0 if threshold not met
+    // Clean up temporary fields
+    validGuides.forEach((g: any) => delete g._correction);
+
     return {
-        dx: dx + (minDistX <= threshold ? bestDx : 0),
-        dy: dy + (minDistY <= threshold ? bestDy : 0),
+        dx: dx + finalDx,
+        dy: dy + finalDy,
         guides: validGuides
     };
 };

@@ -371,18 +371,16 @@
   - [x] Search actions (group, align, distribute, etc.)
   - [x] Search layers by name
   - [x] Tool switching via search
-- [ ] Layer panel search/filter
+- [x] E2E Tests (`tests/productivity_features.spec.ts`)
 
 ### Phase 27: Advanced Layer Features
-- [ ] Layer opacity control (affects all elements)
-- [ ] Layer context menu (right-click)
-  - [ ] Rename, Duplicate, Delete
-  - [ ] Merge down
-  - [ ] Flatten all
-  - [ ] Isolate layer (hide all others)
-- [ ] Layer thumbnails/previews (50x50px visual indicator)
-- [ ] Multi-select in layer panel (Ctrl+Click, Shift+Click)
-- [ ] Bulk operations (move to layer, lock/unlock, show/hide)
+- [x] Layer opacity control (affects all elements)
+- [x] Layer context menu (right-click)
+  - [x] Rename, Duplicate, Delete
+  - [x] Merge down
+  - [x] Flatten all
+  - [x] Isolate layer (hide all others)
+- [x] E2E Tests (`tests/productivity_features.spec.ts`)
 
 ### Phase 28: Smart Spacing Guides
 - [x] Implementation

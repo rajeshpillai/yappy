@@ -522,6 +522,71 @@ export const setActiveLayer = (id: string) => {
     }
 };
 
+export const mergeLayerDown = (id: string) => {
+    const idx = store.layers.findIndex(l => l.id === id);
+    if (idx <= 0) return; // Top layer in array is bottom visually if reversed, but store order 0 is bottom.
+
+    // In our UI, reversedLayers() shows layers.
+    // store.layers index 0 is bottom.
+    // mergeLayerDown(id) moves elements from store.layers[idx] to store.layers[idx-1]
+
+    const sourceLayer = store.layers[idx];
+    const targetLayer = store.layers[idx - 1];
+
+    pushToHistory();
+
+    // Move elements
+    setStore('elements',
+        (el) => el.layerId === sourceLayer.id,
+        'layerId',
+        targetLayer.id
+    );
+
+    // Remove source layer
+    setStore('layers', (ls) => ls.filter(l => l.id !== sourceLayer.id));
+
+    // Update active layer if needed
+    if (store.activeLayerId === sourceLayer.id) {
+        setStore('activeLayerId', targetLayer.id);
+    }
+};
+
+export const flattenLayers = () => {
+    if (store.layers.length <= 1) return;
+
+    pushToHistory();
+
+    const bottomLayer = store.layers[0];
+
+    // Move all elements from all other layers to bottom layer
+    setStore('elements',
+        (el) => el.layerId !== bottomLayer.id,
+        'layerId',
+        bottomLayer.id
+    );
+
+    // Remove all layers except bottom
+    setStore('layers', [bottomLayer]);
+    setStore('activeLayerId', bottomLayer.id);
+};
+
+export const isolateLayer = (id: string) => {
+    // Hide all other layers
+    store.layers.forEach((l, idx) => {
+        if (l.id !== id) {
+            setStore('layers', idx, 'visible', false);
+        } else {
+            setStore('layers', idx, 'visible', true);
+        }
+    });
+};
+
+export const showAllLayers = () => {
+    store.layers.forEach((_, idx) => {
+        setStore('layers', idx, 'visible', true);
+    });
+};
+
 export const moveElementsToLayer = (elementIds: string[], targetLayerId: string) => {
     const targetLayer = store.layers.find(l => l.id === targetLayerId);
     if (!targetLayer) return;

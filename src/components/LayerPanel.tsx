@@ -282,6 +282,11 @@ const LayerPanel: Component = () => {
                         y={contextMenu()!.y}
                         layerId={contextMenu()!.layerId}
                         onClose={() => setContextMenu(null)}
+                        onRename={(id) => {
+                            const layer = store.layers.find(l => l.id === id);
+                            if (layer) startEditing(id, layer.name, new MouseEvent('click'));
+                            setContextMenu(null);
+                        }}
                     />
                 </Show>
             </div>

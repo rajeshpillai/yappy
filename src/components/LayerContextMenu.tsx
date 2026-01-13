@@ -1,57 +1,75 @@
-import { type Component, onCleanup, onMount } from "solid-js";
-import { duplicateLayer, deleteLayer } from "../store/appStore";
-import "./ContextMenu.css"; // Reuse existing styles or create new ones
+import { type Component } from "solid-js";
+import { store, duplicateLayer, deleteLayer, mergeLayerDown, isolateLayer, showAllLayers, updateLayer } from "../store/appStore";
+import ContextMenu, { type MenuItem } from "./ContextMenu";
 
 interface Props {
     x: number;
     y: number;
     layerId: string;
     onClose: () => void;
+    onRename: (id: string) => void;
 }
 
 const LayerContextMenu: Component<Props> = (props) => {
-    let menuRef: HTMLDivElement | undefined;
+    const layer = () => store.layers.find(l => l.id === props.layerId);
 
-    const handleClickOutside = (e: MouseEvent) => {
-        if (menuRef && !menuRef.contains(e.target as Node)) {
-            props.onClose();
+    if (!layer()) return null;
+
+    const items: MenuItem[] = [
+        {
+            label: "Rename",
+            onClick: () => props.onRename(props.layerId),
+            shortcut: "Enter"
+        },
+        {
+            label: "Duplicate",
+            onClick: () => duplicateLayer(props.layerId)
+        },
+        { separator: true },
+        {
+            label: layer()!.visible ? "Hide Layer" : "Show Layer",
+            onClick: () => updateLayer(props.layerId, { visible: !layer()!.visible }),
+            checked: layer()!.visible
+        },
+        {
+            label: layer()!.locked ? "Unlock Layer" : "Lock Layer",
+            onClick: () => updateLayer(props.layerId, { locked: !layer()!.locked }),
+            checked: layer()!.locked
+        },
+        {
+            label: "Isolate Layer",
+            onClick: () => isolateLayer(props.layerId)
+        },
+        {
+            label: "Show All Layers",
+            onClick: () => showAllLayers()
+        },
+        { separator: true },
+        {
+            label: "Merge Down",
+            onClick: () => mergeLayerDown(props.layerId),
+            disabled: store.layers.findIndex(l => l.id === props.layerId) === 0 // 0 is bottom
+        },
+        {
+            label: "Flatten Layers",
+            onClick: () => flattenLayers(),
+            disabled: store.layers.length <= 1
+        },
+        {
+            label: "Delete",
+            onClick: () => deleteLayer(props.layerId),
+            disabled: store.layers.length <= 1,
+            separator: false // Just being explicit
         }
-    };
-
-    onMount(() => {
-        document.addEventListener('mousedown', handleClickOutside);
-        onCleanup(() => document.removeEventListener('mousedown', handleClickOutside));
-    });
-
-    const handleAction = (action: () => void) => {
-        action();
-        props.onClose();
-    };
+    ];
 
     return (
-        <div
-            ref={menuRef}
-            class="context-menu"
-            style={{
-                top: `${props.y}px`,
-                left: `${props.x}px`,
-            }}
-        >
-            <button class="context-menu-item" onClick={() => handleAction(() => duplicateLayer(props.layerId))}>
-                <span class="icon">⎘</span>
-                <span class="label">Duplicate</span>
-            </button>
-
-            {/* Rename could be triggered here but it requires UI logic in LayerPanel to focus input. 
-                For now, let's keep Rename to double-click. */}
-
-            <div class="context-menu-separator"></div>
-
-            <button class="context-menu-item delete" onClick={() => handleAction(() => deleteLayer(props.layerId))}>
-                <span class="icon">🗑️</span>
-                <span class="label">Delete</span>
-            </button>
-        </div>
+        <ContextMenu
+            x={props.x}
+            y={props.y}
+            items={items}
+            onClose={props.onClose}
+        />
     );
 };
 
