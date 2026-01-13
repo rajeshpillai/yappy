@@ -12,7 +12,8 @@
     right: 0;
     top: 0;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden; /* Prevent container from overflowing */
+    overflow: hidden;
+    /* Prevent container from overflowing */
 }
 
 .property-panel-container.minimized {
@@ -77,10 +78,37 @@
     margin: 0 4px;
 }
 
+/* Inner panel container - fills height and handles scroll */
+.property-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.panel-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-secondary);
+    flex-shrink: 0;
+}
+
+.panel-header h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
 .property-content {
     flex: 1;
     overflow-y: auto;
     padding: 16px;
+    min-height: 0;
+    /* Critical for flex scroll */
 }
 
 .property-group {
