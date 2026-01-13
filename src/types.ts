@@ -1,4 +1,4 @@
-export type ElementType = 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | 'pencil' | 'eraser' | 'pan' | 'selection' | 'image' | 'bezier' | 'diamond';
+export type ElementType = 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | 'pencil' | 'calligraphy' | 'fineliner' | 'inkbrush' | 'eraser' | 'pan' | 'selection' | 'image' | 'bezier' | 'diamond';
 export type FillStyle = 'hachure' | 'solid' | 'cross-hatch';
 export type StrokeStyle = 'solid' | 'dashed' | 'dotted';
 export type FontFamily = 'hand-drawn' | 'sans-serif' | 'monospace';
@@ -18,6 +18,7 @@ export type Point = {
     x: number;
     y: number;
     p?: number; // pressure (0-1)
+    t?: number; // timestamp for velocity calculation
 };
 
 export interface DrawingElement {

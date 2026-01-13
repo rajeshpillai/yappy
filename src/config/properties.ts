@@ -136,7 +136,7 @@ export const properties: PropertyConfig[] = [
         max: 20,
         step: 1,
         group: 'stroke',
-        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'pencil', 'diamond'], // Exclude text
+        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'pencil', 'calligraphy', 'fineliner', 'inkbrush', 'diamond'],
         defaultValue: 1
     },
     {

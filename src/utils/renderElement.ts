@@ -188,6 +188,134 @@ export const renderElement = (
             const points: [number, number][] = el.points.map(p => [el.x + p.x, el.y + p.y]);
             rc.linearPath(points, finalOptions);
         }
+    } else if (el.type === 'calligraphy' && el.points && el.points.length > 0) {
+        // Calligraphy: Draw with variable stroke width based on per-point pressure
+        const absPoints = el.points.map(p => ({ ...p, x: el.x + p.x, y: el.y + p.y }));
+
+        if (absPoints.length < 2) {
+            // Single dot
+            ctx.beginPath();
+            ctx.arc(absPoints[0].x, absPoints[0].y, el.strokeWidth / 2, 0, Math.PI * 2);
+            ctx.fillStyle = strokeColor;
+            ctx.fill();
+        } else {
+            // Draw variable-width stroke using filled circles along the path
+            ctx.fillStyle = strokeColor;
+            ctx.beginPath();
+
+            const minWidth = el.strokeWidth * 0.3;
+            const maxWidth = el.strokeWidth * 1.5;
+
+            for (let i = 0; i < absPoints.length; i++) {
+                const p = absPoints[i];
+                const pressure = p.p ?? 0.5;
+                const width = minWidth + (maxWidth - minWidth) * pressure;
+
+                ctx.moveTo(p.x + width / 2, p.y);
+                ctx.arc(p.x, p.y, width / 2, 0, Math.PI * 2);
+            }
+
+            ctx.fill();
+
+            // Also draw the smooth path for continuity
+            const pathData = pointsToSvgPath(absPoints);
+            if (pathData) {
+                const avgPressure = absPoints.reduce((acc, p) => acc + (p.p || 0.5), 0) / absPoints.length;
+                const avgWidth = minWidth + (maxWidth - minWidth) * avgPressure;
+                rc.path(pathData, { ...options, strokeWidth: avgWidth * 0.8 });
+            }
+        }
+    } else if (el.type === 'fineliner' && el.points && el.points.length > 0) {
+        // Fine liner: Smooth quadratic Bézier curves with round caps
+        const absPoints = el.points.map(p => ({ ...p, x: el.x + p.x, y: el.y + p.y }));
+
+        if (absPoints.length < 6) {
+            // For very few points, draw a circle
+            ctx.beginPath();
+            ctx.arc(absPoints[0].x, absPoints[0].y, el.strokeWidth / 2, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fillStyle = strokeColor;
+            ctx.fill();
+        } else {
+            // Draw smooth quadratic Bézier curves using the midpoint technique
+            ctx.save();
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+
+            ctx.beginPath();
+            ctx.moveTo(absPoints[0].x, absPoints[0].y);
+
+            // Draw quadratic curves using midpoints as control points
+            for (let i = 1; i < absPoints.length - 2; i++) {
+                const midX = (absPoints[i].x + absPoints[i + 1].x) / 2;
+                const midY = (absPoints[i].y + absPoints[i + 1].y) / 2;
+                ctx.quadraticCurveTo(absPoints[i].x, absPoints[i].y, midX, midY);
+            }
+
+            // Connect to the last two points
+            const lastIdx = absPoints.length - 1;
+            ctx.quadraticCurveTo(
+                absPoints[lastIdx - 1].x, absPoints[lastIdx - 1].y,
+                absPoints[lastIdx].x, absPoints[lastIdx].y
+            );
+
+            ctx.stroke();
+            ctx.restore();
+        }
+    } else if (el.type === 'inkbrush' && el.points && el.points.length > 0) {
+        // Ink Brush: Smooth cubic Bézier curves with shadow blur for ink effect
+        const absPoints = el.points.map(p => ({ ...p, x: el.x + p.x, y: el.y + p.y }));
+
+        if (absPoints.length < 4) {
+            // For very few points, draw a filled circle
+            ctx.beginPath();
+            ctx.arc(absPoints[0].x, absPoints[0].y, el.strokeWidth / 2, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fillStyle = strokeColor;
+            ctx.fill();
+        } else {
+            ctx.save();
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.shadowColor = "rgba(0,0,0,0.3)";
+            ctx.shadowBlur = el.strokeWidth * 0.5;
+
+            ctx.beginPath();
+            ctx.moveTo(absPoints[0].x, absPoints[0].y);
+
+            // Draw cubic Bézier curves using pairs of control points
+            let i = 1;
+            while (i < absPoints.length - 2) {
+                const cp1 = absPoints[i];
+                const cp2 = absPoints[i + 1];
+                const end = absPoints[i + 2];
+
+                ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
+                i += 3;
+            }
+
+            // Handle remaining points with quadratic or lineTo
+            while (i < absPoints.length) {
+                if (i === absPoints.length - 2) {
+                    // Two points left - quadratic
+                    const cp = absPoints[i];
+                    const end = absPoints[i + 1];
+                    ctx.quadraticCurveTo(cp.x, cp.y, end.x, end.y);
+                    i += 2;
+                } else {
+                    // One point left - lineTo
+                    ctx.lineTo(absPoints[i].x, absPoints[i].y);
+                    i++;
+                }
+            }
+
+            ctx.stroke();
+            ctx.restore();
+        }
     } else if (el.type === 'image' && el.dataURL) {
         const img = getImage(el.dataURL);
         if (img) {
