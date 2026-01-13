@@ -31,6 +31,16 @@ export const properties: PropertyConfig[] = [
         defaultValue: '#fafafa'
     },
     {
+        key: 'maxLayers',
+        label: 'Max Layers',
+        type: 'number',
+        min: 1,
+        max: 100,
+        group: 'canvas',
+        applicableTo: ['canvas'],
+        defaultValue: 20
+    },
+    {
         key: 'gridEnabled',
         label: 'Show Grid',
         type: 'toggle',

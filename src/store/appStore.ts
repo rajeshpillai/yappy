@@ -26,6 +26,7 @@ interface AppState {
     showCommandPalette: boolean;
     selectedPenType: 'pencil' | 'calligraphy' | 'fineliner' | 'inkbrush';
     layerGroupingModeEnabled: boolean;
+    maxLayers: number;
 }
 
 const initialState: AppState = {
@@ -94,7 +95,8 @@ const initialState: AppState = {
     zenMode: false,
     showCommandPalette: false,
     selectedPenType: 'fineliner',
-    layerGroupingModeEnabled: false
+    layerGroupingModeEnabled: false,
+    maxLayers: 20,
 }; // Default light background
 
 export const [store, setStore] = createStore<AppState>(initialState);
@@ -406,6 +408,10 @@ export const zoomToFit = () => {
 
 // Layer Management Functions
 export const addLayer = (name?: string, parentId?: string) => {
+    if (store.layers.length >= store.maxLayers) {
+        console.warn(`Layer limit reached (${store.maxLayers} layers max)`);
+        return;
+    }
     pushToHistory();
     const newId = crypto.randomUUID();
     const maxOrder = Math.max(...store.layers.map(l => l.order), -1);
@@ -487,23 +493,27 @@ export const updateLayer = (id: string, updates: Partial<Layer>) => {
 };
 
 export const duplicateLayer = (id: string) => {
-    const layer = store.layers.find(l => l.id === id);
-    if (!layer) return;
+    if (store.layers.length >= store.maxLayers) {
+        console.warn(`Layer limit reached (${store.maxLayers} layers max)`);
+        return;
+    }
+    const original = store.layers.find(l => l.id === id);
+    if (!original) return;
 
     pushToHistory();
 
     // Create new layer with incremented name
     const newLayerId = crypto.randomUUID();
     const newLayer: Layer = {
-        ...layer,
+        ...original,
         id: newLayerId,
-        name: `${layer.name} Copy`,
-        opacity: layer.opacity ?? 1,
-        order: layer.order + 0.5, // Place right above original
-        backgroundColor: layer.backgroundColor || 'transparent',
-        parentId: layer.parentId,
-        isGroup: layer.isGroup,
-        expanded: layer.expanded
+        name: `${original.name} Copy`,
+        opacity: original.opacity ?? 1,
+        order: original.order + 0.5, // Place right above original
+        backgroundColor: original.backgroundColor || 'transparent',
+        parentId: original.parentId,
+        isGroup: original.isGroup,
+        expanded: original.expanded
     };
 
     // Duplicate all elements on this layer
@@ -681,6 +691,10 @@ export const setSelectedPenType = (penType: 'pencil' | 'calligraphy' | 'fineline
 
 export const setGridStyle = (style: 'lines' | 'dots') => {
     setStore('gridSettings', 'style', style);
+};
+
+export const setMaxLayers = (count: number) => {
+    setStore('maxLayers', count);
 };
 
 // Panel Management

@@ -2085,7 +2085,9 @@ const Canvas: Component = () => {
                 { label: 'Smart Snapping', checked: store.gridSettings.objectSnapping, onClick: () => setStore('gridSettings', 'objectSnapping', !store.gridSettings.objectSnapping) },
                 { separator: true },
                 { label: 'Zen Mode', shortcut: 'Alt+Z', checked: store.zenMode, onClick: toggleZenMode },
-                { label: 'Reset View', onClick: () => setViewState({ scale: 1, panX: 0, panY: 0 }) }
+                { label: 'Reset View', onClick: () => setViewState({ scale: 1, panX: 0, panY: 0 }) },
+                { separator: true },
+                { label: 'Canvas Settings', onClick: () => setShowCanvasProperties(true) }
             );
         }
         return items;

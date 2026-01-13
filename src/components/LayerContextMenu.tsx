@@ -23,7 +23,8 @@ const LayerContextMenu: Component<Props> = (props) => {
         },
         {
             label: "Duplicate",
-            onClick: () => duplicateLayer(props.layerId)
+            onClick: () => duplicateLayer(props.layerId),
+            disabled: store.layers.length >= store.maxLayers
         },
         { separator: true },
         {

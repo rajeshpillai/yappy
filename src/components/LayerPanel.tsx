@@ -218,10 +218,10 @@ const LayerPanel: Component = () => {
                                 <Layers size={14} />
                                 <span>Groups</span>
                             </div>
-                            <button class="icon-button" onClick={() => createLayerGroup()} title="New Group">
+                            <button class="icon-button" onClick={() => createLayerGroup()} title="New Group" disabled={store.layers.length >= store.maxLayers}>
                                 <Folder size={16} />
                             </button>
-                            <button class="icon-button" onClick={() => addLayer()} title="New Layer">
+                            <button class="icon-button" onClick={() => addLayer()} title="New Layer" disabled={store.layers.length >= store.maxLayers}>
                                 <Plus size={16} />
                             </button>
                             <button class="icon-button" onClick={() => minimizeLayerPanel(true)} title="Minimize">
