@@ -57,7 +57,7 @@ const Canvas: Component = () => {
     let isSelecting = false; // Drag selection box
     let draggingHandle: string | null = null;
     const [selectionBox, setSelectionBox] = createSignal<{ x: number, y: number, w: number, h: number } | null>(null);
-    let initialPositions = new Map<string, { x: number, y: number }>();
+    let initialPositions = new Map<string, any>();
     const [suggestedBinding, setSuggestedBinding] = createSignal<{ elementId: string; px: number; py: number } | null>(null);
     const [snappingGuides, setSnappingGuides] = createSignal<SnappingGuide[]>([]);
 
@@ -284,12 +284,48 @@ const Canvas: Component = () => {
                     }
 
                     ctx.restore();
-                } else {
-                    // For multi-selection, just show the box (already drawn)
-                    ctx.restore();
                 }
             }
         });
+
+        // 3. Draw Multi-selection bounding box and handles
+        if (store.selection.length > 1) {
+            const box = getSelectionBoundingBox();
+            if (box) {
+                const scale = store.viewState.scale;
+                const padding = 2 / scale;
+                const handleSize = 8 / scale;
+
+                ctx.save();
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 1 / scale;
+                ctx.setLineDash([5 / scale, 5 / scale]);
+                ctx.strokeRect(box.x - padding, box.y - padding, box.width + padding * 2, box.height + padding * 2);
+                ctx.setLineDash([]);
+
+                // Draw handles
+                ctx.fillStyle = '#ffffff';
+                ctx.lineWidth = 2 / scale;
+
+                const handles = [
+                    { x: box.x - padding, y: box.y - padding }, // TL
+                    { x: box.x + box.width + padding, y: box.y - padding }, // TR
+                    { x: box.x + box.width + padding, y: box.y + box.height + padding }, // BR
+                    { x: box.x - padding, y: box.y + box.height + padding }, // BL
+                    // Side Handles
+                    { x: box.x + box.width / 2, y: box.y - padding }, // TM
+                    { x: box.x + box.width + padding, y: box.y + box.height / 2 }, // RM
+                    { x: box.x + box.width / 2, y: box.y + box.height + padding }, // BM
+                    { x: box.x - padding, y: box.y + box.height / 2 } // LM
+                ];
+
+                handles.forEach(h => {
+                    ctx.fillRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
+                    ctx.strokeRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
+                });
+                ctx.restore();
+            }
+        }
 
         // Draw Selection Box
         const box = selectionBox();
@@ -523,13 +559,64 @@ const Canvas: Component = () => {
         return rotatePoint(x, y, cx, cy, -angle);
     };
 
+    const getSelectionBoundingBox = () => {
+        if (store.selection.length === 0) return null;
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        let hasElements = false;
+
+        store.elements.forEach(el => {
+            if (store.selection.includes(el.id)) {
+                // For rotated elements, we technically need the rotated bounds, 
+                // but usually multi-selection boxes are axis-aligned to the world.
+                // However, we should consider the visual bounds.
+                // For now, let's stick to axis-aligned world bounds.
+                minX = Math.min(minX, el.x);
+                minY = Math.min(minY, el.y);
+                maxX = Math.max(maxX, el.x + el.width);
+                maxY = Math.max(maxY, el.y + el.height);
+                hasElements = true;
+            }
+        });
+
+        if (!hasElements) return null;
+        return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+    };
+
     const getHandleAtPosition = (x: number, y: number) => {
         const { scale } = store.viewState;
-        const handleSize = 10 / scale; // slightly larger hit area
+        const handleSize = 12 / scale; // slightly larger hit area
+        const padding = 2 / scale;
 
+        // 1. Priority: Multi-selection handles
+        if (store.selection.length > 1) {
+            const box = getSelectionBoundingBox();
+            if (box) {
+                const handles = [
+                    { type: 'tl', x: box.x - padding, y: box.y - padding },
+                    { type: 'tr', x: box.x + box.width + padding, y: box.y - padding },
+                    { type: 'br', x: box.x + box.width + padding, y: box.y + box.height + padding },
+                    { type: 'bl', x: box.x - padding, y: box.y + box.height + padding },
+                    { type: 'tm', x: box.x + box.width / 2, y: box.y - padding },
+                    { type: 'rm', x: box.x + box.width + padding, y: box.y + box.height / 2 },
+                    { type: 'bm', x: box.x + box.width / 2, y: box.y + box.height + padding },
+                    { type: 'lm', x: box.x - padding, y: box.y + box.height / 2 }
+                ];
+
+                for (const h of handles) {
+                    if (Math.abs(x - h.x) <= handleSize / 2 && Math.abs(y - h.y) <= handleSize / 2) {
+                        return { id: 'multi', handle: h.type };
+                    }
+                }
+            }
+        }
+
+        // 2. Single element handles
         for (let i = store.elements.length - 1; i >= 0; i--) {
             const el = store.elements[i];
             if (!store.selection.includes(el.id)) continue;
+            // If part of multi-selection, we only allow individual handles if single selected? 
+            // Usually if multi-selected, individual handles are hidden.
+            if (store.selection.length > 1) continue;
 
             const cx = el.x + el.width / 2;
             const cy = el.y + el.height / 2;
@@ -537,8 +624,6 @@ const Canvas: Component = () => {
 
             // Transform mouse point to element's local system (unrotate)
             const local = unrotatePoint(x, y, cx, cy, heading);
-
-            const padding = 2 / scale;
 
             // Check corners and sides
             let handles = [
@@ -553,8 +638,6 @@ const Canvas: Component = () => {
             ];
 
             if (el.type === 'line' || el.type === 'arrow') {
-                // For lines, only TL (Start) and BR (End) are valid handles essentially.
-                // We map them to the exact points.
                 handles = [
                     { type: 'tl', x: el.x, y: el.y },
                     { type: 'br', x: el.x + el.width, y: el.y + el.height }
@@ -780,21 +863,45 @@ const Canvas: Component = () => {
 
         if (store.selectedTool === 'selection') {
             const hitHandle = getHandleAtPosition(x, y);
-            // Allow resize ONLY if single item selected
-            if (hitHandle && store.selection.length === 1) {
+            if (hitHandle) {
                 pushToHistory();
                 isDragging = true;
                 draggingHandle = hitHandle.handle;
-                const el = store.elements.find(e => e.id === hitHandle.id);
-                if (el) {
-                    initialElementX = el.x;
-                    initialElementY = el.y;
-                    initialElementWidth = el.width;
-                    initialElementHeight = el.height;
-                    initialElementPoints = el.points ? [...el.points] : undefined;
-                    initialElementFontSize = el.fontSize || 20;
-                    startX = x;
-                    startY = y;
+                startX = x;
+                startY = y;
+
+                if (hitHandle.id === 'multi') {
+                    const box = getSelectionBoundingBox();
+                    if (box) {
+                        initialElementX = box.x;
+                        initialElementY = box.y;
+                        initialElementWidth = box.width;
+                        initialElementHeight = box.height;
+
+                        initialPositions.clear();
+                        store.elements.forEach(el => {
+                            if (store.selection.includes(el.id)) {
+                                initialPositions.set(el.id, {
+                                    x: el.x,
+                                    y: el.y,
+                                    width: el.width,
+                                    height: el.height,
+                                    fontSize: el.fontSize,
+                                    points: el.points ? [...el.points] : undefined
+                                });
+                            }
+                        });
+                    }
+                } else {
+                    const el = store.elements.find(e => e.id === hitHandle.id);
+                    if (el) {
+                        initialElementX = el.x;
+                        initialElementY = el.y;
+                        initialElementWidth = el.width;
+                        initialElementHeight = el.height;
+                        initialElementPoints = el.points ? [...el.points] : undefined;
+                        initialElementFontSize = el.fontSize || 20;
+                    }
                 }
                 return;
             }
@@ -1082,35 +1189,116 @@ const Canvas: Component = () => {
                             newWidth += dx;
                         }
 
-                        const updates: any = { x: newX, y: newY, width: newWidth, height: newHeight };
+                        // Apply Constraints (Proportional Resizing)
+                        const isMulti = store.selection.length > 1;
+                        const firstEl = store.elements.find(e => e.id === store.selection[0]);
+                        const isConstrained = e.shiftKey || (store.selection.length === 1 && firstEl?.constrained);
 
-                        // Scale points for pencil
-                        if (el.type === 'pencil' && initialElementPoints) {
-                            const scaleX = newWidth / initialElementWidth;
-                            const scaleY = newHeight / initialElementHeight;
+                        if (isConstrained && initialElementWidth !== 0 && initialElementHeight !== 0) {
+                            const ratio = initialElementWidth / initialElementHeight;
 
-                            const newPoints = initialElementPoints.map(p => ({
-                                x: p.x * (initialElementWidth === 0 ? 1 : scaleX),
-                                y: p.y * (initialElementHeight === 0 ? 1 : scaleY)
-                            }));
-                            updates.points = newPoints;
-                        }
-                        // Scale font size for text
-                        if (el.type === 'text') {
-                            const scaleY = newHeight / initialElementHeight;
-                            if (scaleY > 0) {
-                                let newFontSize = initialElementFontSize * scaleY;
-                                newFontSize = Math.max(newFontSize, 8);
-                                updates.fontSize = newFontSize;
-                                updates.width = newWidth;
+                            if (['tm', 'bm'].includes(draggingHandle!)) {
+                                // Side-only resize but constrained -> change width too
+                                newWidth = newHeight * ratio;
+                                // Need to keep center if it was side handle? 
+                                // Actually usually we just scale from the other side.
+                                if (draggingHandle === 'tm') {
+                                    newX = (initialElementX + initialElementWidth / 2) - newWidth / 2;
+                                } else {
+                                    newX = (initialElementX + initialElementWidth / 2) - newWidth / 2;
+                                }
+                            } else if (['lm', 'rm'].includes(draggingHandle!)) {
+                                newHeight = newWidth / ratio;
+                                newY = (initialElementY + initialElementHeight / 2) - newHeight / 2;
+                            } else {
+                                // Corner Handles
+                                if (Math.abs(newWidth) / ratio > Math.abs(newHeight)) {
+                                    newHeight = newWidth / ratio;
+                                } else {
+                                    newWidth = newHeight * ratio;
+                                }
+
+                                // Re-adjust X/Y for corner constraints
+                                if (draggingHandle === 'tl') {
+                                    newX = (initialElementX + initialElementWidth) - newWidth;
+                                    newY = (initialElementY + initialElementHeight) - newHeight;
+                                } else if (draggingHandle === 'tr') {
+                                    newY = (initialElementY + initialElementHeight) - newHeight;
+                                } else if (draggingHandle === 'bl') {
+                                    newX = (initialElementX + initialElementWidth) - newWidth;
+                                }
                             }
                         }
 
-                        if (el.type === 'line' || el.type === 'arrow') {
-                            updates.points = refreshLinePoints(el, newX, newY, newX + newWidth, newY + newHeight);
-                        }
+                        if (isMulti) {
+                            // GROUP RESIZING
+                            const scaleX = initialElementWidth === 0 ? 1 : newWidth / initialElementWidth;
+                            const scaleY = initialElementHeight === 0 ? 1 : newHeight / initialElementHeight;
 
-                        updateElement(id, updates);
+                            store.selection.forEach(selId => {
+                                const init = initialPositions.get(selId);
+                                if (!init) return;
+
+                                const relX = init.x - initialElementX;
+                                const relY = init.y - initialElementY;
+
+                                const updates: any = {
+                                    x: newX + relX * scaleX,
+                                    y: newY + relY * scaleY,
+                                    width: init.width * scaleX,
+                                    height: init.height * scaleY
+                                };
+
+                                if (init.points) {
+                                    updates.points = init.points.map((p: any) => ({
+                                        x: p.x * scaleX,
+                                        y: p.y * scaleY
+                                    }));
+                                }
+
+                                const element = store.elements.find(e => e.id === selId);
+                                if (element && element.type === 'text') {
+                                    updates.fontSize = Math.max(8, (init.fontSize || 20) * scaleY);
+                                }
+
+                                // Update without history push during drag
+                                updateElement(selId, updates, false);
+                            });
+                        } else {
+                            // SINGLE ELEMENT RESIZING
+                            const id = store.selection[0];
+                            const el = store.elements.find(e => e.id === id);
+                            if (!el) return;
+
+                            const updates: any = { x: newX, y: newY, width: newWidth, height: newHeight };
+
+                            // Scale points for pencil
+                            if (el.type === 'pencil' && initialElementPoints) {
+                                const scaleX = newWidth / initialElementWidth;
+                                const scaleY = newHeight / initialElementHeight;
+
+                                const newPoints = initialElementPoints.map(p => ({
+                                    x: p.x * (initialElementWidth === 0 ? 1 : scaleX),
+                                    y: p.y * (initialElementHeight === 0 ? 1 : scaleY)
+                                }));
+                                updates.points = newPoints;
+                            }
+                            // Scale font size for text
+                            if (el.type === 'text') {
+                                const scaleY = newHeight / initialElementHeight;
+                                if (scaleY > 0) {
+                                    let newFontSize = initialElementFontSize * scaleY;
+                                    newFontSize = Math.max(newFontSize, 8);
+                                    updates.fontSize = newFontSize;
+                                }
+                            }
+
+                            if (el.type === 'line' || el.type === 'arrow') {
+                                updates.points = refreshLinePoints(el, newX, newY, newX + newWidth, newY + newHeight);
+                            }
+
+                            updateElement(id, updates, false);
+                        }
                     }
                 } else {
                     // Move Multiple Items

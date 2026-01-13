@@ -317,6 +317,11 @@
     - [ ] Improved Gradient Picker with presets
 - [x] Help dialog with keyboard shortcuts (Shift+?)
 
+### Phase 22.5: Advanced Resizing
+- [x] Group Resizing (with proportion constraint via Shift)
+- [x] Individual Constrained Resizing (Property + Shift)
+- [x] Multi-selection handles implementation
+
 
 ### Phase 23: Templates & Advanced Features
 - [x] Pre-made diagram templates
@@ -356,7 +361,7 @@
 
 
 ### Phase 25: Keyboard Shortcuts & Productivity
-- [ ] Tool shortcuts (R=rectangle, C=circle, T=text, L=line, etc.)
+- [x] Tool shortcuts (R=rectangle, C=circle, T=text, L=line, etc.)
 - [ ] Layer navigation (Alt+1-9 for quick layer switching)
 - [ ] Quick style toggles (cycle fill styles, stroke styles)
 - [ ] Nudge selected elements (Arrow keys for precise positioning)
@@ -391,7 +396,6 @@
   - [ ] Cut (Ctrl+X)
   - [ ] Copy (Ctrl+C)
   - [ ] Paste (Ctrl+V)
-  - [ ] Wrap selection in frame
   - [ ] Copy to clipboard as PNG (Shift+Alt+C)
   - [ ] Copy to clipboard as SVG
   - [ ] Copy styles (Ctrl+Alt+C)

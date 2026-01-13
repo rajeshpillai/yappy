@@ -314,6 +314,14 @@ export const properties: PropertyConfig[] = [
         group: 'advanced',
         applicableTo: 'all',
         defaultValue: null
+    },
+    {
+        key: 'constrained',
+        label: 'Keep Proportions',
+        type: 'toggle',
+        group: 'dimensions',
+        applicableTo: ['rectangle', 'circle', 'image', 'diamond', 'pencil'],
+        defaultValue: false
     }
 ];
 

@@ -69,6 +69,7 @@ export interface DrawingElement {
 
     endBinding?: { elementId: string; focus: number; gap: number } | null;
     curveType?: 'straight' | 'bezier' | 'elbow';
+    constrained?: boolean; // Keep proportions
 }
 
 export interface Layer {
