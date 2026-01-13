@@ -234,6 +234,20 @@ const HelpDialog: Component<Props> = (props) => {
                                                 <span class="keycap">]</span>
                                             </div>
                                         </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Toggle Minimap</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Alt</span>
+                                                <span class="keycap">M</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Toggle Panels</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Alt</span>
+                                                <span class="keycap">\</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

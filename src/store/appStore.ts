@@ -20,6 +20,7 @@ interface AppState {
     showLayerPanel: boolean;
     isPropertyPanelMinimized: boolean;
     isLayerPanelMinimized: boolean;
+    minimapVisible: boolean;
 }
 
 const initialState: AppState = {
@@ -74,7 +75,8 @@ const initialState: AppState = {
     showPropertyPanel: true,
     showLayerPanel: true,
     isPropertyPanelMinimized: false,
-    isLayerPanelMinimized: false
+    isLayerPanelMinimized: false,
+    minimapVisible: false
 }; // Default light background
 
 export const [store, setStore] = createStore<AppState>(initialState);
@@ -565,6 +567,10 @@ export const minimizePropertyPanel = (minimized?: boolean) => {
 
 export const minimizeLayerPanel = (minimized?: boolean) => {
     setStore('isLayerPanelMinimized', (v) => minimized ?? !v);
+};
+
+export const toggleMinimap = (visible?: boolean) => {
+    setStore('minimapVisible', (v) => visible ?? !v);
 };
 
 // Initialize theme on load

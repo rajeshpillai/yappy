@@ -317,13 +317,6 @@
     - [ ] Improved Gradient Picker with presets
 - [x] Help dialog with keyboard shortcuts (Shift+?)
 
-### Phase 24: Unified Load/Save Experience
-- [x] Design/Implement `LoadExportDialog` component
-- [x] Consolidate "Open from Workspace/Disk" into Load tab/dialog
-- [x] Consolidate "Save to Workspace/Disk/Image" into Save/Export tab/dialog
-- [x] Update `Menu.tsx` to launch unified dialogs
-- [x] Add tooltips and descriptions for each storage mode
-
 
 ### Phase 23: Templates & Advanced Features
 - [x] Pre-made diagram templates
@@ -346,11 +339,12 @@
     - [x] Obstacle avoidance for non-linear shapes
     - [x] Integration with Property Panel and Rendering
     - [x] Reactive updates in `Canvas.tsx`
-- [ ] Minimap/Navigator for large diagrams
-  - [ ] Small overview showing full diagram
-  - [ ] Draggable viewport indicator
-  - [ ] Click to jump to location
-  - [ ] Toggle visibility
+- [x] Minimap/Navigator for large diagrams
+  - [x] Small overview showing full diagram
+  - [x] Draggable viewport indicator
+  - [x] Click to jump to location
+  - [x] Toggle visibility (Alt+M)
+
 
 ### Phase 25: Keyboard Shortcuts & Productivity
 - [ ] Tool shortcuts (R=rectangle, C=circle, T=text, L=line, etc.)

@@ -3,7 +3,7 @@ import { storage } from "../storage/FileSystemStorage";
 import {
     store, setStore, deleteElements, clearHistory, toggleTheme, zoomToFit,
     addLayer, reorderLayers, bringToFront, sendToBack, groupSelected, ungroupSelected,
-    togglePropertyPanel, toggleLayerPanel, loadTemplate
+    togglePropertyPanel, toggleLayerPanel, toggleMinimap, loadTemplate
 } from "../store/appStore";
 import {
     Menu as MenuIcon, FolderOpen, Share2, FilePlus, Trash2, Maximize,
@@ -337,6 +337,9 @@ const Menu: Component = () => {
                 } else if (e.key.toLowerCase() === 'l') {
                     e.preventDefault();
                     toggleLayerPanel();
+                } else if (e.key.toLowerCase() === 'm') {
+                    e.preventDefault();
+                    toggleMinimap();
                 } else if (e.key === '\\') {
                     e.preventDefault();
                     const anyVisible = store.showPropertyPanel || store.showLayerPanel;
@@ -445,6 +448,14 @@ const Menu: Component = () => {
                                 <div class="menu-item-right">
                                     <Show when={store.showLayerPanel}><Check size={14} class="check-icon" /></Show>
                                     <span class="shortcut">Alt+L</span>
+                                </div>
+                            </div>
+                            <div class="menu-item" onClick={() => { toggleMinimap(); setIsMenuOpen(false); }}>
+                                <Maximize size={16} />
+                                <span class="label">Minimap</span>
+                                <div class="menu-item-right">
+                                    <Show when={store.minimapVisible}><Check size={14} class="check-icon" /></Show>
+                                    <span class="shortcut">Alt+M</span>
                                 </div>
                             </div>
                             <div class="menu-separator"></div>

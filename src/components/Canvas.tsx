@@ -11,6 +11,7 @@ import { snapPoint } from "../utils/snapHelpers";
 import { setImageLoadCallback } from "../utils/imageCache";
 import { getSnappingGuides } from "../utils/objectSnapping";
 import type { SnappingGuide } from "../utils/objectSnapping";
+import { Minimap } from "./Minimap";
 
 
 const Canvas: Component = () => {
@@ -1702,6 +1703,14 @@ const Canvas: Component = () => {
                         }
                     ]}
                     onClose={() => setContextMenuOpen(false)}
+                />
+            </Show>
+
+            {/* Minimap */}
+            <Show when={store.minimapVisible}>
+                <Minimap
+                    canvasWidth={canvasRef?.width || window.innerWidth}
+                    canvasHeight={canvasRef?.height || window.innerHeight}
                 />
             </Show>
         </>
