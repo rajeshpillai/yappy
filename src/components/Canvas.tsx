@@ -1,17 +1,21 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show } from "solid-js";
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
-import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode } from "../store/appStore";
+import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit } from "../store/appStore";
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse, intersectElementWithLine, isPointOnBezier } from "../utils/geometry";
 import { getAnchorPoints, findClosestAnchor } from "../utils/anchorPoints";
 import { calculateSmartElbowRoute } from "../utils/routing";
 import type { DrawingElement } from "../types";
 import { renderElement } from "../utils/renderElement";
-import ContextMenu from "./ContextMenu";
+import ContextMenu, { type MenuItem } from "./ContextMenu";
 import { snapPoint } from "../utils/snapHelpers";
 import { setImageLoadCallback } from "../utils/imageCache";
 import { getSnappingGuides } from "../utils/objectSnapping";
 import type { SnappingGuide } from "../utils/objectSnapping";
 import { Minimap } from "./Minimap";
+import {
+    copyToClipboard, cutToClipboard, pasteFromClipboard,
+    flipSelected, lockSelected, copyStyle, pasteStyle
+} from '../utils/objectContextActions';
 
 
 const Canvas: Component = () => {
@@ -1747,6 +1751,105 @@ const Canvas: Component = () => {
         onCleanup(() => window.removeEventListener("resize", handleResize));
     });
 
+
+    // CONTEXT MENU LOGIC
+    const getContextMenuItems = (): MenuItem[] => {
+        const selectionCount = store.selection.length;
+        const hasSelection = selectionCount > 0;
+        const items: MenuItem[] = [];
+
+        if (hasSelection) {
+            items.push(
+                { label: 'Copy', shortcut: 'Ctrl+C', onClick: copyToClipboard },
+                { label: 'Paste', shortcut: 'Ctrl+V', onClick: pasteFromClipboard },
+                { label: 'Cut', shortcut: 'Ctrl+X', onClick: cutToClipboard },
+                { label: 'Duplicate', shortcut: 'Ctrl+D', onClick: () => store.selection.forEach(id => duplicateElement(id)) },
+                { separator: true }
+            );
+
+            // Grouping
+            if (selectionCount > 1) {
+                items.push({ label: 'Group', shortcut: 'Ctrl+G', onClick: groupSelected });
+            } else if (selectionCount === 1) {
+                const el = store.elements.find(e => e.id === store.selection[0]);
+                if (el?.groupIds?.length) {
+                    items.push({ label: 'Ungroup', shortcut: 'Ctrl+Shift+G', onClick: ungroupSelected });
+                }
+            }
+            items.push({ separator: true });
+
+            // Layering
+            items.push(
+                {
+                    label: 'Bring to Front', shortcut: 'Ctrl+]',
+                    onClick: () => bringToFront(store.selection)
+                },
+                {
+                    label: 'Send to Back', shortcut: 'Ctrl+[',
+                    onClick: () => sendToBack(store.selection)
+                },
+                {
+                    label: 'Bring Forward',
+                    onClick: () => store.selection.forEach(id => moveElementZIndex(id, 'forward'))
+                },
+                {
+                    label: 'Send Backward',
+                    onClick: () => store.selection.forEach(id => moveElementZIndex(id, 'backward'))
+                },
+                { separator: true }
+            );
+
+            // Styling
+            if (selectionCount === 1) {
+                items.push(
+                    { label: 'Copy Styles', shortcut: 'Ctrl+Alt+C', onClick: copyStyle },
+                    { label: 'Paste Styles', shortcut: 'Ctrl+Alt+V', onClick: pasteStyle },
+                    { separator: true }
+                );
+            }
+
+            // Lock / Flip / Delete
+            const isLocked = store.selection.some(id => store.elements.find(e => e.id === id)?.locked);
+            items.push(
+                {
+                    label: isLocked ? 'Unlock' : 'Lock',
+                    shortcut: 'Ctrl+Shift+L',
+                    onClick: () => lockSelected(!isLocked)
+                },
+                {
+                    label: 'Flip Horizontal', shortcut: 'Shift+H',
+                    onClick: () => flipSelected('horizontal')
+                },
+                {
+                    label: 'Flip Vertical', shortcut: 'Shift+V',
+                    onClick: () => flipSelected('vertical')
+                },
+                { separator: true },
+                {
+                    label: 'Delete', shortcut: 'Delete',
+                    onClick: () => deleteElements(store.selection)
+                }
+            );
+        } else {
+            // Default Canvas Menu
+            items.push(
+                { label: 'Paste', shortcut: 'Ctrl+V', onClick: pasteFromClipboard },
+                { separator: true },
+                { label: 'Select all', shortcut: 'Ctrl+A', onClick: () => setStore('selection', store.elements.map(e => e.id)) },
+                { label: 'Zoom to Fit', shortcut: 'Shift+1', onClick: zoomToFit },
+                { separator: true },
+                { label: 'Show Grid', checked: store.gridSettings.enabled, onClick: toggleGrid },
+                { label: 'Snap to Grid', checked: store.gridSettings.snapToGrid, onClick: toggleSnapToGrid },
+                { label: 'Smart Snapping', checked: store.gridSettings.objectSnapping, onClick: () => setStore('gridSettings', 'objectSnapping', !store.gridSettings.objectSnapping) },
+                { separator: true },
+                { label: 'Zen Mode', shortcut: 'Alt+Z', checked: store.zenMode, onClick: toggleZenMode },
+                { label: 'Reset View', onClick: () => setViewState({ scale: 1, panX: 0, panY: 0 }) }
+            );
+        }
+        return items;
+    };
+
+
     return (
         <>
             <canvas
@@ -1844,58 +1947,7 @@ const Canvas: Component = () => {
                 <ContextMenu
                     x={contextMenuPos().x}
                     y={contextMenuPos().y}
-                    items={[
-                        {
-                            label: 'Paste',
-                            shortcut: 'Ctrl+V',
-                            onClick: () => { },
-                            disabled: true
-                        },
-                        {
-                            label: 'Select all',
-                            shortcut: 'Ctrl+A',
-                            onClick: () => setStore('selection', store.elements.map(e => e.id))
-                        },
-                        { separator: true } as any,
-                        {
-                            label: 'Canvas Properties',
-                            onClick: () => {
-                                setStore('selection', []);
-                                setShowCanvasProperties(true);
-                            }
-                        },
-                        { separator: true } as any,
-                        {
-                            label: store.gridSettings.enabled ? 'Hide Grid' : 'Show Grid',
-                            shortcut: "Shift+'",
-                            onClick: toggleGrid,
-                            checked: store.gridSettings.enabled
-                        },
-                        {
-                            label: 'Snap to Grid',
-                            shortcut: "Shift+;",
-                            onClick: toggleSnapToGrid,
-                            checked: store.gridSettings.snapToGrid
-                        },
-                        {
-                            label: 'Smart Snapping',
-                            onClick: () => setStore('gridSettings', 'objectSnapping', !store.gridSettings.objectSnapping),
-                            checked: store.gridSettings.objectSnapping
-                        },
-                        { separator: true } as any,
-                        {
-                            label: 'Zen Mode',
-                            shortcut: 'Alt+Z',
-                            onClick: toggleZenMode,
-                            checked: store.zenMode
-                        },
-                        {
-                            label: 'Reset View',
-                            onClick: () => {
-                                setViewState({ scale: 1, panX: 0, panY: 0 });
-                            }
-                        }
-                    ]}
+                    items={getContextMenuItems()}
                     onClose={() => setContextMenuOpen(false)}
                 />
             </Show>

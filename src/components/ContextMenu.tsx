@@ -2,7 +2,7 @@ import { type Component, For, Show, createSignal, onMount, onCleanup } from 'sol
 import './ContextMenu.css';
 
 export interface MenuItem {
-    label: string;
+    label?: string;
     shortcut?: string;
     onClick?: () => void;
     checked?: boolean;
