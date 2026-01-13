@@ -112,14 +112,14 @@
 ## Phase 13: Layer Grouping (Future)
 - [ ] Update Layer type to support hierarchy (parentId, isGroup, expanded)
 - [ ] Implement group creation/deletion in store
-- [ ] Add nested rendering in LayerPanel (indentation, expand/collapse)
-- [ ] Implement cascade operations (group visibility/lock affects children)
-- [ ] Add drag & drop into/out of groups
-- [ ] Add expand/collapse UI controls (▶/▼ arrows)
-- [ ] Update rendering to respect group hierarchy
-- [ ] Add "Create Group" and "Ungroup" actions
-- [ ] File format migration for grouped layers
-- [ ] Group icon differentiation in UI (📁 vs layer)
+- [x] Add nested rendering in LayerPanel (indentation, expand/collapse)
+- [x] Implement cascade operations (group visibility/lock affects children)
+- [x] Add drag & drop into/out of groups
+- [x] Add expand/collapse UI controls (▶/▼ arrows)
+- [x] Update rendering to respect group hierarchy
+- [x] Add "Create Group" and "Ungroup" actions
+- [x] File format migration for grouped layers
+- [x] Group icon differentiation in UI (📁 vs layer)
 
 ## Phase 12.5: Layer Enhancements (Quick Wins)
 - [x] Auto-activate layer on selection (switches active layer to selected element's layer)
