@@ -1,9 +1,11 @@
-import { type Component } from "solid-js";
+import { type Component, For } from "solid-js";
 import { store, setSelectedTool, addElement } from "../store/appStore";
 import type { ElementType } from "../types";
-import { MousePointer2, Square, Circle, Minus, Type, Pencil, PenLine, Pen, Brush, MoveUpRight, Eraser, Hand, Image as ImageIcon, Spline, Diamond } from "lucide-solid";
+import { MousePointer2, Square, Circle, Minus, Type, MoveUpRight, Eraser, Hand, Image as ImageIcon, Spline, Diamond } from "lucide-solid";
+import PenToolGroup from "./PenToolGroup";
 import "./Toolbar.css";
 
+// Tools that are NOT pens (pens are handled by PenToolGroup)
 const tools: { type: ElementType | 'selection'; icon: Component<{ size?: number; color?: string }>; label: string }[] = [
     { type: 'pan', icon: Hand, label: 'Pan Tool' },
     { type: 'selection', icon: MousePointer2, label: 'Selection' },
@@ -13,10 +15,7 @@ const tools: { type: ElementType | 'selection'; icon: Component<{ size?: number;
     { type: 'arrow', icon: MoveUpRight, label: 'Arrow' },
     { type: 'line', icon: Minus, label: 'Line' },
     { type: 'bezier', icon: Spline, label: 'Bezier Curve' },
-    { type: 'pencil', icon: Pencil, label: 'Pencil' },
-    { type: 'calligraphy', icon: PenLine, label: 'Calligraphy Pen' },
-    { type: 'fineliner', icon: Pen, label: 'Fine Liner' },
-    { type: 'inkbrush', icon: Brush, label: 'Ink Brush' },
+    // Pens are now grouped in PenToolGroup
     { type: 'text', icon: Type, label: 'Text' },
     { type: 'image', icon: ImageIcon, label: 'Insert Image' },
     { type: 'eraser', icon: Eraser, label: 'Eraser' },
@@ -45,7 +44,7 @@ const Toolbar: Component = () => {
                 img.src = dataURL;
                 img.onload = () => {
                     // Compression Logic
-                    const MAX_DIMENSION = 1500; // Increased max dimension for better quality
+                    const MAX_DIMENSION = 1500;
                     let width = img.width;
                     let height = img.height;
 
@@ -60,7 +59,6 @@ const Toolbar: Component = () => {
                         }
                     }
 
-                    // Create off-screen canvas for resizing & compression
                     const canvas = document.createElement('canvas');
                     canvas.width = width;
                     canvas.height = height;
@@ -68,20 +66,8 @@ const Toolbar: Component = () => {
 
                     if (ctx) {
                         ctx.drawImage(img, 0, 0, width, height);
-
-                        // Compress to JPEG with 0.8 quality
-                        // If original was PNG with transparency, this forces white background if using JPEG.
-                        // To support transparency, we should check file type.
-                        // But JPEG saves the most space for photos.
-                        // Let's stick with original mime type if possible, but limit quality/size.
-                        // Actually, to ensure space saving, usually WEBP or JPEG is best.
-                        // Let's use image/webp if supported (mostly yes), or fallback to jpeg.
-                        // WebP supports transparency.
-
                         const compressedDataURL = canvas.toDataURL('image/webp', 0.8);
 
-                        // Initial display dimensions (visual only, independent of data resolution)
-                        // We keep roughly the same 500px limit for initial on-screen size
                         const VISUAL_MAX = 500;
                         let visualW = width;
                         let visualH = height;
@@ -117,7 +103,7 @@ const Toolbar: Component = () => {
                             roundness: null,
                             locked: false,
                             link: null,
-                            dataURL: compressedDataURL, // Use stored compressed version
+                            dataURL: compressedDataURL,
                             mimeType: 'image/webp',
                             layerId: store.activeLayerId
                         });
@@ -126,10 +112,11 @@ const Toolbar: Component = () => {
             }
         };
         reader.readAsDataURL(file);
-
-        // Reset input
         (e.target as HTMLInputElement).value = '';
     };
+
+    // Find index to insert pen tool group (after bezier)
+    const bezierIndex = tools.findIndex(t => t.type === 'bezier');
 
     return (
         <div class="toolbar-container">
@@ -140,15 +127,32 @@ const Toolbar: Component = () => {
                 accept="image/*"
                 style={{ display: 'none' }}
             />
-            {tools.map(tool => (
-                <button
-                    class={`toolbar-btn ${store.selectedTool === tool.type ? 'active' : ''}`}
-                    onClick={() => handleToolClick(tool.type)}
-                    title={tool.label}
-                >
-                    <tool.icon size={20} />
-                </button>
-            ))}
+            <For each={tools.slice(0, bezierIndex + 1)}>
+                {(tool) => (
+                    <button
+                        class={`toolbar-btn ${store.selectedTool === tool.type ? 'active' : ''}`}
+                        onClick={() => handleToolClick(tool.type)}
+                        title={tool.label}
+                    >
+                        <tool.icon size={20} />
+                    </button>
+                )}
+            </For>
+
+            {/* Pen Tool Group (Pencil, Calligraphy, Fine Liner, Ink Brush) */}
+            <PenToolGroup />
+
+            <For each={tools.slice(bezierIndex + 1)}>
+                {(tool) => (
+                    <button
+                        class={`toolbar-btn ${store.selectedTool === tool.type ? 'active' : ''}`}
+                        onClick={() => handleToolClick(tool.type)}
+                        title={tool.label}
+                    >
+                        <tool.icon size={20} />
+                    </button>
+                )}
+            </For>
         </div>
     );
 };

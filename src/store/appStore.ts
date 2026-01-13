@@ -24,6 +24,7 @@ interface AppState {
     minimapVisible: boolean;
     zenMode: boolean;
     showCommandPalette: boolean;
+    selectedPenType: 'pencil' | 'calligraphy' | 'fineliner' | 'inkbrush';
 }
 
 const initialState: AppState = {
@@ -88,7 +89,8 @@ const initialState: AppState = {
     isLayerPanelMinimized: false,
     minimapVisible: false,
     zenMode: false,
-    showCommandPalette: false
+    showCommandPalette: false,
+    selectedPenType: 'fineliner'
 }; // Default light background
 
 export const [store, setStore] = createStore<AppState>(initialState);
@@ -627,6 +629,10 @@ export const setCanvasBackgroundColor = (color: string) => {
 
 export const updatePencilSettings = (updates: Partial<PencilSettings>) => {
     setStore('pencilSettings', (s) => ({ ...s, ...updates }));
+};
+
+export const setSelectedPenType = (penType: 'pencil' | 'calligraphy' | 'fineliner' | 'inkbrush') => {
+    setStore('selectedPenType', penType);
 };
 
 export const setGridStyle = (style: 'lines' | 'dots') => {

@@ -88,6 +88,8 @@
 ## Phase 10: Mobile & Pen Support
 - [x] Migrate Mouse Events to Pointer Events in Canvas <!-- id: 32 -->
 - [x] Add touch-action: none to Canvas CSS <!-- id: 33 -->
+- [x] Multiple pen types (Pencil, Calligraphy, Fine Liner, Ink Brush)
+- [ ] **TODO**: Pen rendering optimization (see `docs/pen-optimization.md`)
 
 ## Phase 11: UI Refinements
 - [x] Refactor Main Menu (Burger Menu handling Open/Save/Export) <!-- id: 34 -->
