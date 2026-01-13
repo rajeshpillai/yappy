@@ -25,7 +25,7 @@ export const getSpacingGuides = (
 ): SpacingResult => {
     // Basic setup similar to objectSnapping
     const activeElements = allElements.filter(el => activeIds.includes(el.id));
-    if (activeElements.length === 0) return { dx: 0, dy: 0, guides: [] };
+    if (activeElements.length === 0) return { dx, dy, guides: [] };
 
     // Bounding Box of moving group
     let activeBounds = {
@@ -52,7 +52,7 @@ export const getSpacingGuides = (
         centerY: el.y + el.height / 2
     }));
 
-    if (others.length < 2) return { dx: 0, dy: 0, guides: [] };
+    if (others.length < 2) return { dx, dy, guides: [] };
 
     let bestDx = 0;
     let bestDy = 0;

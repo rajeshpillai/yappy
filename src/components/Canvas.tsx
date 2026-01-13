@@ -86,6 +86,7 @@ const Canvas: Component = () => {
     let initialElementPoints: { x: number; y: number }[] | undefined;
     let initialElementFontSize = 20;
 
+
     const handleResize = () => {
         if (canvasRef) {
             canvasRef.width = window.innerWidth;
@@ -1070,7 +1071,14 @@ const Canvas: Component = () => {
                     initialPositions.clear();
                     store.elements.forEach(el => {
                         if (store.selection.includes(el.id)) {
-                            initialPositions.set(el.id, { x: el.x, y: el.y });
+                            initialPositions.set(el.id, {
+                                x: el.x,
+                                y: el.y,
+                                width: el.width,
+                                height: el.height,
+                                fontSize: el.fontSize,
+                                points: el.points ? [...el.points] : undefined
+                            });
                         }
                     });
                 }
@@ -1215,6 +1223,7 @@ const Canvas: Component = () => {
 
     const handlePointerMove = (e: PointerEvent) => {
         let { x, y } = getWorldCoordinates(e.clientX, e.clientY);
+        // console.log('Move', { tool: store.selectedTool, isDragging, selection: store.selection.length });
 
         // Update Cursor
         if (store.selectedTool === 'pan') {
@@ -1478,7 +1487,7 @@ const Canvas: Component = () => {
                         if (el && canInteractWithElement(el)) {
                             const initPos = initialPositions.get(selId);
                             if (initPos) {
-                                updateElement(selId, { x: initPos.x + dx, y: initPos.y + dy });
+                                updateElement(selId, { x: initPos.x + dx, y: initPos.y + dy }, false);
 
                                 // Update Bound Lines
                                 if (el.boundElements) {
@@ -1508,7 +1517,7 @@ const Canvas: Component = () => {
                                                     width: eX - sX,
                                                     height: eY - sY,
                                                     points
-                                                });
+                                                }, false);
                                             }
                                         }
                                     });
