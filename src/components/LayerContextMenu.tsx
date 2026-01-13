@@ -1,5 +1,5 @@
 import { type Component } from "solid-js";
-import { store, duplicateLayer, deleteLayer, mergeLayerDown, isolateLayer, showAllLayers, updateLayer } from "../store/appStore";
+import { store, duplicateLayer, deleteLayer, mergeLayerDown, flattenLayers, isolateLayer, showAllLayers, updateLayer } from "../store/appStore";
 import ContextMenu, { type MenuItem } from "./ContextMenu";
 
 interface Props {
