@@ -135,6 +135,18 @@
   - Isolate layer (hide all other layers)
 - [ ] Layer thumbnails/previews (50x50px visual indicator)
 
+## Phase 12.6: Layer Properties Panel
+- [ ] **Layer Opacity** (0-100%, affects all elements multiplicatively)
+- [ ] **Layer Background** (Transparent or Solid Color)
+  - Renders as full-layer rectangle behind elements
+  - Use cases: section backgrounds, annotation overlays, storyboarding
+- [ ] **Layer Color Tag** (organizational preset colors: Red, Orange, Yellow, Green, Blue, Purple)
+- [ ] **Layer Blend Mode** (Normal, Multiply, Screen, Overlay, Darken, Lighten)
+  - Requires Canvas composite operations
+- [ ] **Where to Show**:
+  - PropertyPanel when no elements selected
+  - Or dedicated section in LayerPanel
+
 ## Phase 14: Snap to Grid & Guides
 - [x] Canvas context menu (right-click/double-click)
   - Toggle grid visibility
