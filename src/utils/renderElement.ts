@@ -133,18 +133,39 @@ export const renderElement = (
 
         } else {
             // Straight Line (Default)
-            rc.line(el.x, el.y, endX, endY, options);
+            // Use points if available (allows for flipped lines), otherwise use width/height
+            if (el.points && el.points.length >= 2) {
+                const pStart = { x: el.x + el.points[0].x, y: el.y + el.points[0].y };
+                const pEnd = { x: el.x + el.points[el.points.length - 1].x, y: el.y + el.points[el.points.length - 1].y };
 
-            const angle = Math.atan2(el.height, el.width);
+                rc.line(pStart.x, pStart.y, pEnd.x, pEnd.y, options);
 
-            // Start Arrowhead (at start, pointing backwards)
-            if (el.startArrowhead) {
-                drawArrowhead(rc, el.x, el.y, angle + Math.PI, el.startArrowhead, options);
-            }
+                const angle = Math.atan2(pEnd.y - pStart.y, pEnd.x - pStart.x);
 
-            // End Arrowhead
-            if (el.endArrowhead) {
-                drawArrowhead(rc, endX, endY, angle, el.endArrowhead, options);
+                // Start Arrowhead
+                if (el.startArrowhead) {
+                    drawArrowhead(rc, pStart.x, pStart.y, angle + Math.PI, el.startArrowhead, options);
+                }
+
+                // End Arrowhead
+                if (el.endArrowhead) {
+                    drawArrowhead(rc, pEnd.x, pEnd.y, angle, el.endArrowhead, options);
+                }
+            } else {
+                // Fallback (Simple Unidirectional)
+                rc.line(el.x, el.y, endX, endY, options);
+
+                const angle = Math.atan2(el.height, el.width);
+
+                // Start Arrowhead
+                if (el.startArrowhead) {
+                    drawArrowhead(rc, el.x, el.y, angle + Math.PI, el.startArrowhead, options);
+                }
+
+                // End Arrowhead
+                if (el.endArrowhead) {
+                    drawArrowhead(rc, endX, endY, angle, el.endArrowhead, options);
+                }
             }
         }
     } else if (el.type === 'pencil' && el.points && el.points.length > 0) {

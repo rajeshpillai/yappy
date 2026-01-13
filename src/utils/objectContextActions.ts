@@ -101,23 +101,34 @@ export const flipSelected = (direction: 'horizontal' | 'vertical') => {
             const dist = elCenterX - center;
             const newX = center - dist - el.width / 2;
 
-            // Flip points if they exist (Line, Arrow, Draw)
-            if (el.points && el.points.length > 0) {
-                const newPoints = el.points.map(p => ({ ...p, x: el.width - p.x }));
-                updateElement(id, { x: newX, points: newPoints }, false);
+            // Normalize points for Lines/Arrows if they don't exist
+            let points = el.points;
+            if ((!points || points.length === 0) && (el.type === 'line' || el.type === 'arrow')) {
+                points = [{ x: 0, y: 0 }, { x: el.width, y: el.height }];
+            }
+
+            if (points && points.length > 0) {
+                const newPoints = points.map(p => ({ ...p, x: el.width - p.x }));
+                updateElement(id, { x: newX, points: newPoints, seed: el.seed + 1 }, false);
             } else {
-                updateElement(id, { x: newX }, false);
+                updateElement(id, { x: newX, seed: el.seed + 1 }, false);
             }
         } else {
             const elCenterY = el.y + el.height / 2;
             const dist = elCenterY - center;
             const newY = center - dist - el.height / 2;
 
-            if (el.points && el.points.length > 0) {
-                const newPoints = el.points.map(p => ({ ...p, y: el.height - p.y }));
-                updateElement(id, { y: newY, points: newPoints }, false);
+            // Normalize points for Lines/Arrows if they don't exist
+            let points = el.points;
+            if ((!points || points.length === 0) && (el.type === 'line' || el.type === 'arrow')) {
+                points = [{ x: 0, y: 0 }, { x: el.width, y: el.height }];
+            }
+
+            if (points && points.length > 0) {
+                const newPoints = points.map(p => ({ ...p, y: el.height - p.y }));
+                updateElement(id, { y: newY, points: newPoints, seed: el.seed + 1 }, false);
             } else {
-                updateElement(id, { y: newY }, false);
+                updateElement(id, { y: newY, seed: el.seed + 1 }, false);
             }
         }
     });

@@ -412,4 +412,5 @@
   - [x] Duplicate (Ctrl+D)
   - [x] Lock (Ctrl+Shift+L)
   - [x] Delete (Delete)
+  - [x] **FIXED**: Flip Horizontal/Vertical for single straight lines (implicit geometry converted to explicit points).
 
