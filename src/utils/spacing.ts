@@ -119,7 +119,6 @@ export const getSpacingGuides = (
             // We want Delta = 0.
             // Snap correction depends on who is 'active'.
 
-            let diff = gap2 - gap1;
             // correction: how much to move 'active' to make diff 0?
 
             let correction = 0;

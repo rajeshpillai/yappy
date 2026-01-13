@@ -1,6 +1,6 @@
-import { type Component, createSignal, createEffect, For, onMount, Show, onCleanup } from "solid-js";
+import { type Component, createSignal, createEffect, For, Show } from "solid-js";
 import { store, toggleCommandPalette } from "../store/appStore";
-import { searchCommands, type Command } from "../utils/commandRegistry";
+import { searchCommands } from "../utils/commandRegistry";
 import "./CommandPalette.css";
 
 const CommandPalette: Component = () => {
