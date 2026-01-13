@@ -26,7 +26,7 @@ const HelpDialog: Component<Props> = (props) => {
                                 <ExternalLink size={16} />
                                 Documentation
                             </a>
-                            <a href="#" class="social-btn">
+                            <a href="https://github.com/rajeshpillai" target="_blank" rel="noopener noreferrer" class="social-btn">
                                 <Github size={16} />
                                 GitHub
                             </a>
