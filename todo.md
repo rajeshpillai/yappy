@@ -400,7 +400,7 @@
 - [x] Tool shortcuts (R=rectangle, C=circle, T=text, L=line, etc.)
 - [ ] Layer navigation (Alt+1-9 for quick layer switching)
 - [ ] Quick style toggles (cycle fill styles, stroke styles)
-- [ ] Nudge selected elements (Arrow keys for precise positioning)
+- [x] Nudge selected elements (Arrow keys for precise positioning)
 
 ### Phase 26: Command Palette & Search
 - [x] Command Palette (Cmd+K / Ctrl+K)

@@ -1,5 +1,5 @@
 import { type Component, onMount, onCleanup, Show } from 'solid-js';
-import { undo, redo, store, deleteElements, togglePropertyPanel, toggleLayerPanel, toggleMinimap, toggleZenMode, toggleCommandPalette } from './store/appStore';
+import { undo, redo, store, deleteElements, togglePropertyPanel, toggleLayerPanel, toggleMinimap, toggleZenMode, toggleCommandPalette, moveSelectedElements } from './store/appStore';
 import Canvas from './components/Canvas';
 import Toolbar from './components/Toolbar';
 import Menu from './components/Menu';
@@ -65,6 +65,20 @@ const App: Component = () => {
         e.preventDefault();
         if (store.selection.length > 0) {
           deleteElements(store.selection);
+        }
+      }
+      // Nudging
+      else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        if (store.selection.length > 0) {
+          e.preventDefault();
+          const nudgeAmount = e.shiftKey ? 10 : 1;
+          let dx = 0, dy = 0;
+          if (e.key === 'ArrowUp') dy = -nudgeAmount;
+          else if (e.key === 'ArrowDown') dy = nudgeAmount;
+          else if (e.key === 'ArrowLeft') dx = -nudgeAmount;
+          else if (e.key === 'ArrowRight') dx = nudgeAmount;
+
+          moveSelectedElements(dx, dy, true);
         }
       }
     };

@@ -208,6 +208,16 @@ export const updateElement = (id: string, updates: Partial<DrawingElement>, reco
     setStore("elements", (el) => el.id === id, updates);
 };
 
+export const moveSelectedElements = (dx: number, dy: number, recordHistory = false) => {
+    if (store.selection.length === 0) return;
+    if (recordHistory) pushToHistory();
+
+    setStore("elements", (el) => store.selection.includes(el.id), (el) => ({
+        x: el.x + dx,
+        y: el.y + dy
+    }));
+};
+
 export const setViewState = (updates: Partial<ViewState>) => {
     setStore("viewState", (vs) => ({ ...vs, ...updates }));
 };
