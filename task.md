@@ -385,3 +385,27 @@
 - [ ] Consistent spacing suggestions
 - [ ] Align with padding/margin visualization
 
+### Phase 29: Object Context Menu
+- [ ] Implement right-click context menu for selected objects
+- [ ] Specific menu items and shortcuts:
+  - [ ] Cut (Ctrl+X)
+  - [ ] Copy (Ctrl+C)
+  - [ ] Paste (Ctrl+V)
+  - [ ] Wrap selection in frame
+  - [ ] Copy to clipboard as PNG (Shift+Alt+C)
+  - [ ] Copy to clipboard as SVG
+  - [ ] Copy styles (Ctrl+Alt+C)
+  - [ ] Paste styles (Ctrl+Alt+V)
+  - [ ] Add to library
+  - [ ] Send backward (Ctrl+[)
+  - [ ] Bring forward (Ctrl+])
+  - [ ] Send to back (Ctrl+Shift+[)
+  - [ ] Bring to front (Ctrl+Shift+])
+  - [ ] Flip horizontal (Shift+H)
+  - [ ] Flip vertical (Shift+V)
+  - [ ] Add link (Ctrl+K)
+  - [ ] Copy link to object
+  - [ ] Duplicate (Ctrl+D)
+  - [ ] Lock (Ctrl+Shift+L)
+  - [ ] Delete (Delete)
+
