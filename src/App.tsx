@@ -1,11 +1,12 @@
 import { type Component, onMount, onCleanup, Show } from 'solid-js';
-import { undo, redo, store, deleteElements, togglePropertyPanel, toggleLayerPanel, toggleMinimap, toggleZenMode } from './store/appStore';
+import { undo, redo, store, deleteElements, togglePropertyPanel, toggleLayerPanel, toggleMinimap, toggleZenMode, toggleCommandPalette } from './store/appStore';
 import Canvas from './components/Canvas';
 import Toolbar from './components/Toolbar';
 import Menu from './components/Menu';
 import ZoomControls from './components/ZoomControls';
 import PropertyPanel from './components/PropertyPanel';
 import LayerPanel from './components/LayerPanel';
+import CommandPalette from './components/CommandPalette';
 import { initAPI } from './api';
 
 const App: Component = () => {
@@ -54,6 +55,11 @@ const App: Component = () => {
         e.preventDefault();
         redo();
       }
+      // Command Palette (Ctrl+K)
+      else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        toggleCommandPalette(true);
+      }
       // Delete
       else if (e.key === 'Delete' || e.key === 'Backspace') {
         e.preventDefault();
@@ -76,6 +82,7 @@ const App: Component = () => {
       </Show>
       <Menu />
       <Canvas />
+      <CommandPalette />
     </div>
   );
 };

@@ -367,11 +367,10 @@
 - [ ] Nudge selected elements (Arrow keys for precise positioning)
 
 ### Phase 26: Command Palette & Search
-- [ ] Command Palette (Cmd+K / Ctrl+K)
-  - [ ] Search actions (group, align, distribute, etc.)
-  - [ ] Search layers by name
-  - [ ] Recent files quick access
-  - [ ] Tool switching via search
+- [x] Command Palette (Cmd+K / Ctrl+K)
+  - [x] Search actions (group, align, distribute, etc.)
+  - [x] Search layers by name
+  - [x] Tool switching via search
 - [ ] Layer panel search/filter
 
 ### Phase 27: Advanced Layer Features
