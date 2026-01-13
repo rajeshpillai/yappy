@@ -127,7 +127,7 @@
 - [ ] Layer keyboard shortcuts (Ctrl+]/[, Alt+1-9, Ctrl+Shift+N)
 - [ ] Layer context menu (right-click on layer item)
   - Rename, Duplicate, Delete, Merge Down, Flatten
-- [ ] Layer opacity control (affects all elements multiplicatively)
+- [x] Layer opacity control (affects all elements multiplicatively)
 - [ ] Smart layer operations
   - Merge down (combine with layer below)
   - Flatten all (merge all visible layers)
@@ -136,8 +136,8 @@
 - [ ] Layer thumbnails/previews (50x50px visual indicator)
 
 ## Phase 12.6: Layer Properties Panel
-- [ ] **Layer Opacity** (0-100%, affects all elements multiplicatively)
-- [ ] **Layer Background** (Transparent or Solid Color)
+- [x] **Layer Opacity** (0-100%, affects all elements multiplicatively)
+- [x] **Layer Background** (Transparent or Solid Color)
   - Renders as full-layer rectangle behind elements
   - Use cases: section backgrounds, annotation overlays, storyboarding
 - [ ] **Layer Color Tag** (organizational preset colors: Red, Orange, Yellow, Green, Blue, Purple)
