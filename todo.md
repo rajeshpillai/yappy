@@ -170,7 +170,29 @@
   - [x] Basic shape creation (Rect, Circle, Text, Line)
   - [x] Programmatic connections (Yappy.connect)
   - [x] Viewport control (zoomToFit)
-- [ ] Animation (Need to plan)
+- [ ] Animation (Future Feature - Planning Required)
+  - [ ] **Phase 1: Core Animation Engine**
+    - [ ] Add `animations` array to appStore
+    - [ ] Keyframe system (property + value + time + easing)
+    - [ ] Animation loop with requestAnimationFrame & delta time
+    - [ ] Easing functions (ease-in, ease-out, elastic, bounce, spring)
+  - [ ] **Phase 2: Element-Level Animation**
+    - [ ] Animate properties: x, y, opacity, rotation, scale, strokeColor, strokeWidth
+    - [ ] Sequence animations (trigger after previous completes)
+    - [ ] Entrance/Exit effects (fade, slide, scale, flip)
+  - [ ] **Phase 3: UI Components**
+    - [ ] Timeline Panel (visual keyframe editor)
+    - [ ] Property Panel animate button
+    - [ ] Preview controls (Play/Pause/Stop/Scrub)
+  - [ ] **Phase 4: Export Options**
+    - [ ] Export to GIF
+    - [ ] Export to MP4/WebM
+    - [ ] Export to Lottie JSON (for web interactivity)
+  - [ ] **Open Questions**
+    - [ ] Primary use case: Presentations vs Walkthroughs vs Full Timeline Editor?
+    - [ ] Element-level vs Scene-based animations?
+    - [ ] Export priority: Video (GIF/MP4) vs Interactive (Lottie/CSS)?
+  - [ ] **Reference**: See `docs/animation-fundamentals.md` for algorithms
 - [ ] Layer blend modes (multiply, screen, overlay, etc.)
 - [ ] Layer effects/filters (blur, brightness, saturation)
 - [x] Fix Line/Arrow interaction (resize/move) in Canvas <!-- id: bug-fix-line -->
