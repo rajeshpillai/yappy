@@ -284,6 +284,13 @@ const HelpDialog: Component<Props> = (props) => {
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
+                                            <span class="shortcut-label">Zen Mode</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Alt</span>
+                                                <span class="keycap">Z</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
                                             <span class="shortcut-label">Help Dialog</span>
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Shift</span>

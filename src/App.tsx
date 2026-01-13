@@ -47,10 +47,12 @@ const App: Component = () => {
   return (
     <div>
       <Toolbar />
-      <PropertyPanel />
-      <LayerPanel />
+      <Show when={!store.zenMode}>
+        <PropertyPanel />
+        <LayerPanel />
+        <ZoomControls />
+      </Show>
       <Menu />
-      <ZoomControls />
       <Canvas />
     </div>
   );

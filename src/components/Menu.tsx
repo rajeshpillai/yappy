@@ -4,7 +4,7 @@ import {
     store, setStore, deleteElements, clearHistory, toggleTheme, zoomToFit,
     addLayer, reorderLayers, bringToFront, sendToBack, groupSelected, ungroupSelected,
     togglePropertyPanel, toggleLayerPanel, toggleMinimap, loadTemplate, setSelectedTool,
-    toggleGrid, toggleSnapToGrid
+    toggleGrid, toggleSnapToGrid, toggleZenMode
 } from "../store/appStore";
 import {
     Menu as MenuIcon, FolderOpen, Share2, FilePlus, Trash2, Maximize,
@@ -338,6 +338,9 @@ const Menu: Component = () => {
                     const anyVisible = store.showPropertyPanel || store.showLayerPanel;
                     togglePropertyPanel(!anyVisible);
                     toggleLayerPanel(!anyVisible);
+                } else if (e.key.toLowerCase() === 'z') {
+                    e.preventDefault();
+                    toggleZenMode();
                 }
             } else if (e.key === '?' && e.shiftKey) {
                 if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
@@ -441,104 +444,110 @@ const Menu: Component = () => {
                 onSelectTemplate={handleTemplateSelect}
             />
 
-            <div class="app-title">
-                {drawingId()}
-            </div>
+            <Show when={!store.zenMode}>
+                <div class="app-title">
+                    {drawingId()}
+                </div>
+            </Show>
 
-            <div style={{ position: 'fixed', top: '12px', left: '12px', "z-index": 1001 }}>
-                <div class="menu-container" style={{ position: 'relative' }}>
-                    <button class={`menu - btn ${isMenuOpen() ? 'active' : ''} `} title="Menu" onClick={() => setIsMenuOpen(!isMenuOpen())}>
-                        <MenuIcon size={20} />
-                    </button>
+            <Show when={!store.zenMode}>
+                <>
+                    <div style={{ position: 'fixed', top: '12px', left: '12px', "z-index": 1001 }}>
+                        <div class="menu-container" style={{ position: 'relative' }}>
+                            <button class={`menu-btn ${isMenuOpen() ? 'active' : ''}`} title="Menu" onClick={() => setIsMenuOpen(!isMenuOpen())}>
+                                <MenuIcon size={20} />
+                            </button>
 
-                    <Show when={isMenuOpen()}>
-                        <div class="menu-dropdown">
-                            <button class="menu-item" onClick={() => { setLoadExportInitialTab('load'); setIsLoadExportOpen(true); setIsMenuOpen(false); }}>
-                                <FolderOpen size={16} />
-                                <span class="label">Load Sketch...</span>
-                            </button>
-                            <button class="menu-item" onClick={() => { setLoadExportInitialTab('save'); setIsLoadExportOpen(true); setIsMenuOpen(false); }}>
-                                <Download size={16} />
-                                <span class="label">Export / Save...</span>
-                            </button>
-                            <div class="menu-separator"></div>
-                            <div class="menu-item" onClick={() => { togglePropertyPanel(); setIsMenuOpen(false); }}>
-                                <Layout size={16} />
-                                <span class="label">Properties Panel</span>
-                                <div class="menu-item-right">
-                                    <Show when={store.showPropertyPanel}><Check size={14} class="check-icon" /></Show>
-                                    <span class="shortcut">Alt+P</span>
+                            <Show when={isMenuOpen()}>
+                                <div class="menu-dropdown">
+                                    <button class="menu-item" onClick={() => { setLoadExportInitialTab('load'); setIsLoadExportOpen(true); setIsMenuOpen(false); }}>
+                                        <FolderOpen size={16} />
+                                        <span class="label">Load Sketch...</span>
+                                    </button>
+                                    <button class="menu-item" onClick={() => { setLoadExportInitialTab('save'); setIsLoadExportOpen(true); setIsMenuOpen(false); }}>
+                                        <Download size={16} />
+                                        <span class="label">Export / Save...</span>
+                                    </button>
+                                    <div class="menu-separator"></div>
+                                    <div class="menu-item" onClick={() => { togglePropertyPanel(); setIsMenuOpen(false); }}>
+                                        <Layout size={16} />
+                                        <span class="label">Properties Panel</span>
+                                        <div class="menu-item-right">
+                                            <Show when={store.showPropertyPanel}><Check size={14} class="check-icon" /></Show>
+                                            <span class="shortcut">Alt+P</span>
+                                        </div>
+                                    </div>
+                                    <div class="menu-item" onClick={() => { toggleLayerPanel(); setIsMenuOpen(false); }}>
+                                        <Layers size={16} />
+                                        <span class="label">Layers Panel</span>
+                                        <div class="menu-item-right">
+                                            <Show when={store.showLayerPanel}><Check size={14} class="check-icon" /></Show>
+                                            <span class="shortcut">Alt+L</span>
+                                        </div>
+                                    </div>
+                                    <div class="menu-item" onClick={() => { toggleMinimap(); setIsMenuOpen(false); }}>
+                                        <Maximize size={16} />
+                                        <span class="label">Minimap</span>
+                                        <div class="menu-item-right">
+                                            <Show when={store.minimapVisible}><Check size={14} class="check-icon" /></Show>
+                                            <span class="shortcut">Alt+M</span>
+                                        </div>
+                                    </div>
+                                    <div class="menu-separator"></div>
+                                    <button class="menu-item" onClick={handleNew}>
+                                        <FilePlus size={16} />
+                                        <span class="label">New Sketch</span>
+                                    </button>
+                                    <button class="menu-item" onClick={() => { setIsTemplateBrowserOpen(true); setIsMenuOpen(false); }}>
+                                        <Layout size={16} />
+                                        <span class="label">Templates</span>
+                                    </button>
+                                    <div class="menu-separator"></div>
+                                    <div style={{ padding: '4px 12px', "font-size": '12px', color: 'var(--text-secondary)' }}>
+                                        Found a bug? <a href="https://github.com/rajeshpillai/yappy/issues" target="_blank" rel="noopener noreferrer">Report</a>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="menu-item" onClick={() => { toggleLayerPanel(); setIsMenuOpen(false); }}>
-                                <Layers size={16} />
-                                <span class="label">Layers Panel</span>
-                                <div class="menu-item-right">
-                                    <Show when={store.showLayerPanel}><Check size={14} class="check-icon" /></Show>
-                                    <span class="shortcut">Alt+L</span>
-                                </div>
-                            </div>
-                            <div class="menu-item" onClick={() => { toggleMinimap(); setIsMenuOpen(false); }}>
-                                <Maximize size={16} />
-                                <span class="label">Minimap</span>
-                                <div class="menu-item-right">
-                                    <Show when={store.minimapVisible}><Check size={14} class="check-icon" /></Show>
-                                    <span class="shortcut">Alt+M</span>
-                                </div>
-                            </div>
-                            <div class="menu-separator"></div>
-                            <button class="menu-item" onClick={handleNew}>
-                                <FilePlus size={16} />
-                                <span class="label">New Sketch</span>
+                            </Show>
+
+                            <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
+                            <button class="menu-btn" onClick={() => deleteElements(store.selection)} title="Delete" disabled={store.selection.length === 0}>
+                                <Trash2 size={18} />
                             </button>
-                            <button class="menu-item" onClick={() => { setIsTemplateBrowserOpen(true); setIsMenuOpen(false); }}>
-                                <Layout size={16} />
-                                <span class="label">Templates</span>
+                            <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
+                            <button class="menu-btn" onClick={handleResetView} title="Zoom to Fit">
+                                <Maximize size={18} />
                             </button>
-                            <div class="menu-separator"></div>
-                            <div style={{ padding: '4px 12px', "font-size": '12px', color: 'var(--text-secondary)' }}>
-                                Found a bug? <a href="https://github.com/rajeshpillai/yappy/issues" target="_blank" rel="noopener noreferrer">Report</a>
-                            </div>
                         </div>
-                    </Show>
+                    </div>
 
-                    <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
-                    <button class="menu-btn" onClick={() => deleteElements(store.selection)} title="Delete" disabled={store.selection.length === 0}>
-                        <Trash2 size={18} />
-                    </button>
-                    <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
-                    <button class="menu-btn" onClick={handleResetView} title="Zoom to Fit">
-                        <Maximize size={18} />
-                    </button>
-                </div>
-            </div>
-
-            <div style={{ position: 'fixed', top: '12px', right: '12px', "z-index": 100 }}>
-                <div class="menu-container">
-                    <button class="menu-btn primary" onClick={handleShare} title="Share">
-                        <Share2 size={18} />
-                        <span style={{ "margin-left": "4px" }}>Share</span>
-                    </button>
-                    <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
-                    <button class="menu-btn" onClick={() => setShowHelp(true)} title="Help & Shortcuts (?)">
-                        <div style={{
-                            width: '20px',
-                            height: '20px',
-                            "border-radius": '50%',
-                            border: '2px solid currentColor',
-                            display: 'flex',
-                            "align-items": 'center',
-                            "justify-content": 'center',
-                            "font-weight": 'bold',
-                            "font-size": '14px'
-                        }}>?</div>
-                    </button>
-                    <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
-                    <button class="menu-btn" onClick={toggleTheme} title="Toggle Theme">
-                        {store.theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-                    </button>
-                </div>
-            </div>
+                    <div style={{ position: 'fixed', top: '12px', right: '12px', "z-index": 100 }}>
+                        <div class="menu-container">
+                            <button class="menu-btn primary" onClick={handleShare} title="Share">
+                                <Share2 size={18} />
+                                <span style={{ "margin-left": "4px" }}>Share</span>
+                            </button>
+                            <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
+                            <button class="menu-btn" onClick={() => setShowHelp(true)} title="Help & Shortcuts (?)">
+                                <div style={{
+                                    width: '20px',
+                                    height: '20px',
+                                    "border-radius": '50%',
+                                    border: '2px solid currentColor',
+                                    display: 'flex',
+                                    "align-items": 'center',
+                                    "justify-content": 'center',
+                                    "font-weight": 'bold',
+                                    "font-size": '14px'
+                                }}>?</div>
+                            </button>
+                            <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
+                            <button class="menu-btn" onClick={toggleTheme} title="Toggle Theme">
+                                {store.theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                            </button>
+                        </div>
+                    </div>
+                </>
+            </Show>
         </>
     );
 };

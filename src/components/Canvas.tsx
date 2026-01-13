@@ -1,6 +1,6 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show } from "solid-js";
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
-import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool } from "../store/appStore";
+import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode } from "../store/appStore";
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse, intersectElementWithLine, isPointOnBezier } from "../utils/geometry";
 import { getAnchorPoints, findClosestAnchor } from "../utils/anchorPoints";
 import { calculateSmartElbowRoute } from "../utils/routing";
@@ -1695,6 +1695,12 @@ const Canvas: Component = () => {
                             checked: store.gridSettings.objectSnapping
                         },
                         { separator: true } as any,
+                        {
+                            label: 'Zen Mode',
+                            shortcut: 'Alt+Z',
+                            onClick: toggleZenMode,
+                            checked: store.zenMode
+                        },
                         {
                             label: 'Reset View',
                             onClick: () => {

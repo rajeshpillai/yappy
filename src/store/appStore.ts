@@ -21,6 +21,7 @@ interface AppState {
     isPropertyPanelMinimized: boolean;
     isLayerPanelMinimized: boolean;
     minimapVisible: boolean;
+    zenMode: boolean;
 }
 
 const initialState: AppState = {
@@ -76,7 +77,8 @@ const initialState: AppState = {
     showLayerPanel: false,
     isPropertyPanelMinimized: false,
     isLayerPanelMinimized: false,
-    minimapVisible: false
+    minimapVisible: false,
+    zenMode: false
 }; // Default light background
 
 export const [store, setStore] = createStore<AppState>(initialState);
@@ -571,6 +573,10 @@ export const minimizeLayerPanel = (minimized?: boolean) => {
 
 export const toggleMinimap = (visible?: boolean) => {
     setStore('minimapVisible', (v) => visible ?? !v);
+};
+
+export const toggleZenMode = (visible?: boolean) => {
+    setStore('zenMode', (v) => visible ?? !v);
 };
 
 // Initialize theme on load
