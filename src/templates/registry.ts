@@ -53,6 +53,8 @@ class TemplateRegistry {
         this.registerTemplate(diagramTemplates.wireframeTemplate);
         this.registerTemplate(diagramTemplates.orgChartTemplate);
         this.registerTemplate(diagramTemplates.networkDiagramTemplate);
+        this.registerTemplate(diagramTemplates.systemDesignTemplate);
+        this.registerTemplate(diagramTemplates.yappyArchitectureTemplate);
     }
 
     /**
