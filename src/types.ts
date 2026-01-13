@@ -6,10 +6,19 @@ export type TextAlign = 'left' | 'center' | 'right';
 export type VerticalAlign = 'top' | 'middle' | 'bottom';
 export type ArrowHead = 'arrow' | 'triangle' | 'dot' | 'circle' | 'bar' | null;
 
-export interface Point {
+export interface PencilSettings {
+    penMode: boolean;        // Enable advanced smoothing
+    smoothing: number;       // Chaikin iterations (0-5)
+    tolerance: number;       // RDP tolerance (0-5)
+    stabilization: number;   // Moving average window size (1-10)
+    pressure: boolean;       // Enable pressure sensitivity
+}
+
+export type Point = {
     x: number;
     y: number;
-}
+    p?: number; // pressure (0-1)
+};
 
 export interface DrawingElement {
     id: string;

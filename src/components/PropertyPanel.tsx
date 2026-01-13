@@ -1,5 +1,5 @@
 import { type Component, Show, createMemo, For, createSignal, createEffect } from "solid-js";
-import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, alignSelectedElements, distributeSelectedElements, togglePropertyPanel, minimizePropertyPanel } from "../store/appStore";
+import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, alignSelectedElements, distributeSelectedElements, togglePropertyPanel, minimizePropertyPanel, updatePencilSettings } from "../store/appStore";
 import {
     Copy, ChevronsDown, ChevronDown, ChevronUp, ChevronsUp, Trash2, Palette,
     AlignLeft, AlignCenterHorizontal, AlignRight,
@@ -189,6 +189,9 @@ const PropertyPanel: Component = () => {
             else if (key === 'gridColor') updateGridSettings({ gridColor: value });
             else if (key === 'gridOpacity') updateGridSettings({ gridOpacity: value });
             else if (key === 'objectSnapping') updateGridSettings({ objectSnapping: value });
+        } else if (key.startsWith('pencil') || key === 'pressureEnabled') {
+            const settingKey = key === 'pressureEnabled' ? 'pressure' : key.replace('pencil', '').toLowerCase();
+            updatePencilSettings({ [settingKey]: value });
         } else {
             updateDefaultStyles({ [key]: value });
         }
@@ -206,6 +209,10 @@ const PropertyPanel: Component = () => {
                 return (store.gridSettings as any)[prop.key];
             }
             return (store as any)[prop.key];
+        }
+        if (prop.key.startsWith('pencil') || prop.key === 'pressureEnabled') {
+            const settingKey = prop.key === 'pressureEnabled' ? 'pressure' : prop.key.replace('pencil', '').toLowerCase();
+            return (store.pencilSettings as any)[settingKey];
         }
         if (target.type === 'element') return (target.data as any)[prop.key];
         if (target.type === 'defaults') return (store.defaultElementStyles as any)[prop.key];

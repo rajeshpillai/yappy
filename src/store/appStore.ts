@@ -1,5 +1,5 @@
 import { createStore } from "solid-js/store";
-import type { DrawingElement, ViewState, ElementType, Layer, GridSettings } from "../types";
+import type { DrawingElement, ViewState, ElementType, Layer, GridSettings, PencilSettings } from "../types";
 
 interface AppState {
     elements: DrawingElement[];
@@ -13,6 +13,7 @@ interface AppState {
     gridSettings: GridSettings;
     showCanvasProperties: boolean;
     canvasBackgroundColor: string;
+    pencilSettings: PencilSettings;
     undoStackLength: number;
     redoStackLength: number;
     // Panel Visibility
@@ -34,7 +35,7 @@ const initialState: AppState = {
         strokeColor: '#000000',
         backgroundColor: 'transparent',
         fillStyle: 'hachure',
-        strokeWidth: 1,
+        strokeWidth: 4,
         strokeStyle: 'solid',
         roughness: 1,
         renderStyle: 'sketch',
@@ -72,6 +73,13 @@ const initialState: AppState = {
     },
     showCanvasProperties: false,
     canvasBackgroundColor: '#ffffff',
+    pencilSettings: {
+        penMode: false,
+        smoothing: 1,
+        tolerance: 0.5,
+        stabilization: 2,
+        pressure: true
+    },
     undoStackLength: 0,
     redoStackLength: 0,
     showPropertyPanel: true,
@@ -615,6 +623,10 @@ export const updateGridSettings = (updates: Partial<GridSettings>) => {
 
 export const setCanvasBackgroundColor = (color: string) => {
     setStore('canvasBackgroundColor', color);
+};
+
+export const updatePencilSettings = (updates: Partial<PencilSettings>) => {
+    setStore('pencilSettings', (s) => ({ ...s, ...updates }));
 };
 
 export const setGridStyle = (style: 'lines' | 'dots') => {

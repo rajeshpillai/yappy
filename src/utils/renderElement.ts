@@ -1,6 +1,7 @@
 import type { DrawingElement } from "../types";
 import type { RoughCanvas } from "roughjs/bin/canvas";
 import { getImage } from "./imageCache";
+import { pointsToSvgPath } from "./pencilOptimizer";
 
 export const renderElement = (
     rc: RoughCanvas,
@@ -169,8 +170,24 @@ export const renderElement = (
             }
         }
     } else if (el.type === 'pencil' && el.points && el.points.length > 0) {
-        const points: [number, number][] = el.points.map(p => [el.x + p.x, el.y + p.y]);
-        rc.linearPath(points, options);
+        // Use average pressure to scale stroke width if available
+        let finalOptions = { ...options };
+        const hasPressure = el.points.some(p => p.p !== undefined && p.p > 0);
+        if (hasPressure) {
+            const avgPressure = el.points.reduce((acc, p) => acc + (p.p || 0.5), 0) / el.points.length;
+            finalOptions.strokeWidth = el.strokeWidth * (0.5 + avgPressure); // Scale from 0.5x to 1.5x
+        }
+
+        // Generate smooth SVG path from absolute world points to avoid offset
+        const absPoints = el.points.map(p => ({ ...p, x: el.x + p.x, y: el.y + p.y }));
+        const pathData = pointsToSvgPath(absPoints);
+        if (pathData) {
+            rc.path(pathData, finalOptions);
+        } else {
+            // Fallback for very few points
+            const points: [number, number][] = el.points.map(p => [el.x + p.x, el.y + p.y]);
+            rc.linearPath(points, finalOptions);
+        }
     } else if (el.type === 'image' && el.dataURL) {
         const img = getImage(el.dataURL);
         if (img) {
@@ -186,14 +203,6 @@ export const renderElement = (
             ctx.restore();
         }
     } else if (el.type === 'text' && el.text) {
-        // We do NOT check editingId here. Callsite should handle exclusion if needed.
-        // Actually, for export we want to render text always.
-        // For Canvas redraw, we skip if editing. 
-        // We will pass an "isEditing" flag? Or just render and let Canvas overlay hide it?
-        // Canvas overlay is a textarea on TOP of canvas.
-        // But usually we hide the canvas text while editing to avoid ghosting.
-        // For now, I'll just render text. Canvas.tsx can control calling this.
-
         const fontSize = el.fontSize || 20;
         const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
             el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
@@ -285,13 +294,12 @@ export const renderElement = (
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
-        // Calculate position based on labelPosition (default: middle)
         const startX = el.x;
         const startY = el.y;
         const endX = el.x + el.width;
         const endY = el.y + el.height;
 
-        const position = el.labelPosition || 'middle'; // Default to middle for backward compatibility
+        const position = el.labelPosition || 'middle';
         let labelX: number, labelY: number;
 
         switch (position) {

@@ -18,6 +18,7 @@ import {
     copyToClipboard, cutToClipboard, pasteFromClipboard,
     flipSelected, lockSelected, copyStyle, pasteStyle
 } from '../utils/objectContextActions';
+import { simplifyPoints } from "../utils/pencilOptimizer";
 
 
 const Canvas: Component = () => {
@@ -48,6 +49,10 @@ const Canvas: Component = () => {
     });
 
     let canvasRef: HTMLCanvasElement | undefined;
+
+    // Minimum distance between points to reduce micro-jitter (in pixels)
+    const MIN_POINT_DISTANCE = 2;
+
     let isDrawing = false;
     let currentId: string | null = null;
     let startX = 0;
@@ -1157,6 +1162,10 @@ const Canvas: Component = () => {
             points: tool === 'pencil' ? [{ x: 0, y: 0 }] : undefined,
         } as DrawingElement;
 
+        if (store.selectedTool === 'pencil') {
+            // No stabilizer needed - using incremental Bézier smoothing
+        }
+
         addElement(newElement);
     };
 
@@ -1484,8 +1493,27 @@ const Canvas: Component = () => {
         if (store.selectedTool === 'pencil') {
             const el = store.elements.find(e => e.id === currentId);
             if (el && el.points) {
-                // Store relative to element origin (startX, startY)
-                updateElement(currentId, { points: [...el.points, { x: x - startX, y: y - startY }] });
+                const { x: ex, y: ey } = getWorldCoordinates(e.clientX, e.clientY);
+                const newPoint = {
+                    x: ex - startX,
+                    y: ey - startY,
+                    p: (store.pencilSettings.pressure && e.pressure !== undefined) ? e.pressure : 0.5
+                };
+
+                // Distance threshold to skip micro-jitter (only when penMode is enabled)
+                if (store.pencilSettings.penMode && el.points.length > 0) {
+                    const lastPoint = el.points[el.points.length - 1];
+                    const dx = newPoint.x - lastPoint.x;
+                    const dy = newPoint.y - lastPoint.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < MIN_POINT_DISTANCE) {
+                        return; // Skip this point - too close
+                    }
+                }
+
+                // Add point and update - the rendering will handle Bézier smoothing
+                const newPoints = [...el.points, newPoint];
+                updateElement(currentId, { points: newPoints }, false);
             }
         } else {
             // Apply snap to grid if enabled
@@ -1661,10 +1689,17 @@ const Canvas: Component = () => {
                         updateElement(currentId, { y: el.y + el.height, height: Math.abs(el.height) });
                     }
                 } else if (el.type === 'pencil') {
-                    // Normalize pencil
-                    const updates = normalizePencil(el);
-                    if (updates) {
-                        updateElement(currentId, updates);
+                    if (el.points && el.points.length > 2) {
+                        // Only apply simplification when penMode is enabled
+                        const finalPoints = store.pencilSettings.penMode
+                            ? simplifyPoints(el.points, store.pencilSettings.tolerance / store.viewState.scale)
+                            : el.points;
+
+                        // Normalize pencil
+                        const updates = normalizePencil({ ...el, points: finalPoints });
+                        if (updates) {
+                            updateElement(currentId, updates);
+                        }
                     }
                 }
             }

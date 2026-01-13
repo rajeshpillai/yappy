@@ -1,7 +1,4 @@
-export interface Point {
-    x: number;
-    y: number;
-}
+import type { Point } from "../types";
 
 export const distanceToSegment = (p: Point, a: Point, b: Point): number => {
     const x = p.x;

@@ -322,6 +322,56 @@ export const properties: PropertyConfig[] = [
         group: 'dimensions',
         applicableTo: ['rectangle', 'circle', 'image', 'diamond', 'pencil'],
         defaultValue: false
+    },
+    // Pencil Specific (Tool/Canvas Level)
+    {
+        key: 'penMode',
+        label: 'Pen Mode',
+        type: 'toggle',
+        group: 'advanced',
+        applicableTo: ['pencil'],
+        defaultValue: false
+    },
+    {
+        key: 'pencilSmoothing',
+        label: 'Smoothing',
+        type: 'slider',
+        min: 0,
+        max: 5,
+        step: 1,
+        group: 'advanced',
+        applicableTo: ['pencil'],
+        defaultValue: 1
+    },
+    {
+        key: 'pencilTolerance',
+        label: 'Simplicity',
+        type: 'slider',
+        min: 0,
+        max: 5,
+        step: 0.1,
+        group: 'advanced',
+        applicableTo: ['pencil'],
+        defaultValue: 0.5
+    },
+    {
+        key: 'pencilStabilization',
+        label: 'Stabilization',
+        type: 'slider',
+        min: 1,
+        max: 10,
+        step: 1,
+        group: 'advanced',
+        applicableTo: ['pencil'],
+        defaultValue: 4
+    },
+    {
+        key: 'pressureEnabled',
+        label: 'Pressure',
+        type: 'toggle',
+        group: 'advanced',
+        applicableTo: ['pencil'],
+        defaultValue: true
     }
 ];
 
