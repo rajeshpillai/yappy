@@ -1075,7 +1075,38 @@ const Canvas: Component = () => {
                     });
                 }
             } else {
-                // Clicked empty space
+                // Clicked empty space - Check if hit multi-selection bounding box
+                if (store.selection.length > 1) {
+                    const box = getSelectionBoundingBox();
+                    if (box) {
+                        const threshold = 10 / store.viewState.scale;
+                        if (x >= box.x - threshold && x <= box.x + box.width + threshold &&
+                            y >= box.y - threshold && y <= box.y + box.height + threshold) {
+
+                            pushToHistory();
+                            isDragging = true;
+                            draggingHandle = null;
+                            startX = x;
+                            startY = y;
+
+                            initialPositions.clear();
+                            store.elements.forEach(el => {
+                                if (store.selection.includes(el.id)) {
+                                    initialPositions.set(el.id, {
+                                        x: el.x,
+                                        y: el.y,
+                                        width: el.width,
+                                        height: el.height,
+                                        fontSize: el.fontSize,
+                                        points: el.points ? [...el.points] : undefined
+                                    });
+                                }
+                            });
+                            return;
+                        }
+                    }
+                }
+
                 if (!e.shiftKey) {
                     setStore('selection', []);
                     setShowCanvasProperties(false); // Hide canvas properties on click away
@@ -1229,11 +1260,9 @@ const Canvas: Component = () => {
                 const el = store.elements.find(e => e.id === id);
                 if (!el) return;
 
-                // Don't allow moving/resizing locked elements
-                if (!canInteractWithElement(el)) {
+                if (draggingHandle && !canInteractWithElement(el)) {
                     return;
                 }
-
 
                 if (draggingHandle) {
                     // Binding Logic for Lines/Arrows
@@ -1445,43 +1474,45 @@ const Canvas: Component = () => {
                     }
 
                     store.selection.forEach(selId => {
-                        const initPos = initialPositions.get(selId);
-                        if (initPos) {
-                            updateElement(selId, { x: initPos.x + dx, y: initPos.y + dy });
+                        const el = store.elements.find(e => e.id === selId);
+                        if (el && canInteractWithElement(el)) {
+                            const initPos = initialPositions.get(selId);
+                            if (initPos) {
+                                updateElement(selId, { x: initPos.x + dx, y: initPos.y + dy });
 
-                            // Update Bound Lines
-                            const movedEl = store.elements.find(e => e.id === selId);
-                            if (movedEl && movedEl.boundElements) {
-                                movedEl.boundElements.forEach(b => {
-                                    const line = store.elements.find(l => l.id === b.id);
-                                    if (line) {
-                                        let startX = line.x;
-                                        let startY = line.y;
-                                        let endX = line.x + line.width;
-                                        let endY = line.y + line.height;
-                                        let changed = false;
+                                // Update Bound Lines
+                                if (el.boundElements) {
+                                    el.boundElements.forEach(b => {
+                                        const line = store.elements.find(l => l.id === b.id);
+                                        if (line) {
+                                            let sX = line.x;
+                                            let sY = line.y;
+                                            let eX = line.x + line.width;
+                                            let eY = line.y + line.height;
+                                            let changed = false;
 
-                                        if (line.startBinding?.elementId === movedEl.id) {
-                                            const p = intersectElementWithLine(movedEl, { x: endX, y: endY }, line.startBinding.gap);
-                                            if (p) { startX = p.x; startY = p.y; changed = true; }
-                                        }
-                                        if (line.endBinding?.elementId === movedEl.id) {
-                                            const p = intersectElementWithLine(movedEl, { x: startX, y: startY }, line.endBinding.gap);
-                                            if (p) { endX = p.x; endY = p.y; changed = true; }
-                                        }
+                                            if (line.startBinding?.elementId === el.id) {
+                                                const p = intersectElementWithLine(el, { x: eX, y: eY }, line.startBinding.gap);
+                                                if (p) { sX = p.x; sY = p.y; changed = true; }
+                                            }
+                                            if (line.endBinding?.elementId === el.id) {
+                                                const p = intersectElementWithLine(el, { x: sX, y: sY }, line.endBinding.gap);
+                                                if (p) { eX = p.x; eY = p.y; changed = true; }
+                                            }
 
-                                        if (changed) {
-                                            const points = refreshLinePoints(line, startX, startY, endX, endY);
-                                            updateElement(line.id, {
-                                                x: startX,
-                                                y: startY,
-                                                width: endX - startX,
-                                                height: endY - startY,
-                                                points
-                                            });
+                                            if (changed) {
+                                                const points = refreshLinePoints(line, sX, sY, eX, eY);
+                                                updateElement(line.id, {
+                                                    x: sX,
+                                                    y: sY,
+                                                    width: eX - sX,
+                                                    height: eY - sY,
+                                                    points
+                                                });
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+                                }
                             }
                         }
                     });
