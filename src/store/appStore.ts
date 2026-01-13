@@ -73,7 +73,7 @@ const initialState: AppState = {
     undoStackLength: 0,
     redoStackLength: 0,
     showPropertyPanel: true,
-    showLayerPanel: true,
+    showLayerPanel: false,
     isPropertyPanelMinimized: false,
     isLayerPanelMinimized: false,
     minimapVisible: false

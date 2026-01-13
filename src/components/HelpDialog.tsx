@@ -69,11 +69,17 @@ const HelpDialog: Component<Props> = (props) => {
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
-                                            <span class="shortcut-label">Ellipse</span>
+                                            <span class="shortcut-label">Circle</span>
                                             <div class="shortcut-keys">
                                                 <span class="keycap">O</span>
                                                 <span class="key-or">or</span>
                                                 <span class="keycap">3</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Diamond</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">D</span>
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
@@ -90,6 +96,30 @@ const HelpDialog: Component<Props> = (props) => {
                                                 <span class="keycap">A</span>
                                                 <span class="key-or">or</span>
                                                 <span class="keycap">5</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Pencil</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">P</span>
+                                                <span class="key-or">or</span>
+                                                <span class="keycap">8</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Insert Image</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">I</span>
+                                                <span class="key-or">or</span>
+                                                <span class="keycap">9</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Bezier Curve</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">B</span>
+                                                <span class="key-or">or</span>
+                                                <span class="keycap">0</span>
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
@@ -134,10 +164,25 @@ const HelpDialog: Component<Props> = (props) => {
                                             <div class="shortcut-keys"><span class="keycap">Del</span></div>
                                         </div>
                                         <div class="shortcut-item">
-                                            <span class="shortcut-label">Multi-select</span>
+                                            <span class="shortcut-label">Open File</span>
                                             <div class="shortcut-keys">
+                                                <span class="keycap">Ctrl</span>
+                                                <span class="keycap">O</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Save File</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Ctrl</span>
+                                                <span class="keycap">S</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Export Image</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Ctrl</span>
                                                 <span class="keycap">Shift</span>
-                                                <span class="text-sm" style={{ "margin-left": "4px" }}>+ click/drag</span>
+                                                <span class="keycap">E</span>
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
@@ -159,13 +204,6 @@ const HelpDialog: Component<Props> = (props) => {
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Ctrl</span>
                                                 <span class="keycap">V</span>
-                                            </div>
-                                        </div>
-                                        <div class="shortcut-item">
-                                            <span class="shortcut-label">Cut</span>
-                                            <div class="shortcut-keys">
-                                                <span class="keycap">Ctrl</span>
-                                                <span class="keycap">X</span>
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
@@ -197,28 +235,6 @@ const HelpDialog: Component<Props> = (props) => {
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
-                                            <span class="shortcut-label">Ungroup selection</span>
-                                            <div class="shortcut-keys">
-                                                <span class="keycap">Ctrl</span>
-                                                <span class="keycap">Shift</span>
-                                                <span class="keycap">G</span>
-                                            </div>
-                                        </div>
-                                        <div class="shortcut-item">
-                                            <span class="shortcut-label">Move Canvas</span>
-                                            <div class="shortcut-keys">
-                                                <span class="keycap">Space</span>
-                                                <span class="text-sm" style={{ "margin-left": "4px" }}>+ drag</span>
-                                            </div>
-                                        </div>
-                                        <div class="shortcut-item">
-                                            <span class="shortcut-label">Zoom In/Out</span>
-                                            <div class="shortcut-keys">
-                                                <span class="keycap">Ctrl</span>
-                                                <span class="text-sm" style={{ "margin-left": "4px" }}>+ wheel</span>
-                                            </div>
-                                        </div>
-                                        <div class="shortcut-item">
                                             <span class="shortcut-label">New Layer</span>
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Shift</span>
@@ -226,12 +242,17 @@ const HelpDialog: Component<Props> = (props) => {
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
-                                            <span class="shortcut-label">Reorder Layer</span>
+                                            <span class="shortcut-label">Toggle Properties</span>
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Alt</span>
-                                                <span class="keycap">[</span>
-                                                <span class="key-or">/</span>
-                                                <span class="keycap">]</span>
+                                                <span class="keycap">P</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Toggle Layers</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Alt</span>
+                                                <span class="keycap">L</span>
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
@@ -246,6 +267,27 @@ const HelpDialog: Component<Props> = (props) => {
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Alt</span>
                                                 <span class="keycap">\</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Toggle Grid</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Shift</span>
+                                                <span class="keycap">'</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Snap to Grid</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Shift</span>
+                                                <span class="keycap">;</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Help Dialog</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Shift</span>
+                                                <span class="keycap">?</span>
                                             </div>
                                         </div>
                                     </div>

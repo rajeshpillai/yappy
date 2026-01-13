@@ -3,7 +3,8 @@ import { storage } from "../storage/FileSystemStorage";
 import {
     store, setStore, deleteElements, clearHistory, toggleTheme, zoomToFit,
     addLayer, reorderLayers, bringToFront, sendToBack, groupSelected, ungroupSelected,
-    togglePropertyPanel, toggleLayerPanel, toggleMinimap, loadTemplate
+    togglePropertyPanel, toggleLayerPanel, toggleMinimap, loadTemplate, setSelectedTool,
+    toggleGrid, toggleSnapToGrid
 } from "../store/appStore";
 import {
     Menu as MenuIcon, FolderOpen, Share2, FilePlus, Trash2, Maximize,
@@ -308,14 +309,6 @@ const Menu: Component = () => {
                         sendToBack(store.selection);
                     }
                 }
-            } else if (e.key === '?' && e.shiftKey) {
-                if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
-                    e.preventDefault();
-                    setShowHelp(true);
-                }
-            } else if (e.shiftKey && e.key.toLowerCase() === 'n') {
-                e.preventDefault();
-                addLayer();
             } else if (e.altKey) {
                 if (e.key === '[') {
                     e.preventDefault();
@@ -346,6 +339,24 @@ const Menu: Component = () => {
                     togglePropertyPanel(!anyVisible);
                     toggleLayerPanel(!anyVisible);
                 }
+            } else if (e.key === '?' && e.shiftKey) {
+                if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                    setShowHelp(true);
+                }
+            } else if (e.key === '"' || (e.key === "'" && e.shiftKey)) {
+                if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                    toggleGrid();
+                }
+            } else if (e.key === ':' || (e.key === ';' && e.shiftKey)) {
+                if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                    toggleSnapToGrid();
+                }
+            } else if (e.shiftKey && e.key.toLowerCase() === 'n') {
+                e.preventDefault();
+                addLayer();
             } else if (e.key === 'Escape') {
                 setIsDialogOpen(false);
                 setIsExportOpen(false);
@@ -353,6 +364,23 @@ const Menu: Component = () => {
                 setIsMenuOpen(false);
                 setShowHelp(false);
                 setIsLoadExportOpen(false);
+            } else {
+                // Tool Shortcuts (No Modifiers)
+                if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+                    const key = e.key.toLowerCase();
+                    if (key === 'v' || key === '1') setSelectedTool('selection');
+                    else if (key === 'r' || key === '2') setSelectedTool('rectangle');
+                    else if (key === 'o' || key === '3') setSelectedTool('circle');
+                    else if (key === 'l' || key === '4') setSelectedTool('line');
+                    else if (key === 'a' || key === '5') setSelectedTool('arrow');
+                    else if (key === 't' || key === '6') setSelectedTool('text');
+                    else if (key === 'e' || key === '7') setSelectedTool('eraser');
+                    else if (key === 'p' || key === '8') setSelectedTool('pencil');
+                    else if (key === '9' || key === 'i') fileInputRef?.click();
+                    else if (key === 'b' || key === '0') setSelectedTool('bezier');
+                    else if (key === 'd') setSelectedTool('diamond');
+                    else if (key === 'h') setSelectedTool('pan');
+                }
             }
         };
         window.addEventListener('keydown', handleKeyDown);
