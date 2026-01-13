@@ -37,12 +37,17 @@
     border-bottom: 1px solid var(--border-color);
 }
 
-.opacity-control {
+.opacity-control,
+.background-control {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-secondary);
+}
+
+.background-control {
+    margin-top: 4px;
 }
 
 .opacity-control input[type="range"] {
@@ -50,6 +55,39 @@
     height: 4px;
     accent-color: #3b82f6;
     cursor: pointer;
+}
+
+.color-swatch-mini {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+}
+
+.color-swatch-mini.transparent {
+    background: white;
+}
+
+.color-swatch-mini.transparent::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 45%, #ff0000 45%, #ff0000 55%, transparent 55%);
+}
+
+.color-picker-mini {
+    width: 0;
+    height: 0;
+    opacity: 0;
+    position: absolute;
+    padding: 0;
 }
 
 .layer-panel-header h3 {

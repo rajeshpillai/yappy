@@ -196,113 +196,120 @@ const Canvas: Component = () => {
             ctx.restore();
         }
 
-        // Render Elements - Sort by layer order and filter by visibility
-        const visibleElements = store.elements
-            .map(el => {
-                const layer = store.layers.find(l => l.id === el.layerId);
-                return { element: el, layer };
-            })
-            .filter(({ layer }) => layer?.visible !== false)  // Hide if layer invisible
-            .sort((a, b) => {
-                // First sort by layer order (lower order = background)
-                const layerOrderDiff = (a.layer?.order ?? 999) - (b.layer?.order ?? 999);
-                if (layerOrderDiff !== 0) return layerOrderDiff;
+        // Render Layers and Elements
+        const sortedLayers = [...store.layers].sort((a, b) => a.order - b.order);
 
-                // Within same layer, maintain element order
-                return store.elements.indexOf(a.element) - store.elements.indexOf(b.element);
-            });
+        sortedLayers.forEach(layer => {
+            if (!layer.visible) return;
 
-        visibleElements.forEach(({ element: el, layer }) => {
-            let cx = el.x + el.width / 2;
-            let cy = el.y + el.height / 2;
+            // 1. Draw Layer Background
+            if (layer.backgroundColor && layer.backgroundColor !== 'transparent') {
+                ctx.save();
+                ctx.globalAlpha = layer.opacity;
+                ctx.fillStyle = layer.backgroundColor;
 
-            if (el.type !== 'text' || editingId() !== el.id) {
-                const rc = rough.canvas(canvasRef);
-                const layerOpacity = (layer?.opacity ?? 1);
-                renderElement(rc, ctx, el, isDarkMode, layerOpacity);
+                // Fill the whole world (or at least a very large area)
+                // Since we are in world coordinates (translated/scaled), 
+                // we should fill a massive area to cover the infinite canvas.
+                const BIG_VALUE = 1000000;
+                ctx.fillRect(-BIG_VALUE, -BIG_VALUE, BIG_VALUE * 2, BIG_VALUE * 2);
+                ctx.restore();
             }
 
-            // Selection highlight & Handles
-            if (store.selection.includes(el.id)) {
-                ctx.save();
-                // Re-apply rotation for handles
-                if (el.angle) {
-                    ctx.translate(cx, cy);
-                    ctx.rotate(el.angle);
-                    ctx.translate(-cx, -cy);
+            // 2. Draw Elements on this layer
+            const layerElements = store.elements.filter(el => el.layerId === layer.id);
+            layerElements.forEach(el => {
+                let cx = el.x + el.width / 2;
+                let cy = el.y + el.height / 2;
+
+                if (el.type !== 'text' || editingId() !== el.id) {
+                    const rc = rough.canvas(canvasRef);
+                    const layerOpacity = (layer?.opacity ?? 1);
+                    renderElement(rc, ctx, el, isDarkMode, layerOpacity);
                 }
 
-                ctx.strokeStyle = '#3b82f6';
-                ctx.lineWidth = 1 / scale;
-                const padding = 2 / scale;
-
-                // Only draw bounding box for non-linear elements
-                if (el.type !== 'line' && el.type !== 'arrow') {
-                    ctx.strokeRect(el.x - padding, el.y - padding, el.width + padding * 2, el.height + padding * 2);
-                }
-
-                // Handles (Only if single selection)
-                if (store.selection.length === 1) {
-                    const handleSize = 8 / scale;
-                    ctx.fillStyle = '#ffffff';
-                    ctx.strokeStyle = '#3b82f6';
-                    ctx.lineWidth = 2 / scale;
-
-                    if (el.type === 'line' || el.type === 'arrow') {
-                        // Line/Arrow Specific Handles (Start and End only)
-                        const startX = el.x;
-                        const startY = el.y;
-                        const endX = el.x + el.width;
-                        const endY = el.y + el.height;
-
-                        const handles = [
-                            { x: startX, y: startY }, // Start (TL)
-                            { x: endX, y: endY }      // End (BR)
-                        ];
-
-                        handles.forEach(h => {
-                            ctx.beginPath();
-                            ctx.arc(h.x, h.y, handleSize / 1.5, 0, Math.PI * 2);
-                            ctx.fill();
-                            ctx.stroke();
-                        });
-
-                    } else {
-                        // Standard Box Handles
-                        const handles = [
-                            { x: el.x - padding, y: el.y - padding }, // TL
-                            { x: el.x + el.width + padding, y: el.y - padding }, // TR
-                            { x: el.x + el.width + padding, y: el.y + el.height + padding }, // BR
-                            { x: el.x - padding, y: el.y + el.height + padding }, // BL
-                            // Side Handles
-                            { x: el.x + el.width / 2, y: el.y - padding }, // TM
-                            { x: el.x + el.width + padding, y: el.y + el.height / 2 }, // RM
-                            { x: el.x + el.width / 2, y: el.y + el.height + padding }, // BM
-                            { x: el.x - padding, y: el.y + el.height / 2 } // LM
-                        ];
-
-                        handles.forEach(h => {
-                            ctx.fillRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
-                            ctx.strokeRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
-                        });
-
-                        // Rotate Handle (Not for lines? Or maybe lines can rotate?)
-                        // Lines usually just move endpoints. Rotating a line is same as moving endpoints.
-                        // So hide rotate handle for lines.
-                        const rotH = { x: el.x + el.width / 2, y: el.y - padding - 20 / scale };
-                        ctx.beginPath();
-                        ctx.moveTo(el.x + el.width / 2, el.y - padding);
-                        ctx.lineTo(rotH.x, rotH.y);
-                        ctx.stroke();
-                        ctx.beginPath();
-                        ctx.arc(rotH.x, rotH.y, handleSize / 2, 0, 2 * Math.PI);
-                        ctx.fill();
-                        ctx.stroke();
+                // Selection highlight & Handles
+                if (store.selection.includes(el.id)) {
+                    ctx.save();
+                    // Re-apply rotation for handles
+                    if (el.angle) {
+                        ctx.translate(cx, cy);
+                        ctx.rotate(el.angle);
+                        ctx.translate(-cx, -cy);
                     }
 
-                    ctx.restore();
+                    ctx.strokeStyle = '#3b82f6';
+                    ctx.lineWidth = 1 / scale;
+                    const padding = 2 / scale;
+
+                    // Only draw bounding box for non-linear elements
+                    if (el.type !== 'line' && el.type !== 'arrow') {
+                        ctx.strokeRect(el.x - padding, el.y - padding, el.width + padding * 2, el.height + padding * 2);
+                    }
+
+                    // Handles (Only if single selection)
+                    if (store.selection.length === 1) {
+                        const handleSize = 8 / scale;
+                        ctx.fillStyle = '#ffffff';
+                        ctx.strokeStyle = '#3b82f6';
+                        ctx.lineWidth = 2 / scale;
+
+                        if (el.type === 'line' || el.type === 'arrow') {
+                            // Line/Arrow Specific Handles (Start and End only)
+                            const startX = el.x;
+                            const startY = el.y;
+                            const endX = el.x + el.width;
+                            const endY = el.y + el.height;
+
+                            const handles = [
+                                { x: startX, y: startY }, // Start (TL)
+                                { x: endX, y: endY }      // End (BR)
+                            ];
+
+                            handles.forEach(h => {
+                                ctx.beginPath();
+                                ctx.arc(h.x, h.y, handleSize / 1.5, 0, Math.PI * 2);
+                                ctx.fill();
+                                ctx.stroke();
+                            });
+
+                        } else {
+                            // Standard Box Handles
+                            const handles = [
+                                { x: el.x - padding, y: el.y - padding }, // TL
+                                { x: el.x + el.width + padding, y: el.y - padding }, // TR
+                                { x: el.x + el.width + padding, y: el.y + el.height + padding }, // BR
+                                { x: el.x - padding, y: el.y + el.height + padding }, // BL
+                                // Side Handles
+                                { x: el.x + el.width / 2, y: el.y - padding }, // TM
+                                { x: el.x + el.width + padding, y: el.y + el.height / 2 }, // RM
+                                { x: el.x + el.width / 2, y: el.y + el.height + padding }, // BM
+                                { x: el.x - padding, y: el.y + el.height / 2 } // LM
+                            ];
+
+                            handles.forEach(h => {
+                                ctx.fillRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
+                                ctx.strokeRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
+                            });
+
+                            // Rotate Handle (Not for lines? Or maybe lines can rotate?)
+                            // Lines usually just move endpoints. Rotating a line is same as moving endpoints.
+                            // So hide rotate handle for lines.
+                            const rotH = { x: el.x + el.width / 2, y: el.y - padding - 20 / scale };
+                            ctx.beginPath();
+                            ctx.moveTo(el.x + el.width / 2, el.y - padding);
+                            ctx.lineTo(rotH.x, rotH.y);
+                            ctx.stroke();
+                            ctx.beginPath();
+                            ctx.arc(rotH.x, rotH.y, handleSize / 2, 0, 2 * Math.PI);
+                            ctx.fill();
+                            ctx.stroke();
+                        }
+
+                        ctx.restore();
+                    }
                 }
-            }
+            });
         });
 
         // 3. Draw Multi-selection bounding box and handles
@@ -532,7 +539,7 @@ const Canvas: Component = () => {
         }
 
         ctx.restore(); // Restore for line 104
-    };
+    }
 
     createEffect(() => {
         store.theme; // Track theme changes
@@ -555,7 +562,7 @@ const Canvas: Component = () => {
         // Track layer changes
         store.layers.length;
         store.layers.forEach(l => {
-            l.visible; l.order; l.opacity;
+            l.visible; l.order; l.opacity; l.backgroundColor;
         });
         // Track grid settings changes
         store.gridSettings.enabled;

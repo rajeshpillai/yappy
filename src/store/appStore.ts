@@ -59,7 +59,8 @@ const initialState: AppState = {
             visible: true,
             locked: false,
             opacity: 1,
-            order: 0
+            order: 0,
+            backgroundColor: 'transparent'
         }
     ],
     activeLayerId: 'default-layer',
@@ -401,7 +402,8 @@ export const addLayer = (name?: string) => {
         visible: true,
         locked: false,
         opacity: 1,
-        order: maxOrder + 1
+        order: maxOrder + 1,
+        backgroundColor: 'transparent'
     };
     setStore('layers', [...store.layers, newLayer]);
     setStore('activeLayerId', newId);
@@ -480,7 +482,8 @@ export const duplicateLayer = (id: string) => {
         id: newLayerId,
         name: `${layer.name} Copy`,
         opacity: layer.opacity ?? 1,
-        order: layer.order + 0.5 // Place right above original
+        order: layer.order + 0.5, // Place right above original
+        backgroundColor: layer.backgroundColor || 'transparent'
     };
 
     // Duplicate all elements on this layer

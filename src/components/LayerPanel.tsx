@@ -187,7 +187,7 @@ const LayerPanel: Component = () => {
                                 type="range"
                                 min="0"
                                 max="1"
-                                step="0.01"
+                                step="0.1"
                                 value={store.layers.find(l => l.id === store.activeLayerId)?.opacity ?? 1}
                                 onInput={(e) => {
                                     const val = parseFloat(e.currentTarget.value);
@@ -195,6 +195,39 @@ const LayerPanel: Component = () => {
                                 }}
                                 title={`Opacity: ${Math.round((store.layers.find(l => l.id === store.activeLayerId)?.opacity ?? 1) * 100)}%`}
                             />
+                        </div>
+                        <div class="background-control">
+                            <span class="label">Background</span>
+                            <div style={{ display: 'flex', gap: '8px', 'align-items': 'center' }}>
+                                <button
+                                    class={`color-swatch-mini ${store.layers.find(l => l.id === store.activeLayerId)?.backgroundColor === 'transparent' ? 'transparent' : ''}`}
+                                    style={{
+                                        background: store.layers.find(l => l.id === store.activeLayerId)?.backgroundColor === 'transparent'
+                                            ? 'white'
+                                            : (store.layers.find(l => l.id === store.activeLayerId)?.backgroundColor || 'transparent')
+                                    }}
+                                    onClick={() => {
+                                        const current = store.layers.find(l => l.id === store.activeLayerId)?.backgroundColor;
+                                        if (current === 'transparent') {
+                                            updateLayer(store.activeLayerId, { backgroundColor: '#ffffff' });
+                                        } else {
+                                            updateLayer(store.activeLayerId, { backgroundColor: 'transparent' });
+                                        }
+                                    }}
+                                    title="Toggle transparent / color"
+                                />
+                                <Show when={store.layers.find(l => l.id === store.activeLayerId)?.backgroundColor !== 'transparent'}>
+                                    <input
+                                        type="color"
+                                        class="color-picker-mini-visible"
+                                        style={{ width: '24px', height: '20px', padding: '0', border: 'none', cursor: 'pointer' }}
+                                        value={store.layers.find(l => l.id === store.activeLayerId)?.backgroundColor || '#ffffff'}
+                                        onInput={(e) => {
+                                            updateLayer(store.activeLayerId, { backgroundColor: e.currentTarget.value });
+                                        }}
+                                    />
+                                </Show>
+                            </div>
                         </div>
                     </div>
                     <div class="layer-list">

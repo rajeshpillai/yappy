@@ -80,7 +80,8 @@ export const migrateDrawingData = (data: any): {
             visible: true,
             locked: false,
             opacity: 1,
-            order: 0
+            order: 0,
+            backgroundColor: 'transparent'
         }
     ];
 

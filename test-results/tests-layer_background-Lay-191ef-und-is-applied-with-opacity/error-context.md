@@ -1,0 +1,158 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - button "Pan Tool" [ref=e5] [cursor=pointer]:
+      - img [ref=e6]
+    - button "Selection" [ref=e11] [cursor=pointer]:
+      - img [ref=e12]
+    - button "Rectangle" [ref=e14] [cursor=pointer]:
+      - img [ref=e15]
+    - button "Circle" [ref=e17] [cursor=pointer]:
+      - img [ref=e18]
+    - button "Diamond" [ref=e20] [cursor=pointer]:
+      - img [ref=e21]
+    - button "Arrow" [ref=e23] [cursor=pointer]:
+      - img [ref=e24]
+    - button "Line" [ref=e27] [cursor=pointer]:
+      - img [ref=e28]
+    - button "Bezier Curve" [ref=e29] [cursor=pointer]:
+      - img [ref=e30]
+    - button "Fine Liner (Right-click for more)" [ref=e35] [cursor=pointer]:
+      - generic [ref=e36]:
+        - img [ref=e37]
+        - img [ref=e39]
+    - button "Text" [ref=e41] [cursor=pointer]:
+      - img [ref=e42]
+    - button "Insert Image" [ref=e44] [cursor=pointer]:
+      - img [ref=e45]
+    - button "Eraser" [ref=e49] [cursor=pointer]:
+      - img [ref=e50]
+  - generic [ref=e54]:
+    - generic [ref=e55]:
+      - heading "Defaults" [level=3] [ref=e57]
+      - generic [ref=e58]:
+        - button "Minimize" [ref=e59] [cursor=pointer]:
+          - img [ref=e60]
+        - button "Close" [ref=e61] [cursor=pointer]:
+          - img [ref=e62]
+    - generic [ref=e65]:
+      - generic [ref=e66]:
+        - generic [ref=e67]: STYLE
+        - generic [ref=e68]:
+          - generic [ref=e69]: Style
+          - combobox [ref=e70] [cursor=pointer]:
+            - option "Sketch" [selected]
+            - option "Architectural"
+        - generic [ref=e71]:
+          - generic [ref=e72]: Sloppiness
+          - generic [ref=e73]:
+            - slider [ref=e74]: "1"
+            - generic [ref=e75]: "1"
+        - generic [ref=e76]:
+          - generic [ref=e77]: Opacity
+          - generic [ref=e78]:
+            - slider [ref=e79]: "100"
+            - generic [ref=e80]: "100"
+      - generic [ref=e81]:
+        - generic [ref=e82]: STROKE
+        - generic [ref=e83]:
+          - generic [ref=e84]: Stroke
+          - generic [ref=e85]:
+            - generic [ref=e86]:
+              - button "transparent" [ref=e87] [cursor=pointer]
+              - button "#ffffff" [ref=e88] [cursor=pointer]
+              - button "#f8f9fa" [ref=e89] [cursor=pointer]
+              - button "#f1f3f5" [ref=e90] [cursor=pointer]
+              - button "#fff5f5" [ref=e91] [cursor=pointer]
+              - button "#fff0f6" [ref=e92] [cursor=pointer]
+              - button "#f3f0ff" [ref=e93] [cursor=pointer]
+              - button "#e03131" [ref=e94] [cursor=pointer]
+              - button "#e8590c" [ref=e95] [cursor=pointer]
+              - button "#fcc419" [ref=e96] [cursor=pointer]
+              - button "#2f9e44" [ref=e97] [cursor=pointer]
+              - button "#1971c2" [ref=e98] [cursor=pointer]
+              - button "#6741d9" [ref=e99] [cursor=pointer]
+              - button "#c2255c" [ref=e100] [cursor=pointer]
+              - button "#343a40" [ref=e101] [cursor=pointer]
+            - generic [ref=e102]:
+              - generic [ref=e103]: "#"
+              - textbox [ref=e104]: "000000"
+              - textbox [ref=e106] [cursor=pointer]: "#000000"
+        - generic [ref=e107]:
+          - generic [ref=e108]: Width
+          - generic [ref=e109]:
+            - slider [ref=e110]: "4"
+            - generic [ref=e111]: "4"
+        - generic [ref=e112]:
+          - generic [ref=e113]: Stroke Style
+          - combobox [ref=e114] [cursor=pointer]:
+            - option "Solid" [selected]
+            - option "Dashed"
+            - option "Dotted"
+      - generic [ref=e115]:
+        - generic [ref=e116]: BACKGROUND
+        - generic [ref=e117]:
+          - generic [ref=e118]: Background
+          - generic [ref=e119]:
+            - generic [ref=e120]:
+              - button "transparent" [ref=e121] [cursor=pointer]
+              - button "#ffffff" [ref=e122] [cursor=pointer]
+              - button "#f8f9fa" [ref=e123] [cursor=pointer]
+              - button "#f1f3f5" [ref=e124] [cursor=pointer]
+              - button "#fff5f5" [ref=e125] [cursor=pointer]
+              - button "#fff0f6" [ref=e126] [cursor=pointer]
+              - button "#f3f0ff" [ref=e127] [cursor=pointer]
+              - button "#e03131" [ref=e128] [cursor=pointer]
+              - button "#e8590c" [ref=e129] [cursor=pointer]
+              - button "#fcc419" [ref=e130] [cursor=pointer]
+              - button "#2f9e44" [ref=e131] [cursor=pointer]
+              - button "#1971c2" [ref=e132] [cursor=pointer]
+              - button "#6741d9" [ref=e133] [cursor=pointer]
+              - button "#c2255c" [ref=e134] [cursor=pointer]
+              - button "#343a40" [ref=e135] [cursor=pointer]
+            - generic [ref=e136]:
+              - generic [ref=e137]: "#"
+              - textbox [ref=e138]: transparent
+              - textbox [ref=e140] [cursor=pointer]: "#000000"
+        - generic [ref=e141]:
+          - generic [ref=e142]: Fill
+          - combobox [ref=e143] [cursor=pointer]:
+            - option "Solid"
+            - option "Hachure" [selected]
+            - option "Cross-Hatch"
+      - generic [ref=e144]:
+        - generic [ref=e145]: DIMENSIONS
+        - generic [ref=e146]:
+          - generic [ref=e147]: Keep Proportions
+          - checkbox [ref=e148]
+  - generic [ref=e149]:
+    - generic [ref=e150]:
+      - button "Zoom Out" [ref=e151] [cursor=pointer]:
+        - img [ref=e152]
+      - button "100%" [ref=e153] [cursor=pointer]
+      - button "Zoom In" [ref=e154] [cursor=pointer]:
+        - img [ref=e155]
+    - generic [ref=e156]:
+      - button "Undo (Ctrl+Z)" [disabled] [ref=e157]:
+        - img [ref=e158]
+      - button "Redo (Ctrl+Y)" [disabled] [ref=e161]:
+        - img [ref=e162]
+  - generic: default
+  - generic [ref=e166]:
+    - button "Menu" [ref=e167] [cursor=pointer]:
+      - img [ref=e168]
+    - button "Delete" [disabled] [ref=e170]:
+      - img [ref=e171]
+    - button "Zoom to Fit" [ref=e175] [cursor=pointer]:
+      - img [ref=e176]
+  - generic [ref=e182]:
+    - button "Share" [ref=e183] [cursor=pointer]:
+      - img [ref=e184]
+      - generic [ref=e190]: Share
+    - button "?" [ref=e192] [cursor=pointer]:
+      - generic [ref=e193]: "?"
+    - button "Toggle Theme" [ref=e195] [cursor=pointer]:
+      - img [ref=e196]
+```

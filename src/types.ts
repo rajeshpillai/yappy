@@ -89,6 +89,7 @@ export interface Layer {
     locked: boolean;
     opacity: number;    // 0-1
     order: number;      // Z-index for layer ordering (lower = background)
+    backgroundColor?: string; // HEX or transparent
 }
 
 export interface GridSettings {
