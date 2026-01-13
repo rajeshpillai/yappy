@@ -914,9 +914,21 @@ const Canvas: Component = () => {
             let hitId: string | null = null;
             const threshold = 10 / store.viewState.scale;
 
-            for (let i = store.elements.length - 1; i >= 0; i--) {
-                const el = store.elements[i];
-                // Skip elements on locked layers
+            // Sort elements by visual order (Top to Bottom) for hit testing
+            // Visual Order = Highest Layer Order -> Highest Array Index
+            const sortedElements = store.elements.map((el, index) => {
+                const layer = store.layers.find(l => l.id === el.layerId);
+                return { el, index, layerOrder: layer?.order ?? 999, layerVisible: layer?.visible !== false };
+            }).sort((a, b) => {
+                if (a.layerOrder !== b.layerOrder) return b.layerOrder - a.layerOrder; // Descending
+                return b.index - a.index; // Descending
+            });
+
+            for (const { el, layerVisible } of sortedElements) {
+                // Skip invisible layers
+                if (!layerVisible) continue;
+
+                // Skip elements on locked layers or locked elements
                 if (!canInteractWithElement(el)) continue;
 
                 if (hitTestElement(el, x, y, threshold)) {

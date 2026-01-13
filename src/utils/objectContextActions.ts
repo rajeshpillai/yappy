@@ -89,6 +89,7 @@ export const flipSelected = (direction: 'horizontal' | 'vertical') => {
             }
         }
     });
+
     const center = min + (max - min) / 2;
 
     store.selection.forEach(id => {
@@ -98,12 +99,26 @@ export const flipSelected = (direction: 'horizontal' | 'vertical') => {
         if (direction === 'horizontal') {
             const elCenterX = el.x + el.width / 2;
             const dist = elCenterX - center;
-            updateElement(id, { x: center - dist - el.width / 2 }, false); // Flip position
-            // TODO: Flip shape content (points, etc) if needed
+            const newX = center - dist - el.width / 2;
+
+            // Flip points if they exist (Line, Arrow, Draw)
+            if (el.points && el.points.length > 0) {
+                const newPoints = el.points.map(p => ({ ...p, x: el.width - p.x }));
+                updateElement(id, { x: newX, points: newPoints }, false);
+            } else {
+                updateElement(id, { x: newX }, false);
+            }
         } else {
             const elCenterY = el.y + el.height / 2;
             const dist = elCenterY - center;
-            updateElement(id, { y: center - dist - el.height / 2 }, false);
+            const newY = center - dist - el.height / 2;
+
+            if (el.points && el.points.length > 0) {
+                const newPoints = el.points.map(p => ({ ...p, y: el.height - p.y }));
+                updateElement(id, { y: newY, points: newPoints }, false);
+            } else {
+                updateElement(id, { y: newY }, false);
+            }
         }
     });
 };

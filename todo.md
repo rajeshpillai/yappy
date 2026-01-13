@@ -391,25 +391,25 @@
 - [ ] Align with padding/margin visualization
 
 ### Phase 29: Object Context Menu
-- [ ] Implement right-click context menu for selected objects
-- [ ] Specific menu items and shortcuts:
-  - [ ] Cut (Ctrl+X)
-  - [ ] Copy (Ctrl+C)
-  - [ ] Paste (Ctrl+V)
+- [x] Implement right-click context menu for selected objects
+- [x] Specific menu items and shortcuts:
+  - [x] Cut (Ctrl+X)
+  - [x] Copy (Ctrl+C)
+  - [x] Paste (Ctrl+V)
   - [ ] Copy to clipboard as PNG (Shift+Alt+C)
   - [ ] Copy to clipboard as SVG
-  - [ ] Copy styles (Ctrl+Alt+C)
-  - [ ] Paste styles (Ctrl+Alt+V)
+  - [x] Copy styles (Ctrl+Alt+C)
+  - [x] Paste styles (Ctrl+Alt+V)
   - [ ] Add to library
-  - [ ] Send backward (Ctrl+[)
-  - [ ] Bring forward (Ctrl+])
-  - [ ] Send to back (Ctrl+Shift+[)
-  - [ ] Bring to front (Ctrl+Shift+])
-  - [ ] Flip horizontal (Shift+H)
-  - [ ] Flip vertical (Shift+V)
+  - [x] Send backward (Ctrl+[)
+  - [x] Bring forward (Ctrl+])
+  - [x] Send to back (Ctrl+Shift+[)
+  - [x] Bring to front (Ctrl+Shift+])
+  - [x] Flip horizontal (Shift+H)
+  - [x] Flip vertical (Shift+V)
   - [ ] Add link (Ctrl+K)
   - [ ] Copy link to object
-  - [ ] Duplicate (Ctrl+D)
-  - [ ] Lock (Ctrl+Shift+L)
-  - [ ] Delete (Delete)
+  - [x] Duplicate (Ctrl+D)
+  - [x] Lock (Ctrl+Shift+L)
+  - [x] Delete (Delete)
 
