@@ -325,11 +325,20 @@
     - [x] Template registry with category management (`src/templates/registry.ts`)
     - [x] Template browser UI component (`src/components/TemplateBrowser.tsx`)
     - [x] Integration with Menu and appStore
+  - [x] Architecture templates (System Design & Yappy Meta)
+    - [x] Massive spacing for infinite canvas
+    - [x] Bidirectional logical connections (bindings)
+    - [x] UI visibility and readability fixes
   - [x] Flowchart template (Basic flowchart with decision logic)
   - [x] Mind map template (Radial structure with 4 branches)
   - [x] Wireframe template (Website layout with header, sidebar, content, footer)
   - [x] Org chart template (Company hierarchy with CEO and department heads)
   - [x] Network diagram template (Infrastructure topology with servers and firewall)
+
+### Technical Lessons: Templates & Connections
+- **Bidirectional Bindings**: Essential for stable connections. Arrows need `startBinding`/`endBinding` AND shapes need `boundElements`.
+- **CSS Reliability**: Avoid undefined theme variables (`--bg-primary` vs `--bg-panel`). Use explicit contrast fallbacks to prevent "invisible text" bugs in dialogs.
+- **Template Schema**: Templates are static objects; they lack the runtime safety of `api.ts` helpers. Always include all `DrawingElement` properties to prevent rendering glitches.
 - [x] Element property normalization
   - [x] Added `normalizeElement()` function in migration.ts
   - [x] Automatic defaults for all required properties
