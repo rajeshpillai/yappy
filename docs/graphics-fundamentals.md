@@ -21,7 +21,8 @@ This guide breaks down these core algorithms into clear, digestible explanations
 7. [Hit Detection](#7-hit-detection)
 8. [Connector Binding](#8-connector-binding)
 9. [Pan and Zoom](#9-pan-and-zoom)
-10. [Advanced Topics](#10-advanced-topics)
+10. [Smart Spacing Guides](smart-spacing.md)
+11. [Advanced Topics](#10-advanced-topics)
 
 ---
 

@@ -386,9 +386,12 @@
 - [ ] Bulk operations (move to layer, lock/unlock, show/hide)
 
 ### Phase 28: Smart Spacing Guides
-- [ ] Distance indicators between elements
-- [ ] Consistent spacing suggestions
-- [ ] Align with padding/margin visualization
+- [x] Implementation
+  - [x] Logic: `src/utils/spacing.ts` (Gap calculation)
+  - [x] Integration: `src/components/Canvas.tsx` (State & Rendering)
+  - [x] Visuals: Arrows and Distance Labels
+- [x] Documentation: `docs/smart-spacing.md`
+- [x] Testing
 
 ### Phase 29: Object Context Menu
 - [x] Implement right-click context menu for selected objects
