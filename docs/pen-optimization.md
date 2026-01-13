@@ -1,42 +1,41 @@
-# Pen Optimization: Algorithms & Implementation
+# Pen Tools: Types, Algorithms & Implementation
 
-This document explains the pencil/pen tool optimization strategies used in YappyDraw for smooth, responsive freehand drawing.
-
----
-
-## 1. The Challenge
-
-Freehand drawing presents unique challenges:
-- **Pointer jitter**: Mouse/stylus input has micro-movements that create jagged lines
-- **High-frequency events**: Pointer move events can fire 60-120+ times per second
-- **Real-time rendering**: Users expect immediate visual feedback
-- **Post-processing overhead**: Heavy smoothing algorithms cause lag
+This document explains all pen/drawing tools in YappyDraw, their unique characteristics, and implementation details.
 
 ---
 
-## 2. Production-Grade Approach: Incremental Quadratic Bézier
+## 1. Overview: 4 Pen Types
 
-Instead of drawing straight lines between points, we draw **quadratic Bézier curves between midpoints**.
+| Tool | Icon | Curve Type | Stroke Width | Best For |
+|------|------|------------|--------------|----------|
+| **Pencil** | ✏️ Pencil | Quadratic Bézier | Fixed (pressure optional) | Quick sketches |
+| **Calligraphy** | 🖊️ PenLine | Quadratic Bézier | Velocity-based variable | Expressive strokes |
+| **Fine Liner** | 🖋️ Pen | Quadratic Bézier | Fixed, round caps | Clean lines |
+| **Ink Brush** | 🖌️ Brush | Cubic Bézier | Fixed + shadow | Artistic ink |
 
-### Mental Model
+---
 
-```
-Raw points:     p0 ── p1 ── p2 ── p3
+## 2. Toolbar: Grouped Pen Tools
 
-Bézier curves:  mid(p0,p1) → p1 → mid(p1,p2) → p2 → mid(p2,p3)
-```
+All 4 pens are consolidated into a **single toolbar icon** with a dropdown:
 
-### Why This Works
-- **O(1) work per point** – No reprocessing of the full stroke
-- **No spline solving** – Simple midpoint calculation
-- **No resampling** – Use points as-is
-- **Smooth curves** – Natural, organic look
-- **Low latency** – Immediate feedback
+- **Click** → Selects the current pen type (default: Fine Liner)
+- **Long press (400ms)** → Opens submenu
+- **Right-click** → Opens submenu
 
-### Implementation
+The icon changes to reflect the currently selected pen type.
 
+**Implementation**: `src/components/PenToolGroup.tsx`
+
+---
+
+## 3. Pencil Tool
+
+The default freehand drawing tool.
+
+### Algorithm: Incremental Quadratic Bézier
 ```typescript
-// From pointsToSvgPath() in pencilOptimizer.ts
+// Draw curves between midpoints
 for (let i = 1; i < points.length - 1; i++) {
     const xc = (points[i].x + points[i + 1].x) / 2;
     const yc = (points[i].y + points[i + 1].y) / 2;
@@ -44,89 +43,113 @@ for (let i = 1; i < points.length - 1; i++) {
 }
 ```
 
+### Features
+- **Pen Mode** (opt-in): Distance threshold + RDP simplification
+- **Pressure sensitivity**: Varies stroke width 0.5x-1.5x
+
 ---
 
-## 3. Distance Threshold (Anti-Jitter)
+## 4. Calligraphy Pen
 
-To reduce micro-jitter, we skip points that are too close together.
+Velocity-sensitive pen for expressive, calligraphic strokes.
 
+### Algorithm: Velocity-Based Pressure
 ```typescript
-const MIN_POINT_DISTANCE = 2; // pixels
+// Calculate velocity (pixels per millisecond)
+const velocity = distance / timeDelta;
 
-if (dist < MIN_POINT_DISTANCE) {
-    return; // Skip this point
+// Smooth velocity with filter (0.7 weight)
+smoothedVelocity = 0.7 * velocity + 0.3 * lastVelocity;
+
+// Inverse mapping: faster = thinner
+velocityPressure = 1.0 / (1 + smoothedVelocity * 2);
+```
+
+### Features
+- **Faster strokes** → Thinner lines (min 20% width)
+- **Slower strokes** → Thicker lines (max 100% width)
+- **Velocity smoothing**: Prevents sudden width jumps
+- **Pressure blending**: Combines velocity + stylus pressure
+
+### Rendering
+Uses filled circles at each point with variable radius, plus a Bézier path for continuity.
+
+---
+
+## 5. Fine Liner Pen
+
+Ultra-smooth lines with consistent width.
+
+### Algorithm: Quadratic Bézier with Midpoints
+```typescript
+ctx.lineJoin = 'round';
+ctx.lineCap = 'round';
+
+for (let i = 1; i < points.length - 2; i++) {
+    const midX = (points[i].x + points[i + 1].x) / 2;
+    const midY = (points[i].y + points[i + 1].y) / 2;
+    ctx.quadraticCurveTo(points[i].x, points[i].y, midX, midY);
 }
 ```
 
-**Trade-offs:**
-- Higher threshold = smoother but less detailed
-- Lower threshold = more detailed but more jitter
-- Default: 2px (balanced)
+### Features
+- **Round caps and joins**: Professional, uniform look
+- **No filtering**: Captures all points for max smoothness
+- **Constant width**: No velocity/pressure variation
 
 ---
 
-## 4. Pen Mode (Opt-in Advanced Features)
+## 6. Ink Brush
 
-Advanced smoothing is **opt-in** via the "Pen Mode" toggle:
+Artistic brush with shadow blur for ink effect.
 
-| Feature | Pen Mode OFF | Pen Mode ON |
-|---------|--------------|-------------|
-| Distance threshold | ❌ | ✅ |
-| Post-processing (RDP) | ❌ | ✅ |
-| Pressure sensitivity | ✅ | ✅ |
-
----
-
-## 5. Post-Processing (Stroke End Only)
-
-Heavy algorithms are applied **only on stroke end**, not during drawing:
-
-### Ramer-Douglas-Peucker (RDP) Simplification
-Removes redundant points while preserving shape.
-
+### Algorithm: Cubic Bézier Curves
 ```typescript
-const simplified = simplifyPoints(points, tolerance);
+ctx.shadowColor = "rgba(0,0,0,0.3)";
+ctx.shadowBlur = strokeWidth * 0.5;
+
+// Cubic Bézier with 2 control points
+ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
 ```
 
-### Normalization
-Converts absolute points to relative coordinates with proper bounding box.
+### Features
+- **Cubic Bézier**: Smoother than quadratic (4 control points)
+- **Shadow blur**: Ink-like bleeding effect
+- **Pressure support**: Uses stylus pressure if available
 
 ---
 
-## 6. What NOT to Do (Causes Lag)
+## 7. Point Data Structure
 
-| ❌ Avoid | Why |
-|----------|-----|
-| Catmull-Rom splines per frame | O(n) recalculation |
-| Rebuilding entire path every move | Expensive DOM/canvas operations |
-| Gaussian smoothing during drawing | O(n) convolution |
-| Douglas-Peucker during drawing | O(n log n) recursion |
-
----
-
-## 7. Pressure Sensitivity
-
-Stylus pressure is captured and used to vary stroke width:
+All pen types store points with optional pressure and timestamp:
 
 ```typescript
-const avgPressure = points.reduce((acc, p) => acc + (p.p || 0.5), 0) / points.length;
-strokeWidth = baseWidth * (0.5 + avgPressure); // 0.5x to 1.5x
+type Point = {
+    x: number;      // X coordinate (relative to element origin)
+    y: number;      // Y coordinate
+    p?: number;     // Pressure (0-1)
+    t?: number;     // Timestamp (for velocity calculation)
+}
 ```
 
 ---
 
 ## 8. Implementation Files
 
-- **Optimizer utilities**: [pencilOptimizer.ts](file:///home/rajesh/work/yappy/src/utils/pencilOptimizer.ts)
-- **Canvas drawing**: [Canvas.tsx](file:///home/rajesh/work/yappy/src/components/Canvas.tsx)
-- **Rendering**: [renderElement.ts](file:///home/rajesh/work/yappy/src/utils/renderElement.ts)
-- **Settings type**: [types.ts](file:///home/rajesh/work/yappy/src/types.ts)
-- **Store**: [appStore.ts](file:///home/rajesh/work/yappy/src/store/appStore.ts)
+| File | Purpose |
+|------|---------|
+| [PenToolGroup.tsx](file:///home/rajesh/work/yappy/src/components/PenToolGroup.tsx) | Grouped toolbar component |
+| [Canvas.tsx](file:///home/rajesh/work/yappy/src/components/Canvas.tsx) | Drawing logic (pointerDown/Move/Up) |
+| [renderElement.ts](file:///home/rajesh/work/yappy/src/utils/renderElement.ts) | Rendering for each pen type |
+| [pencilOptimizer.ts](file:///home/rajesh/work/yappy/src/utils/pencilOptimizer.ts) | Path generation utilities |
+| [appStore.ts](file:///home/rajesh/work/yappy/src/store/appStore.ts) | `selectedPenType` state |
+| [types.ts](file:///home/rajesh/work/yappy/src/types.ts) | ElementType includes all pen types |
 
 ---
 
-## 9. Summary
+## 9. Future Optimization (TODO)
 
-> **Draw quadratic Bézier curves between midpoints of points, not lines between points.**
-
-This single principle gives smooth, responsive freehand drawing with minimal computational overhead.
+- [ ] Catmull-Rom splines for even smoother curves
+- [ ] Adaptive point sampling based on curvature
+- [ ] GPU-accelerated rendering for complex strokes
+- [ ] Pressure curve customization (soft/hard/linear)
