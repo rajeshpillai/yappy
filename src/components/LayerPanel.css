@@ -311,6 +311,61 @@
     flex-shrink: 0;
 }
 
+/* Layer Grouping Styles */
+.layer-item.group {
+    font-weight: 600;
+}
+
+.layer-item.nested {
+    /* Removed margin-left to use consistent padding-left in JSX for hierarchy */
+    width: 100%;
+}
+
+.layer-item.nested::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--border-color);
+    opacity: 0.3;
+}
+
+.layer-item .expander {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    color: var(--text-secondary);
+    transition: transform 0.2s;
+}
+
+.layer-item .expander.expanded {
+    transform: rotate(90deg);
+}
+
+.group-mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+}
+
+.group-mode-toggle.active {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
+}
+
 .layer-name-input {
     flex: 1;
     font-size: 13px;

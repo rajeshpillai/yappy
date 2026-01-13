@@ -125,8 +125,8 @@
 - [x] Auto-activate layer on selection (switches active layer to selected element's layer)
 - [ ] Multi-select layer movement (move multiple elements to layer at once)
 - [ ] Layer keyboard shortcuts (Ctrl+]/[, Alt+1-9, Ctrl+Shift+N)
-- [ ] Layer context menu (right-click on layer item)
-  - Rename, Duplicate, Delete, Merge Down, Flatten
+- [x] Layer context menu (right-click on layer item)
+  - Rename, Duplicate, Delete, [ ] Merge Down, [ ] Flatten
 - [x] Layer opacity control (affects all elements multiplicatively)
 - [ ] Smart layer operations
   - Merge down (combine with layer below)
@@ -140,7 +140,7 @@
 - [x] **Layer Background** (Transparent or Solid Color)
   - Renders as full-layer rectangle behind elements
   - Use cases: section backgrounds, annotation overlays, storyboarding
-- [ ] **Layer Color Tag** (organizational preset colors: Red, Orange, Yellow, Green, Blue, Purple)
+- [x] **Layer Color Tag** (organizational preset colors: Red, Orange, Yellow, Green, Blue, Purple)
 - [ ] **Layer Blend Mode** (Normal, Multiply, Screen, Overlay, Darken, Lighten)
   - Requires Canvas composite operations
 - [ ] **Where to Show**:

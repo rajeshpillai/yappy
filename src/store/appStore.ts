@@ -25,6 +25,7 @@ interface AppState {
     zenMode: boolean;
     showCommandPalette: boolean;
     selectedPenType: 'pencil' | 'calligraphy' | 'fineliner' | 'inkbrush';
+    layerGroupingModeEnabled: boolean;
 }
 
 const initialState: AppState = {
@@ -92,7 +93,8 @@ const initialState: AppState = {
     minimapVisible: false,
     zenMode: false,
     showCommandPalette: false,
-    selectedPenType: 'fineliner'
+    selectedPenType: 'fineliner',
+    layerGroupingModeEnabled: false
 }; // Default light background
 
 export const [store, setStore] = createStore<AppState>(initialState);
@@ -403,7 +405,7 @@ export const zoomToFit = () => {
 };
 
 // Layer Management Functions
-export const addLayer = (name?: string) => {
+export const addLayer = (name?: string, parentId?: string) => {
     pushToHistory();
     const newId = crypto.randomUUID();
     const maxOrder = Math.max(...store.layers.map(l => l.order), -1);
@@ -415,7 +417,10 @@ export const addLayer = (name?: string) => {
         opacity: 1,
         order: maxOrder + 1,
         backgroundColor: 'transparent',
-        colorTag: undefined
+        colorTag: undefined,
+        parentId,
+        isGroup: false,
+        expanded: true
     };
     setStore('layers', [...store.layers, newLayer]);
     setStore('activeLayerId', newId);
@@ -495,7 +500,10 @@ export const duplicateLayer = (id: string) => {
         name: `${layer.name} Copy`,
         opacity: layer.opacity ?? 1,
         order: layer.order + 0.5, // Place right above original
-        backgroundColor: layer.backgroundColor || 'transparent'
+        backgroundColor: layer.backgroundColor || 'transparent',
+        parentId: layer.parentId,
+        isGroup: layer.isGroup,
+        expanded: layer.expanded
     };
 
     // Duplicate all elements on this layer
@@ -595,6 +603,27 @@ export const flattenLayers = () => {
     setStore('activeLayerId', bottomLayer.id);
 };
 
+
+export const isLayerVisible = (layerId: string): boolean => {
+    const layer = store.layers.find(l => l.id === layerId);
+    if (!layer) return false;
+    if (layer.visible === false) return false;
+    if (store.layerGroupingModeEnabled && layer.parentId) {
+        return isLayerVisible(layer.parentId);
+    }
+    return true;
+};
+
+export const isLayerLocked = (layerId: string): boolean => {
+    const layer = store.layers.find(l => l.id === layerId);
+    if (!layer) return false;
+    if (layer.locked) return true;
+    if (store.layerGroupingModeEnabled && layer.parentId) {
+        return isLayerLocked(layer.parentId);
+    }
+    return layer.locked || false;
+};
+
 export const isolateLayer = (id: string) => {
     // Hide all other layers
     store.layers.forEach((l, idx) => {
@@ -669,6 +698,34 @@ export const minimizePropertyPanel = (minimized?: boolean) => {
 
 export const minimizeLayerPanel = (minimized?: boolean) => {
     setStore('isLayerPanelMinimized', (v) => minimized ?? !v);
+};
+
+export const toggleLayerGroupingMode = () => {
+    setStore('layerGroupingModeEnabled', prev => !prev);
+};
+
+export const createLayerGroup = (name?: string) => {
+    pushToHistory();
+    const newId = crypto.randomUUID();
+    const maxOrder = Math.max(...store.layers.map(l => l.order), -1);
+    const newGroup: Layer = {
+        id: newId,
+        name: name || `Group ${store.layers.filter(l => l.isGroup).length + 1}`,
+        visible: true,
+        locked: false,
+        opacity: 1,
+        order: maxOrder + 1,
+        backgroundColor: 'transparent',
+        isGroup: true,
+        expanded: true
+    };
+    setStore('layers', [...store.layers, newGroup]);
+    setStore('activeLayerId', newId);
+    return newId;
+};
+
+export const toggleLayerGroupExpansion = (groupId: string) => {
+    setStore('layers', l => l.id === groupId, 'expanded', prev => !prev);
 };
 
 export const toggleMinimap = (visible?: boolean) => {

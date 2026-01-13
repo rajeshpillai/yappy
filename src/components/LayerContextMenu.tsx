@@ -60,7 +60,24 @@ const LayerContextMenu: Component<Props> = (props) => {
             onClick: () => deleteLayer(props.layerId),
             disabled: store.layers.length <= 1,
             separator: false // Just being explicit
-        }
+        },
+        { separator: store.layerGroupingModeEnabled },
+        ...((layer()?.parentId && store.layerGroupingModeEnabled) ? [{
+            label: "Move to Top Level",
+            onClick: () => updateLayer(props.layerId, { parentId: undefined })
+        }] : []),
+        ...(store.layerGroupingModeEnabled ?
+            store.layers
+                .filter(l => l.isGroup && l.id !== props.layerId && l.id !== layer()?.parentId)
+                .map(group => ({
+                    label: `Move to ${group.name}`,
+                    onClick: () => updateLayer(props.layerId, { parentId: group.id })
+                }))
+            : []),
+        ...((layer()?.isGroup && store.layerGroupingModeEnabled) ? [{
+            label: layer()?.expanded ? "Collapse Group" : "Expand Group",
+            onClick: () => updateLayer(props.layerId, { expanded: !layer()?.expanded })
+        }] : [])
     ];
 
     return (

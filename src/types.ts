@@ -91,6 +91,9 @@ export interface Layer {
     order: number;      // Z-index for layer ordering (lower = background)
     backgroundColor?: string; // HEX or transparent
     colorTag?: string;     // Color name or hex for organizational tagging
+    parentId?: string;     // ID of parent group layer
+    isGroup?: boolean;     // Whether this layer is a container/group
+    expanded?: boolean;    // For groups: whether child layers are visible in panel
 }
 
 export interface GridSettings {

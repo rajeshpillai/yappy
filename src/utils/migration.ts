@@ -82,16 +82,27 @@ export const migrateDrawingData = (data: any): {
             opacity: 1,
             order: 0,
             backgroundColor: 'transparent',
-            colorTag: undefined
+            colorTag: undefined,
+            parentId: undefined,
+            isGroup: false,
+            expanded: true
         }
     ];
+
+    // Ensure all layers have grouping properties
+    const migratedLayers = layers.map(l => ({
+        ...l,
+        parentId: l.parentId,
+        isGroup: l.isGroup ?? false,
+        expanded: l.expanded ?? true
+    }));
 
     // Ensure all elements have required properties with defaults
     const elements = migrateElements(data.elements || []);
 
     return {
         elements,
-        layers,
+        layers: migratedLayers,
         gridSettings: data.gridSettings,
         canvasBackgroundColor: data.canvasBackgroundColor
     };

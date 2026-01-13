@@ -1,6 +1,6 @@
 import { type Component, For, createSignal, Show } from 'solid-js';
-import { store, addLayer, setActiveLayer, updateLayer, deleteLayer, duplicateLayer, reorderLayers, toggleLayerPanel, minimizeLayerPanel } from '../store/appStore';
-import { X, Minus, ChevronUp, Eye, EyeOff, Plus, Maximize2 } from 'lucide-solid';
+import { store, addLayer, setActiveLayer, updateLayer, deleteLayer, duplicateLayer, reorderLayers, toggleLayerPanel, minimizeLayerPanel, toggleLayerGroupingMode, createLayerGroup, toggleLayerGroupExpansion } from '../store/appStore';
+import { X, Minus, ChevronUp, Eye, EyeOff, Plus, Maximize2, Folder, FolderOpen, ChevronRight, Layers } from 'lucide-solid';
 import LayerContextMenu from './LayerContextMenu';
 import './LayerPanel.css';
 
@@ -106,11 +106,33 @@ const LayerPanel: Component = () => {
         setDragOverId(null);
     };
 
-    const handleDrop = (targetId: string, e: DragEvent) => {
+    const handleDrop = (targetId: string | null, e: DragEvent) => {
         e.preventDefault();
         const sourceId = draggedId();
+        if (!sourceId) return;
 
-        if (sourceId && sourceId !== targetId) {
+        if (targetId === null) {
+            // Drop on empty area -> Move to top level
+            updateLayer(sourceId, { parentId: undefined });
+            setDraggedId(null);
+            setDragOverId(null);
+            return;
+        }
+
+        const sourceLayer = store.layers.find(l => l.id === sourceId);
+        const targetLayer = store.layers.find(l => l.id === targetId);
+
+        if (sourceId && sourceId !== targetId && sourceLayer && targetLayer) {
+            // Grouping Logic
+            if (store.layerGroupingModeEnabled && targetLayer.isGroup && sourceId !== targetId) {
+                // If dropping into a group
+                updateLayer(sourceId, { parentId: targetId as string });
+                setDraggedId(null);
+                setDragOverId(null);
+                return;
+            }
+
+            // Regular Reorder
             const reversedList = [...store.layers].reverse();
             const sourceIndex = reversedList.findIndex(l => l.id === sourceId);
             const targetIndex = reversedList.findIndex(l => l.id === targetId);
@@ -119,6 +141,11 @@ const LayerPanel: Component = () => {
                 const normalSourceIndex = store.layers.length - 1 - sourceIndex;
                 const normalTargetIndex = store.layers.length - 1 - targetIndex;
                 reorderLayers(normalSourceIndex, normalTargetIndex);
+
+                // If reordering within groups, might need to inherit parent
+                if (store.layerGroupingModeEnabled) {
+                    updateLayer(sourceId, { parentId: targetLayer.parentId ?? undefined });
+                }
             }
         }
 
@@ -126,7 +153,37 @@ const LayerPanel: Component = () => {
         setDragOverId(null);
     };
 
-    const reversedLayers = () => [...store.layers].reverse();
+    const displayLayers = () => {
+        if (!store.layerGroupingModeEnabled) {
+            return { items: [...store.layers].reverse(), depths: new Map<string, number>() };
+        }
+
+        const items: any[] = [];
+        const depths = new Map<string, number>();
+        const sortedAll = [...store.layers].sort((a, b) => b.order - a.order);
+
+        const visit = (layerId: string | undefined, depth: number) => {
+            const children = sortedAll.filter(l => l.parentId === layerId);
+            children.forEach(child => {
+                items.push(child);
+                depths.set(child.id, depth);
+                if (child.isGroup && child.expanded) {
+                    visit(child.id, depth + 1);
+                }
+            });
+        };
+
+        const topLevel = sortedAll.filter(l => !l.parentId);
+        topLevel.forEach(item => {
+            items.push(item);
+            depths.set(item.id, 0);
+            if (item.isGroup && item.expanded) {
+                visit(item.id, 1);
+            }
+        });
+
+        return { items, depths };
+    };
 
     const colorTags = [
         { name: 'None', value: undefined, color: 'transparent' },
@@ -153,6 +210,17 @@ const LayerPanel: Component = () => {
 
                     <div class="header-actions">
                         <Show when={!store.isLayerPanelMinimized}>
+                            <div
+                                class={`group-mode-toggle ${store.layerGroupingModeEnabled ? 'active' : ''}`}
+                                onClick={toggleLayerGroupingMode}
+                                title="Toggle Grouping Mode"
+                            >
+                                <Layers size={14} />
+                                <span>Groups</span>
+                            </div>
+                            <button class="icon-button" onClick={() => createLayerGroup()} title="New Group">
+                                <Folder size={16} />
+                            </button>
                             <button class="icon-button" onClick={() => addLayer()} title="New Layer">
                                 <Plus size={16} />
                             </button>
@@ -237,61 +305,92 @@ const LayerPanel: Component = () => {
                         </div>
                     </div>
                     <div class="layer-list">
-                        <For each={reversedLayers()}>
-                            {(layer) => (
-                                <div
-                                    class={`layer-item ${layer.id === store.activeLayerId ? 'active' : ''} ${dragOverId() === layer.id ? 'drag-over' : ''} ${layer.visible === false ? 'hidden' : ''} ${layer.locked ? 'locked' : ''}`}
-                                    onClick={() => handleLayerClick(layer.id)}
-                                    onContextMenu={(e) => {
-                                        e.preventDefault();
-                                        setContextMenu({ x: e.clientX, y: e.clientY, layerId: layer.id });
-                                    }}
-                                    draggable={true}
-                                    onDragStart={(e) => handleDragStart(layer.id, e)}
-                                    onDragEnd={handleDragEnd}
-                                    onDragOver={(e) => handleDragOver(layer.id, e)}
-                                    onDragLeave={handleDragLeave}
-                                    onDrop={(e) => handleDrop(layer.id, e)}
-                                >
-                                    <span class="drag-handle" title="Drag to reorder">⋮⋮</span>
-                                    <div class="layer-visibility" onClick={(e) => handleToggleVisibility(layer.id, e)}>
-                                        {layer.visible !== false ? <Eye size={14} /> : <EyeOff size={14} />}
-                                    </div>
-                                    <div class="layer-name-container">
-                                        <Show when={layer.colorTag}>
-                                            <div class="layer-color-tag" style={{ 'background-color': layer.colorTag }} />
+                        <For each={displayLayers().items}>
+                            {(layer) => {
+                                const depth = () => displayLayers().depths.get(layer.id) || 0;
+                                return (
+                                    <div
+                                        class={`layer-item ${layer.id === store.activeLayerId ? 'active' : ''} ${dragOverId() === layer.id ? 'drag-over' : ''} ${layer.visible === false ? 'hidden' : ''} ${layer.locked ? 'locked' : ''} ${layer.isGroup ? 'group' : ''} ${depth() > 0 ? 'nested' : ''}`}
+                                        style={{ 'padding-left': store.layerGroupingModeEnabled ? `${depth() * 24}px` : '0' }}
+                                        onClick={() => handleLayerClick(layer.id)}
+                                        onContextMenu={(e) => {
+                                            e.preventDefault();
+                                            setContextMenu({ x: e.clientX, y: e.clientY, layerId: layer.id });
+                                        }}
+                                        draggable={true}
+                                        onDragStart={(e) => handleDragStart(layer.id, e)}
+                                        onDragEnd={handleDragEnd}
+                                        onDragOver={(e) => handleDragOver(layer.id, e)}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={(e) => handleDrop(layer.id, e)}
+                                    >
+                                        <Show when={layer.isGroup && store.layerGroupingModeEnabled}>
+                                            <div
+                                                class={`expander ${layer.expanded ? 'expanded' : ''}`}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    toggleLayerGroupExpansion(layer.id);
+                                                }}
+                                            >
+                                                <ChevronRight size={14} />
+                                            </div>
                                         </Show>
-                                        <div
-                                            class="layer-name"
-                                            onDblClick={(e) => startEditing(layer.id, layer.name, e)}
-                                            onPointerDown={(e) => handlePointerDown(layer.id, layer.name, e)}
-                                            onPointerUp={handlePointerUp}
-                                            onPointerCancel={handlePointerUp}
-                                        >
-                                            <Show when={editingId() === layer.id} fallback={layer.name}>
-                                                <input
-                                                    type="text"
-                                                    value={editingName()}
-                                                    onInput={(e) => setEditingName(e.currentTarget.value)}
-                                                    onKeyDown={(e) => handleRenameKeyDown(e, layer.id)}
-                                                    onBlur={() => saveRename(layer.id)}
-                                                    autofocus
-                                                    onClick={(e) => e.stopPropagation()}
-                                                />
+                                        <span class="drag-handle" title="Drag to reorder">⋮⋮</span>
+                                        <div class="layer-visibility" onClick={(e) => handleToggleVisibility(layer.id, e)}>
+                                            {layer.visible !== false ? <Eye size={14} /> : <EyeOff size={14} />}
+                                        </div>
+                                        <div class="layer-name-container">
+                                            <Show when={layer.isGroup && store.layerGroupingModeEnabled}>
+                                                {layer.expanded ? <FolderOpen size={14} /> : <Folder size={14} />}
                                             </Show>
+                                            <Show when={layer.colorTag}>
+                                                <div class="layer-color-tag" style={{ 'background-color': layer.colorTag }} />
+                                            </Show>
+                                            <div
+                                                class="layer-name"
+                                                onDblClick={(e) => startEditing(layer.id, layer.name, e)}
+                                                onPointerDown={(e) => handlePointerDown(layer.id, layer.name, e)}
+                                                onPointerUp={handlePointerUp}
+                                                onPointerCancel={handlePointerUp}
+                                            >
+                                                <Show when={editingId() === layer.id} fallback={layer.name}>
+                                                    <input
+                                                        type="text"
+                                                        value={editingName()}
+                                                        onInput={(e) => setEditingName(e.currentTarget.value)}
+                                                        onKeyDown={(e) => handleRenameKeyDown(e, layer.id)}
+                                                        onBlur={() => saveRename(layer.id)}
+                                                        autofocus
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    />
+                                                </Show>
+                                            </div>
+                                        </div>
+                                        <div class="layer-actions">
+                                            <button class="icon-button" onClick={(e) => handleDuplicateLayer(layer.id, e)} title="Duplicate">
+                                                ⎘
+                                            </button>
+                                            <button class="icon-button" onClick={(e) => handleDeleteLayer(layer.id, e)} title="Delete" disabled={store.layers.length <= 1}>
+                                                ×
+                                            </button>
                                         </div>
                                     </div>
-                                    <div class="layer-actions">
-                                        <button class="icon-button" onClick={(e) => handleDuplicateLayer(layer.id, e)} title="Duplicate">
-                                            ⎘
-                                        </button>
-                                        <button class="icon-button" onClick={(e) => handleDeleteLayer(layer.id, e)} title="Delete" disabled={store.layers.length <= 1}>
-                                            ×
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
+                                );
+                            }}
                         </For>
+                        <Show when={store.layerGroupingModeEnabled && draggedId()}>
+                            <div
+                                class={`root-drop-zone ${dragOverId() === 'root' ? 'drag-over' : ''}`}
+                                onDragOver={(e) => {
+                                    e.preventDefault();
+                                    setDragOverId('root');
+                                }}
+                                onDragLeave={() => setDragOverId(null)}
+                                onDrop={(e) => handleDrop(null, e)}
+                            >
+                                Move to Top Level
+                            </div>
+                        </Show>
                     </div>
                 </Show>
 

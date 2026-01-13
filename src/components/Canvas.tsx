@@ -1,6 +1,6 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show } from "solid-js";
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
-import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit } from "../store/appStore";
+import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit, isLayerVisible, isLayerLocked } from "../store/appStore";
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse, intersectElementWithLine, isPointOnBezier } from "../utils/geometry";
 import { getAnchorPoints, findClosestAnchor } from "../utils/anchorPoints";
 import { calculateSmartElbowRoute } from "../utils/routing";
@@ -200,7 +200,7 @@ const Canvas: Component = () => {
         const sortedLayers = [...store.layers].sort((a, b) => a.order - b.order);
 
         sortedLayers.forEach(layer => {
-            if (!layer.visible) return;
+            if (!isLayerVisible(layer.id)) return;
 
             // 1. Draw Layer Background
             if (layer.backgroundColor && layer.backgroundColor !== 'transparent') {
@@ -854,11 +854,9 @@ const Canvas: Component = () => {
         return false;
     };
 
-    // Helper: Check if element can be interacted with (not on locked layer or locked itself)
     const canInteractWithElement = (el: DrawingElement): boolean => {
         if (el.locked) return false;
-        const layer = store.layers.find(l => l.id === el.layerId);
-        return layer?.locked !== true;
+        return !isLayerLocked(el.layerId);
     };
 
     // Helper: Binding Check
@@ -1013,7 +1011,7 @@ const Canvas: Component = () => {
             // Visual Order = Highest Layer Order -> Highest Array Index
             const sortedElements = store.elements.map((el, index) => {
                 const layer = store.layers.find(l => l.id === el.layerId);
-                return { el, index, layerOrder: layer?.order ?? 999, layerVisible: layer?.visible !== false };
+                return { el, index, layerOrder: layer?.order ?? 999, layerVisible: isLayerVisible(el.layerId) };
             }).sort((a, b) => {
                 if (a.layerOrder !== b.layerOrder) return b.layerOrder - a.layerOrder; // Descending
                 return b.index - a.index; // Descending
