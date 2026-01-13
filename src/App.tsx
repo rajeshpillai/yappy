@@ -1,4 +1,4 @@
-import { type Component, onMount, onCleanup } from 'solid-js';
+import { type Component, onMount, onCleanup, Show } from 'solid-js';
 import { undo, redo, store, deleteElements } from './store/appStore';
 import Canvas from './components/Canvas';
 import Toolbar from './components/Toolbar';
