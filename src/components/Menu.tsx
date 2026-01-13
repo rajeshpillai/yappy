@@ -4,7 +4,7 @@ import {
     store, setStore, deleteElements, clearHistory, toggleTheme, zoomToFit,
     addLayer, reorderLayers, bringToFront, sendToBack, groupSelected, ungroupSelected,
     togglePropertyPanel, toggleLayerPanel, toggleMinimap, loadTemplate, setSelectedTool,
-    toggleGrid, toggleSnapToGrid, toggleZenMode
+    toggleGrid, toggleSnapToGrid
 } from "../store/appStore";
 import {
     Menu as MenuIcon, FolderOpen, Share2, FilePlus, Trash2, Maximize,
@@ -207,6 +207,7 @@ const Menu: Component = () => {
         }
 
         const handleKeyDown = (e: KeyboardEvent) => {
+            // console.log('Key:', e.key, 'Alt:', e.altKey, 'Ctrl:', e.ctrlKey);
             if (e.ctrlKey) {
                 if (e.key === 'o') {
                     e.preventDefault();
@@ -324,23 +325,11 @@ const Menu: Component = () => {
                     if (idx !== -1 && idx < layers.length - 1) {
                         reorderLayers(idx, idx + 1);
                     }
-                } else if (e.key.toLowerCase() === 'p') {
-                    e.preventDefault();
-                    togglePropertyPanel();
-                } else if (e.key.toLowerCase() === 'l') {
-                    e.preventDefault();
-                    toggleLayerPanel();
-                } else if (e.key.toLowerCase() === 'm') {
-                    e.preventDefault();
-                    toggleMinimap();
                 } else if (e.key === '\\') {
                     e.preventDefault();
                     const anyVisible = store.showPropertyPanel || store.showLayerPanel;
                     togglePropertyPanel(!anyVisible);
                     toggleLayerPanel(!anyVisible);
-                } else if (e.key.toLowerCase() === 'z') {
-                    e.preventDefault();
-                    toggleZenMode();
                 }
             } else if (e.key === '?' && e.shiftKey) {
                 if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
@@ -370,19 +359,22 @@ const Menu: Component = () => {
             } else {
                 // Tool Shortcuts (No Modifiers)
                 if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
-                    const key = e.key.toLowerCase();
-                    if (key === 'v' || key === '1') setSelectedTool('selection');
-                    else if (key === 'r' || key === '2') setSelectedTool('rectangle');
-                    else if (key === 'o' || key === '3') setSelectedTool('circle');
-                    else if (key === 'l' || key === '4') setSelectedTool('line');
-                    else if (key === 'a' || key === '5') setSelectedTool('arrow');
-                    else if (key === 't' || key === '6') setSelectedTool('text');
-                    else if (key === 'e' || key === '7') setSelectedTool('eraser');
-                    else if (key === 'p' || key === '8') setSelectedTool('pencil');
-                    else if (key === '9' || key === 'i') fileInputRef?.click();
-                    else if (key === 'b' || key === '0') setSelectedTool('bezier');
-                    else if (key === 'd') setSelectedTool('diamond');
-                    else if (key === 'h') setSelectedTool('pan');
+                    // Start checking strict modifier absence
+                    if (!e.ctrlKey && !e.altKey && !e.metaKey) {
+                        const key = e.key.toLowerCase();
+                        if (key === 'v' || key === '1') setSelectedTool('selection');
+                        else if (key === 'r' || key === '2') setSelectedTool('rectangle');
+                        else if (key === 'o' || key === '3') setSelectedTool('circle');
+                        else if (key === 'l' || key === '4') setSelectedTool('line');
+                        else if (key === 'a' || key === '5') setSelectedTool('arrow');
+                        else if (key === 't' || key === '6') setSelectedTool('text');
+                        else if (key === 'e' || key === '7') setSelectedTool('eraser');
+                        else if (key === 'p' || key === '8') setSelectedTool('pencil');
+                        else if (key === '9' || key === 'i') fileInputRef?.click();
+                        else if (key === 'b' || key === '0') setSelectedTool('bezier');
+                        else if (key === 'd') setSelectedTool('diamond');
+                        else if (key === 'h') setSelectedTool('pan');
+                    }
                 }
             }
         };
@@ -474,7 +466,7 @@ const Menu: Component = () => {
                                         <span class="label">Properties Panel</span>
                                         <div class="menu-item-right">
                                             <Show when={store.showPropertyPanel}><Check size={14} class="check-icon" /></Show>
-                                            <span class="shortcut">Alt+P</span>
+                                            <span class="shortcut">Alt+Enter</span>
                                         </div>
                                     </div>
                                     <div class="menu-item" onClick={() => { toggleLayerPanel(); setIsMenuOpen(false); }}>

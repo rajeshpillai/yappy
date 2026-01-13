@@ -1,5 +1,5 @@
 import { type Component, onMount, onCleanup, Show } from 'solid-js';
-import { undo, redo, store, deleteElements } from './store/appStore';
+import { undo, redo, store, deleteElements, togglePropertyPanel, toggleLayerPanel, toggleMinimap, toggleZenMode } from './store/appStore';
 import Canvas from './components/Canvas';
 import Toolbar from './components/Toolbar';
 import Menu from './components/Menu';
@@ -15,7 +15,29 @@ const App: Component = () => {
     initAPI();
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't handle shortcuts if typing in an input/textarea
+      // Allow Alt shortcuts (Commands) even if focused on inputs
+      if (e.altKey) {
+        // Use e.code for layout-independent checking where possible, fall back to key
+        const code = e.code;
+        const key = e.key.toLowerCase();
+
+        if (code === 'Enter' || key === 'enter') {
+          e.preventDefault();
+          togglePropertyPanel();
+        } else if (e.key.toLowerCase() === 'l') {
+          e.preventDefault();
+          toggleLayerPanel();
+        } else if (e.key.toLowerCase() === 'm') {
+          e.preventDefault();
+          toggleMinimap();
+        } else if (e.key.toLowerCase() === 'z') {
+          e.preventDefault();
+          toggleZenMode();
+        }
+        return; // Handle Alt and exit
+      }
+
+      // Don't handle other shortcuts if typing in an input/textarea
       if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') {
         return;
       }

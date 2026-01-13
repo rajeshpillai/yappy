@@ -245,7 +245,7 @@ const HelpDialog: Component<Props> = (props) => {
                                             <span class="shortcut-label">Toggle Properties</span>
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Alt</span>
-                                                <span class="keycap">P</span>
+                                                <span class="keycap">Enter</span>
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
