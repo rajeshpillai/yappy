@@ -19,6 +19,7 @@ import {
     flipSelected, lockSelected, copyStyle, pasteStyle
 } from '../utils/objectContextActions';
 import { simplifyPoints } from "../utils/pencilOptimizer";
+import { perfMonitor } from "../utils/performanceMonitor";
 
 
 const Canvas: Component = () => {
@@ -86,6 +87,10 @@ const Canvas: Component = () => {
     let initialElementPoints: { x: number; y: number }[] | undefined;
     let initialElementFontSize = 20;
 
+    // OPTIMIZATION: Throttle smart snapping calculations
+    let lastSnappingTime = 0;
+    const SNAPPING_THROTTLE_MS = 16; // ~60 FPS
+
 
     const handleResize = () => {
         if (canvasRef) {
@@ -106,6 +111,8 @@ const Canvas: Component = () => {
         if (!canvasRef) return;
         const ctx = canvasRef.getContext("2d");
         if (!ctx) return;
+
+        const startTime = performance.now();
 
         // Reset Transform Matrix to Identity so we don't accumulate translations!
         ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -197,8 +204,21 @@ const Canvas: Component = () => {
             ctx.restore();
         }
 
+        // Calculate viewport bounds in world coordinates for culling
+        const viewportBounds = {
+            minX: (-panX) / scale,
+            maxX: (canvasRef.width - panX) / scale,
+            minY: (-panY) / scale,
+            maxY: (canvasRef.height - panY) / scale
+        };
+
+        // Add 10% buffer for smoother transitions at viewport edges
+        const bufferX = (viewportBounds.maxX - viewportBounds.minX) * 0.1;
+        const bufferY = (viewportBounds.maxY - viewportBounds.minY) * 0.1;
+
         // Render Layers and Elements
         const sortedLayers = [...store.layers].sort((a, b) => a.order - b.order);
+        let totalRendered = 0;
 
         sortedLayers.forEach(layer => {
             if (!isLayerVisible(layer.id)) return;
@@ -217,14 +237,30 @@ const Canvas: Component = () => {
                 ctx.restore();
             }
 
-            // 2. Draw Elements on this layer
-            const layerElements = store.elements.filter(el => el.layerId === layer.id);
+            // 2. Draw Elements on this layer with viewport culling
+            // OPTIMIZATION: Create RoughJS instance ONCE per layer, not per element
+            const rc = rough.canvas(canvasRef);
+
+            const layerElements = store.elements.filter(el => {
+                if (el.layerId !== layer.id) return false;
+
+                // OPTIMIZATION: Quick AABB (Axis-Aligned Bounding Box) visibility check
+                // Add margin for rotated elements (use max dimension as safe bound)
+                const margin = Math.max(Math.abs(el.width), Math.abs(el.height)) * 0.5;
+
+                return !(el.x + el.width + margin < viewportBounds.minX - bufferX ||
+                    el.x - margin > viewportBounds.maxX + bufferX ||
+                    el.y + el.height + margin < viewportBounds.minY - bufferY ||
+                    el.y - margin > viewportBounds.maxY + bufferY);
+            });
+
+            totalRendered += layerElements.length;
+
             layerElements.forEach(el => {
                 let cx = el.x + el.width / 2;
                 let cy = el.y + el.height / 2;
 
                 if (el.type !== 'text' || editingId() !== el.id) {
-                    const rc = rough.canvas(canvasRef);
                     const layerOpacity = (layer?.opacity ?? 1);
                     renderElement(rc, ctx, el, isDarkMode, layerOpacity);
                 }
@@ -540,6 +576,10 @@ const Canvas: Component = () => {
         }
 
         ctx.restore(); // Restore for line 104
+
+        // OPTIMIZATION: Track rendering performance
+        const drawTime = performance.now() - startTime;
+        perfMonitor.measureFrame(drawTime, store.elements.length, totalRendered);
     }
 
     createEffect(() => {
@@ -1459,17 +1499,25 @@ const Canvas: Component = () => {
                     let dx = x - startX;
                     let dy = y - startY;
 
-                    // Object Snapping
+                    // OPTIMIZATION: Throttle Object Snapping calculations
                     if (store.gridSettings.objectSnapping && !e.shiftKey) {
-                        const snap = getSnappingGuides(store.selection, store.elements, dx, dy, 5 / store.viewState.scale);
-                        dx = snap.dx;
-                        dy = snap.dy;
-                        setSnappingGuides(snap.guides);
+                        const now = performance.now();
 
-                        const spacing = getSpacingGuides(store.selection, store.elements, dx, dy, 5 / store.viewState.scale);
-                        dx = spacing.dx;
-                        dy = spacing.dy;
-                        setSpacingGuides(spacing.guides);
+                        // Only recalculate if enough time has passed (throttle to ~60 FPS)
+                        if (now - lastSnappingTime >= SNAPPING_THROTTLE_MS) {
+                            const snap = getSnappingGuides(store.selection, store.elements, dx, dy, 5 / store.viewState.scale);
+                            dx = snap.dx;
+                            dy = snap.dy;
+                            setSnappingGuides(snap.guides);
+
+                            const spacing = getSpacingGuides(store.selection, store.elements, dx, dy, 5 / store.viewState.scale);
+                            dx = spacing.dx;
+                            dy = spacing.dy;
+                            setSpacingGuides(spacing.guides);
+
+                            lastSnappingTime = now;
+                        }
+                        // If throttled, keep using the visual guides but don't recalculate snap position
                     } else {
                         setSnappingGuides([]);
                         setSpacingGuides([]);

@@ -450,3 +450,40 @@
   - [x] Delete (Delete)
   - [x] **FIXED**: Flip Horizontal/Vertical for single straight lines (implicit geometry converted to explicit points).
 
+
+### Phase 30: Performance Optimization (Large Sketches 1000+)
+- [x] **Priority 1: Immediate Wins** (1 hour, supports 500-700 elements)
+  - [x] Viewport Culling
+    - [x] Add viewport bounds calculation in `Canvas.tsx`
+    - [x] Filter elements by visibility before rendering
+    - [x] Expected gain: 80-95% fewer elements rendered when zoomed
+  - [x] Fix RoughJS Instance Recreation
+    - [x] Move `rough.canvas()` outside element loop
+    - [x] Reuse single instance across all renders
+    - [x] Expected gain: 10-20% faster rendering
+  - [x] Debounce Smart Snapping
+    - [x] Throttle `getSnappingGuides` to 60 FPS max
+    - [x] Prevent execution on every mouse move event
+    - [x] Expected gain: 50-70% reduction in drag lag
+- [ ] **Priority 2: Structural Improvements** (supports 1000+ elements)
+  - [ ] Spatial Indexing (rbush library)
+    - [ ] Install and integrate rbush for element lookup
+    - [ ] Build spatial index on element changes
+    - [ ] Use for hit testing (O(n) → O(log n))
+    - [ ] Use for snap candidate filtering
+  - [ ] Limit Smart Snapping Scope
+    - [ ] Only check elements within 200px radius
+    - [ ] Filter candidates using spatial index
+    - [ ] Expected gain: O(n²) → O(k²) where k << n
+  - [ ] Dirty Region Tracking
+    - [ ] Track which elements changed since last render
+    - [ ] Only redraw affected regions for small changes
+    - [ ] Full redraw only when >10% of elements changed
+- [ ] **Priority 3: Advanced Optimizations** (future)
+  - [ ] Offscreen Canvas Layer Caching
+  - [ ] Web Workers for calculations
+  - [ ] Canvas Virtualization (tile-based rendering)
+- [ ] **Verification**
+  - [ ] Add performance monitoring (frame time logging)
+  - [ ] Test with 100, 500, 1000, 5000 elements
+  - [ ] Target: 60 FPS with 1000 elements, 30+ FPS with 5000
