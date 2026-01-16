@@ -38,12 +38,16 @@ export const renderElement = (
     // RoughJS Options
     const options: any = {
         seed: el.seed,
-        roughness: el.roughness,
+        // For architectural style, we want straight lines without randomness
+        roughness: el.renderStyle === 'architectural' ? 0 : el.roughness,
+        bowing: el.renderStyle === 'architectural' ? 0 : 1, // Minimize bowing for archi style
         stroke: strokeColor,
         strokeWidth: el.strokeWidth,
         fill: backgroundColor,
         fillStyle: fillStyle,
         strokeLineDash: el.strokeStyle === 'dashed' ? [10, 10] : (el.strokeStyle === 'dotted' ? [5, 10] : undefined),
+        strokeLineJoin: 'round',
+        strokeLineCap: 'round',
     };
 
     // Helper to draw arrowheads
@@ -63,19 +67,143 @@ export const renderElement = (
         }
     };
 
+
+    // Helper to generate rounded rectangle path
+    const getRoundedRectPath = (x: number, y: number, w: number, h: number, r: number) => {
+        const rX = Math.min(Math.abs(w) / 2, r);
+        const rY = Math.min(Math.abs(h) / 2, r);
+        // Ensure positive width/height for path generation (handle negative w/h by swapping if needed, 
+        // but typically we draw from top-left. Let's assume normalized x,y,w,h or handle sign)
+        // For simplicity, we assume normalized input or rely on M/L commands handling it.
+        // But arc commands in SVG are sensitive.
+        // Let's rely on standard "rect with corner radius" logic.
+        return `M ${x + rX} ${y} L ${x + w - rX} ${y} Q ${x + w} ${y} ${x + w} ${y + rY} L ${x + w} ${y + h - rY} Q ${x + w} ${y + h} ${x + w - rX} ${y + h} L ${x + rX} ${y + h} Q ${x} ${y + h} ${x} ${y + h - rY} L ${x} ${y + rY} Q ${x} ${y} ${x + rX} ${y}`;
+    };
+
+    // Helper to generate rounded diamond path
+    const getRoundedDiamondPath = (x: number, y: number, w: number, h: number, r: number) => {
+        const w2 = w / 2;
+        const h2 = h / 2;
+        const cx = x + w2;
+        const cy = y + h2;
+
+        // Corner radius needs to be scaled relative to side lengths
+        // Simple approach: shrink the diamond vertices towards center and use quadratic curves
+        // Vertex 0: Top (cx, y)
+        // Vertex 1: Right (x+w, cy)
+        // Vertex 2: Bottom (cx, y+h)
+        // Vertex 3: Left (x, cy)
+
+        // A diamond is just a polygon. To round it, we cut the corners.
+        // The "radius" effectively shortens the side.
+        const len = Math.hypot(w2, h2);
+        const validR = Math.min(r, len / 2);
+        const ratio = validR / len;
+
+        const dx = w2 * ratio;
+        const dy = h2 * ratio;
+
+        // Top Corner
+        const p1 = { x: cx - dx, y: y + dy }; // Left of Top
+        const p2 = { x: cx + dx, y: y + dy }; // Right of Top
+
+        // Right Corner
+        const p3 = { x: x + w - dx, y: cy - dy }; // Top of Right
+        const p4 = { x: x + w - dx, y: cy + dy }; // Bottom of Right
+
+        // Bottom Corner
+        const p5 = { x: cx + dx, y: y + h - dy }; // Right of Bottom
+        const p6 = { x: cx - dx, y: y + h - dy }; // Left of Bottom
+
+        // Left Corner
+        const p7 = { x: x + dx, y: cy + dy }; // Bottom of Left
+        const p8 = { x: x + dx, y: cy - dy }; // Top of Left
+
+        return `M ${p1.x} ${p1.y} Q ${cx} ${y} ${p2.x} ${p2.y} L ${p3.x} ${p3.y} Q ${x + w} ${cy} ${p4.x} ${p4.y} L ${p5.x} ${p5.y} Q ${cx} ${y + h} ${p6.x} ${p6.y} L ${p7.x} ${p7.y} Q ${x} ${cy} ${p8.x} ${p8.y} Z`;
+    };
+
     if (el.type === 'rectangle') {
-        rc.rectangle(el.x, el.y, el.width, el.height, options);
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                // Fill using RoughJS (sketchy fill) but no stroke
+                // 'none' or transparent stroke ensures only fill is drawn
+                rc.rectangle(el.x, el.y, el.width, el.height, { ...options, stroke: 'none', fill: backgroundColor });
+            }
+            // Outline using native Canvas (perfect straight lines)
+            ctx.beginPath();
+            ctx.rect(el.x, el.y, el.width, el.height);
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineJoin = 'round'; // Ensure smooth corners
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        } else {
+            // Sketch Style
+            // Check for roundness
+            if (el.roundness) {
+                const radius = Math.min(Math.abs(el.width), Math.abs(el.height)) * 0.15; // 15% roundness
+                const path = getRoundedRectPath(el.x, el.y, el.width, el.height, radius);
+                rc.path(path, options);
+            } else {
+                rc.rectangle(el.x, el.y, el.width, el.height, options);
+            }
+        }
     } else if (el.type === 'circle') {
-        rc.ellipse(el.x + el.width / 2, el.y + el.height / 2, Math.abs(el.width), Math.abs(el.height), options);
+        if (el.renderStyle === 'architectural') {
+            const rx = Math.abs(el.width) / 2;
+            const ry = Math.abs(el.height) / 2;
+            const cx = el.x + el.width / 2;
+            const cy = el.y + el.height / 2;
+
+            if (backgroundColor) {
+                rc.ellipse(cx, cy, Math.abs(el.width), Math.abs(el.height), { ...options, stroke: 'none', fill: backgroundColor });
+            }
+
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.stroke();
+        } else {
+            // Circles are already round!
+            rc.ellipse(el.x + el.width / 2, el.y + el.height / 2, Math.abs(el.width), Math.abs(el.height), options);
+        }
     } else if (el.type === 'diamond') {
         const cx = el.x + el.width / 2;
         const cy = el.y + el.height / 2;
-        rc.polygon([
+        const points: [number, number][] = [
             [cx, el.y],
             [el.x + el.width, cy],
             [cx, el.y + el.height],
             [el.x, cy]
-        ], options);
+        ];
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            }
+            ctx.beginPath();
+            ctx.moveTo(points[0][0], points[0][1]);
+            ctx.lineTo(points[1][0], points[1][1]);
+            ctx.lineTo(points[2][0], points[2][1]);
+            ctx.lineTo(points[3][0], points[3][1]);
+            ctx.closePath();
+
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        } else {
+            // Sketch Style
+            if (el.roundness) {
+                const radius = Math.min(Math.abs(el.width), Math.abs(el.height)) * 0.2; // 20% roundness for diamond
+                const path = getRoundedDiamondPath(el.x, el.y, el.width, el.height, radius);
+                rc.path(path, options);
+            } else {
+                rc.polygon(points, options);
+            }
+        }
     } else if (el.type === 'line' || el.type === 'arrow') {
         const endX = el.x + el.width;
         const endY = el.y + el.height;

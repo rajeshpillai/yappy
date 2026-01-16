@@ -134,6 +134,10 @@ const PropertyPanel: Component = () => {
             return { type: 'canvas' as const, data: null };
         }
         // Show defaults for the current tool
+        const tool = store.selectedTool;
+        if (tool === 'selection' || tool === 'pan' || tool === 'eraser') {
+            return null;
+        }
         return { type: 'defaults' as const, data: null };
     });
 
@@ -179,8 +183,14 @@ const PropertyPanel: Component = () => {
         const target = activeTarget();
         if (!target) return;
 
+        // Roundness conversion (boolean -> object or null)
+        let finalValue = value;
+        if (key === 'roundness') {
+            finalValue = value ? { type: 1 } : null;
+        }
+
         if (target.type === 'element') {
-            updateElement(target.data.id!, { [key]: value }, true);
+            updateElement(target.data.id!, { [key]: finalValue }, true);
         } else if (target.type === 'canvas') {
             if (key === 'canvasBackgroundColor') setCanvasBackgroundColor(value);
             else if (key === 'gridEnabled') updateGridSettings({ enabled: value });
@@ -194,7 +204,7 @@ const PropertyPanel: Component = () => {
             const settingKey = key === 'pressureEnabled' ? 'pressure' : key.replace('pencil', '').toLowerCase();
             updatePencilSettings({ [settingKey]: value });
         } else {
-            updateDefaultStyles({ [key]: value });
+            updateDefaultStyles({ [key]: finalValue });
         }
     };
 
@@ -216,8 +226,16 @@ const PropertyPanel: Component = () => {
             const settingKey = prop.key === 'pressureEnabled' ? 'pressure' : prop.key.replace('pencil', '').toLowerCase();
             return (store.pencilSettings as any)[settingKey];
         }
-        if (target.type === 'element') return (target.data as any)[prop.key];
-        if (target.type === 'defaults') return (store.defaultElementStyles as any)[prop.key];
+        if (target.type === 'element') {
+            const val = (target.data as any)[prop.key];
+            if (prop.key === 'roundness') return !!val; // Convert to boolean for toggle
+            return val;
+        }
+        if (target.type === 'defaults') {
+            const val = (store.defaultElementStyles as any)[prop.key];
+            if (prop.key === 'roundness') return !!val;
+            return val;
+        }
         return undefined;
     };
 
@@ -335,7 +353,7 @@ const PropertyPanel: Component = () => {
     });
 
     return (
-        <Show when={store.showPropertyPanel}>
+        <Show when={store.showPropertyPanel && activeTarget()}>
             <div
                 class="property-panel-container"
                 classList={{ minimized: store.isPropertyPanelMinimized }}

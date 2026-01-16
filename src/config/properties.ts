@@ -108,6 +108,14 @@ export const properties: PropertyConfig[] = [
         applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'diamond'],
         defaultValue: 'sketch'
     },
+    {
+        key: 'roundness',
+        label: 'Round Corners',
+        type: 'toggle',
+        group: 'style',
+        applicableTo: ['rectangle', 'diamond'],
+        defaultValue: null
+    },
     // Stroke
     {
         key: 'strokeColor',

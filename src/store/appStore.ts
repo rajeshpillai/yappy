@@ -227,8 +227,12 @@ export const setViewState = (updates: Partial<ViewState>) => {
     setStore("viewState", (vs) => ({ ...vs, ...updates }));
 };
 
+// Actions
 export const setSelectedTool = (tool: ElementType | 'selection') => {
-    setStore("selectedTool", tool);
+    setStore('selectedTool', tool);
+    if (tool !== 'selection' && tool !== 'pan' && tool !== 'eraser') {
+        setStore('selection', []);
+    }
 };
 
 export const updateDefaultStyles = (updates: Partial<DrawingElement>) => {
