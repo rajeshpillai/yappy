@@ -244,6 +244,11 @@ const Canvas: Component = () => {
             const layerElements = store.elements.filter(el => {
                 if (el.layerId !== layer.id) return false;
 
+                // OPTIMIZATION: Skip elements smaller than 1px on screen (invisible when zoomed out)
+                const screenWidth = Math.abs(el.width) * scale;
+                const screenHeight = Math.abs(el.height) * scale;
+                if (screenWidth < 1 && screenHeight < 1) return false;
+
                 // OPTIMIZATION: Quick AABB (Axis-Aligned Bounding Box) visibility check
                 // Add margin for rotated elements (use max dimension as safe bound)
                 const margin = Math.max(Math.abs(el.width), Math.abs(el.height)) * 0.5;
@@ -529,8 +534,8 @@ const Canvas: Component = () => {
                 const endX = currentEl.x + currentEl.width;
                 const endY = currentEl.y + currentEl.height;
 
-                // Show anchors on nearby shapes
-                const threshold = 200 / store.viewState.scale;
+                // OPTIMIZATION: Show anchors only on very nearby shapes (reduced from 200px)
+                const threshold = 50 / store.viewState.scale;
                 const anchorSnapThreshold = 15 / store.viewState.scale;
 
                 ctx.save();
