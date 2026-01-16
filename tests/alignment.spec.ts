@@ -8,7 +8,10 @@ test.describe('Alignment Tools', () => {
 
         // Reset canvas
         await page.evaluate(() => {
-            if (window.Yappy) window.Yappy.clear();
+            if (window.Yappy) {
+                window.Yappy.clear();
+                window.Yappy.togglePropertyPanel(true);
+            }
         });
     });
 

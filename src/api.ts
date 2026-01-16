@@ -2,7 +2,7 @@ import {
     store, addElement, updateElement, deleteElements, setViewState, pushToHistory, setStore, zoomToFit,
     undo, redo, groupSelected, ungroupSelected, duplicateElement, toggleTheme,
     addLayer, deleteLayer, setActiveLayer, mergeLayerDown, flattenLayers, isolateLayer, showAllLayers,
-    toggleGrid, toggleSnapToGrid, toggleCommandPalette
+    toggleGrid, toggleSnapToGrid, toggleCommandPalette, togglePropertyPanel
 } from "./store/appStore";
 import type { ElementType, DrawingElement, FillStyle, StrokeStyle, FontFamily, TextAlign, ArrowHead } from "./types";
 
@@ -329,7 +329,8 @@ export const YappyAPI = {
     toggleSnapToGrid() { toggleSnapToGrid(); },
 
     // Command Palette
-    toggleCommandPalette(visible?: boolean) { toggleCommandPalette(visible); }
+    toggleCommandPalette(visible?: boolean) { toggleCommandPalette(visible); },
+    togglePropertyPanel(visible?: boolean) { togglePropertyPanel(visible); }
 };
 
 declare global {

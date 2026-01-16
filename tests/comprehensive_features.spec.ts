@@ -6,7 +6,10 @@ test.describe('Comprehensive Feature Suite', () => {
         await page.goto('http://localhost:5173');
         await page.waitForSelector('canvas');
         await page.evaluate(() => {
-            if (window.Yappy) window.Yappy.clear();
+            if (window.Yappy) {
+                window.Yappy.clear();
+                window.Yappy.togglePropertyPanel(true);
+            }
         });
     });
 
