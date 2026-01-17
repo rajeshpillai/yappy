@@ -895,6 +895,12 @@ const Canvas: Component = () => {
             return isPointOnPolyline(localP, el.points, threshold);
         } else if (el.type === 'text' || el.type === 'image') {
             return true; // Box check passed
+        } else if (el.type === 'triangle' || el.type === 'hexagon' || el.type === 'octagon' ||
+            el.type === 'parallelogram' || el.type === 'star' || el.type === 'cloud' ||
+            el.type === 'heart' || el.type === 'cross' || el.type === 'checkmark' ||
+            el.type === 'arrowLeft' || el.type === 'arrowRight' || el.type === 'arrowUp' || el.type === 'arrowDown') {
+            // For new shapes, use bounding box hit test (simple and effective)
+            return true; // Box check already passed above
         }
 
         return false;
@@ -1911,7 +1917,9 @@ const Canvas: Component = () => {
             // Switch back to selection tool after drawing (except for pencil/eraser?) 
             // User requested "After a shape is drawn". Usually pencil is continuous.
             // Let's reset for Shapes (Rect, Circle, Line, Arrow, Bezier).
-            if (['rectangle', 'circle', 'line', 'arrow', 'image', 'bezier', 'diamond'].includes(store.selectedTool)) {
+            if (['rectangle', 'circle', 'line', 'arrow', 'image', 'bezier', 'diamond',
+                'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart',
+                'cross', 'checkmark', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown'].includes(store.selectedTool)) {
                 setSelectedTool('selection');
             }
         }

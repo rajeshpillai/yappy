@@ -234,6 +234,54 @@ export const intersectElementWithLine = (
             return rotatePoint(ix, iy, cx, cy, element.angle);
         }
         return { x: ix, y: iy };
+    } else if (element.type === 'triangle' || element.type === 'hexagon' || element.type === 'octagon' ||
+        element.type === 'parallelogram' || element.type === 'star' || element.type === 'cloud' ||
+        element.type === 'heart' || element.type === 'arrowLeft' || element.type === 'arrowRight' ||
+        element.type === 'arrowUp' || element.type === 'arrowDown') {
+        // For complex/polygon shapes, use simplified bounding box intersection
+        // This is similar to rectangle but provides reasonable approximation
+        let p = { x: a.x, y: a.y };
+        if (element.angle) {
+            p = rotatePoint(a.x, a.y, cx, cy, -element.angle);
+        }
+
+        const w = element.width;
+        const h = element.height;
+        const x1 = cx - w / 2 - gap;
+        const x2 = cx + w / 2 + gap;
+        const y1 = cy - h / 2 - gap;
+        const y2 = cy + h / 2 + gap;
+
+        const dx = p.x - cx;
+        const dy = p.y - cy;
+
+        if (dx === 0 && dy === 0) return { x: cx, y: cy };
+
+        let t = Infinity;
+
+        if (dx !== 0) {
+            const tx1 = (x1 - cx) / dx;
+            if (tx1 > 0) t = Math.min(t, tx1);
+            const tx2 = (x2 - cx) / dx;
+            if (tx2 > 0) t = Math.min(t, tx2);
+        }
+
+        if (dy !== 0) {
+            const ty1 = (y1 - cy) / dy;
+            if (ty1 > 0) t = Math.min(t, ty1);
+            const ty2 = (y2 - cy) / dy;
+            if (ty2 > 0) t = Math.min(t, ty2);
+        }
+
+        if (t === Infinity) return null;
+
+        const ix = cx + dx * t;
+        const iy = cy + dy * t;
+
+        if (element.angle) {
+            return rotatePoint(ix, iy, cx, cy, element.angle);
+        }
+        return { x: ix, y: iy };
     }
 
     return null;

@@ -130,7 +130,7 @@ export const properties: PropertyConfig[] = [
         label: 'Background',
         type: 'color',
         group: 'background',
-        applicableTo: ['rectangle', 'circle', 'text', 'diamond'], // text bg? maybe
+        applicableTo: ['rectangle', 'circle', 'text', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown'], // text bg? maybe
         defaultValue: 'transparent'
     },
     {
@@ -143,7 +143,7 @@ export const properties: PropertyConfig[] = [
             { label: 'Hachure', value: 'hachure' },
             { label: 'Cross-Hatch', value: 'cross-hatch' }
         ],
-        applicableTo: ['rectangle', 'circle', 'diamond'],
+        applicableTo: ['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown'],
         defaultValue: 'hachure'
     },
     {
@@ -154,7 +154,7 @@ export const properties: PropertyConfig[] = [
         max: 20,
         step: 1,
         group: 'stroke',
-        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'pencil', 'calligraphy', 'fineliner', 'inkbrush', 'diamond'],
+        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'pencil', 'calligraphy', 'fineliner', 'inkbrush', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'cross', 'checkmark', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown'],
         defaultValue: 1
     },
     {
@@ -167,7 +167,7 @@ export const properties: PropertyConfig[] = [
             { label: 'Dashed', value: 'dashed' },
             { label: 'Dotted', value: 'dotted' }
         ],
-        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'pencil', 'diamond'], // Exclude text
+        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'pencil', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'cross', 'checkmark', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown'], // Exclude text
         defaultValue: 'solid'
     },
     {

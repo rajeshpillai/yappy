@@ -204,6 +204,332 @@ export const renderElement = (
                 rc.polygon(points, options);
             }
         }
+    } else if (el.type === 'triangle') {
+        const cx = el.x + el.width / 2;
+        const points: [number, number][] = [
+            [cx, el.y],                         // Top
+            [el.x + el.width, el.y + el.height], // Bottom right
+            [el.x, el.y + el.height]            // Bottom left
+        ];
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            }
+            ctx.beginPath();
+            ctx.moveTo(points[0][0], points[0][1]);
+            ctx.lineTo(points[1][0], points[1][1]);
+            ctx.lineTo(points[2][0], points[2][1]);
+            ctx.closePath();
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        } else {
+            rc.polygon(points, options);
+        }
+    } else if (el.type === 'hexagon') {
+        const cx = el.x + el.width / 2;
+        const cy = el.y + el.height / 2;
+        const rx = el.width / 2;
+        const ry = el.height / 2;
+        const points: [number, number][] = [];
+
+        for (let i = 0; i < 6; i++) {
+            const angle = (Math.PI / 3) * i - Math.PI / 2; // Start at top
+            points.push([
+                cx + rx * Math.cos(angle),
+                cy + ry * Math.sin(angle)
+            ]);
+        }
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            }
+            ctx.beginPath();
+            ctx.moveTo(points[0][0], points[0][1]);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i][0], points[i][1]);
+            }
+            ctx.closePath();
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+        } else {
+            rc.polygon(points, options);
+        }
+    } else if (el.type === 'octagon') {
+        const cx = el.x + el.width / 2;
+        const cy = el.y + el.height / 2;
+        const rx = el.width / 2;
+        const ry = el.height / 2;
+        const points: [number, number][] = [];
+
+        for (let i = 0; i < 8; i++) {
+            const angle = (Math.PI / 4) * i - Math.PI / 2; // Start at top
+            points.push([
+                cx + rx * Math.cos(angle),
+                cy + ry * Math.sin(angle)
+            ]);
+        }
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            }
+            ctx.beginPath();
+            ctx.moveTo(points[0][0], points[0][1]);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i][0], points[i][1]);
+            }
+            ctx.closePath();
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+        } else {
+            rc.polygon(points, options);
+        }
+    } else if (el.type === 'parallelogram') {
+        const offset = el.width * 0.2; // 20% offset for slant
+        const points: [number, number][] = [
+            [el.x + offset, el.y],               // Top left
+            [el.x + el.width, el.y],             // Top right
+            [el.x + el.width - offset, el.y + el.height], // Bottom right
+            [el.x, el.y + el.height]             // Bottom left
+        ];
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            }
+            ctx.beginPath();
+            ctx.moveTo(points[0][0], points[0][1]);
+            ctx.lineTo(points[1][0], points[1][1]);
+            ctx.lineTo(points[2][0], points[2][1]);
+            ctx.lineTo(points[3][0], points[3][1]);
+            ctx.closePath();
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+        } else {
+            rc.polygon(points, options);
+        }
+    } else if (el.type === 'star') {
+        const cx = el.x + el.width / 2;
+        const cy = el.y + el.height / 2;
+        const outerRadius = Math.min(el.width, el.height) / 2;
+        const innerRadius = outerRadius * 0.4;
+        const points: [number, number][] = [];
+
+        for (let i = 0; i < 10; i++) {
+            const angle = (Math.PI / 5) * i - Math.PI / 2;
+            const radius = i % 2 === 0 ? outerRadius : innerRadius;
+            points.push([
+                cx + radius * Math.cos(angle),
+                cy + radius * Math.sin(angle)
+            ]);
+        }
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            }
+            ctx.beginPath();
+            ctx.moveTo(points[0][0], points[0][1]);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i][0], points[i][1]);
+            }
+            ctx.closePath();
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+        } else {
+            rc.polygon(points, options);
+        }
+    } else if (el.type === 'cloud') {
+        // Cloud shape using overlapping circles (simplified)
+        const cx = el.x + el.width / 2;
+        const cy = el.y + el.height / 2;
+        const w = el.width;
+        const h = el.height;
+
+        // SVG path for cloud shape
+        const r1 = w * 0.2;  // Left circle
+        const r2 = w * 0.25; // Top circle
+        const r3 = w * 0.2;  // Right circle
+        const r4 = w * 0.3;  // Bottom circle
+
+        const path = `
+            M ${el.x + r1} ${cy}
+            A ${r1} ${r1} 0 0 1 ${el.x + w * 0.3} ${el.y + r2}
+            A ${r2} ${r2} 0 0 1 ${el.x + w * 0.7} ${el.y + r2}
+            A ${r3} ${r3} 0 0 1 ${el.x + w - r3} ${cy}
+            A ${r4} ${r4} 0 0 1 ${el.x + w * 0.6} ${el.y + h - r4 * 0.5}
+            A ${r4} ${r4} 0 0 1 ${el.x + w * 0.3} ${el.y + h - r4 * 0.5}
+            A ${r4} ${r4} 0 0 1 ${el.x + r1} ${cy}
+            Z
+        `;
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fill(new Path2D(path));
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.stroke(new Path2D(path));
+        } else {
+            rc.path(path, options);
+        }
+    } else if (el.type === 'heart') {
+        const cx = el.x + el.width / 2;
+        const w = el.width;
+        const h = el.height;
+
+        // Heart shape using bezier curves
+        const path = `
+            M ${cx} ${el.y + h * 0.3}
+            C ${cx} ${el.y + h * 0.15} ${el.x + w * 0.3} ${el.y} ${el.x + w * 0.5} ${el.y + h * 0.15}
+            C ${el.x + w * 0.7} ${el.y} ${el.x + w} ${el.y + h * 0.15} ${el.x + w} ${el.y + h * 0.35}
+            C ${el.x + w} ${el.y + h * 0.6} ${cx} ${el.y + h * 0.8} ${cx} ${el.y + h}
+            C ${cx} ${el.y + h * 0.8} ${el.x} ${el.y + h * 0.6} ${el.x} ${el.y + h * 0.35}
+            C ${el.x} ${el.y + h * 0.15} ${el.x + w * 0.3} ${el.y} ${el.x + w * 0.5} ${el.y + h * 0.15}
+            Z
+        `;
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fill(new Path2D(path));
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.stroke(new Path2D(path));
+        } else {
+            rc.path(path, options);
+        }
+    } else if (el.type === 'cross') {
+        // X shape using two diagonal lines
+        const points1: [number, number][] = [
+            [el.x, el.y],
+            [el.x + el.width, el.y + el.height]
+        ];
+        const points2: [number, number][] = [
+            [el.x + el.width, el.y],
+            [el.x, el.y + el.height]
+        ];
+
+        if (el.renderStyle === 'architectural') {
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(points1[0][0], points1[0][1]);
+            ctx.lineTo(points1[1][0], points1[1][1]);
+            ctx.moveTo(points2[0][0], points2[0][1]);
+            ctx.lineTo(points2[1][0], points2[1][1]);
+            ctx.stroke();
+        } else {
+            rc.line(points1[0][0], points1[0][1], points1[1][0], points1[1][1], options);
+            rc.line(points2[0][0], points2[0][1], points2[1][0], points2[1][1], options);
+        }
+    } else if (el.type === 'checkmark') {
+        // Checkmark shape (✓)
+        const cx = el.x + el.width / 2;
+        const cy = el.y + el.height / 2;
+        const points: [number, number][] = [
+            [el.x + el.width * 0.2, cy],
+            [el.x + el.width * 0.4, el.y + el.height * 0.7],
+            [el.x + el.width * 0.9, el.y + el.height * 0.2]
+        ];
+
+        if (el.renderStyle === 'architectural') {
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(points[0][0], points[0][1]);
+            ctx.lineTo(points[1][0], points[1][1]);
+            ctx.lineTo(points[2][0], points[2][1]);
+            ctx.stroke();
+        } else {
+            rc.linearPath(points, options);
+        }
+    } else if (el.type === 'arrowLeft' || el.type === 'arrowRight' || el.type === 'arrowUp' || el.type === 'arrowDown') {
+        // Directional arrow shapes
+        let points: [number, number][] = [];
+        const arrowHeadSize = Math.min(el.width, el.height) * 0.4;
+
+        if (el.type === 'arrowRight') {
+            points = [
+                [el.x, el.y + el.height * 0.3],
+                [el.x + el.width - arrowHeadSize, el.y + el.height * 0.3],
+                [el.x + el.width - arrowHeadSize, el.y],
+                [el.x + el.width, el.y + el.height / 2],
+                [el.x + el.width - arrowHeadSize, el.y + el.height],
+                [el.x + el.width - arrowHeadSize, el.y + el.height * 0.7],
+                [el.x, el.y + el.height * 0.7]
+            ];
+        } else if (el.type === 'arrowLeft') {
+            points = [
+                [el.x + el.width, el.y + el.height * 0.3],
+                [el.x + arrowHeadSize, el.y + el.height * 0.3],
+                [el.x + arrowHeadSize, el.y],
+                [el.x, el.y + el.height / 2],
+                [el.x + arrowHeadSize, el.y + el.height],
+                [el.x + arrowHeadSize, el.y + el.height * 0.7],
+                [el.x + el.width, el.y + el.height * 0.7]
+            ];
+        } else if (el.type === 'arrowDown') {
+            points = [
+                [el.x + el.width * 0.3, el.y],
+                [el.x + el.width * 0.3, el.y + el.height - arrowHeadSize],
+                [el.x, el.y + el.height - arrowHeadSize],
+                [el.x + el.width / 2, el.y + el.height],
+                [el.x + el.width, el.y + el.height - arrowHeadSize],
+                [el.x + el.width * 0.7, el.y + el.height - arrowHeadSize],
+                [el.x + el.width * 0.7, el.y]
+            ];
+        } else { // arrowUp
+            points = [
+                [el.x + el.width * 0.3, el.y + el.height],
+                [el.x + el.width * 0.3, el.y + arrowHeadSize],
+                [el.x, el.y + arrowHeadSize],
+                [el.x + el.width / 2, el.y],
+                [el.x + el.width, el.y + arrowHeadSize],
+                [el.x + el.width * 0.7, el.y + arrowHeadSize],
+                [el.x + el.width * 0.7, el.y + el.height]
+            ];
+        }
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            }
+            ctx.beginPath();
+            ctx.moveTo(points[0][0], points[0][1]);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i][0], points[i][1]);
+            }
+            ctx.closePath();
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fill();
+            }
+        } else {
+            rc.polygon(points, options);
+        }
     } else if (el.type === 'line' || el.type === 'arrow') {
         const endX = el.x + el.width;
         const endY = el.y + el.height;
@@ -484,7 +810,10 @@ export const renderElement = (
     }
 
     // Render containerText (text inside shapes)
-    if (el.containerText && (el.type === 'rectangle' || el.type === 'circle' || el.type === 'diamond')) {
+    if (el.containerText && (el.type === 'rectangle' || el.type === 'circle' || el.type === 'diamond' ||
+        el.type === 'triangle' || el.type === 'hexagon' || el.type === 'octagon' ||
+        el.type === 'parallelogram' || el.type === 'star' || el.type === 'cloud' || el.type === 'heart' ||
+        el.type === 'arrowLeft' || el.type === 'arrowRight' || el.type === 'arrowUp' || el.type === 'arrowDown')) {
         const fontSize = el.fontSize || 20;
         const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
             el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :

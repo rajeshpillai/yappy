@@ -87,6 +87,42 @@ export function getAnchorPoints(element: DrawingElement): AnchorPoint[] {
         } else {
             anchors = rawAnchors;
         }
+    } else if (element.type === 'triangle' || element.type === 'hexagon' || element.type === 'octagon' ||
+        element.type === 'parallelogram' || element.type === 'star') {
+        // For new polygon shapes, use 4 cardinal points as simplified anchors
+        const rawAnchors: AnchorPoint[] = [
+            { x: cx, y: cy - h / 2, position: 'top' },
+            { x: cx + w / 2, y: cy, position: 'right' },
+            { x: cx, y: cy + h / 2, position: 'bottom' },
+            { x: cx - w / 2, y: cy, position: 'left' },
+        ];
+
+        if (element.angle) {
+            anchors = rawAnchors.map(anchor => {
+                const rotated = rotatePoint(anchor.x, anchor.y, cx, cy, element.angle);
+                return { ...rotated, position: anchor.position };
+            });
+        } else {
+            anchors = rawAnchors;
+        }
+    } else if (element.type === 'cloud' || element.type === 'heart' || element.type === 'checkmark' || element.type === 'cross' ||
+        element.type === 'arrowLeft' || element.type === 'arrowRight' || element.type === 'arrowUp' || element.type === 'arrowDown') {
+        // For complex shapes, use 4 cardinal points
+        const rawAnchors: AnchorPoint[] = [
+            { x: cx, y: cy - h / 2, position: 'top' },
+            { x: cx + w / 2, y: cy, position: 'right' },
+            { x: cx, y: cy + h / 2, position: 'bottom' },
+            { x: cx - w / 2, y: cy, position: 'left' },
+        ];
+
+        if (element.angle) {
+            anchors = rawAnchors.map(anchor => {
+                const rotated = rotatePoint(anchor.x, anchor.y, cx, cy, element.angle);
+                return { ...rotated, position: anchor.position };
+            });
+        } else {
+            anchors = rawAnchors;
+        }
     }
 
     return anchors;

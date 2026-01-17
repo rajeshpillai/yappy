@@ -1,7 +1,11 @@
 import { type Component, For } from "solid-js";
 import { store, setSelectedTool, addElement } from "../store/appStore";
 import type { ElementType } from "../types";
-import { MousePointer2, Square, Circle, Minus, Type, MoveUpRight, Eraser, Hand, Image as ImageIcon, Spline, Diamond } from "lucide-solid";
+import {
+    MousePointer2, Square, Circle, Minus, Type, MoveUpRight, Eraser, Hand, Image as ImageIcon, Spline, Diamond,
+    Triangle, Hexagon, Octagon, Star, Cloud, Heart, X, Check,
+    ArrowLeft, ArrowRight, ArrowUp, ArrowDown
+} from "lucide-solid";
 import PenToolGroup from "./PenToolGroup";
 import "./Toolbar.css";
 
@@ -11,7 +15,20 @@ const tools: { type: ElementType | 'selection'; icon: Component<{ size?: number;
     { type: 'selection', icon: MousePointer2, label: 'Selection' },
     { type: 'rectangle', icon: Square, label: 'Rectangle' },
     { type: 'circle', icon: Circle, label: 'Circle' },
+    { type: 'triangle', icon: Triangle, label: 'Triangle' },
     { type: 'diamond', icon: Diamond, label: 'Diamond' },
+    { type: 'hexagon', icon: Hexagon, label: 'Hexagon' },
+    { type: 'octagon', icon: Octagon, label: 'Octagon' },
+    { type: 'parallelogram', icon: Square, label: 'Parallelogram' }, // Using Square as placeholder
+    { type: 'star', icon: Star, label: 'Star' },
+    { type: 'cloud', icon: Cloud, label: 'Cloud' },
+    { type: 'heart', icon: Heart, label: 'Heart' },
+    { type: 'cross', icon: X, label: 'Cross (X)' },
+    { type: 'checkmark', icon: Check, label: 'Checkmark' },
+    { type: 'arrowLeft', icon: ArrowLeft, label: 'Arrow Left' },
+    { type: 'arrowRight', icon: ArrowRight, label: 'Arrow Right' },
+    { type: 'arrowUp', icon: ArrowUp, label: 'Arrow Up' },
+    { type: 'arrowDown', icon: ArrowDown, label: 'Arrow Down' },
     { type: 'arrow', icon: MoveUpRight, label: 'Arrow' },
     { type: 'line', icon: Minus, label: 'Line' },
     { type: 'bezier', icon: Spline, label: 'Bezier Curve' },
