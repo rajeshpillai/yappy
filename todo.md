@@ -487,3 +487,35 @@
   - [ ] Add performance monitoring (frame time logging)
   - [ ] Test with 100, 500, 1000, 5000 elements
   - [ ] Target: 60 FPS with 1000 elements, 30+ FPS with 5000
+
+---
+
+### Phase 31: New Predefined Shape Tools
+**Status**: ✅ Complete  
+**Goal**: Expand drawing primitives with additional predefined shapes
+
+**Implemented**:
+- [x] Add 13 new shape types to type system
+- [x] Implement rendering for all new shapes (sketch + architectural styles)
+  - Triangle, Hexagon, Octagon, Parallelogram
+  - Star, Cloud, Heart
+  - Cross (X), Checkmark (✓)
+  - Directional Arrows (Left, Right, Up, Down)
+- [x] Add hit detection for selection and movement
+- [x] Add geometry intersection logic for connector binding
+- [x] Add anchor points for connector snapping
+- [x] Create ShapeToolGroup component with dropdown menu
+- [x] Implement icon-only grid layout (3 columns) for clean UI
+- [x] Add property panel support for all new shapes
+- [x] Fix tool auto-reset to selection after drawing
+
+**Features**:
+- All shapes support rotation, styling, fills, and container text
+- Shapes grouped in dropdown menu to reduce toolbar clutter
+- Shows currently selected shape with dropdown indicator
+- Tooltips for all shapes in dropdown menu
+
+**Files Modified**: 8 files, ~1000 lines
+- `types.ts`, `renderElement.ts`, `geometry.ts`, `anchorPoints.ts`
+- `Canvas.tsx`, `Toolbar.tsx`, `properties.ts`
+- New: `ShapeToolGroup.tsx`, `PenToolGroup.css`
