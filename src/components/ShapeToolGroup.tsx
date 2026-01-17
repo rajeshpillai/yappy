@@ -1,5 +1,5 @@
 import { type Component, createSignal, Show } from "solid-js";
-import { store, setSelectedTool } from "../store/appStore";
+import { store, setSelectedTool, setSelectedShapeType } from "../store/appStore";
 import type { ElementType } from "../types";
 import {
     Triangle, Hexagon, Octagon, Square, Star, Cloud, Heart, X, Check,
@@ -27,13 +27,14 @@ const shapeTools: { type: ElementType; icon: Component<{ size?: number; color?: 
 const ShapeToolGroup: Component = () => {
     const [isOpen, setIsOpen] = createSignal(false);
 
-    // Find the currently selected shape tool, default to triangle
+    // Use selectedShapeType from store instead of checking selectedTool
     const getActiveShapeTool = () => {
-        const found = shapeTools.find(t => t.type === store.selectedTool);
+        const found = shapeTools.find(t => t.type === store.selectedShapeType);
         return found || shapeTools[0]; // Default to triangle
     };
 
     const handleToolClick = (type: ElementType) => {
+        setSelectedShapeType(type as any); // Update the stored shape type
         setSelectedTool(type);
         setIsOpen(false);
     };

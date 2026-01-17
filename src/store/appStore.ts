@@ -25,6 +25,7 @@ interface AppState {
     zenMode: boolean;
     showCommandPalette: boolean;
     selectedPenType: 'pencil' | 'calligraphy' | 'fineliner' | 'inkbrush';
+    selectedShapeType: 'triangle' | 'hexagon' | 'octagon' | 'parallelogram' | 'star' | 'cloud' | 'heart' | 'cross' | 'checkmark' | 'arrowLeft' | 'arrowRight' | 'arrowUp' | 'arrowDown';
     layerGroupingModeEnabled: boolean;
     maxLayers: number;
 }
@@ -95,6 +96,7 @@ const initialState: AppState = {
     zenMode: false,
     showCommandPalette: false,
     selectedPenType: 'fineliner',
+    selectedShapeType: 'triangle',
     layerGroupingModeEnabled: false,
     maxLayers: 20,
 }; // Default light background
@@ -691,6 +693,10 @@ export const updatePencilSettings = (updates: Partial<PencilSettings>) => {
 
 export const setSelectedPenType = (penType: 'pencil' | 'calligraphy' | 'fineliner' | 'inkbrush') => {
     setStore('selectedPenType', penType);
+};
+
+export const setSelectedShapeType = (shapeType: 'triangle' | 'hexagon' | 'octagon' | 'parallelogram' | 'star' | 'cloud' | 'heart' | 'cross' | 'checkmark' | 'arrowLeft' | 'arrowRight' | 'arrowUp' | 'arrowDown') => {
+    setStore('selectedShapeType', shapeType);
 };
 
 export const setGridStyle = (style: 'lines' | 'dots') => {
