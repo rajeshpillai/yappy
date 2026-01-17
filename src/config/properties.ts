@@ -223,6 +223,22 @@ export const properties: PropertyConfig[] = [
         defaultValue: 'hand-drawn'
     },
     {
+        key: 'fontWeight',
+        label: 'Bold',
+        type: 'toggle',
+        group: 'text',
+        applicableTo: ['text', 'rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'line', 'arrow'],
+        defaultValue: 'normal'
+    },
+    {
+        key: 'fontStyle',
+        label: 'Italic',
+        type: 'toggle',
+        group: 'text',
+        applicableTo: ['text', 'rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'line', 'arrow'],
+        defaultValue: 'normal'
+    },
+    {
         key: 'textAlign',
         label: 'Align',
         type: 'select',

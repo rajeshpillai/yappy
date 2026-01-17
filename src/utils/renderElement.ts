@@ -787,7 +787,9 @@ export const renderElement = (
         const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
             el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
                 'Handlee, cursive';
-        ctx.font = `${fontSize}px ${fontFamily}`;
+        const fontWeight = el.fontWeight === 'bold' ? 'bold ' : '';
+        const fontStyle = el.fontStyle === 'italic' ? 'italic ' : '';
+        ctx.font = `${fontStyle}${fontWeight}${fontSize}px ${fontFamily}`;
 
         // Text Stretching logic
         const metrics = ctx.measureText(el.text);
@@ -816,7 +818,9 @@ export const renderElement = (
         const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
             el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
                 'Handlee, cursive';
-        ctx.font = `${fontSize}px ${fontFamily}`;
+        const fontWeight = el.fontWeight === 'bold' ? 'bold ' : '';
+        const fontStyle = el.fontStyle === 'italic' ? 'italic ' : '';
+        ctx.font = `${fontStyle}${fontWeight}${fontSize}px ${fontFamily}`;
         ctx.fillStyle = strokeColor;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -872,7 +876,9 @@ export const renderElement = (
         const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
             el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
                 'Handlee, cursive';
-        ctx.font = `${fontSize}px ${fontFamily}`;
+        const fontWeight = el.fontWeight === 'bold' ? 'bold ' : '';
+        const fontStyle = el.fontStyle === 'italic' ? 'italic ' : '';
+        ctx.font = `${fontStyle}${fontWeight}${fontSize}px ${fontFamily}`;
         ctx.fillStyle = strokeColor;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';

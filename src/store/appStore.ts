@@ -49,6 +49,8 @@ const initialState: AppState = {
         locked: false,
         fontSize: 20,
         fontFamily: 'hand-drawn',
+        fontWeight: 'normal',
+        fontStyle: 'normal',
         textAlign: 'left',
         startArrowhead: null,
         endArrowhead: 'arrow',
