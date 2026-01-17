@@ -3,7 +3,7 @@ import { store, setSelectedTool, setSelectedShapeType } from "../store/appStore"
 import type { ElementType } from "../types";
 import {
     Triangle, Hexagon, Octagon, Square, Star, Cloud, Heart, X, Check,
-    ArrowLeft, ArrowRight, ArrowUp, ArrowDown
+    ArrowLeft, ArrowRight, ArrowUp, ArrowDown, ChevronDown
 } from "lucide-solid";
 import "./PenToolGroup.css"; // Reuse the same CSS
 
@@ -53,11 +53,16 @@ const ShapeToolGroup: Component = () => {
                 onClick={toggleMenu}
                 title={activeTool().label}
             >
-                {(() => {
-                    const Icon = activeTool().icon;
-                    return <Icon size={20} />;
-                })()}
-                <span class="dropdown-indicator">▼</span>
+                <div style="position: relative;">
+                    {(() => {
+                        const Icon = activeTool().icon;
+                        return <Icon size={20} />;
+                    })()}
+                    <ChevronDown
+                        size={8}
+                        style="position: absolute; bottom: -2px; right: -4px; opacity: 0.6;"
+                    />
+                </div>
             </button>
 
             <Show when={isOpen()}>
