@@ -1,38 +1,23 @@
 import { type Component, For } from "solid-js";
 import { store, setSelectedTool, addElement } from "../store/appStore";
 import type { ElementType } from "../types";
-import {
-    MousePointer2, Square, Circle, Minus, Type, MoveUpRight, Eraser, Hand, Image as ImageIcon, Spline, Diamond,
-    Triangle, Hexagon, Octagon, Star, Cloud, Heart, X, Check,
-    ArrowLeft, ArrowRight, ArrowUp, ArrowDown
-} from "lucide-solid";
+import { MousePointer2, Square, Circle, Minus, Type, MoveUpRight, Eraser, Hand, Image as ImageIcon, Spline, Diamond } from "lucide-solid";
 import PenToolGroup from "./PenToolGroup";
+import ShapeToolGroup from "./ShapeToolGroup";
 import "./Toolbar.css";
 
-// Tools that are NOT pens (pens are handled by PenToolGroup)
+// Tools that are NOT pens or grouped shapes
 const tools: { type: ElementType | 'selection'; icon: Component<{ size?: number; color?: string }>; label: string }[] = [
     { type: 'pan', icon: Hand, label: 'Pan Tool' },
     { type: 'selection', icon: MousePointer2, label: 'Selection' },
     { type: 'rectangle', icon: Square, label: 'Rectangle' },
     { type: 'circle', icon: Circle, label: 'Circle' },
-    { type: 'triangle', icon: Triangle, label: 'Triangle' },
     { type: 'diamond', icon: Diamond, label: 'Diamond' },
-    { type: 'hexagon', icon: Hexagon, label: 'Hexagon' },
-    { type: 'octagon', icon: Octagon, label: 'Octagon' },
-    { type: 'parallelogram', icon: Square, label: 'Parallelogram' }, // Using Square as placeholder
-    { type: 'star', icon: Star, label: 'Star' },
-    { type: 'cloud', icon: Cloud, label: 'Cloud' },
-    { type: 'heart', icon: Heart, label: 'Heart' },
-    { type: 'cross', icon: X, label: 'Cross (X)' },
-    { type: 'checkmark', icon: Check, label: 'Checkmark' },
-    { type: 'arrowLeft', icon: ArrowLeft, label: 'Arrow Left' },
-    { type: 'arrowRight', icon: ArrowRight, label: 'Arrow Right' },
-    { type: 'arrowUp', icon: ArrowUp, label: 'Arrow Up' },
-    { type: 'arrowDown', icon: ArrowDown, label: 'Arrow Down' },
     { type: 'arrow', icon: MoveUpRight, label: 'Arrow' },
     { type: 'line', icon: Minus, label: 'Line' },
     { type: 'bezier', icon: Spline, label: 'Bezier Curve' },
-    // Pens are now grouped in PenToolGroup
+    // Pens are grouped in PenToolGroup
+    // New shapes are grouped in ShapeToolGroup
     { type: 'text', icon: Type, label: 'Text' },
     { type: 'image', icon: ImageIcon, label: 'Insert Image' },
     { type: 'eraser', icon: Eraser, label: 'Eraser' },
@@ -132,7 +117,8 @@ const Toolbar: Component = () => {
         (e.target as HTMLInputElement).value = '';
     };
 
-    // Find index to insert pen tool group (after bezier)
+    // Find indices for inserting grouped tools
+    const diamondIndex = tools.findIndex(t => t.type === 'diamond');
     const bezierIndex = tools.findIndex(t => t.type === 'bezier');
 
     return (
@@ -144,7 +130,24 @@ const Toolbar: Component = () => {
                 accept="image/*"
                 style={{ display: 'none' }}
             />
-            <For each={tools.slice(0, bezierIndex + 1)}>
+            {/* Pan, Selection, Rectangle, Circle, Diamond */}
+            <For each={tools.slice(0, diamondIndex + 1)}>
+                {(tool) => (
+                    <button
+                        class={`toolbar-btn ${store.selectedTool === tool.type ? 'active' : ''}`}
+                        onClick={() => handleToolClick(tool.type)}
+                        title={tool.label}
+                    >
+                        <tool.icon size={20} />
+                    </button>
+                )}
+            </For>
+
+            {/* Shape Tool Group (Triangle, Hexagon, Star, Hearts, Arrows, etc.) */}
+            <ShapeToolGroup />
+
+            {/* Arrow, Line, Bezier */}
+            <For each={tools.slice(diamondIndex + 1, bezierIndex + 1)}>
                 {(tool) => (
                     <button
                         class={`toolbar-btn ${store.selectedTool === tool.type ? 'active' : ''}`}
@@ -159,6 +162,7 @@ const Toolbar: Component = () => {
             {/* Pen Tool Group (Pencil, Calligraphy, Fine Liner, Ink Brush) */}
             <PenToolGroup />
 
+            {/* Text, Image, Eraser */}
             <For each={tools.slice(bezierIndex + 1)}>
                 {(tool) => (
                     <button
