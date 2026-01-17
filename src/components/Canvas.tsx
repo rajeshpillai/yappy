@@ -597,6 +597,7 @@ const Canvas: Component = () => {
             e.strokeColor; e.backgroundColor; e.fillStyle; e.strokeWidth; e.strokeStyle;
             e.roughness; e.roundness;
             e.text; e.fontSize; e.fontFamily; e.textAlign;
+            e.fontWeight; e.fontStyle;
             e.startArrowhead; e.endArrowhead;
             e.containerText; e.labelPosition; // Track label properties for immediate updates
         });
