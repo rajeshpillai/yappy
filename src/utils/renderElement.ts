@@ -354,7 +354,6 @@ export const renderElement = (
         }
     } else if (el.type === 'cloud') {
         // Cloud shape using overlapping circles (simplified)
-        const cx = el.x + el.width / 2;
         const cy = el.y + el.height / 2;
         const w = el.width;
         const h = el.height;
@@ -441,7 +440,6 @@ export const renderElement = (
         }
     } else if (el.type === 'checkmark') {
         // Checkmark shape (✓)
-        const cx = el.x + el.width / 2;
         const cy = el.y + el.height / 2;
         const points: [number, number][] = [
             [el.x + el.width * 0.2, cy],
