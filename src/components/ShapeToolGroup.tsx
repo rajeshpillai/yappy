@@ -68,7 +68,6 @@ const ShapeToolGroup: Component = () => {
                             title={tool.label}
                         >
                             <tool.icon size={18} />
-                            <span class="tool-label">{tool.label}</span>
                         </button>
                     ))}
                 </div>
