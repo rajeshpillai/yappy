@@ -54,8 +54,8 @@ export interface DrawingElement {
     rawText?: string;
     fontSize?: number;
     fontFamily?: FontFamily;
-    fontWeight?: 'normal' | 'bold';
-    fontStyle?: 'normal' | 'italic';
+    fontWeight?: boolean;
+    fontStyle?: boolean;
     textAlign?: TextAlign;
     verticalAlign?: VerticalAlign;
     containerId?: string | null;

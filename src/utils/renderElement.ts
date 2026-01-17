@@ -787,8 +787,8 @@ export const renderElement = (
         const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
             el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
                 'Handlee, cursive';
-        const fontWeight = el.fontWeight === 'bold' ? 'bold ' : '';
-        const fontStyle = el.fontStyle === 'italic' ? 'italic ' : '';
+        const fontWeight = el.fontWeight ? 'bold ' : '';
+        const fontStyle = el.fontStyle ? 'italic ' : '';
         ctx.font = `${fontStyle}${fontWeight}${fontSize}px ${fontFamily}`;
 
         // Text Stretching logic
@@ -818,8 +818,8 @@ export const renderElement = (
         const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
             el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
                 'Handlee, cursive';
-        const fontWeight = el.fontWeight === 'bold' ? 'bold ' : '';
-        const fontStyle = el.fontStyle === 'italic' ? 'italic ' : '';
+        const fontWeight = el.fontWeight ? 'bold ' : '';
+        const fontStyle = el.fontStyle ? 'italic ' : '';
         ctx.font = `${fontStyle}${fontWeight}${fontSize}px ${fontFamily}`;
         ctx.fillStyle = strokeColor;
         ctx.textAlign = 'center';
@@ -876,8 +876,8 @@ export const renderElement = (
         const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
             el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
                 'Handlee, cursive';
-        const fontWeight = el.fontWeight === 'bold' ? 'bold ' : '';
-        const fontStyle = el.fontStyle === 'italic' ? 'italic ' : '';
+        const fontWeight = el.fontWeight ? 'bold ' : '';
+        const fontStyle = el.fontStyle ? 'italic ' : '';
         ctx.font = `${fontStyle}${fontWeight}${fontSize}px ${fontFamily}`;
         ctx.fillStyle = strokeColor;
         ctx.textAlign = 'center';

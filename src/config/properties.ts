@@ -228,7 +228,7 @@ export const properties: PropertyConfig[] = [
         type: 'toggle',
         group: 'text',
         applicableTo: ['text', 'rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'line', 'arrow'],
-        defaultValue: 'normal'
+        defaultValue: false
     },
     {
         key: 'fontStyle',
@@ -236,7 +236,7 @@ export const properties: PropertyConfig[] = [
         type: 'toggle',
         group: 'text',
         applicableTo: ['text', 'rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'line', 'arrow'],
-        defaultValue: 'normal'
+        defaultValue: false
     },
     {
         key: 'textAlign',
