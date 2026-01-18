@@ -73,6 +73,7 @@ const Canvas: Component = () => {
 
     // Interactive Connector State
     let draggingFromConnector: { elementId: string; anchorPosition: string; startX: number; startY: number } | null = null;
+    let hoveredConnector: { elementId: string; handle: string } | null = null;
 
     let initialElementX = 0;
     let initialElementY = 0;
@@ -348,30 +349,58 @@ const Canvas: Component = () => {
                         // Draw Connector Handles (Interactive connection points)
                         // Only for shapes, not lines/arrows, and only when selection tool is active
                         if (el.type !== 'line' && el.type !== 'arrow' && store.selectedTool === 'selection') {
-                            const connectorSize = 10 / scale;
+                            const connectorSize = 12 / scale; // Slightly larger for better touch
+                            const connectorOffset = 18 / scale; // Offset from shape edge for easier clicking
                             const cx = el.x + el.width / 2;
                             const cy = el.y + el.height / 2;
                             const connectorHandles = [
-                                { pos: 'top', x: cx, y: el.y - connectorSize },
-                                { pos: 'right', x: el.x + el.width + connectorSize, y: cy },
-                                { pos: 'bottom', x: cx, y: el.y + el.height + connectorSize },
-                                { pos: 'left', x: el.x - connectorSize, y: cy }
+                                { pos: 'top', x: cx, y: el.y - connectorOffset },
+                                { pos: 'right', x: el.x + el.width + connectorOffset, y: cy },
+                                { pos: 'bottom', x: cx, y: el.y + el.height + connectorOffset },
+                                { pos: 'left', x: el.x - connectorOffset, y: cy }
                             ];
 
                             connectorHandles.forEach(ch => {
-                                // Draw connector circle
-                                ctx.fillStyle = '#10b981'; // Green
-                                ctx.strokeStyle = '#ffffff';
-                                ctx.lineWidth = 1.5 / scale;
+                                const isHovered = hoveredConnector && hoveredConnector.elementId === el.id && hoveredConnector.handle === `connector-${ch.pos}`;
+                                const currentSize = isHovered ? connectorSize * 1.3 : connectorSize;
+
+                                // Draw connecting line from shape to handle
+                                ctx.strokeStyle = isHovered ? 'rgba(16, 185, 129, 0.8)' : 'rgba(16, 185, 129, 0.4)';
+                                ctx.lineWidth = (isHovered ? 2 : 1) / scale;
+                                ctx.setLineDash([3 / scale, 3 / scale]);
                                 ctx.beginPath();
-                                ctx.arc(ch.x, ch.y, connectorSize / 2, 0, Math.PI * 2);
+                                if (ch.pos === 'top') {
+                                    ctx.moveTo(ch.x, el.y);
+                                    ctx.lineTo(ch.x, ch.y);
+                                } else if (ch.pos === 'right') {
+                                    ctx.moveTo(el.x + el.width, ch.y);
+                                    ctx.lineTo(ch.x, ch.y);
+                                } else if (ch.pos === 'bottom') {
+                                    ctx.moveTo(ch.x, el.y + el.height);
+                                    ctx.lineTo(ch.x, ch.y);
+                                } else if (ch.pos === 'left') {
+                                    ctx.moveTo(el.x, ch.y);
+                                    ctx.lineTo(ch.x, ch.y);
+                                }
+                                ctx.stroke();
+                                ctx.setLineDash([]);
+
+                                // Draw connector circle with subtle glow
+                                ctx.shadowColor = 'rgba(16, 185, 129, 0.5)';
+                                ctx.shadowBlur = (isHovered ? 8 : 4) / scale;
+                                ctx.fillStyle = isHovered ? '#059669' : '#10b981'; // Darker green on hover
+                                ctx.strokeStyle = '#ffffff';
+                                ctx.lineWidth = 2 / scale;
+                                ctx.beginPath();
+                                ctx.arc(ch.x, ch.y, currentSize / 2, 0, Math.PI * 2);
                                 ctx.fill();
                                 ctx.stroke();
+                                ctx.shadowBlur = 0;
 
                                 // Draw "+" icon
                                 ctx.strokeStyle = '#ffffff';
                                 ctx.lineWidth = 1.5 / scale;
-                                const plusSize = connectorSize * 0.35;
+                                const plusSize = currentSize * 0.3;
                                 ctx.beginPath();
                                 ctx.moveTo(ch.x - plusSize, ch.y);
                                 ctx.lineTo(ch.x + plusSize, ch.y);
@@ -837,14 +866,15 @@ const Canvas: Component = () => {
 
             // Check Connector Handles (only for non-line/arrow shapes)
             if (el.type !== 'line' && el.type !== 'arrow') {
-                const connectorSize = 10 / scale;
+                const connectorSize = 12 / scale;
+                const connectorOffset = 18 / scale;
                 const ecx = el.x + el.width / 2;
                 const ecy = el.y + el.height / 2;
                 const connectorHandles = [
-                    { type: 'connector-top', x: ecx, y: el.y - connectorSize },
-                    { type: 'connector-right', x: el.x + el.width + connectorSize, y: ecy },
-                    { type: 'connector-bottom', x: ecx, y: el.y + el.height + connectorSize },
-                    { type: 'connector-left', x: el.x - connectorSize, y: ecy }
+                    { type: 'connector-top', x: ecx, y: el.y - connectorOffset },
+                    { type: 'connector-right', x: el.x + el.width + connectorOffset, y: ecy },
+                    { type: 'connector-bottom', x: ecx, y: el.y + el.height + connectorOffset },
+                    { type: 'connector-left', x: el.x - connectorOffset, y: ecy }
                 ];
 
                 for (const ch of connectorHandles) {
@@ -1439,14 +1469,33 @@ const Canvas: Component = () => {
             setCursor(isDragging ? 'grabbing' : 'grab');
         } else if (store.selectedTool === 'selection' && !isDragging) {
             const hit = getHandleAtPosition(x, y);
+            const prevHover = hoveredConnector;
+
             if (hit) {
                 if (hit.handle === 'rotate') setCursor('grab');
                 else if (hit.handle === 'tl' || hit.handle === 'br') setCursor('nwse-resize');
                 else if (hit.handle === 'tr' || hit.handle === 'bl') setCursor('nesw-resize');
                 else if (hit.handle === 'tm' || hit.handle === 'bm') setCursor('ns-resize');
                 else if (hit.handle === 'lm' || hit.handle === 'rm') setCursor('ew-resize');
+                else if (hit.handle.startsWith('connector-')) {
+                    setCursor('crosshair'); // Or pointer
+                    hoveredConnector = { elementId: hit.id, handle: hit.handle };
+                } else {
+                    // Reset if hit something else (like resize handle)
+                    hoveredConnector = null;
+                }
             } else {
                 setCursor('default');
+                hoveredConnector = null;
+            }
+
+            // Redraw if hover connector changed (for animation/highlight)
+            const isChanged = (prevHover && !hoveredConnector) ||
+                (!prevHover && hoveredConnector) ||
+                (prevHover && hoveredConnector && (prevHover.elementId !== hoveredConnector.elementId || prevHover.handle !== hoveredConnector.handle));
+
+            if (isChanged) {
+                requestAnimationFrame(draw);
             }
         }
 

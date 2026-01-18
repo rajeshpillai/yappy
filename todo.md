@@ -582,3 +582,8 @@
   - [x] Click to toggle property panel visibility
   - [x] Blue highlight when panel is open
   - [x] Always accessible without scrolling
+
+- [x] **Connector UX**
+  - [x] Offset handles from shape for easier touch access
+  - [x] Larger touch targets (12px visual, 18px offset)
+  - [x] Hover animation (scale & glow) for better feedback
