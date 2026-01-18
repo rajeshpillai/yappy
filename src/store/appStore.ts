@@ -26,6 +26,7 @@ interface AppState {
     selectedPenType: 'fineliner' | 'inkbrush' | 'marker';
     selectedShapeType: 'triangle' | 'hexagon' | 'octagon' | 'parallelogram' | 'star' | 'cloud' | 'heart' | 'cross' | 'checkmark' | 'arrowLeft' | 'arrowRight' | 'arrowUp' | 'arrowDown' | 'capsule' | 'stickyNote' | 'callout' | 'burst' | 'speechBubble' | 'ribbon' | 'bracketLeft' | 'bracketRight' | 'database' | 'document' | 'predefinedProcess' | 'internalStorage';
     selectedInfraType: 'server' | 'loadBalancer' | 'firewall' | 'user' | 'messageQueue' | 'lambda' | 'router' | 'browser';
+    selectedMathType: 'trapezoid' | 'rightTriangle' | 'pentagon' | 'septagon';
     layerGroupingModeEnabled: boolean;
     maxLayers: number;
 }
@@ -93,6 +94,7 @@ const initialState: AppState = {
     selectedPenType: 'fineliner',
     selectedShapeType: 'triangle',
     selectedInfraType: 'server',
+    selectedMathType: 'trapezoid',
     layerGroupingModeEnabled: false,
     maxLayers: 20,
 }; // Default light background
@@ -700,6 +702,10 @@ export const setSelectedShapeType = (shapeType: 'triangle' | 'hexagon' | 'octago
 
 export const setSelectedInfraType = (infraType: 'server' | 'loadBalancer' | 'firewall' | 'user' | 'messageQueue' | 'lambda' | 'router' | 'browser') => {
     setStore('selectedInfraType', infraType);
+};
+
+export const setSelectedMathType = (mathType: 'trapezoid' | 'rightTriangle' | 'pentagon' | 'septagon') => {
+    setStore('selectedMathType', mathType);
 };
 
 export const setGridStyle = (style: 'lines' | 'dots') => {

@@ -318,6 +318,83 @@ export const renderElement = (
         } else {
             rc.polygon(points, options);
         }
+    } else if (el.type === 'trapezoid') {
+        const offset = el.width * 0.2;
+        const points: [number, number][] = [
+            [el.x + offset, el.y],
+            [el.x + el.width - offset, el.y],
+            [el.x + el.width, el.y + el.height],
+            [el.x, el.y + el.height]
+        ];
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            }
+            ctx.beginPath();
+            ctx.moveTo(points[0][0], points[0][1]);
+            for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
+            ctx.closePath();
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+        } else {
+            rc.polygon(points, options);
+        }
+    } else if (el.type === 'rightTriangle') {
+        const points: [number, number][] = [
+            [el.x, el.y],
+            [el.x, el.y + el.height],
+            [el.x + el.width, el.y + el.height]
+        ];
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            }
+            ctx.beginPath();
+            ctx.moveTo(points[0][0], points[0][1]);
+            for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
+            ctx.closePath();
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+        } else {
+            rc.polygon(points, options);
+        }
+    } else if (el.type === 'pentagon' || el.type === 'septagon') {
+        const sides = el.type === 'pentagon' ? 5 : 7;
+        const cx = el.x + el.width / 2;
+        const cy = el.y + el.height / 2;
+        const rx = el.width / 2;
+        const ry = el.height / 2;
+        const points: [number, number][] = [];
+
+        for (let i = 0; i < sides; i++) {
+            const angle = (Math.PI * 2 / sides) * i - Math.PI / 2;
+            points.push([
+                cx + rx * Math.cos(angle),
+                cy + ry * Math.sin(angle)
+            ]);
+        }
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            }
+            ctx.beginPath();
+            ctx.moveTo(points[0][0], points[0][1]);
+            for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
+            ctx.closePath();
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+        } else {
+            rc.polygon(points, options);
+        }
     } else if (el.type === 'capsule') {
         const radius = Math.min(Math.abs(el.width), Math.abs(el.height)) / 2;
         const path = getRoundedRectPath(el.x, el.y, el.width, el.height, radius);
@@ -1443,7 +1520,8 @@ export const renderElement = (
         el.type === 'burst' || el.type === 'speechBubble' || el.type === 'ribbon' ||
         el.type === 'bracketLeft' || el.type === 'bracketRight' ||
         el.type === 'database' || el.type === 'document' || el.type === 'predefinedProcess' || el.type === 'internalStorage' ||
-        el.type === 'server' || el.type === 'loadBalancer' || el.type === 'firewall' || el.type === 'user' || el.type === 'messageQueue' || el.type === 'lambda' || el.type === 'router' || el.type === 'browser')) {
+        el.type === 'server' || el.type === 'loadBalancer' || el.type === 'firewall' || el.type === 'user' || el.type === 'messageQueue' || el.type === 'lambda' || el.type === 'router' || el.type === 'browser' ||
+        el.type === 'trapezoid' || el.type === 'rightTriangle' || el.type === 'pentagon' || el.type === 'septagon')) {
         const fontSize = el.fontSize || 20;
         const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
             el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :

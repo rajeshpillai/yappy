@@ -110,7 +110,8 @@ export function getAnchorPoints(element: DrawingElement): AnchorPoint[] {
         element.type === 'capsule' || element.type === 'stickyNote' || element.type === 'callout' ||
         element.type === 'burst' || element.type === 'speechBubble' || element.type === 'ribbon' ||
         element.type === 'bracketLeft' || element.type === 'bracketRight' ||
-        element.type === 'database' || element.type === 'document' || element.type === 'predefinedProcess' || element.type === 'internalStorage') {
+        element.type === 'database' || element.type === 'document' || element.type === 'predefinedProcess' || element.type === 'internalStorage' ||
+        element.type === 'trapezoid' || element.type === 'rightTriangle' || element.type === 'pentagon' || element.type === 'septagon') {
         // For complex shapes, use 4 cardinal points
         const rawAnchors: AnchorPoint[] = [
             { x: cx, y: cy - h / 2, position: 'top' },

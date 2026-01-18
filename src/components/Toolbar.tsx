@@ -5,6 +5,7 @@ import { MousePointer2, Square, Circle, Minus, Type, MoveUpRight, Eraser, Hand, 
 import PenToolGroup from "./PenToolGroup";
 import ShapeToolGroup from "./ShapeToolGroup";
 import InfraToolGroup from "./InfraToolGroup";
+import MathToolGroup from "./MathToolGroup";
 import "./Toolbar.css";
 
 // Tools that are NOT pens or grouped shapes
@@ -149,6 +150,9 @@ const Toolbar: Component = () => {
 
             {/* Infrastructure Tool Group (Server, LB, Cloud, User, etc.) */}
             <InfraToolGroup />
+
+            {/* Geometric & Math Tool Group (Trapezoid, Pentagon, etc.) */}
+            <MathToolGroup />
 
             {/* Arrow, Line, Bezier */}
             <For each={tools.slice(diamondIndex + 1, bezierIndex + 1)}>

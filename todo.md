@@ -437,15 +437,25 @@
   - [ ] Device Frames (Mobile, Tablet, Browser Window)
   - [ ] UI Primitives (Search Bar, Toggle Switch, Slider)
   - [ ] Image Placeholder (Cross Box)
+- [x] **System Design & Cloud Infrastructure**
+  - [x] Server/Host (3D Box/Rack Unit)
+  - [x] Queue/Topic (Segmented Cylinder)
+  - [x] Firewall (Brick Wall/Shield)
+  - [x] User/Actor (Silhouette)
+- [x] **UI/UX Wireframing**
+  - [x] Device Frames (Mobile, Tablet, Browser Window)
+  - [x] UI Primitives (Search Bar, Toggle Switch, Slider)
+  - [x] Image Placeholder (Cross Box)
 - [x] **Mindmapping & Visual Communication**
   - [x] Conversation Bubbles (Round/Square variations)
   - [x] Burst/Star (Explosion for focus)
   - [x] Ribbon/Banner (Titles)
   - [x] Resizable Brackets (Grouping)
-- [ ] **Geometric & Mathematical**
-  - [ ] Trapezoid
-  - [ ] Right-Angle Triangle
-  - [ ] Pentagon/Septagon (Completing set)
+- [x] **Geometric & Mathematical Shapes**
+  - [x] Trapezoid
+  - [x] Right-Angle Triangle
+  - [x] Pentagon
+  - [x] Septagon (Completing the basic set)
 
 ---
 
