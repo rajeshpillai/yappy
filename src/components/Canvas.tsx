@@ -2163,7 +2163,7 @@ const Canvas: Component = () => {
 
                 // Logic for normalization...
                 // Logic for normalization...
-                if (['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage'].includes(el.type)) {
+                if (['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser'].includes(el.type)) {
                     if (el.width < 0) {
                         updateElement(currentId, { x: el.x + el.width, width: Math.abs(el.width) });
                     }
@@ -2194,7 +2194,7 @@ const Canvas: Component = () => {
                 if (['rectangle', 'circle', 'line', 'arrow', 'image', 'bezier', 'diamond',
                     'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart',
                     'cross', 'checkmark', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown',
-                    'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage'].includes(store.selectedTool)) {
+                    'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser'].includes(store.selectedTool)) {
                     setSelectedTool('selection');
                 }
 

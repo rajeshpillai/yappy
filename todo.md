@@ -172,6 +172,7 @@
   - [x] Add support for both Sketch and Architectural styles
   - [x] Enable Text-Inside-Shape (containerText) for all new elements
   - [x] Verify selection, hit testing, and connector binding
+  - [x] Fix: Switch to selection tool after drawing an infra element
 
 ## Phase 15: New Shapes & Documentation
 - [x] Implement Diamond Shape (Decision Box)

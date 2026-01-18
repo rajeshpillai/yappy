@@ -1,6 +1,9 @@
 import { createEffect, onCleanup, onMount } from 'solid-js';
 import { store, setViewState, toggleMinimap } from '../store/appStore';
 import { X } from 'lucide-solid';
+import { renderElement } from '../utils/renderElement';
+import rough from 'roughjs';
+import type { RoughCanvas } from 'roughjs/bin/canvas';
 
 interface MinimapProps {
     canvasWidth: number;
@@ -57,7 +60,7 @@ export const Minimap = (props: MinimapProps) => {
     };
 
     // Render minimap
-    const renderMinimap = () => {
+    const renderMinimap = (rc: RoughCanvas) => {
         if (!canvasRef) return;
 
         const ctx = canvasRef.getContext('2d');
@@ -81,105 +84,12 @@ export const Minimap = (props: MinimapProps) => {
         ctx.scale(scale, scale);
         ctx.translate(-bounds.minX, -bounds.minY);
 
-        // Render elements (simplified)
+        // Render elements using the same utility as the main canvas
         store.elements.forEach(el => {
             const layer = store.layers.find(l => l.id === el.layerId);
             if (!layer?.visible) return;
 
-            ctx.save();
-            ctx.globalAlpha = (el.opacity / 100) * (layer?.opacity ?? 1);
-
-            // Draw based on type
-            if (el.type === 'rectangle') {
-                ctx.fillStyle = el.backgroundColor === 'transparent' ? 'rgba(200,200,200,0.3)' : el.backgroundColor;
-                ctx.strokeStyle = el.strokeColor;
-                ctx.lineWidth = 1 / scale; // Fixed width in minimap space
-                ctx.fillRect(el.x, el.y, el.width, el.height);
-                ctx.strokeRect(el.x, el.y, el.width, el.height);
-            } else if (el.type === 'circle') {
-                const cx = el.x + el.width / 2;
-                const cy = el.y + el.height / 2;
-                const rx = el.width / 2;
-                const ry = el.height / 2;
-                ctx.beginPath();
-                ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-                ctx.fillStyle = el.backgroundColor === 'transparent' ? 'rgba(200,200,200,0.3)' : el.backgroundColor;
-                ctx.fill();
-                ctx.strokeStyle = el.strokeColor;
-                ctx.lineWidth = 1 / scale;
-                ctx.stroke();
-            } else if (el.type === 'diamond') {
-                const cx = el.x + el.width / 2;
-                const cy = el.y + el.height / 2;
-                ctx.beginPath();
-                ctx.moveTo(cx, el.y);
-                ctx.lineTo(el.x + el.width, cy);
-                ctx.lineTo(cx, el.y + el.height);
-                ctx.lineTo(el.x, cy);
-                ctx.closePath();
-                ctx.fillStyle = el.backgroundColor === 'transparent' ? 'rgba(200,200,200,0.3)' : el.backgroundColor;
-                ctx.fill();
-                ctx.strokeStyle = el.strokeColor;
-                ctx.lineWidth = 1 / scale;
-                ctx.stroke();
-            } else if (el.type === 'fineliner' || el.type === 'inkbrush') {
-                if (el.points && el.points.length >= 2) {
-                    ctx.beginPath();
-                    // Points are relative to el.x, el.y for pen tools
-                    ctx.moveTo(el.x + el.points[0].x, el.y + el.points[0].y);
-                    for (let i = 1; i < el.points.length; i++) {
-                        ctx.lineTo(el.x + el.points[i].x, el.y + el.points[i].y);
-                    }
-                    ctx.strokeStyle = el.strokeColor;
-                    ctx.lineWidth = Math.max(0.5, el.strokeWidth / scale / 10); // Scale down stroke width but keep it visible
-                    ctx.lineCap = 'round';
-                    ctx.lineJoin = 'round';
-                    ctx.stroke();
-                }
-            } else if (el.type === 'line' || el.type === 'arrow') {
-                if (el.points && el.points.length >= 2) {
-                    ctx.beginPath();
-                    // Points are absolute for line/arrow
-                    ctx.moveTo(el.points[0].x, el.points[0].y);
-                    for (let i = 1; i < el.points.length; i++) {
-                        ctx.lineTo(el.points[i].x, el.points[i].y);
-                    }
-                    ctx.strokeStyle = el.strokeColor;
-                    ctx.lineWidth = 1 / scale;
-                    ctx.stroke();
-                }
-            } else if (el.type === 'text') {
-                // Draw text box
-                ctx.fillStyle = store.theme === 'dark' ? 'rgba(96, 165, 250, 0.3)' : 'rgba(59, 130, 246, 0.3)';
-                ctx.fillRect(el.x, el.y, el.width, el.height);
-            } else if (el.type === 'image') {
-                if (el.dataURL) {
-                    const img = new Image();
-                    img.src = el.dataURL;
-                    if (img.complete) {
-                        ctx.drawImage(img, el.x, el.y, el.width, el.height);
-                    } else {
-                        // Background placeholder
-                        ctx.fillStyle = 'rgba(150,150,150,0.5)';
-                        ctx.fillRect(el.x, el.y, el.width, el.height);
-
-                        // Icon or text
-                        ctx.fillStyle = '#fff';
-                        ctx.font = `${Math.floor(10 / scale)}px Arial`;
-                        ctx.textAlign = 'center';
-                        ctx.fillText('IMG', el.x + el.width / 2, el.y + el.height / 2);
-                    }
-                } else {
-                    ctx.fillStyle = 'rgba(150,150,150,0.5)';
-                    ctx.fillRect(el.x, el.y, el.width, el.height);
-                }
-
-                ctx.strokeStyle = 'rgba(0,0,0,0.2)';
-                ctx.lineWidth = 1 / scale;
-                ctx.strokeRect(el.x, el.y, el.width, el.height);
-            }
-
-            ctx.restore();
+            renderElement(rc, ctx, el, store.theme === 'dark', layer?.opacity ?? 1);
         });
 
         ctx.restore();
@@ -287,29 +197,32 @@ export const Minimap = (props: MinimapProps) => {
 
     // Auto-update on changes
     createEffect(() => {
-        // Deeply track elements for real-time updates (especially during drawing)
-        // By accessing properties inside the effect, Solid will track them.
-        store.elements.forEach(el => {
-            el.points?.length;
-            el.x;
-            el.y;
-            el.width;
-            el.height;
-            el.opacity;
-            el.layerId;
-        });
+        if (!canvasRef) return;
+        const rc = rough.canvas(canvasRef);
 
-        store.viewState.panX;
-        store.viewState.panY;
-        store.viewState.scale;
-        store.theme;
-        store.layers.forEach(l => {
-            l.visible;
-            l.opacity;
-        });
+        // Track everything for real-time updates
+        // Accessing store.elements and their internal properties ensures reactivity
+        const track = () => {
+            store.elements.forEach(el => {
+                el.points?.length;
+                el.x; el.y; el.width; el.height;
+                el.opacity; el.layerId;
+                el.strokeColor; el.backgroundColor; el.renderStyle;
+                // Add points content tracking if needed
+                if (el.points) {
+                    const last = el.points[el.points.length - 1];
+                    if (last) { last.x; last.y; }
+                }
+            });
+            store.viewState.panX; store.viewState.panY; store.viewState.scale;
+            store.theme;
+            store.layers.forEach(l => { l.visible; l.opacity; });
+        };
+
+        track();
 
         // Use requestAnimationFrame for smooth and batched updates
-        const handle = requestAnimationFrame(renderMinimap);
+        const handle = requestAnimationFrame(() => renderMinimap(rc));
         onCleanup(() => cancelAnimationFrame(handle));
     });
 
@@ -332,7 +245,10 @@ export const Minimap = (props: MinimapProps) => {
             }
         });
 
-        renderMinimap();
+        if (canvasRef) {
+            const rc = rough.canvas(canvasRef);
+            renderMinimap(rc);
+        }
     });
 
     return (
