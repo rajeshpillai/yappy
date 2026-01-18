@@ -132,6 +132,23 @@ export const exportToSvg = () => {
             textText.setAttribute('font-family', 'sans-serif');
             textText.setAttribute('font-size', `${el.fontSize || 20}px`);
             node = textText;
+        } else if ((el.type === 'fineliner' || el.type === 'inkbrush' || el.type === 'marker') && el.points) {
+            // Helper to normalize
+            let points: { x: number, y: number }[] = [];
+            if (el.pointsEncoding === 'flat') {
+                const flat = el.points as number[];
+                for (let i = 0; i < flat.length; i += 2) points.push({ x: flat[i], y: flat[i + 1] });
+            } else {
+                points = el.points as { x: number, y: number }[];
+            }
+            if (points.length > 1) {
+                // Simplified SVG Path for these tools
+                // Ideally we duplicate the exact bezier logic from renderElement.ts, 
+                // but for now a simple polyline or standard curve is better than nothing.
+                // Or better: use roughjs linearPath or curve
+                const absPoints = points.map(p => [el.x + p.x, el.y + p.y] as [number, number]);
+                node = rc.curve(absPoints, options);
+            }
         } else if (el.type === 'image' && el.dataURL) {
             const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
             image.setAttribute('href', el.dataURL);

@@ -2,6 +2,21 @@ import type { DrawingElement } from "../types";
 import type { RoughCanvas } from "roughjs/bin/canvas";
 import { getImage } from "./imageCache";
 
+// Helper to normalize points (supports both old Point[] and new packed number[])
+export const normalizePoints = (points: any[] | number[] | undefined): { x: number; y: number }[] => {
+    if (!points || points.length === 0) return [];
+    if (typeof points[0] === 'number') {
+        // New format: [x1, y1, x2, y2...]
+        const result: { x: number; y: number }[] = [];
+        for (let i = 0; i < points.length - 1; i += 2) {
+            result.push({ x: points[i] as number, y: points[i + 1] as number });
+        }
+        return result;
+    }
+    // Old format: Point[]
+    return points as { x: number; y: number }[];
+};
+
 export const renderElement = (
     rc: RoughCanvas,
     ctx: CanvasRenderingContext2D,
@@ -9,6 +24,8 @@ export const renderElement = (
     isDarkMode: boolean = false,
     layerOpacity: number = 1
 ) => {
+    // normalizePoints is now external
+
     ctx.save();
     ctx.globalAlpha = ((el.opacity ?? 100) / 100) * layerOpacity;
 
@@ -977,8 +994,11 @@ export const renderElement = (
             let start = { x: el.x, y: el.y };
             let end = { x: endX, y: endY };
             if (el.points && el.points.length >= 2) {
-                start = { x: el.x + el.points[0].x, y: el.y + el.points[0].y };
-                end = { x: el.x + el.points[el.points.length - 1].x, y: el.y + el.points[el.points.length - 1].y };
+                const pts = normalizePoints(el.points);
+                if (pts.length > 0) {
+                    start = { x: el.x + pts[0].x, y: el.y + pts[0].y };
+                    end = { x: el.x + pts[pts.length - 1].x, y: el.y + pts[pts.length - 1].y };
+                }
             }
 
             if (el.controlPoints && el.controlPoints.length > 0) {
@@ -1055,8 +1075,9 @@ export const renderElement = (
             }
 
         } else if (el.curveType === 'elbow') {
-            const drawPoints: [number, number][] = (el.points && el.points.length > 0)
-                ? el.points.map(p => [el.x + p.x, el.y + p.y])
+            const pts = normalizePoints(el.points);
+            const drawPoints: [number, number][] = (pts && pts.length > 0)
+                ? pts.map(p => [el.x + p.x, el.y + p.y])
                 : [[el.x, el.y], [endX, endY]];
 
             rc.linearPath(drawPoints, options);
@@ -1078,9 +1099,12 @@ export const renderElement = (
         } else {
             // Straight Line (Default)
             // Use points if available (allows for flipped lines), otherwise use width/height
-            if (el.points && el.points.length >= 2) {
-                const pStart = { x: el.x + el.points[0].x, y: el.y + el.points[0].y };
-                const pEnd = { x: el.x + el.points[el.points.length - 1].x, y: el.y + el.points[el.points.length - 1].y };
+            // normalizePoints handles undefined/empty by returning [], so we consistently check length
+            const pts = normalizePoints(el.points);
+
+            if (pts.length >= 2) {
+                const pStart = { x: el.x + pts[0].x, y: el.y + pts[0].y };
+                const pEnd = { x: el.x + pts[pts.length - 1].x, y: el.y + pts[pts.length - 1].y };
 
                 rc.line(pStart.x, pStart.y, pEnd.x, pEnd.y, options);
 
@@ -1114,7 +1138,7 @@ export const renderElement = (
         }
     } else if (el.type === 'fineliner' && el.points && el.points.length > 0) {
         // Fine liner: Smooth quadratic Bézier curves with round caps
-        const absPoints = el.points.map(p => ({ ...p, x: el.x + p.x, y: el.y + p.y }));
+        const absPoints = normalizePoints(el.points).map(p => ({ x: el.x + p.x, y: el.y + p.y }));
 
         if (absPoints.length < 6) {
             // For very few points, draw a circle
@@ -1153,7 +1177,7 @@ export const renderElement = (
         }
     } else if (el.type === 'inkbrush' && el.points && el.points.length > 0) {
         // Ink Brush: Smooth cubic Bézier curves with shadow blur for ink effect
-        const absPoints = el.points.map(p => ({ ...p, x: el.x + p.x, y: el.y + p.y }));
+        const absPoints = normalizePoints(el.points).map(p => ({ x: el.x + p.x, y: el.y + p.y }));
 
         if (absPoints.length < 4) {
             // For very few points, draw a filled circle
@@ -1222,8 +1246,8 @@ export const renderElement = (
         const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
             el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
                 'Handlee, cursive';
-        const fontWeight = el.fontWeight ? 'bold ' : '';
-        const fontStyle = el.fontStyle ? 'italic ' : '';
+        const fontWeight = (el.fontWeight === true || el.fontWeight === 'bold') ? 'bold ' : '';
+        const fontStyle = (el.fontStyle === true || el.fontStyle === 'italic') ? 'italic ' : '';
         ctx.font = `${fontStyle}${fontWeight}${fontSize}px ${fontFamily}`;
 
         // Text Stretching logic
@@ -1244,7 +1268,7 @@ export const renderElement = (
         }
     } else if (el.type === 'marker' && el.points && el.points.length > 0) {
         // Marker: Smooth quadratic Bézier curves with thicker strokes
-        const absPoints = el.points.map(p => ({ ...p, x: el.x + p.x, y: el.y + p.y }));
+        const absPoints = normalizePoints(el.points).map(p => ({ x: el.x + p.x, y: el.y + p.y }));
 
         if (absPoints.length < 6) {
             // For very few points, draw a circle

@@ -1,7 +1,7 @@
 import { createEffect, onCleanup, onMount } from 'solid-js';
 import { store, setViewState, toggleMinimap } from '../store/appStore';
 import { X } from 'lucide-solid';
-import { renderElement } from '../utils/renderElement';
+import { renderElement, normalizePoints } from '../utils/renderElement';
 import rough from 'roughjs';
 import type { RoughCanvas } from 'roughjs/bin/canvas';
 
@@ -209,9 +209,13 @@ export const Minimap = (props: MinimapProps) => {
                 el.opacity; el.layerId;
                 el.strokeColor; el.backgroundColor; el.renderStyle;
                 // Add points content tracking if needed
+                // Add points content tracking if needed
                 if (el.points) {
-                    const last = el.points[el.points.length - 1];
-                    if (last) { last.x; last.y; }
+                    const pts = normalizePoints(el.points);
+                    if (pts.length > 0) {
+                        const last = pts[pts.length - 1];
+                        last.x; last.y;
+                    }
                 }
             });
             store.viewState.panX; store.viewState.panY; store.viewState.scale;

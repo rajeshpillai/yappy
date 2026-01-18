@@ -1,6 +1,8 @@
 import type { DrawingElement, ViewState, Layer, GridSettings } from "../types";
 
 export interface DrawingData {
+    version: number;
+    encoding?: string;
     elements: DrawingElement[];
     viewState: ViewState;
     layers?: Layer[]; // Optional for backward compatibility

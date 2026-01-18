@@ -128,6 +128,24 @@ export function getAnchorPoints(element: DrawingElement): AnchorPoint[] {
         } else {
             anchors = rawAnchors;
         }
+    } else {
+        // Fallback for any other shape (including fineliner, marker, inkbrush)
+        // Use 4 cardinal points of bounding box
+        const rawAnchors: AnchorPoint[] = [
+            { x: cx, y: cy - h / 2, position: 'top' },
+            { x: cx + w / 2, y: cy, position: 'right' },
+            { x: cx, y: cy + h / 2, position: 'bottom' },
+            { x: cx - w / 2, y: cy, position: 'left' },
+        ];
+
+        if (element.angle) {
+            anchors = rawAnchors.map(anchor => {
+                const rotated = rotatePoint(anchor.x, anchor.y, cx, cy, element.angle);
+                return { ...rotated, position: anchor.position };
+            });
+        } else {
+            anchors = rawAnchors;
+        }
     }
 
     return anchors;

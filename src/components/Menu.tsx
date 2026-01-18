@@ -52,7 +52,8 @@ const Menu: Component = () => {
                     viewState: store.viewState,
                     layers: store.layers,
                     gridSettings: store.gridSettings,
-                    canvasBackgroundColor: store.canvasBackgroundColor
+                    canvasBackgroundColor: store.canvasBackgroundColor,
+                    version: 2
                 });
                 alert(`Drawing saved as "${filename}"!`);
             } catch (e) {

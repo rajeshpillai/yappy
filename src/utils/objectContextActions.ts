@@ -2,6 +2,7 @@ import {
     store, setStore, pushToHistory,
     deleteElements, updateElement
 } from "../store/appStore";
+import { normalizePoints } from "./renderElement";
 
 export const copyToClipboard = async () => {
     if (store.selection.length === 0) return;
@@ -101,15 +102,20 @@ export const flipSelected = (direction: 'horizontal' | 'vertical') => {
             const dist = elCenterX - center;
             const newX = center - dist - el.width / 2;
 
-            // Normalize points for Lines/Arrows if they don't exist
-            let points = el.points;
-            if ((!points || points.length === 0) && (el.type === 'line' || el.type === 'arrow')) {
-                points = [{ x: 0, y: 0 }, { x: el.width, y: el.height }];
-            }
-
-            if (points && points.length > 0) {
-                const newPoints = points.map(p => ({ ...p, x: el.width - p.x }));
-                updateElement(id, { x: newX, points: newPoints, seed: el.seed + 1 }, false);
+            if (el.points) {
+                const pts = normalizePoints(el.points);
+                if (pts.length > 0) {
+                    // For horizontal flip: x = width - x
+                    const newPoints = pts.map(p => ({ x: el.width - p.x, y: p.y }));
+                    // Always save as objects or flatten? Let's respect encoding if possible but for simplicity saving as flat if originally flat is good.
+                    // Actually, let's keep it simple and just save as object array unless we write a re-flattener.
+                    // Or better: write a helper 'denormalizePoints' or just save as Object Point[] and let saveDrawing flatten it later.
+                    // The saveDrawing logic handles flattening! So we can save as Object Point[] safely.
+                    updateElement(id, { x: newX, points: newPoints, pointsEncoding: undefined, seed: el.seed + 1 }, false);
+                } else if (!el.points || el.points.length === 0) {
+                    // Should imply standard shape?
+                    updateElement(id, { x: newX, seed: el.seed + 1 }, false);
+                }
             } else {
                 updateElement(id, { x: newX, seed: el.seed + 1 }, false);
             }
@@ -118,15 +124,15 @@ export const flipSelected = (direction: 'horizontal' | 'vertical') => {
             const dist = elCenterY - center;
             const newY = center - dist - el.height / 2;
 
-            // Normalize points for Lines/Arrows if they don't exist
-            let points = el.points;
-            if ((!points || points.length === 0) && (el.type === 'line' || el.type === 'arrow')) {
-                points = [{ x: 0, y: 0 }, { x: el.width, y: el.height }];
-            }
-
-            if (points && points.length > 0) {
-                const newPoints = points.map(p => ({ ...p, y: el.height - p.y }));
-                updateElement(id, { y: newY, points: newPoints, seed: el.seed + 1 }, false);
+            if (el.points) {
+                const pts = normalizePoints(el.points);
+                if (pts.length > 0) {
+                    // For vertical flip: y = height - y
+                    const newPoints = pts.map(p => ({ x: p.x, y: el.height - p.y }));
+                    updateElement(id, { y: newY, points: newPoints, pointsEncoding: undefined, seed: el.seed + 1 }, false);
+                } else {
+                    updateElement(id, { y: newY, seed: el.seed + 1 }, false);
+                }
             } else {
                 updateElement(id, { y: newY, seed: el.seed + 1 }, false);
             }

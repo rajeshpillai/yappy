@@ -43,6 +43,9 @@ In Yappy, drawing tools (Pen, InkBrush) generate large arrays of `{x, y}` coordi
 Instead of an array of objects, store points as a single flat array: `[x1, y1, x2, y2, ...]`.
 Converting a 10,000-point path from objects to a typed array can reduce memory usage and JSON size by **60%**.
 
+> [!NOTE]
+> For implementation details, see [Point Optimization Algorithm](point-optimization-algorithm.md).
+
 ### Optimization B: Delta Encoding
 Instead of absolute coordinates, store the difference from the previous point:
 `[100, 100, 2, 1, -1, 3, ...]`

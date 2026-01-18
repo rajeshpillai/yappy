@@ -38,7 +38,8 @@ export interface DrawingElement {
     link: string | null;
 
     // Specific to Linear (Line, Arrow, Pencil)
-    points?: Point[];
+    points?: Point[] | number[];
+    pointsEncoding?: 'packed' | 'flat'; // flat is [x, y, x, y...], packed could be delta encoded in future
     // Control points for bezier curves and smart elbow routing
     // For bezier: [ { x, y } ] (absolute coordinates ideally, or relative to start/center?)
     // Let's use absolute coordinates for simplicity in hit testing, but they must move with shape
@@ -51,8 +52,8 @@ export interface DrawingElement {
     rawText?: string;
     fontSize?: number;
     fontFamily?: FontFamily;
-    fontWeight?: boolean;
-    fontStyle?: boolean;
+    fontWeight?: boolean | string;
+    fontStyle?: boolean | string;
     textAlign?: TextAlign;
     verticalAlign?: VerticalAlign;
     containerId?: string | null;

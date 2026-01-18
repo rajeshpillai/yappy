@@ -5,7 +5,7 @@ import { distanceToSegment, isPointOnPolyline, isPointInEllipse, intersectElemen
 import { getAnchorPoints, findClosestAnchor } from "../utils/anchorPoints";
 import { calculateSmartElbowRoute } from "../utils/routing";
 import type { DrawingElement } from "../types";
-import { renderElement } from "../utils/renderElement";
+import { renderElement, normalizePoints } from "../utils/renderElement";
 import ContextMenu, { type MenuItem } from "./ContextMenu";
 import { snapPoint } from "../utils/snapHelpers";
 import { setImageLoadCallback } from "../utils/imageCache";
@@ -353,8 +353,11 @@ const Canvas: Component = () => {
                                 let start = { x: el.x, y: el.y };
                                 let end = { x: el.x + el.width, y: el.y + el.height };
                                 if (el.points && el.points.length >= 2) {
-                                    start = { x: el.x + el.points[0].x, y: el.y + el.points[0].y };
-                                    end = { x: el.x + el.points[el.points.length - 1].x, y: el.y + el.points[el.points.length - 1].y };
+                                    const pts = normalizePoints(el.points);
+                                    if (pts.length > 0) {
+                                        start = { x: el.x + pts[0].x, y: el.y + pts[0].y };
+                                        end = { x: el.x + pts[pts.length - 1].x, y: el.y + pts[pts.length - 1].y };
+                                    }
                                 }
 
                                 const curveX = 0.25 * start.x + 0.5 * cp.x + 0.25 * end.x;
@@ -906,8 +909,11 @@ const Canvas: Component = () => {
                     let start = { x: el.x, y: el.y };
                     let end = { x: el.x + el.width, y: el.y + el.height };
                     if (el.points && el.points.length >= 2) {
-                        start = { x: el.x + el.points[0].x, y: el.y + el.points[0].y };
-                        end = { x: el.x + el.points[el.points.length - 1].x, y: el.y + el.points[el.points.length - 1].y };
+                        const pts = normalizePoints(el.points);
+                        if (pts.length > 0) {
+                            start = { x: el.x + pts[0].x, y: el.y + pts[0].y };
+                            end = { x: el.x + pts[pts.length - 1].x, y: el.y + pts[pts.length - 1].y };
+                        }
                     }
 
                     const curveX = 0.25 * start.x + 0.5 * cp.x + 0.25 * end.x;
@@ -955,25 +961,26 @@ const Canvas: Component = () => {
     const normalizePencil = (el: DrawingElement) => {
         if (!el.points || el.points.length === 0) return null;
 
+        const pts = normalizePoints(el.points);
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-        el.points.forEach(p => {
+        pts.forEach(p => {
             minX = Math.min(minX, p.x);
             minY = Math.min(minY, p.y);
             maxX = Math.max(maxX, p.x);
             maxY = Math.max(maxY, p.y);
         });
 
-        const width = maxX - minX;
-        const height = maxY - minY;
+        const newWidth = maxX - minX;
+        const newHeight = maxY - minY;
 
         // Pad slightly? No, exact bounds.
-        const newPoints = el.points.map(p => ({ x: p.x - minX, y: p.y - minY }));
+        const newPoints = pts.map(p => ({ x: p.x - minX, y: p.y - minY }));
 
         return {
             x: el.x + minX,
             y: el.y + minY,
-            width,
-            height,
+            width: newWidth,
+            height: newHeight,
             points: newPoints
         };
     };
@@ -1050,8 +1057,25 @@ const Canvas: Component = () => {
                     cp2 = { x: endX, y: endY - h / 2 };
                     return isPointOnBezier(p, { x: el.x, y: el.y }, cp1, cp2, { x: endX, y: endY }, threshold);
                 }
+            } else if (el.curveType === 'elbow') {
+                const pts = normalizePoints(el.points);
+                if (pts && pts.length > 0) {
+                    const localP = { x: p.x - el.x, y: p.y - el.y };
+                    return isPointOnPolyline(localP, pts, threshold);
+                } else {
+                    // Fallback to simple line
+                    return distanceToSegment(p, { x: el.x, y: el.y }, { x: endX, y: endY }) <= threshold;
+                }
             } else {
-                // Line
+                // Line (Straight)
+                // If points exist, check polyline (e.g. for manually adjusted straight lines if that becomes a thing)
+                if (el.points && el.points.length > 0) {
+                    const pts = normalizePoints(el.points);
+                    if (pts.length > 1) { // Need at least 2 points
+                        const localP = { x: p.x - el.x, y: p.y - el.y };
+                        return isPointOnPolyline(localP, pts, threshold);
+                    }
+                }
                 return distanceToSegment(p, { x: el.x, y: el.y }, { x: el.x + el.width, y: el.y + el.height }) <= threshold;
             }
         } else if ((el.type === 'fineliner' || el.type === 'inkbrush' || el.type === 'marker') && el.points) {
@@ -1059,7 +1083,8 @@ const Canvas: Component = () => {
             // The point p is in local unrotated space matches el.x/y system.
             // But valid points are relative. So we need to check distance relative to (el.x, el.y).
             const localP = { x: p.x - el.x, y: p.y - el.y };
-            return isPointOnPolyline(localP, el.points, threshold);
+            const pts = normalizePoints(el.points);
+            return isPointOnPolyline(localP, pts, threshold);
         } else if (el.type === 'text' || el.type === 'image') {
             return true; // Box check passed
         } else if (el.type === 'triangle' || el.type === 'hexagon' || el.type === 'octagon' ||
@@ -1529,7 +1554,8 @@ const Canvas: Component = () => {
             seed: Math.floor(Math.random() * 2 ** 31),
             layerId: store.activeLayerId,
             curveType: actualCurveType as 'straight' | 'bezier' | 'elbow',
-            points: (tool === 'fineliner' || tool === 'inkbrush' || tool === 'marker') ? [{ x: 0, y: 0, t: Date.now() }] : undefined,
+            points: (tool === 'fineliner' || tool === 'inkbrush' || tool === 'marker') ? [0, 0] : undefined,
+            pointsEncoding: (tool === 'fineliner' || tool === 'inkbrush' || tool === 'marker') ? 'flat' : undefined,
             startBinding: startBindingData,
         } as DrawingElement;
 
@@ -1744,8 +1770,13 @@ const Canvas: Component = () => {
                                     let start = { x: element.x, y: element.y };
                                     let end = { x: element.x + element.width, y: element.y + element.height };
                                     if (element.points && element.points.length >= 2) {
-                                        start = { x: element.x + element.points[0].x, y: element.y + element.points[0].y };
-                                        end = { x: element.x + element.points[element.points.length - 1].x, y: element.y + element.points[element.points.length - 1].y };
+                                        if (element.points && element.points.length >= 2) {
+                                            const pts = normalizePoints(element.points);
+                                            if (pts.length > 0) {
+                                                start = { x: element.x + pts[0].x, y: element.y + pts[0].y };
+                                                end = { x: element.x + pts[pts.length - 1].x, y: element.y + pts[pts.length - 1].y };
+                                            }
+                                        }
                                     }
 
                                     const cpX = 2 * x - 0.5 * start.x - 0.5 * end.x;
@@ -1782,10 +1813,19 @@ const Canvas: Component = () => {
                                 };
 
                                 if (init.points) {
-                                    updates.points = init.points.map((p: any) => ({
-                                        x: p.x * scaleX,
-                                        y: p.y * scaleY
-                                    }));
+                                    if (typeof init.points[0] === 'number') {
+                                        const pts = init.points as number[];
+                                        const newPts = [];
+                                        for (let i = 0; i < pts.length; i += 2) {
+                                            newPts.push(pts[i] * scaleX, pts[i + 1] * scaleY);
+                                        }
+                                        updates.points = newPts;
+                                    } else {
+                                        updates.points = (init.points as any[]).map((p: any) => ({
+                                            x: p.x * scaleX,
+                                            y: p.y * scaleY
+                                        }));
+                                    }
                                 }
 
                                 const element = store.elements.find(e => e.id === selId);
@@ -1821,11 +1861,21 @@ const Canvas: Component = () => {
                             if ((el.type === 'fineliner' || el.type === 'inkbrush' || el.type === 'marker') && el.points) {
                                 const init = initialPositions.get(id);
                                 if (init && init.points) {
-                                    updates.points = init.points.map((p: any) => ({
-                                        x: p.x * scaleX,
-                                        y: p.y * scaleY,
-                                        p: p.p
-                                    }));
+                                    if (el.pointsEncoding === 'flat' || (init.points.length > 0 && typeof init.points[0] === 'number')) {
+                                        const pts = init.points as number[];
+                                        const newPts = [];
+                                        for (let i = 0; i < pts.length; i += 2) {
+                                            newPts.push(pts[i] * scaleX, pts[i + 1] * scaleY);
+                                        }
+                                        updates.points = newPts;
+                                    } else {
+                                        updates.points = (init.points as any[]).map((p: any) => ({
+                                            x: p.x * scaleX,
+                                            y: p.y * scaleY,
+                                            // Handle pressure if exists in old object format
+                                            ...(p.p !== undefined ? { p: p.p } : {})
+                                        }));
+                                    }
                                 }
                             }
 
@@ -1937,30 +1987,35 @@ const Canvas: Component = () => {
             const el = store.elements.find(e => e.id === currentId);
             if (el && el.points) {
                 const { x: ex, y: ey } = getWorldCoordinates(e.clientX, e.clientY);
+                const px = ex - startX;
+                const py = ey - startY;
 
-                const newPoint = {
-                    x: ex - startX,
-                    y: ey - startY,
-                    p: 0.5  // Constant pressure for fine liner and marker
-                };
-
-                // No distance threshold for these - capture all points for smoothest curves
-                const newPoints = [...el.points, newPoint];
-                updateElement(currentId, { points: newPoints }, false);
+                if (el.pointsEncoding === 'flat') {
+                    const newPoints = [...(el.points as number[]), px, py];
+                    updateElement(currentId, { points: newPoints }, false);
+                } else {
+                    const newPoints = [...(el.points as any[]), { x: px, y: py, p: 0.5 }];
+                    updateElement(currentId, { points: newPoints }, false);
+                }
             }
         } else if (store.selectedTool === 'inkbrush') {
             const el = store.elements.find(e => e.id === currentId);
             if (el && el.points) {
                 const { x: ex, y: ey } = getWorldCoordinates(e.clientX, e.clientY);
+                const px = ex - startX;
+                const py = ey - startY;
 
-                const newPoint = {
-                    x: ex - startX,
-                    y: ey - startY,
-                    p: (e.pressure !== undefined && e.pressure > 0) ? e.pressure : 0.5
-                };
-
-                const newPoints = [...el.points, newPoint];
-                updateElement(currentId, { points: newPoints }, false);
+                if (el.pointsEncoding === 'flat') {
+                    const newPoints = [...(el.points as number[]), px, py];
+                    updateElement(currentId, { points: newPoints }, false);
+                } else {
+                    const newPoints = [...(el.points as any[]), {
+                        x: px,
+                        y: py,
+                        p: (e.pressure !== undefined && e.pressure > 0) ? e.pressure : 0.5
+                    }];
+                    updateElement(currentId, { points: newPoints }, false);
+                }
             }
         } else {
             // Apply snap to grid if enabled
