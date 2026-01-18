@@ -1,95 +1,80 @@
-# Shape Attributes Support
+# Shape & Tool Documentation
 
-This document lists the supported properties and attributes for each shape type in Yappy.
+This document describes the supported properties, attributes, and implementation details for all elements in Yappy.
 
 ## Legend
 - ✅ : Supported
 - ❌ : Not Supported / Not Applicable
+- 🛠 : Partial Support / Indirect (e.g., via bounding box)
 
-## Attribute Matrix
+## Attribute Matrix: Standard Shapes
 
-| Attribute | Rectangle | Circle | Diamond | Line / Arrow | Pencil | Text | Image | Description |
+| Attribute | Rect / Box | Circle | Diamond | Triangle | Polygons¹ | Text | Image | Description |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| **Common** | | | | | | | | |
 | `x`, `y` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Position (Top-left) |
 | `width`, `height` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Dimensions |
 | `angle` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Rotation angle (radians) |
 | `opacity` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Opacity (0-100) |
-| `locked` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Prevent interaction |
-| `link` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Hyperlink URL |
-| `layerId` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Z-index / Layer |
-| **Stroke** | | | | | | | | |
-| `strokeColor` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Color of the border used for drawing |
-| `strokeWidth` | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | Thickness of the border |
-| `strokeStyle` | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | Solid, Dashed, Dotted |
-| **Fill / Background** | | | | | | | | |
-| `backgroundColor` | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | Background color |
-| `fillStyle` | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | Solid, Hachure, Cross-Hatch (RoughJS) |
-| **Style** | | | | | | | | |
-| `roughness` | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | Sketchiness level (0-3) |
-| `renderStyle` | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | Sketch vs Architectural |
-| **Line Specific** | | | | | | | | |
-| `startArrowhead` | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | Arrow, Dot, None |
-| `endArrowhead` | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | Arrow, Dot, Triangle, None |
-| `curveType` | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | Straight vs Bezier |
-| **Text Specific** | | | | | | | | |
-| `text` | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | The content content |
-| `fontSize` | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | Font size in pixels |
-| `fontFamily` | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | Font family selection |
-| `textAlign` | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | Left, Center, Right |
-| **Other** | | | | | | | | |
-| `points` | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | Array of points for freehand drawing |
-| `src` | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | Image source URL |
+| `strokeColor` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Border color |
+| `strokeWidth` | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | Border thickness |
+| `backgroundColor`| ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | Fill color |
+| `fillStyle` | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | Solid, Hachure, Hatch |
+| `roughness` | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | Sloppiness (RoughJS) |
+| `roundness` | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | Rounded corners toggle |
+| `containerText` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | Internal label content |
 
+> ¹ **Polygons** include: Hexagon, Octagon, Star, Cloud, Heart, Arrow (Left/Right/Up/Down), Capsule, Sticky Note, Speech Bubble, Database, Document, etc.
 
-## Property Configuration
+## Attribute Matrix: Linear & Pen Tools
 
-The source of truth for these properties is `src/config/properties.ts`. To add support for a property to a new shape, update the `applicableTo` array in that file.
+| Attribute | Line / Arrow | Bezier | Fineliner | Ink Brush | Marker | Description |
+| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| `points` | ✅ | ✅ | ✅ | ✅ | ✅ | Coordinate array |
+| `curveType` | ✅ | ✅ | ❌ | ❌ | ❌ | Straight vs Curved |
+| `startArrowhead` | ✅ | ❌ | ❌ | ❌ | ❌ | Start decoration |
+| `endArrowhead` | ✅ | ❌ | ❌ | ❌ | ❌ | End decoration |
+| `pressureEnabled`| ❌ | ❌ | ✅ | ✅ | ❌ | Variable thickness |
+| `strokeWidth` | ✅ | ✅ | ✅ | ✅ | ✅ | Base thickness |
+| `globalAlpha` | ✅ | ✅ | ✅ | ✅ | ✅ (0.5) | Rendering alpha |
+| `blending` | solid | solid | solid | soft | multiply | Composite mode |
 
 ---
 
-# Developer Guide: Adding a New Shape
+# Developer Guide: Creating New Elements
 
-When adding a new shape to Yappy, you must ensure it supports the following behaviors and attributes to be fully functional.
+## 1. Creating a Standard Shape (Box-based)
 
-## Implementation Checklist
+Standard shapes defined by a bounding box (x, y, width, height) follow these steps:
 
-1.  **Define Type** (`src/types.ts`):
-    - Add the new shape name to the `ElementType` union.
+1.  **Define Type**: Add value to `ElementType` in `src/types.ts`.
+2.  **UI Integration**:
+    - Add to `tools` in `src/components/ShapeToolGroup.tsx`.
+    - Add icon to `src/components/Toolbar.tsx`.
+3.  **Properties**: Update `src/config/properties.ts`. Add your type to the `applicableTo` array for relevant sliders/pickers.
+4.  **Rendering**: Add a block in `src/utils/renderElement.ts`.
+    - Use `rc.path(...)` or `rc.rectangle(...)` for RoughJS style.
+5.  **Hit Testing**: Add to `hitTestElement` in `src/components/Canvas.tsx`. Usually `isPointInPolygon` or AABB check.
+6.  **Intersections (Crucial)**: Update `intersectElementWithLine` in `src/utils/geometry.ts`. This enables connector snapping.
+7.  **Normalization**: Add type to `handlePointerUp` in `Canvas.tsx` to handle negative drag widths (flip).
 
-2.  **UI Integration** (`src/components/Toolbar.tsx`):
-    - Import an appropriate icon.
-    - Add a new entry to the `tools` array with the `type`, `icon`, and `label`.
+## 2. Creating a Drawing Tool (Pen/Marker)
 
-3.  **Rendering Logic** (`src/utils/renderElement.ts`):
-    - Implement the drawing logic in `renderElement`.
-    - Use `roughjs` for hand-drawn style or standard canvas context for precise shapes.
-    - Ensure it respects `x`, `y`, `width`, `height` and style properties (`strokeColor`, `fillStyle`, etc.).
+Drawing tools are point-based and captured in real-time.
 
-4.  **Interaction & Selection** (`src/components/Canvas.tsx`):
-    - **Creation**: Ensure `handlePointerDown` properly initializes the shape.
-    - **Normalization**: If your shape requires positive width/height, add it to the normalization logic in `handlePointerUp`.
-    - **Hit Testing**: Update `hitTestElement` to allow clicking/selecting the shape.
-        - For boxes: Simple AABB check.
-        - For polygons: Point-in-polygon check.
-        - For curves: Distance comparison.
+1.  **Define Type**: Add to `ElementType` in `src/types.ts`.
+2.  **UI Integration**: Add to `penTools` in `src/components/PenToolGroup.tsx`.
+3.  **Interaction Flow** (`src/components/Canvas.tsx`):
+    - **Pointer Down**: Initialize `points: [{ x: 0, y: 0, t: Date.now() }]`.
+    - **Pointer Move**: Append relative coordinates to `points`. Capture `e.pressure` if supported.
+    - **Pointer Up**: Call `normalizePencil` to calculate the minimal bounding box and offset points.
+4.  **Rendering**:
+    - Use `ctx.beginPath()` for raw canvas performance or `perfect-freehand` for smooth strokes.
+    - **Marker Specific**: Use `ctx.globalAlpha` and `ctx.globalCompositeOperation = 'multiply'` for highlighter effects.
 
-5.  **Connectors & Binding** (`src/utils/geometry.ts`):
-    - Update `intersectElementWithLine`. This is **CRITICAL** for connectors.
-    - It must calculate where a line from point A intersects your shape's boundary.
-    - Without this, connectors won't snap to the shape edge.
-    - Also update `checkBinding` in `Canvas.tsx` to include your shape type in the eligible list.
+## 3. Key Features to Remember
 
-6.  **Properties Panel** (`src/config/properties.ts`):
-    - Add your shape type to the `applicableTo` arrays for relevant properties (e.g., `backgroundColor`, `fillStyle`, `strokeWidth`).
-
-7.  **Public API** (`src/api.ts`):
-    - Add a `create[ShapeName]` helper method to `YappyAPI`.
-    - Update the internal `intersect` helper if it uses separate logic from `geometry.ts`.
-
-## Required Behaviors
-
-*   **Move**: Automatic if `hitTestElement` is implemented correctly.
-*   **Resize**: Automatic for box-based shapes. For path-based shapes, logic might be needed in `resizeElement`.
-*   **Connect**: Requires `intersectElementWithLine` implementation.
-*   **Style**: Must respect properties defined in `properties.ts` during rendering.
+*   **Dark Mode**: Always use `getStrokeColor(el.strokeColor, theme)` in the renderer.
+*   **Rotation**: Ensure your `hitTest` and `render` logic accounts for `el.angle`.
+*   **Performance**: For complex paths, use `ctx.save()` and `ctx.restore()` sparingly.
+*   **Z-Index**: Elements are rendered in the order they appear in `store.elements`.
+*   **Binding**: If you want other elements to "stick" to yours, you **must** implement the intersection logic in `geometry.ts`.
