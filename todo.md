@@ -349,7 +349,7 @@
     - [x] Implement "Zen Mode" (Alt+\) and keyboard shortcuts (Alt+P, Alt+L)
     - [x] Add Menu options for panel visibility
     - [ ] Add Search/Filter for Layers
-    - [ ] Implement Polygon tool (Triangles, Pentagons, etc)
+    - [x] Implement Polygon tool (Completed in Phase 31)
     - [ ] Improved Gradient Picker with presets
 - [x] Help dialog with keyboard shortcuts (Shift+?)
 
@@ -520,3 +520,32 @@
 - `types.ts`, `renderElement.ts`, `geometry.ts`, `anchorPoints.ts`
 - `Canvas.tsx`, `Toolbar.tsx`, `properties.ts`
 - New: `ShapeToolGroup.tsx`, `PenToolGroup.css`
+
+---
+
+### Phase 32: Specialized Shape Libraries
+**Goal**: Expand the shape library with domain-specific primitives for professional workflows.
+
+- [ ] **Flowchart & Business Logic (BPMN)**
+  - [ ] Database (Cylinder)
+  - [ ] Document (Wavy Rectangle)
+  - [ ] Predefined Process (Rectangle with side bars)
+  - [ ] Internal Storage (Memory/Cache icon)
+- [ ] **System Design & Cloud Infrastructure**
+  - [ ] Server/Host (3D Box/Rack Unit)
+  - [ ] Queue/Topic (Segmented Cylinder)
+  - [ ] Firewall (Brick Wall/Shield)
+  - [ ] User/Actor (Silhouette)
+- [ ] **UI/UX Wireframing**
+  - [ ] Device Frames (Mobile, Tablet, Browser Window)
+  - [ ] UI Primitives (Search Bar, Toggle Switch, Slider)
+  - [ ] Image Placeholder (Cross Box)
+- [x] **Mindmapping & Visual Communication**
+  - [x] Conversation Bubbles (Round/Square variations)
+  - [x] Burst/Star (Explosion for focus)
+  - [x] Ribbon/Banner (Titles)
+  - [x] Resizable Brackets (Grouping)
+- [ ] **Geometric & Mathematical**
+  - [ ] Trapezoid
+  - [ ] Right-Angle Triangle
+  - [ ] Pentagon/Septagon (Completing set)

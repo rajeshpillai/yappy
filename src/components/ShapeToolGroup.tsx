@@ -4,7 +4,7 @@ import type { ElementType } from "../types";
 import {
     Triangle, Hexagon, Octagon, Square, Star, Cloud, Heart, X, Check,
     ArrowLeft, ArrowRight, ArrowUp, ArrowDown, ChevronDown,
-    Pill, StickyNote, MessageSquare
+    Pill, StickyNote, MessageSquare, MessageCircle, Zap, Bookmark, ChevronLeft, ChevronRight
 } from "lucide-solid";
 import "./PenToolGroup.css"; // Reuse the same CSS
 
@@ -13,6 +13,11 @@ const shapeTools: { type: ElementType; icon: Component<{ size?: number; color?: 
     { type: 'capsule', icon: Pill, label: 'Capsule (Node)' },
     { type: 'stickyNote', icon: StickyNote, label: 'Sticky Note' },
     { type: 'callout', icon: MessageSquare, label: 'Callout (Thought)' },
+    { type: 'speechBubble', icon: MessageCircle, label: 'Speech Bubble' },
+    { type: 'burst', icon: Zap, label: 'Burst (Impact)' },
+    { type: 'ribbon', icon: Bookmark, label: 'Ribbon (Title)' },
+    { type: 'bracketLeft', icon: ChevronLeft, label: 'Left Bracket' },
+    { type: 'bracketRight', icon: ChevronRight, label: 'Right Bracket' },
     { type: 'triangle', icon: Triangle, label: 'Triangle' },
     { type: 'hexagon', icon: Hexagon, label: 'Hexagon' },
     { type: 'octagon', icon: Octagon, label: 'Octagon' },

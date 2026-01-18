@@ -402,6 +402,164 @@ export const renderElement = (
         } else {
             rc.path(path, options);
         }
+    } else if (el.type === 'speechBubble') {
+        const w = el.width;
+        const h = el.height;
+        const x = el.x;
+        const y = el.y;
+        const r = Math.min(Math.abs(w), Math.abs(h)) * 0.2; // Border radius
+        const tailWidth = w * 0.15;
+        const tailHeight = h * 0.2;
+        const rectHeight = h - tailHeight;
+
+        // Path with rounded corners and a tail
+        const rX = Math.min(Math.abs(w) / 2, r);
+        const rY = Math.min(Math.abs(rectHeight) / 2, r);
+
+        const path = `
+            M ${x + rX} ${y} 
+            L ${x + w - rX} ${y} 
+            Q ${x + w} ${y} ${x + w} ${y + rY} 
+            L ${x + w} ${y + rectHeight - rY} 
+            Q ${x + w} ${y + rectHeight} ${x + w - rX} ${y + rectHeight} 
+            L ${x + w * 0.3 + tailWidth} ${y + rectHeight}
+            L ${x + w * 0.2} ${y + h}
+            L ${x + w * 0.3} ${y + rectHeight}
+            L ${x + rX} ${y + rectHeight}
+            Q ${x} ${y + rectHeight} ${x} ${y + rectHeight - rY} 
+            L ${x} ${y + rY} 
+            Q ${x} ${y} ${x + rX} ${y} 
+            Z
+        `;
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fill(new Path2D(path));
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineJoin = 'round';
+            ctx.stroke(new Path2D(path));
+        } else {
+            rc.path(path, options);
+        }
+    } else if (el.type === 'burst') {
+        const cx = el.x + el.width / 2;
+        const cy = el.y + el.height / 2;
+        const outerRadius = Math.min(Math.abs(el.width), Math.abs(el.height)) / 2;
+        const innerRadius = outerRadius * 0.7;
+        const numPoints = 16;
+        const points: [number, number][] = [];
+
+        for (let i = 0; i < numPoints * 2; i++) {
+            const angle = (Math.PI / numPoints) * i - Math.PI / 2;
+            const radius = i % 2 === 0 ? outerRadius : innerRadius;
+            points.push([
+                cx + radius * Math.cos(angle),
+                cy + radius * Math.sin(angle)
+            ]);
+        }
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            }
+            ctx.beginPath();
+            ctx.moveTo(points[0][0], points[0][1]);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i][0], points[i][1]);
+            }
+            ctx.closePath();
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineJoin = 'miter';
+            ctx.stroke();
+        } else {
+            rc.polygon(points, options);
+        }
+    } else if (el.type === 'ribbon') {
+        const w = el.width;
+        const h = el.height;
+        const x = el.x;
+        const y = el.y;
+        const earWidth = w * 0.15;
+        const earHeight = h * 0.3;
+
+        // Main Rect
+        const mainPoints: [number, number][] = [
+            [x + earWidth, y],
+            [x + w - earWidth, y],
+            [x + w - earWidth, y + h - earHeight],
+            [x + earWidth, y + h - earHeight]
+        ];
+
+        // Left ear
+        const leftEar: [number, number][] = [
+            [x + earWidth, y + earHeight],
+            [x, y + earHeight],
+            [x + earWidth / 2, y + earHeight + (h - earHeight) / 2],
+            [x, y + h],
+            [x + earWidth, y + h]
+        ];
+
+        // Right ear
+        const rightEar: [number, number][] = [
+            [x + w - earWidth, y + earHeight],
+            [x + w, y + earHeight],
+            [x + w - earWidth / 2, y + earHeight + (h - earHeight) / 2],
+            [x + w, y + h],
+            [x + w - earWidth, y + h]
+        ];
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                rc.polygon(leftEar, { ...options, stroke: 'none', fill: backgroundColor });
+                rc.polygon(rightEar, { ...options, stroke: 'none', fill: backgroundColor });
+                rc.polygon(mainPoints, { ...options, stroke: 'none', fill: backgroundColor });
+            }
+            const drawPoly = (pts: [number, number][]) => {
+                ctx.beginPath();
+                ctx.moveTo(pts[0][0], pts[0][1]);
+                for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+                ctx.closePath();
+                ctx.stroke();
+            };
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            drawPoly(leftEar);
+            drawPoly(rightEar);
+            drawPoly(mainPoints);
+        } else {
+            rc.polygon(leftEar, options);
+            rc.polygon(rightEar, options);
+            rc.polygon(mainPoints, options);
+        }
+    } else if (el.type === 'bracketLeft' || el.type === 'bracketRight') {
+        const w = el.width;
+        const h = el.height;
+        const x = el.x;
+        const y = el.y;
+        const isLeft = el.type === 'bracketLeft';
+
+        const path = isLeft ? `
+            M ${x + w} ${y} 
+            Q ${x} ${y} ${x} ${y + h / 2}
+            Q ${x} ${y + h} ${x + w} ${y + h}
+        ` : `
+            M ${x} ${y} 
+            Q ${x + w} ${y} ${x + w} ${y + h / 2}
+            Q ${x + w} ${y + h} ${x} ${y + h}
+        `;
+
+        if (el.renderStyle === 'architectural') {
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineCap = 'round';
+            ctx.stroke(new Path2D(path));
+        } else {
+            rc.path(path, { ...options, fill: 'none' });
+        }
     } else if (el.type === 'star') {
         const cx = el.x + el.width / 2;
         const cy = el.y + el.height / 2;
@@ -841,7 +999,9 @@ export const renderElement = (
         el.type === 'triangle' || el.type === 'hexagon' || el.type === 'octagon' ||
         el.type === 'parallelogram' || el.type === 'star' || el.type === 'cloud' || el.type === 'heart' ||
         el.type === 'arrowLeft' || el.type === 'arrowRight' || el.type === 'arrowUp' || el.type === 'arrowDown' ||
-        el.type === 'capsule' || el.type === 'stickyNote' || el.type === 'callout')) {
+        el.type === 'capsule' || el.type === 'stickyNote' || el.type === 'callout' ||
+        el.type === 'burst' || el.type === 'speechBubble' || el.type === 'ribbon' ||
+        el.type === 'bracketLeft' || el.type === 'bracketRight')) {
         const fontSize = el.fontSize || 20;
         const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
             el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
