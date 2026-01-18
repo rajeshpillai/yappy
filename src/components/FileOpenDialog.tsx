@@ -10,17 +10,24 @@ interface FileOpenDialogProps {
 }
 
 const FileOpenDialog: Component<FileOpenDialogProps> = (props) => {
-    const [files, setFiles] = createSignal<string[]>([]);
+    const [files, setFiles] = createSignal<{ id: string, name: string }[]>([]);
     const [loading, setLoading] = createSignal(false);
     const [activeIndex, setActiveIndex] = createSignal<number>(-1);
+    const [isKeyboardNavigating, setIsKeyboardNavigating] = createSignal(false);
 
     const fetchFiles = async () => {
         setLoading(true);
         try {
             const list = await storage.listDrawings();
-            const filenames = list.map(f => f.replace('.json', ''));
-            setFiles(filenames);
-            if (filenames.length > 0) setActiveIndex(0);
+            const fileObjects = list
+                .map(f => ({
+                    id: f,
+                    name: f.replace('.json', '')
+                }))
+                .sort((a, b) => a.name.localeCompare(b.name));
+
+            setFiles(fileObjects);
+            if (fileObjects.length > 0) setActiveIndex(0);
         } catch (e) {
             console.error(e);
         } finally {
@@ -28,11 +35,11 @@ const FileOpenDialog: Component<FileOpenDialogProps> = (props) => {
         }
     };
 
-    const handleDelete = async (file: string, e: Event) => {
+    const handleDelete = async (fileId: string, e: Event) => {
         e.stopPropagation();
-        if (confirm(`Are you sure you want to delete "${file}"?`)) {
+        if (confirm(`Are you sure you want to delete "${fileId.replace('.json', '')}"?`)) {
             try {
-                await storage.deleteDrawing(file);
+                await storage.deleteDrawing(fileId);
                 fetchFiles();
             } catch (err) {
                 alert('Failed to delete file');
@@ -49,23 +56,33 @@ const FileOpenDialog: Component<FileOpenDialogProps> = (props) => {
 
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
+                setIsKeyboardNavigating(true);
                 setActiveIndex((prev) => (prev + 1) % fileList.length);
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
+                setIsKeyboardNavigating(true);
                 setActiveIndex((prev) => (prev - 1 + fileList.length) % fileList.length);
             } else if (e.key === 'Enter') {
                 e.preventDefault();
                 const currentIdx = activeIndex();
                 if (currentIdx >= 0 && currentIdx < fileList.length) {
-                    props.onSelect(fileList[currentIdx]);
+                    props.onSelect(fileList[currentIdx].id);
                 }
             } else if (e.key === 'Escape') {
                 props.onClose();
             }
         };
 
+        const handleMouseMove = () => {
+            setIsKeyboardNavigating(false);
+        };
+
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('mousemove', handleMouseMove);
+        };
     });
 
     createEffect(() => {
@@ -77,7 +94,7 @@ const FileOpenDialog: Component<FileOpenDialogProps> = (props) => {
 
     createEffect(() => {
         const index = activeIndex();
-        if (index >= 0 && props.isOpen) {
+        if (index >= 0 && props.isOpen && isKeyboardNavigating()) {
             // Wait for Solid to update the DOM
             setTimeout(() => {
                 const activeEl = document.querySelector('.file-item.active');
@@ -110,14 +127,18 @@ const FileOpenDialog: Component<FileOpenDialogProps> = (props) => {
                                 {(file, index) => (
                                     <div
                                         class={`file-item ${activeIndex() === index() ? 'active' : ''}`}
-                                        onClick={() => props.onSelect(file)}
-                                        onMouseEnter={() => setActiveIndex(index())}
+                                        onClick={() => props.onSelect(file.id)}
+                                        onMouseEnter={() => {
+                                            if (!isKeyboardNavigating()) {
+                                                setActiveIndex(index());
+                                            }
+                                        }}
                                     >
                                         <div style={{ display: 'flex', "align-items": 'center', gap: '8px', flex: 1 }}>
                                             <FileText size={16} />
-                                            <span>{file}</span>
+                                            <span>{file.name}</span>
                                         </div>
-                                        <button class="delete-file-btn" onClick={(e) => handleDelete(file, e)} title="Delete">
+                                        <button class="delete-file-btn" onClick={(e) => handleDelete(file.id, e)} title="Delete">
                                             <Trash2 size={16} />
                                         </button>
                                     </div>
