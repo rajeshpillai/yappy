@@ -75,6 +75,19 @@ const FileOpenDialog: Component<FileOpenDialogProps> = (props) => {
         }
     });
 
+    createEffect(() => {
+        const index = activeIndex();
+        if (index >= 0 && props.isOpen) {
+            // Wait for Solid to update the DOM
+            setTimeout(() => {
+                const activeEl = document.querySelector('.file-item.active');
+                if (activeEl) {
+                    activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                }
+            }, 0);
+        }
+    });
+
     return (
         <Show when={props.isOpen}>
             <div class="modal-overlay" onClick={props.onClose}>
