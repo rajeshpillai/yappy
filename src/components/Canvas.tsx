@@ -1798,7 +1798,7 @@ const Canvas: Component = () => {
             let finalX = x;
             let finalY = y;
 
-            if (store.selectedTool === 'line' || store.selectedTool === 'arrow' || store.selectedTool === 'bezier') {
+            if (store.selectedTool === 'line' || store.selectedTool === 'arrow' || store.selectedTool === 'bezier' || draggingFromConnector) {
                 if (currentId) {
                     const match = checkBinding(x, y, currentId);
                     if (match) {
@@ -1858,6 +1858,38 @@ const Canvas: Component = () => {
         if (store.selectedTool === 'pan') {
             isDragging = false;
             setCursor('grab');
+            return;
+        }
+
+        // Handle connector drawing first (before selection tool handling)
+        // This is needed because connector drawing happens while in selection mode
+        if (draggingFromConnector && isDrawing && currentId) {
+            const el = store.elements.find(e => e.id === currentId);
+            if (el) {
+                // Apply end binding if suggested
+                if (suggestedBinding()) {
+                    const binding = suggestedBinding()!;
+                    const bindingData = { elementId: binding.elementId, focus: 0, gap: 5 };
+                    updateElement(currentId, { endBinding: bindingData });
+
+                    const target = store.elements.find(e => e.id === binding.elementId);
+                    if (target) {
+                        const existing = target.boundElements || [];
+                        if (!existing.find(b => b.id === currentId)) {
+                            updateElement(target.id, { boundElements: [...existing, { id: currentId, type: 'arrow' }] });
+                        }
+                    }
+                }
+
+                // Select the new arrow
+                setStore('selection', [currentId]);
+            }
+
+            isDrawing = false;
+            currentId = null;
+            draggingFromConnector = null;
+            setSuggestedBinding(null);
+            requestAnimationFrame(draw);
             return;
         }
 
