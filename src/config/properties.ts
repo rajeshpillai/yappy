@@ -354,7 +354,7 @@ export const properties: PropertyConfig[] = [
         label: 'Keep Proportions',
         type: 'toggle',
         group: 'dimensions',
-        applicableTo: ['rectangle', 'circle', 'image', 'diamond'],
+        applicableTo: ['rectangle', 'circle', 'image', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon'],
         defaultValue: false
     },
     {
