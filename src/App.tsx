@@ -102,6 +102,7 @@ const App: Component = () => {
       {/* Floating Property Panel Toggle (bottom-right corner) */}
       <button
         class="floating-settings-btn"
+        classList={{ 'active': store.showPropertyPanel }}
         onClick={() => togglePropertyPanel()}
         title="Toggle Properties (Alt+Enter)"
         style={{
@@ -112,8 +113,8 @@ const App: Component = () => {
           height: '48px',
           'border-radius': '50%',
           border: 'none',
-          background: store.showPropertyPanel ? '#3b82f6' : '#ffffff',
-          color: store.showPropertyPanel ? '#ffffff' : '#4b5563',
+          background: '#ffffff',
+          color: '#4b5563',
           'box-shadow': '0 4px 12px rgba(0, 0, 0, 0.15)',
           cursor: 'pointer',
           display: 'flex',

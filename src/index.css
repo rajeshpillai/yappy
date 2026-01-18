@@ -274,3 +274,17 @@ button:focus-visible {
 .minimap-canvas:active {
   cursor: grabbing;
 }
+
+/* Floating Settings Button */
+.floating-settings-btn {
+  transition: all 0.2s ease;
+}
+
+.floating-settings-btn:hover {
+  transform: scale(1.1);
+}
+
+.floating-settings-btn.active {
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+}
