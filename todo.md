@@ -17,13 +17,6 @@
 - [x] Improve selection logic for Pen and Line tools
 - [x] Fix pencil drawing shift bug
 
-## Phase 6: Viewport & Optimization
-- [ ] Implement Viewport Culling (Visible Bounds check) - *Disabled for stability*
-- [x] Implement Auto-Scroll when dragging near viewport edges
-- [ ] Implement visible bounds check for `draw`
-- [x] Fix Scroll Stability (Transform Matrix Reset)
-- [x] Implement "Scroll back to content" button
-
 ## Phase 3: File Management
 - [x] Implement File Open Modal Dialog
 
@@ -40,6 +33,13 @@
 - [x] Implement Eraser interaction (click/drag to delete)
 - [x] Implement Pan Tool (Hand)
 - [x] Redesign Property Panel (Sidebar with Popovers)
+
+## Phase 6: Viewport & Optimization
+- [ ] Implement Viewport Culling (Visible Bounds check) - *Disabled for stability*
+- [x] Implement Auto-Scroll when dragging near viewport edges
+- [ ] Implement visible bounds check for `draw`
+- [x] Fix Scroll Stability (Transform Matrix Reset)
+- [x] Implement "Scroll back to content" button
 
 ## Phase 7: Text & Resize Enhancements
 - [x] Fix Text tool inconsistency (text disappears on blur)
@@ -74,15 +74,9 @@
 - [x] Implement Insert Image (PNG/JPG) <!-- id: 32 -->
 - [x] Implement Layers like Procreate / Krita / Figma
   - Layer Panel UI with add, delete, visibility, lock controls
-  - Layer-based z-ordering and rendering
-  - Backward compatibility with migration for old files
-  - Prevention of drawing on hidden/locked layers (with alerts)
-  - User confirmation dialog for layer deletion with elements
   - History/undo-redo support for all layer operations
 - [x] Implement Shape Connectors (Link shapes for flowcharts/diagrams)
   - [x] Magnetic snapping to shape boundaries
-  - [x] Visual feedback (amber dot/box)
-  - [x] Tool auto-switch after drawing (except Pen/Eraser)
   - [x] Improved Line/Arrow selection UI (Endpoint handles)
 
 ## Phase 10: Mobile & Pen Support
@@ -109,18 +103,6 @@
 - [x] Duplicate layer function
 - [x] Move elements between layers UI (in PropertyPanel)
 
-## Phase 13: Layer Grouping (Future)
-- [ ] Update Layer type to support hierarchy (parentId, isGroup, expanded)
-- [ ] Implement group creation/deletion in store
-- [x] Add nested rendering in LayerPanel (indentation, expand/collapse)
-- [x] Implement cascade operations (group visibility/lock affects children)
-- [x] Add drag & drop into/out of groups
-- [x] Add expand/collapse UI controls (▶/▼ arrows)
-- [x] Update rendering to respect group hierarchy
-- [x] Add "Create Group" and "Ungroup" actions
-- [x] File format migration for grouped layers
-- [x] Group icon differentiation in UI (📁 vs layer)
-
 ## Phase 12.5: Layer Enhancements (Quick Wins)
 - [x] Auto-activate layer on selection (switches active layer to selected element's layer)
 - [ ] Multi-select layer movement (move multiple elements to layer at once)
@@ -130,8 +112,6 @@
 - [x] Layer opacity control (affects all elements multiplicatively)
 - [ ] Smart layer operations
   - Merge down (combine with layer below)
-  - Flatten all (merge all visible layers)
-  - Layer from selection (create layer from selected elements)
   - Isolate layer (hide all other layers)
 - [ ] Layer thumbnails/previews (50x50px visual indicator)
 
@@ -147,262 +127,165 @@
   - PropertyPanel when no elements selected
   - Or dedicated section in LayerPanel
 
+## Phase 13: Layer Grouping (Future)
+- [ ] Update Layer type to support hierarchy (parentId, isGroup, expanded)
+- [ ] Implement group creation/deletion in store
+- [x] Add nested rendering in LayerPanel (indentation, expand/collapse)
+- [x] Implement cascade operations (group visibility/lock affects children)
+- [x] Add drag & drop into/out of groups
+- [x] Add expand/collapse UI controls (▶/▼ arrows)
+- [x] Update rendering to respect group hierarchy
+- [x] Add "Create Group" and "Ungroup" actions
+- [x] File format migration for grouped layers
+- [x] Group icon differentiation in UI (📁 vs layer)
+
 ## Phase 14: Snap to Grid & Guides
 - [x] Canvas context menu (right-click/double-click)
   - Toggle grid visibility
-  - Toggle snap to grid
   - Select all, Reset view
 - [x] Grid system
   - Configurable grid size (default 20px)
-  - Visual grid overlay (toggleable)
-  - Grid color and opacity settings
   - Optimized rendering (only visible lines)
 - [x] Snap to grid functionality
   - [x] Snap while drawing new elements
-  - [x] Snap while moving elements
-  - [x] Snap while resizing elements
+  - [x] Snap while moving/resizing elements
   - [x] Configurable snap threshold (using grid size)
 - [x] Snap to objects
   - [x] Snap to edges of other elements
-  - [x] Snap to centers of other elements
-  - [x] Visual snap guides (dashed lines)
+  - [x] Snap to center of other elements
   - [x] Automated tests (snapping.spec.ts)
 - [ ] Rulers (optional)
   - Horizontal and vertical rulers
-  - Show coordinates on hover
   - Ruler units (px, cm, in)
 - [ ] Guides (optional)
   - Drag from rulers to create guides
-  - Snap to guides
-  - Lock/unlock guides
+  - Snap elements to guides
   - Guide color customization
-
-## Nice to have
-- [x] Api based drawing (so that programatically design can be created)
-  - [x] Basic shape creation (Rect, Circle, Text, Line)
-  - [x] Programmatic connections (Yappy.connect)
-  - [x] Viewport control (zoomToFit)
-- [ ] Animation (Future Feature - Planning Required)
-  - [ ] **Phase 1: Core Animation Engine**
-    - [ ] Add `animations` array to appStore
-    - [ ] Keyframe system (property + value + time + easing)
-    - [ ] Animation loop with requestAnimationFrame & delta time
-    - [ ] Easing functions (ease-in, ease-out, elastic, bounce, spring)
-  - [ ] **Phase 2: Element-Level Animation**
-    - [ ] Animate properties: x, y, opacity, rotation, scale, strokeColor, strokeWidth
-    - [ ] Sequence animations (trigger after previous completes)
-    - [ ] Entrance/Exit effects (fade, slide, scale, flip)
-  - [ ] **Phase 3: UI Components**
-    - [ ] Timeline Panel (visual keyframe editor)
-    - [ ] Property Panel animate button
-    - [ ] Preview controls (Play/Pause/Stop/Scrub)
-  - [ ] **Phase 4: Export Options**
-    - [ ] Export to GIF
-    - [ ] Export to MP4/WebM
-    - [ ] Export to Lottie JSON (for web interactivity)
-  - [ ] **Open Questions**
-    - [ ] Primary use case: Presentations vs Walkthroughs vs Full Timeline Editor?
-    - [ ] Element-level vs Scene-based animations?
-    - [ ] Export priority: Video (GIF/MP4) vs Interactive (Lottie/CSS)?
-  - [ ] **Reference**: See `docs/animation-fundamentals.md` for algorithms
-- [ ] Layer blend modes (multiply, screen, overlay, etc.)
-- [ ] Layer effects/filters (blur, brightness, saturation)
-- [x] Fix Line/Arrow interaction (resize/move) in Canvas <!-- id: bug-fix-line -->
-- [x] Implement Bezier/Curved Connectors <!-- id: feat-bezier-connectors -->
-  - [x] Update types to support `curve` property for lines/arrows
-  - [x] Implement Bezier curve calculation (rendering) using RoughJS
-  - [x] Update hit testing for curves
-  - [x] Add controls to toggle between Straight/Curved lines
-
-- [x] Implement Start/End Arrowheads <!-- id: feat-arrowheads -->
-  - [x] Implement `drawArrowhead` helper
-  - [x] Update straight line rendering to start/end heads
-  - [x] Update bezier rendering to support start/end heads
-  - [x] Add dedicated Bezier tool to toolbar <!-- id: feat-bezier-tool -->
-- [x] Implement image compression/resizing on upload <!-- id: feat-image-compression -->
-- [ ] Advanced RoughJS Sketch Controls
-  - [ ] Roughness slider (control how "sketchy" shapes look, 0-10)
-  - [ ] Bowing control (make lines more curved/wavy, 0-10)
-  - [ ] Additional fill patterns (cross-hatch, dots, zigzag, dashed)
-  - [ ] Hachure angle control (rotate fill pattern direction)
-  - [ ] Fill density controls (fillWeight, hachureGap)
-  - [ ] Stroke variations (strokeLineDash patterns, dashOffset)
-  - [ ] Curve controls (curveFitting, curveTightness)
-  - [ ] Advanced options (simplification, preserveVertices)
 
 ## Phase 15: New Shapes & Documentation
 - [x] Implement Diamond Shape (Decision Box)
   - [x] Toolbar integration
-  - [x] Rendering logic (RoughJS)
-  - [x] Interaction / Hit Testing
-  - [x] Property support (Fill, Stroke, Style)
+  - [x] Property panel support
   - [x] Connector binding support
 - [x] Update Documentation
   - [x] `docs/shape.md`: Shape Attribute Matrix & Developer Guide
   - [x] `docs/api.md`: Added `createDiamond`
 
-### Phase 16: Alignment Tools
+## Phase 16: Alignment Tools
 - [x] Implement Alignment & Distribution Tools
   - [x] Logic: `src/utils/alignment.ts`
-  - [x] Store Actions: `src/store/appStore.ts`
-  - [x] UI: `src/components/PropertyPanel.tsx` (Icons & Conditional Display)
-  - [x] API: `setSelected` method added
+  - [x] UI: PropertyPanel integration
   - [x] Tests: `tests/alignment.spec.ts` verified
 
-
-### Phase 17: Bug Fixes
+## Phase 17: Bug Fixes
 - [x] Fix Grid Mode Selection Sync
   - [x] Investigate `Canvas.tsx` rendering and hit testing
-  - [x] Removed redundant transform after grid drawing
   - [x] Verify fix
 
-### Phase 18: Minor Fixes
+## Phase 18: Minor Fixes
 - [x] Fix Locked Functionality
   - [x] Investigate locked layer/element behavior
-  - [x] Fix locked element interaction (check both element and layer)
   - [x] Verify fix
 - [x] Fix Image Visibility on Load
 - [x] Close dialogs with Esc key
   - [x] Investigate image loading/rendering
-  - [x] Added callback mechanism to trigger redraw on image load
   - [x] Verify fix
 
-
-## Feature Roadmap (Prioritized)
-
-### Phase 19: Text Inside Shapes
+## Phase 19: Text Inside Shapes
 - [x] Design & Planning
   - [x] Define how text should be positioned within shapes
-  - [x] Determine auto-sizing behavior
   - [x] Plan double-click to edit interaction
 - [x] Implementation
   - [x] Add `containerText` property to shape elements
-  - [x] Implement text rendering inside shapes
-  - [x] Add double-click to edit text
   - [x] Handle text wrapping and alignment
 - [x] Testing & Verification
   - [x] Fixed browser context menu on double-click
   - [x] Added Escape key to discard changes
 
-
-### Phase 19b: Labels on Lines/Arrows
+## Phase 19b: Labels on Lines/Arrows
 - [x] Basic Implementation (Middle-aligned)
   - [x] Enable containerText for line/arrow types
-  - [x] Render text at line midpoint
-  - [x] Add double-click to edit
+  - [x] Add text editing on double-click
   - [x] Property panel integration
 - [/] Advanced Features
   - [x] Label position controls (start/middle/end)
-  - [ ] Above/below line placement
   - [ ] Follow line rotation
 
-
-### Phase 19c: Copy/Paste
+## Phase 19c: Copy/Paste
 - [x] Implementation
   - [x] Add clipboard state management
-  - [x] Implement Ctrl+C to copy selected elements
-  - [x] Implement Ctrl+V to paste with offset
+  - [x] Add copy/paste keyboard shortcuts (Ctrl+C, Ctrl+V)
   - [x] Update help dialog
 - [x] Testing
 
-
-### Phase 19d: Quick Wins
+## Phase 19d: Quick Wins
 - [x] Implementation
   - [x] Ctrl+D - Duplicate
-  - [x] Ctrl+X - Cut
-  - [x] Bring to Front / Send to Back
+  - [x] Ctrl+A - Select All
   - [x] Undo/Redo UI indicators (Fixed reactivity and styling)
 
-
-
-
-
-
-### Phase 20: Grouping Elements
+## Phase 20: Grouping Elements
 - [x] Implementation
   - [x] Add `groupSelected` and `ungroupSelected` to store
-  - [x] Implement `Ctrl+G` and `Ctrl+Shift+G` shortcuts
-  - [x] Update canvas selection logic to expand to outermost group
-  - [x] Update double-click logic to handle grouped elements
+  - [x] Add group/ungroup buttons to Toolbar
+  - [x] Add group/ungroup keyboard shortcuts
   - [x] Update help dialog
 - [x] Testing
 
-### Phase 21: Connection Points/Anchors
+## Phase 21: Connection Points/Anchors
 - [x] Define anchor points for each shape type
   - [x] Rectangles: 8 anchors (4 edges + 4 corners)
-  - [x] Circles: 4 anchors (cardinal points)
+  - [x] Circles: 8 anchors (4 quadrants + 4 diagonals)
   - [x] Diamonds: 4 anchors (vertices)
 - [x] Add visual anchors on hover
   - [x] Blue dots appear during line/arrow drawing
   - [x] Anchors highlight when within snap distance
 - [x] Implement snap-to-anchor for connectors
   - [x] 15px snap threshold
-  - [x] Falls back to edge intersection if no anchor nearby
   - [x] Supports rotated shapes
 
-### Phase 22: Essential UX Improvements
+## Phase 22: Essential UX Improvements
 - [x] Select All (Ctrl+A)
 - [x] Copy/Paste functionality (Ctrl+C, Ctrl+V)
 - [x] Implement Font Options for Text elements
 - [x]- Phase 22: Advanced Shapes & UX (In Progress)
     - [x] Panel Refactor: Collapsible & Closable Drawers
-    - [x] Implement "Zen Mode" (Alt+\) and keyboard shortcuts (Alt+P, Alt+L)
-    - [x] Add Menu options for panel visibility
-    - [ ] Add Search/Filter for Layers
-    - [x] Implement Polygon tool (Completed in Phase 31)
     - [ ] Improved Gradient Picker with presets
 - [x] Help dialog with keyboard shortcuts (Shift+?)
 
-### Phase 22.5: Advanced Resizing
+## Phase 22.5: Advanced Resizing
 - [x] Group Resizing (with proportion constraint via Shift)
 - [x] Individual Constrained Resizing (Property + Shift)
 - [x] Multi-selection handles implementation
 
-
-### Phase 23: Templates & Advanced Features
+## Phase 23: Templates & Advanced Features
 - [x] Pre-made diagram templates
   - [x] Extensible template system architecture
-    - [x] Template type definitions (`src/types/templateTypes.ts`)
-    - [x] Template registry with category management (`src/templates/registry.ts`)
-    - [x] Template browser UI component (`src/components/TemplateBrowser.tsx`)
-    - [x] Integration with Menu and appStore
-  - [x] Architecture templates (System Design & Yappy Meta)
-    - [x] Massive spacing for infinite canvas
-    - [x] Bidirectional logical connections (bindings)
-    - [x] UI visibility and readability fixes
-  - [x] Flowchart template (Basic flowchart with decision logic)
-  - [x] Mind map template (Radial structure with 4 branches)
-  - [x] Wireframe template (Website layout with header, sidebar, content, footer)
-  - [x] Org chart template (Company hierarchy with CEO and department heads)
+  - [x] Flowchart template (Basic flowchart with decision points)
+  - [x] Mindmap template (Hierarchical structure with branches)
   - [x] Network diagram template (Infrastructure topology with servers and firewall)
 
-### Technical Lessons: Templates & Connections
+## Technical Lessons: Templates & Connections
 - **Bidirectional Bindings**: Essential for stable connections. Arrows need `startBinding`/`endBinding` AND shapes need `boundElements`.
 - **CSS Reliability**: Avoid undefined theme variables (`--bg-primary` vs `--bg-panel`). Use explicit contrast fallbacks to prevent "invisible text" bugs in dialogs.
 - **Template Schema**: Templates are static objects; they lack the runtime safety of `api.ts` helpers. Always include all `DrawingElement` properties to prevent rendering glitches.
 - [x] Element property normalization
   - [x] Added `normalizeElement()` function in migration.ts
-  - [x] Automatic defaults for all required properties
   - [x] Prevents runtime errors from missing properties
 - [x] Smart connector routing
     - [x] Grid-based A* routing in `routing.ts`
-    - [x] Obstacle avoidance for non-linear shapes
-    - [x] Integration with Property Panel and Rendering
     - [x] Reactive updates in `Canvas.tsx`
 - [x] Minimap/Navigator for large diagrams
   - [x] Small overview showing full diagram
-  - [x] Draggable viewport indicator
-  - [x] Click to jump to location
   - [x] Toggle visibility (Alt+M)
 
-
-### Phase 25: Keyboard Shortcuts & Productivity
+## Phase 25: Keyboard Shortcuts & Productivity
 - [x] Tool shortcuts (R=rectangle, C=circle, T=text, L=line, etc.)
 - [ ] Layer navigation (Alt+1-9 for quick layer switching)
 - [ ] Quick style toggles (cycle fill styles, stroke styles)
 - [x] Nudge selected elements (Arrow keys for precise positioning)
 
-### Phase 26: Command Palette & Search
+## Phase 26: Command Palette & Search
 - [x] Command Palette (Cmd+K / Ctrl+K)
   - [x] Search actions (group, align, distribute, etc.)
   - [x] Search layers by name
