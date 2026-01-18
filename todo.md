@@ -578,6 +578,7 @@
   - [x] Hidden scrollbar for clean UX
   - [x] Touch-friendly swipe gestures
 - [x] **Property Panel Access**
-  - [x] Settings icon button in toolbar
+  - [x] Floating settings button in bottom-right corner
   - [x] Click to toggle property panel visibility
-  - [x] Visual separator from other tools
+  - [x] Blue highlight when panel is open
+  - [x] Always accessible without scrolling
