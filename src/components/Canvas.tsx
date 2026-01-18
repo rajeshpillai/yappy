@@ -1,4 +1,4 @@
-import { type Component, onMount, createEffect, onCleanup, createSignal, Show } from "solid-js";
+import { type Component, onMount, createEffect, onCleanup, createSignal, Show, untrack } from "solid-js";
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
 import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit, isLayerVisible, isLayerLocked } from "../store/appStore";
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse, intersectElementWithLine, isPointOnBezier } from "../utils/geometry";
@@ -42,7 +42,7 @@ const Canvas: Component = () => {
                 }
             });
 
-            if (topLayerId && topLayerId !== store.activeLayerId) {
+            if (topLayerId && topLayerId !== untrack(() => store.activeLayerId)) {
                 setActiveLayer(topLayerId);
             }
         }
