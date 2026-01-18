@@ -14,6 +14,8 @@ const FileOpenDialog: Component<FileOpenDialogProps> = (props) => {
     const [loading, setLoading] = createSignal(false);
     const [activeId, setActiveId] = createSignal<string | null>(null);
     const [isKeyboardNavigating, setIsKeyboardNavigating] = createSignal(false);
+    let lastMouseX = 0;
+    let lastMouseY = 0;
 
     const fetchFiles = async () => {
         setLoading(true);
@@ -60,32 +62,43 @@ const FileOpenDialog: Component<FileOpenDialogProps> = (props) => {
 
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
+                e.stopImmediatePropagation();
                 setIsKeyboardNavigating(true);
                 const nextIndex = (currentIndex + 1) % fileList.length;
                 setActiveId(fileList[nextIndex].id);
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
+                e.stopImmediatePropagation();
                 setIsKeyboardNavigating(true);
                 const prevIndex = (currentIndex - 1 + fileList.length) % fileList.length;
                 setActiveId(fileList[prevIndex].id);
             } else if (e.key === 'Enter') {
                 e.preventDefault();
+                e.stopImmediatePropagation();
                 if (currentId) {
                     props.onSelect(currentId);
                 }
             } else if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopImmediatePropagation();
                 props.onClose();
             }
         };
 
-        const handleMouseMove = () => {
-            setIsKeyboardNavigating(false);
+        const handleMouseMove = (e: MouseEvent) => {
+            // Only deactivate keyboard navigating if the mouse actually moved significantly
+            // Scrolling can trigger mousemove events in some browsers even if the physical mouse is still
+            if (Math.abs(e.clientX - lastMouseX) > 2 || Math.abs(e.clientY - lastMouseY) > 2) {
+                setIsKeyboardNavigating(false);
+            }
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
         };
 
-        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keydown', handleKeyDown, true); // Use capture phase to prioritize
         window.addEventListener('mousemove', handleMouseMove);
         return () => {
-            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keydown', handleKeyDown, true);
             window.removeEventListener('mousemove', handleMouseMove);
         };
     });
