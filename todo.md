@@ -567,3 +567,17 @@
   - [ ] Show connector handles on hover (with modifier key)
   - [ ] Elbow/orthogonal connector routing
   - [ ] Custom anchor point positioning
+
+---
+
+### Phase 34: Mobile UX Improvements
+**Goal**: Improve the mobile experience with better toolbar and panel accessibility.
+
+- [x] **Toolbar Scrolling**
+  - [x] Horizontal scroll on narrow screens
+  - [x] Hidden scrollbar for clean UX
+  - [x] Touch-friendly swipe gestures
+- [x] **Property Panel Access**
+  - [x] Settings icon button in toolbar
+  - [x] Click to toggle property panel visibility
+  - [x] Visual separator from other tools
