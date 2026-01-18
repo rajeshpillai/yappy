@@ -4,12 +4,10 @@ This document explains all pen/drawing tools in YappyDraw, their unique characte
 
 ---
 
-## 1. Overview: 4 Pen Types
+## 1. Overview: 2 Pen Types
 
 | Tool | Icon | Curve Type | Stroke Width | Best For |
 |------|------|------------|--------------|----------|
-| **Pencil** | ✏️ Pencil | Quadratic Bézier | Fixed (pressure optional) | Quick sketches |
-| **Calligraphy** | 🖊️ PenLine | Quadratic Bézier | Velocity-based variable | Expressive strokes |
 | **Fine Liner** | 🖋️ Pen | Quadratic Bézier | Fixed, round caps | Clean lines |
 | **Ink Brush** | 🖌️ Brush | Cubic Bézier | Fixed + shadow | Artistic ink |
 
@@ -17,7 +15,7 @@ This document explains all pen/drawing tools in YappyDraw, their unique characte
 
 ## 2. Toolbar: Grouped Pen Tools
 
-All 4 pens are consolidated into a **single toolbar icon** with a dropdown:
+All current pen tools are consolidated into a **single toolbar icon** with a dropdown:
 
 - **Click** → Selects the current pen type (default: Fine Liner)
 - **Long press (400ms)** → Opens submenu
@@ -29,54 +27,7 @@ The icon changes to reflect the currently selected pen type.
 
 ---
 
-## 3. Pencil Tool
-
-The default freehand drawing tool.
-
-### Algorithm: Incremental Quadratic Bézier
-```typescript
-// Draw curves between midpoints
-for (let i = 1; i < points.length - 1; i++) {
-    const xc = (points[i].x + points[i + 1].x) / 2;
-    const yc = (points[i].y + points[i + 1].y) / 2;
-    path += ` Q ${points[i].x} ${points[i].y}, ${xc} ${yc}`;
-}
-```
-
-### Features
-- **Pen Mode** (opt-in): Distance threshold + RDP simplification
-- **Pressure sensitivity**: Varies stroke width 0.5x-1.5x
-
----
-
-## 4. Calligraphy Pen
-
-Velocity-sensitive pen for expressive, calligraphic strokes.
-
-### Algorithm: Velocity-Based Pressure
-```typescript
-// Calculate velocity (pixels per millisecond)
-const velocity = distance / timeDelta;
-
-// Smooth velocity with filter (0.7 weight)
-smoothedVelocity = 0.7 * velocity + 0.3 * lastVelocity;
-
-// Inverse mapping: faster = thinner
-velocityPressure = 1.0 / (1 + smoothedVelocity * 2);
-```
-
-### Features
-- **Faster strokes** → Thinner lines (min 20% width)
-- **Slower strokes** → Thicker lines (max 100% width)
-- **Velocity smoothing**: Prevents sudden width jumps
-- **Pressure blending**: Combines velocity + stylus pressure
-
-### Rendering
-Uses filled circles at each point with variable radius, plus a Bézier path for continuity.
-
----
-
-## 5. Fine Liner Pen
+## 3. Fine Liner Pen
 
 Ultra-smooth lines with consistent width.
 
@@ -99,7 +50,7 @@ for (let i = 1; i < points.length - 2; i++) {
 
 ---
 
-## 6. Ink Brush
+## 4. Ink Brush
 
 Artistic brush with shadow blur for ink effect.
 
@@ -119,7 +70,7 @@ ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
 
 ---
 
-## 7. Point Data Structure
+## 5. Point Data Structure
 
 All pen types store points with optional pressure and timestamp:
 
@@ -134,20 +85,47 @@ type Point = {
 
 ---
 
-## 8. Implementation Files
+## 6. Implementation Files
 
 | File | Purpose |
 |------|---------|
 | [PenToolGroup.tsx](file:///home/rajesh/work/yappy/src/components/PenToolGroup.tsx) | Grouped toolbar component |
 | [Canvas.tsx](file:///home/rajesh/work/yappy/src/components/Canvas.tsx) | Drawing logic (pointerDown/Move/Up) |
 | [renderElement.ts](file:///home/rajesh/work/yappy/src/utils/renderElement.ts) | Rendering for each pen type |
-| [pencilOptimizer.ts](file:///home/rajesh/work/yappy/src/utils/pencilOptimizer.ts) | Path generation utilities |
 | [appStore.ts](file:///home/rajesh/work/yappy/src/store/appStore.ts) | `selectedPenType` state |
 | [types.ts](file:///home/rajesh/work/yappy/src/types.ts) | ElementType includes all pen types |
 
 ---
 
-## 9. Future Optimization (TODO)
+## 7. Real-time Visibility Optimization
+
+A key challenge with pen tools is that their final dimensions (`width`, `height`) are often 0 while being drawn, as they only get normalized after the pointer is released.
+
+### Viewport Culling Bypass
+To ensure pen strokes are visible *during* drawing, we bypass the viewport culling logic for the element currently being drawn:
+
+```typescript
+// src/components/Canvas.tsx
+const layerElements = store.elements.filter(el => {
+    // ...
+    // Always render the element currently being drawn
+    if (el.id === currentId) return true;
+    // ...
+});
+```
+
+### Explicit Redraws
+We also trigger explicit redraws during high-frequency pointer move events for pen tools:
+
+```typescript
+if (isDrawing || isDragging) {
+    requestAnimationFrame(draw);
+}
+```
+
+---
+
+## 8. Future Optimization (TODO)
 
 - [ ] Catmull-Rom splines for even smoother curves
 - [ ] Adaptive point sampling based on curvature

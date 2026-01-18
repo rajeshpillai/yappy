@@ -235,6 +235,9 @@ const Canvas: Component = () => {
             const layerElements = store.elements.filter(el => {
                 if (el.layerId !== layer.id) return false;
 
+                // FIX: Always render the element currently being drawn
+                if (el.id === currentId) return true;
+
                 // OPTIMIZATION: Skip elements smaller than 1px on screen (invisible when zoomed out)
                 const screenWidth = Math.abs(el.width) * scale;
                 const screenHeight = Math.abs(el.height) * scale;
@@ -1658,6 +1661,10 @@ const Canvas: Component = () => {
                     panY: store.viewState.panY + dPanY
                 });
             }
+        }
+
+        if (isDrawing || isDragging) {
+            requestAnimationFrame(draw);
         }
     };
 

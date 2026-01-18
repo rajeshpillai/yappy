@@ -14,7 +14,7 @@
 - [x] Implement Resize and Rotate handles in Canvas <!-- id: 10 -->
 - [x] Create Property Panel sidebar component <!-- id: 11 -->
 - [x] Connect Property Panel to selected element state <!-- id: 12 -->
-- [x] Improve selection logic for Pencil and Line tools
+- [x] Improve selection logic for Pen and Line tools
 - [x] Fix pencil drawing shift bug
 
 ## Phase 6: Viewport & Optimization
@@ -82,14 +82,14 @@
 - [x] Implement Shape Connectors (Link shapes for flowcharts/diagrams)
   - [x] Magnetic snapping to shape boundaries
   - [x] Visual feedback (amber dot/box)
-  - [x] Tool auto-switch after drawing (except Pencil/Eraser)
+  - [x] Tool auto-switch after drawing (except Pen/Eraser)
   - [x] Improved Line/Arrow selection UI (Endpoint handles)
 
 ## Phase 10: Mobile & Pen Support
 - [x] Migrate Mouse Events to Pointer Events in Canvas <!-- id: 32 -->
 - [x] Add touch-action: none to Canvas CSS <!-- id: 33 -->
-- [x] Multiple pen types (Pencil, Calligraphy, Fine Liner, Ink Brush)
-- [ ] **TODO**: Pen rendering optimization (see `docs/pen-optimization.md`)
+- [x] Multiple pen types (Fine Liner, Ink Brush)
+- [x] Pen rendering optimization (Visibility fix & high-frequency redraws)
 
 ## Phase 11: UI Refinements
 - [x] Refactor Main Menu (Burger Menu handling Open/Save/Export) <!-- id: 34 -->
