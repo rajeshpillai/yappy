@@ -560,6 +560,122 @@ export const renderElement = (
         } else {
             rc.path(path, { ...options, fill: 'none' });
         }
+    } else if (el.type === 'database') {
+        const w = el.width;
+        const h = el.height;
+        const x = el.x;
+        const y = el.y;
+        const ellipseHeight = h * 0.2;
+
+        // Path for database cylinder
+        const path = `
+            M ${x} ${y + ellipseHeight / 2}
+            L ${x} ${y + h - ellipseHeight / 2}
+            A ${w / 2} ${ellipseHeight / 2} 0 0 0 ${x + w} ${y + h - ellipseHeight / 2}
+            L ${x + w} ${y + ellipseHeight / 2}
+            A ${w / 2} ${ellipseHeight / 2} 0 0 0 ${x} ${y + ellipseHeight / 2}
+            A ${w / 2} ${ellipseHeight / 2} 0 0 0 ${x + w} ${y + ellipseHeight / 2}
+        `;
+
+        // The top ellipse is a separate path for clearer rendering in sketch style
+        const topEllipse = `
+            M ${x} ${y + ellipseHeight / 2}
+            A ${w / 2} ${ellipseHeight / 2} 0 1 1 ${x + w} ${y + ellipseHeight / 2}
+            A ${w / 2} ${ellipseHeight / 2} 0 1 1 ${x} ${y + ellipseHeight / 2}
+        `;
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fill(new Path2D(path));
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.stroke(new Path2D(path));
+            ctx.stroke(new Path2D(topEllipse));
+        } else {
+            rc.path(path, options);
+            rc.path(topEllipse, options);
+        }
+    } else if (el.type === 'document') {
+        const w = el.width;
+        const h = el.height;
+        const x = el.x;
+        const y = el.y;
+        const waveHeight = h * 0.1;
+
+        // Path for document (rectangle with wavy bottom)
+        const path = `
+            M ${x} ${y}
+            L ${x + w} ${y}
+            L ${x + w} ${y + h - waveHeight}
+            Q ${x + w * 0.75} ${y + h - waveHeight * 2} ${x + w * 0.5} ${y + h - waveHeight}
+            T ${x} ${y + h - waveHeight}
+            Z
+        `;
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fill(new Path2D(path));
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineJoin = 'round';
+            ctx.stroke(new Path2D(path));
+        } else {
+            rc.path(path, options);
+        }
+    } else if (el.type === 'predefinedProcess') {
+        const w = el.width;
+        const h = el.height;
+        const x = el.x;
+        const y = el.y;
+        const sideBarWidth = w * 0.1;
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                rc.rectangle(x, y, w, h, { ...options, stroke: 'none', fill: backgroundColor });
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.strokeRect(x, y, w, h);
+            ctx.beginPath();
+            ctx.moveTo(x + sideBarWidth, y);
+            ctx.lineTo(x + sideBarWidth, y + h);
+            ctx.moveTo(x + w - sideBarWidth, y);
+            ctx.lineTo(x + w - sideBarWidth, y + h);
+            ctx.stroke();
+        } else {
+            rc.rectangle(x, y, w, h, options);
+            rc.line(x + sideBarWidth, y, x + sideBarWidth, y + h, options);
+            rc.line(x + w - sideBarWidth, y, x + w - sideBarWidth, y + h, options);
+        }
+    } else if (el.type === 'internalStorage') {
+        const w = el.width;
+        const h = el.height;
+        const x = el.x;
+        const y = el.y;
+        const lineOffset = Math.min(w, h) * 0.15;
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                rc.rectangle(x, y, w, h, { ...options, stroke: 'none', fill: backgroundColor });
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.strokeRect(x, y, w, h);
+            ctx.beginPath();
+            ctx.moveTo(x + lineOffset, y);
+            ctx.lineTo(x + lineOffset, y + h);
+            ctx.moveTo(x, y + lineOffset);
+            ctx.lineTo(x + w, y + lineOffset);
+            ctx.stroke();
+        } else {
+            rc.rectangle(x, y, w, h, options);
+            rc.line(x + lineOffset, y, x + lineOffset, y + h, options);
+            rc.line(x, y + lineOffset, x + w, y + lineOffset, options);
+        }
     } else if (el.type === 'star') {
         const cx = el.x + el.width / 2;
         const cy = el.y + el.height / 2;
@@ -1001,7 +1117,8 @@ export const renderElement = (
         el.type === 'arrowLeft' || el.type === 'arrowRight' || el.type === 'arrowUp' || el.type === 'arrowDown' ||
         el.type === 'capsule' || el.type === 'stickyNote' || el.type === 'callout' ||
         el.type === 'burst' || el.type === 'speechBubble' || el.type === 'ribbon' ||
-        el.type === 'bracketLeft' || el.type === 'bracketRight')) {
+        el.type === 'bracketLeft' || el.type === 'bracketRight' ||
+        el.type === 'database' || el.type === 'document' || el.type === 'predefinedProcess' || el.type === 'internalStorage')) {
         const fontSize = el.fontSize || 20;
         const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
             el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :

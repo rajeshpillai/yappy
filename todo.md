@@ -526,11 +526,11 @@
 ### Phase 32: Specialized Shape Libraries
 **Goal**: Expand the shape library with domain-specific primitives for professional workflows.
 
-- [ ] **Flowchart & Business Logic (BPMN)**
-  - [ ] Database (Cylinder)
-  - [ ] Document (Wavy Rectangle)
-  - [ ] Predefined Process (Rectangle with side bars)
-  - [ ] Internal Storage (Memory/Cache icon)
+- [x] **Flowchart & Business Logic (BPMN)**
+  - [x] Database (Cylinder)
+  - [x] Document (Wavy Rectangle)
+  - [x] Predefined Process (Rectangle with side bars)
+  - [x] Internal Storage (Memory/Cache icon)
 - [ ] **System Design & Cloud Infrastructure**
   - [ ] Server/Host (3D Box/Rack Unit)
   - [ ] Queue/Topic (Segmented Cylinder)

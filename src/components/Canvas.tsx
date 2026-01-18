@@ -896,7 +896,8 @@ const Canvas: Component = () => {
             el.type === 'arrowLeft' || el.type === 'arrowRight' || el.type === 'arrowUp' || el.type === 'arrowDown' ||
             el.type === 'capsule' || el.type === 'stickyNote' || el.type === 'callout' ||
             el.type === 'burst' || el.type === 'speechBubble' || el.type === 'ribbon' ||
-            el.type === 'bracketLeft' || el.type === 'bracketRight') {
+            el.type === 'bracketLeft' || el.type === 'bracketRight' ||
+            el.type === 'database' || el.type === 'document' || el.type === 'predefinedProcess' || el.type === 'internalStorage') {
             // For new shapes, use bounding box hit test (simple and effective)
             return true; // Box check already passed above
         }
@@ -1807,7 +1808,7 @@ const Canvas: Component = () => {
 
                 // Logic for normalization...
                 // Logic for normalization...
-                if (['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight'].includes(el.type)) {
+                if (['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage'].includes(el.type)) {
                     if (el.width < 0) {
                         updateElement(currentId, { x: el.x + el.width, width: Math.abs(el.width) });
                     }
@@ -1838,7 +1839,7 @@ const Canvas: Component = () => {
                 if (['rectangle', 'circle', 'line', 'arrow', 'image', 'bezier', 'diamond',
                     'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart',
                     'cross', 'checkmark', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown',
-                    'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight'].includes(store.selectedTool)) {
+                    'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage'].includes(store.selectedTool)) {
                     setSelectedTool('selection');
                 }
             }
@@ -1900,7 +1901,7 @@ const Canvas: Component = () => {
 
             if (hitTestElement(el, x, y, threshold)) {
                 // Only allow editing containerText for shapes and lines
-                const shapeTypes = ['rectangle', 'circle', 'diamond', 'line', 'arrow', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight'];
+                const shapeTypes = ['rectangle', 'circle', 'diamond', 'line', 'arrow', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage'];
                 if (shapeTypes.includes(el.type)) {
                     setEditingId(el.id);
                     setEditText(el.containerText || '');

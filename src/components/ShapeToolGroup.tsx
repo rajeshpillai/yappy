@@ -4,12 +4,17 @@ import type { ElementType } from "../types";
 import {
     Triangle, Hexagon, Octagon, Square, Star, Cloud, Heart, X, Check,
     ArrowLeft, ArrowRight, ArrowUp, ArrowDown, ChevronDown,
-    Pill, StickyNote, MessageSquare, MessageCircle, Zap, Bookmark, ChevronLeft, ChevronRight
+    Pill, StickyNote, MessageSquare, MessageCircle, Zap, Bookmark, ChevronLeft, ChevronRight,
+    Database, FileText, Columns, Layers
 } from "lucide-solid";
 import "./PenToolGroup.css"; // Reuse the same CSS
 
 // Shape tools to group
 const shapeTools: { type: ElementType; icon: Component<{ size?: number; color?: string }>; label: string }[] = [
+    { type: 'database', icon: Database, label: 'Database' },
+    { type: 'document', icon: FileText, label: 'Document' },
+    { type: 'predefinedProcess', icon: Columns, label: 'Predefined Process' },
+    { type: 'internalStorage', icon: Layers, label: 'Internal Storage' },
     { type: 'capsule', icon: Pill, label: 'Capsule (Node)' },
     { type: 'stickyNote', icon: StickyNote, label: 'Sticky Note' },
     { type: 'callout', icon: MessageSquare, label: 'Callout (Thought)' },
