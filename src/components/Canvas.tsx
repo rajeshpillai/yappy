@@ -1804,7 +1804,7 @@ const Canvas: Component = () => {
 
                 // Logic for normalization...
                 // Logic for normalization...
-                if (el.type === 'rectangle' || el.type === 'circle' || el.type === 'diamond') {
+                if (['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout'].includes(el.type)) {
                     if (el.width < 0) {
                         updateElement(currentId, { x: el.x + el.width, width: Math.abs(el.width) });
                     }
@@ -1834,7 +1834,8 @@ const Canvas: Component = () => {
                 // Let's reset for Shapes (Rect, Circle, Line, Arrow, Bezier).
                 if (['rectangle', 'circle', 'line', 'arrow', 'image', 'bezier', 'diamond',
                     'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart',
-                    'cross', 'checkmark', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown'].includes(store.selectedTool)) {
+                    'cross', 'checkmark', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown',
+                    'capsule', 'stickyNote', 'callout'].includes(store.selectedTool)) {
                     setSelectedTool('selection');
                 }
             }
@@ -1896,7 +1897,8 @@ const Canvas: Component = () => {
 
             if (hitTestElement(el, x, y, threshold)) {
                 // Only allow editing containerText for shapes and lines
-                if (el.type === 'rectangle' || el.type === 'circle' || el.type === 'diamond' || el.type === 'line' || el.type === 'arrow') {
+                const shapeTypes = ['rectangle', 'circle', 'diamond', 'line', 'arrow', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout'];
+                if (shapeTypes.includes(el.type)) {
                     setEditingId(el.id);
                     setEditText(el.containerText || '');
                     setTimeout(() => textInputRef?.focus(), 0);
