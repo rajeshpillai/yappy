@@ -39,6 +39,10 @@ export interface DrawingElement {
 
     // Specific to Linear (Line, Arrow, Pencil)
     points?: Point[];
+    // Control points for bezier curves and smart elbow routing
+    // For bezier: [ { x, y } ] (absolute coordinates ideally, or relative to start/center?)
+    // Let's use absolute coordinates for simplicity in hit testing, but they must move with shape
+    controlPoints?: { x: number; y: number }[];
     startArrowhead?: ArrowHead;
     endArrowhead?: ArrowHead;
 

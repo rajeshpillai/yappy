@@ -346,6 +346,24 @@ const Canvas: Component = () => {
                             ctx.stroke();
                         }
 
+                        if ((el.type === 'line' || el.type === 'arrow' || el.type === 'bezier') && el.controlPoints && store.selectedTool === 'selection') {
+                            const cpSize = 10 / scale;
+                            el.controlPoints.forEach((cp) => {
+                                // Draw Line to Control Point (for visual context)
+                                // Find closest point on element or just draw to center? 
+                                // Actually, for quadratic bezier, it's usually connected to start/end or midpoint.
+                                // Let's just draw the point for now.
+
+                                ctx.fillStyle = '#3b82f6'; // Blue
+                                ctx.strokeStyle = '#ffffff';
+                                ctx.lineWidth = 1.5 / scale;
+                                ctx.beginPath();
+                                ctx.arc(cp.x, cp.y, cpSize / 2, 0, Math.PI * 2);
+                                ctx.fill();
+                                ctx.stroke();
+                            });
+                        }
+
                         // Draw Connector Handles (Interactive connection points)
                         // Only for shapes, not lines/arrows, and only when selection tool is active
                         if (el.type !== 'line' && el.type !== 'arrow' && store.selectedTool === 'selection') {
@@ -862,6 +880,17 @@ const Canvas: Component = () => {
             const rotH = { x: el.x + el.width / 2, y: el.y - padding - 20 / scale };
             if (Math.abs(local.x - rotH.x) <= handleSize && Math.abs(local.y - rotH.y) <= handleSize / 2) {
                 return { id: el.id, handle: 'rotate' };
+            }
+
+            // Check Control Points for Bezier/SmartElbow
+            if ((el.type === 'line' || el.type === 'arrow' || el.type === 'bezier') && el.controlPoints) {
+                for (let i = 0; i < el.controlPoints.length; i++) {
+                    const cp = el.controlPoints[i];
+                    // Control points might be in absolute coordinates, so use world x/y
+                    if (Math.abs(x - cp.x) <= handleSize / 2 && Math.abs(y - cp.y) <= handleSize / 2) {
+                        return { id: el.id, handle: `control-${i}` };
+                    }
+                }
             }
 
             // Check Connector Handles (only for non-line/arrow shapes)
@@ -1640,6 +1669,23 @@ const Canvas: Component = () => {
                                     newX = (initialElementX + initialElementWidth) - newWidth;
                                 }
                             }
+                        } else if (draggingHandle && draggingHandle.startsWith('control-')) {
+                            // DRAGGING CONTROL POINT
+                            const index = parseInt(draggingHandle.replace('control-', ''), 10);
+                            const element = store.elements.find(e => e.id === id);
+
+                            if (element) {
+                                let newControlPoints = element.controlPoints ? [...element.controlPoints] : [];
+
+                                // Initialize if missing (e.g., first drag)
+                                while (newControlPoints.length <= index) {
+                                    newControlPoints.push({ x: x, y: y });
+                                }
+
+                                newControlPoints[index] = { x: x, y: y };
+                                updateElement(id, { controlPoints: newControlPoints }, false);
+                                return; // Skip resize logic
+                            }
                         }
 
                         if (isMulti) {
@@ -2143,6 +2189,25 @@ const Canvas: Component = () => {
             if (!canInteractWithElement(el)) continue;
 
             if (hitTestElement(el, x, y, threshold)) {
+
+                // Add Control Point for Bezier/Arrow
+                if ((el.type === 'line' || el.type === 'arrow' || el.type === 'bezier')) {
+                    // Logic to add a control point
+                    // Only if curveType is bezier or maybe smart elbow in future
+                    // For now, let's force it to be bezier if it wasn't
+
+                    const newControlPoints = el.controlPoints ? [...el.controlPoints] : [];
+                    newControlPoints.push({ x, y });
+
+                    updateElement(el.id, {
+                        controlPoints: newControlPoints,
+                        curveType: 'bezier' // Switch to bezier if adding control points
+                    });
+
+                    // Don't open text editor if we added a point
+                    return;
+                }
+
                 // Only allow editing containerText for shapes and lines
                 const shapeTypes = ['rectangle', 'circle', 'diamond', 'line', 'arrow', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage'];
                 if (shapeTypes.includes(el.type)) {

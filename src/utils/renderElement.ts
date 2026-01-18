@@ -893,16 +893,60 @@ export const renderElement = (
             // Bezier Curve Logic
             const w = el.width;
             const h = el.height;
-            let cp1 = { x: el.x, y: el.y };
-            let cp2 = { x: endX, y: endY };
+            let cp1: { x: number; y: number };
+            let cp2: { x: number; y: number };
 
-            // Simple heuristic: if width > height, assume horizontal flow
-            if (Math.abs(w) > Math.abs(h)) {
-                cp1 = { x: el.x + w / 2, y: el.y };
-                cp2 = { x: endX - w / 2, y: endY };
+            if (el.controlPoints && el.controlPoints.length > 0) {
+                // Use stored control points
+                // For quadratic bezier (one control point), we might need to adapt if we want cubic.
+                // But RoughJS uses SVG paths passed as strings.
+                // If we have 1 control point, we can duplicate it or use Q command.
+                // Let's assume index 0 is the main control point.
+                cp1 = el.controlPoints[0];
+
+                // If we have a second control point, use it. Otherwise reuse cp1 for cubic bezier
+                // or assume quadratic. Canvas doesn't support 'Q' in path string for RoughJS? 
+                // RoughJS supports standard SVG path data.
+                if (el.controlPoints.length > 1) {
+                    cp2 = el.controlPoints[1];
+                } else {
+                    // Quadratic feel using Cubic C command:
+                    // CP1 = start + 2/3 * (control - start)
+                    // CP2 = end + 2/3 * (control - end)
+                    // OR just reuse for simple testing, but might look sharp.
+                    // Let's try to use the single control point as a quadratic handle
+                    // Since we are building a string "M .. C ..", we need 2 control points for C
+                    // or use "Q" command if supported.
+
+                    // Let's use Q command for quadratic bezier if only 1 point
+                    const path = `M ${el.x} ${el.y} Q ${cp1.x} ${cp1.y}, ${endX} ${endY}`;
+                    rc.path(path, options);
+
+                    // Draw arrows and return
+                    if (el.startArrowhead) {
+                        const angle = Math.atan2(el.y - cp1.y, el.x - cp1.x);
+                        drawArrowhead(rc, el.x, el.y, angle, el.startArrowhead, options);
+                    }
+                    if (el.endArrowhead) {
+                        const angle = Math.atan2(endY - cp1.y, endX - cp1.x);
+                        drawArrowhead(rc, endX, endY, angle, el.endArrowhead, options);
+                    }
+                    return;
+                }
+
             } else {
-                cp1 = { x: el.x, y: el.y + h / 2 };
-                cp2 = { x: endX, y: endY - h / 2 };
+                // Default Heuristics (existing logic)
+                cp1 = { x: el.x, y: el.y };
+                cp2 = { x: endX, y: endY };
+
+                // Simple heuristic: if width > height, assume horizontal flow
+                if (Math.abs(w) > Math.abs(h)) {
+                    cp1 = { x: el.x + w / 2, y: el.y };
+                    cp2 = { x: endX - w / 2, y: endY };
+                } else {
+                    cp1 = { x: el.x, y: el.y + h / 2 };
+                    cp2 = { x: endX, y: endY - h / 2 };
+                }
             }
 
             const path = `M ${el.x} ${el.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${endX} ${endY}`;
