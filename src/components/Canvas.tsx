@@ -987,25 +987,25 @@ const Canvas: Component = () => {
                 let cp2 = { x: endX, y: endY };
 
                 if (el.controlPoints && el.controlPoints.length > 0) {
-                    const cp = el.controlPoints[0];
-                    // Convert Quadratic (P0, P1, P2) to Cubic (P0, CP1, CP2, P3) for hit testing
-                    // CP1 = P0 + 2/3 * (P1 - P0)
-                    // CP2 = P2 + 2/3 * (P1 - P2)
-
                     const p0 = { x: el.x, y: el.y };
-                    const p1 = cp;
                     const p2 = { x: endX, y: endY };
 
-                    const cp1Cube = {
-                        x: p0.x + (2 / 3) * (p1.x - p0.x),
-                        y: p0.y + (2 / 3) * (p1.y - p0.y)
-                    };
-                    const cp2Cube = {
-                        x: p2.x + (2 / 3) * (p1.x - p2.x),
-                        y: p2.y + (2 / 3) * (p1.y - p2.y)
-                    };
-
-                    return isPointOnBezier(p, p0, cp1Cube, cp2Cube, p2, threshold);
+                    if (el.controlPoints.length === 2) {
+                        // Cubic Bezier with 2 explicit control points
+                        return isPointOnBezier(p, p0, el.controlPoints[0], el.controlPoints[1], p2, threshold);
+                    } else {
+                        // Quadratic Bezier (1 control point) approximated as Cubic for hit test
+                        const cp = el.controlPoints[0];
+                        const cp1Cube = {
+                            x: p0.x + (2 / 3) * (cp.x - p0.x),
+                            y: p0.y + (2 / 3) * (cp.y - p0.y)
+                        };
+                        const cp2Cube = {
+                            x: p2.x + (2 / 3) * (cp.x - p2.x),
+                            y: p2.y + (2 / 3) * (cp.y - p2.y)
+                        };
+                        return isPointOnBezier(p, p0, cp1Cube, cp2Cube, p2, threshold);
+                    }
 
                 } else if (Math.abs(w) > Math.abs(h)) {
                     cp1 = { x: el.x + w / 2, y: el.y };
@@ -2213,16 +2213,20 @@ const Canvas: Component = () => {
                 // Add Control Point for Bezier/Arrow
                 if ((el.type === 'line' || el.type === 'arrow' || el.type === 'bezier')) {
                     // Logic to add a control point
-                    // Only if curveType is bezier or maybe smart elbow in future
-                    // For now, let's force it to be bezier if it wasn't
 
                     const newControlPoints = el.controlPoints ? [...el.controlPoints] : [];
+
+                    // LIMIT TO 2 Control Points for S-Curve Support
+                    if (newControlPoints.length >= 2) {
+                        return; // Already has 2 points, don't add more for now
+                    }
+
                     newControlPoints.push({ x, y });
 
                     updateElement(el.id, {
                         controlPoints: newControlPoints,
                         curveType: 'bezier' // Switch to bezier if adding control points
-                    });
+                    }, true); // Push to history
 
                     // Don't open text editor if we added a point
                     return;
