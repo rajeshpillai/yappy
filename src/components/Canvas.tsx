@@ -348,20 +348,37 @@ const Canvas: Component = () => {
 
                         if ((el.type === 'line' || el.type === 'arrow' || el.type === 'bezier') && el.controlPoints && store.selectedTool === 'selection') {
                             const cpSize = 10 / scale;
-                            el.controlPoints.forEach((cp) => {
-                                // Draw Line to Control Point (for visual context)
-                                // Find closest point on element or just draw to center? 
-                                // Actually, for quadratic bezier, it's usually connected to start/end or midpoint.
-                                // Let's just draw the point for now.
+                            if (el.controlPoints.length === 1) {
+                                const cp = el.controlPoints[0];
+                                let start = { x: el.x, y: el.y };
+                                let end = { x: el.x + el.width, y: el.y + el.height };
+                                if (el.points && el.points.length >= 2) {
+                                    start = { x: el.x + el.points[0].x, y: el.y + el.points[0].y };
+                                    end = { x: el.x + el.points[el.points.length - 1].x, y: el.y + el.points[el.points.length - 1].y };
+                                }
 
-                                ctx.fillStyle = '#3b82f6'; // Blue
+                                const curveX = 0.25 * start.x + 0.5 * cp.x + 0.25 * end.x;
+                                const curveY = 0.25 * start.y + 0.5 * cp.y + 0.25 * end.y;
+
+                                ctx.fillStyle = '#3b82f6';
                                 ctx.strokeStyle = '#ffffff';
                                 ctx.lineWidth = 1.5 / scale;
                                 ctx.beginPath();
-                                ctx.arc(cp.x, cp.y, cpSize / 2, 0, Math.PI * 2);
+                                ctx.arc(curveX, curveY, cpSize / 2, 0, Math.PI * 2);
                                 ctx.fill();
                                 ctx.stroke();
-                            });
+                            } else {
+                                el.controlPoints.forEach((cp) => {
+                                    // Draw normal CP handles (Off-Curve)
+                                    ctx.fillStyle = '#3b82f6';
+                                    ctx.strokeStyle = '#ffffff';
+                                    ctx.lineWidth = 1.5 / scale;
+                                    ctx.beginPath();
+                                    ctx.arc(cp.x, cp.y, cpSize / 2, 0, Math.PI * 2);
+                                    ctx.fill();
+                                    ctx.stroke();
+                                });
+                            }
                         }
 
                         // Draw Connector Handles (Interactive connection points)
@@ -884,11 +901,28 @@ const Canvas: Component = () => {
 
             // Check Control Points for Bezier/SmartElbow
             if ((el.type === 'line' || el.type === 'arrow' || el.type === 'bezier') && el.controlPoints) {
-                for (let i = 0; i < el.controlPoints.length; i++) {
-                    const cp = el.controlPoints[i];
-                    // Control points might be in absolute coordinates, so use world x/y
-                    if (Math.abs(x - cp.x) <= handleSize / 2 && Math.abs(y - cp.y) <= handleSize / 2) {
-                        return { id: el.id, handle: `control-${i}` };
+                if (el.controlPoints.length === 1) {
+                    const cp = el.controlPoints[0];
+                    let start = { x: el.x, y: el.y };
+                    let end = { x: el.x + el.width, y: el.y + el.height };
+                    if (el.points && el.points.length >= 2) {
+                        start = { x: el.x + el.points[0].x, y: el.y + el.points[0].y };
+                        end = { x: el.x + el.points[el.points.length - 1].x, y: el.y + el.points[el.points.length - 1].y };
+                    }
+
+                    const curveX = 0.25 * start.x + 0.5 * cp.x + 0.25 * end.x;
+                    const curveY = 0.25 * start.y + 0.5 * cp.y + 0.25 * end.y;
+
+                    if (Math.abs(x - curveX) <= handleSize / 2 && Math.abs(y - curveY) <= handleSize / 2) {
+                        return { id: el.id, handle: `control-0` };
+                    }
+                } else {
+                    for (let i = 0; i < el.controlPoints.length; i++) {
+                        const cp = el.controlPoints[i];
+                        // Control points might be in absolute coordinates, so use world x/y
+                        if (Math.abs(x - cp.x) <= handleSize / 2 && Math.abs(y - cp.y) <= handleSize / 2) {
+                            return { id: el.id, handle: `control-${i}` };
+                        }
                     }
                 }
             }
@@ -1702,7 +1736,24 @@ const Canvas: Component = () => {
                                     newControlPoints.push({ x: x, y: y });
                                 }
 
-                                newControlPoints[index] = { x: x, y: y };
+                                if (element.controlPoints && element.controlPoints.length === 1 && index === 0) {
+                                    // Dragging the Curve Handle (Quadratic t=0.5)
+                                    // Inverse math: CP = 2*mouse - 0.5*start - 0.5*end
+                                    let start = { x: element.x, y: element.y };
+                                    let end = { x: element.x + element.width, y: element.y + element.height };
+                                    if (element.points && element.points.length >= 2) {
+                                        start = { x: element.x + element.points[0].x, y: element.y + element.points[0].y };
+                                        end = { x: element.x + element.points[element.points.length - 1].x, y: element.y + element.points[element.points.length - 1].y };
+                                    }
+
+                                    const cpX = 2 * x - 0.5 * start.x - 0.5 * end.x;
+                                    const cpY = 2 * y - 0.5 * start.y - 0.5 * end.y;
+
+                                    newControlPoints[0] = { x: cpX, y: cpY };
+                                } else {
+                                    newControlPoints[index] = { x: x, y: y };
+                                }
+
                                 updateElement(id, { controlPoints: newControlPoints }, false);
                                 return; // Skip resize logic
                             }
