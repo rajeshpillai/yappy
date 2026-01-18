@@ -122,9 +122,24 @@ export const Minimap = (props: MinimapProps) => {
                 ctx.strokeStyle = el.strokeColor;
                 ctx.lineWidth = 1 / scale;
                 ctx.stroke();
+            } else if (el.type === 'fineliner' || el.type === 'inkbrush') {
+                if (el.points && el.points.length >= 2) {
+                    ctx.beginPath();
+                    // Points are relative to el.x, el.y for pen tools
+                    ctx.moveTo(el.x + el.points[0].x, el.y + el.points[0].y);
+                    for (let i = 1; i < el.points.length; i++) {
+                        ctx.lineTo(el.x + el.points[i].x, el.y + el.points[i].y);
+                    }
+                    ctx.strokeStyle = el.strokeColor;
+                    ctx.lineWidth = Math.max(0.5, el.strokeWidth / scale / 10); // Scale down stroke width but keep it visible
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.stroke();
+                }
             } else if (el.type === 'line' || el.type === 'arrow') {
                 if (el.points && el.points.length >= 2) {
                     ctx.beginPath();
+                    // Points are absolute for line/arrow
                     ctx.moveTo(el.points[0].x, el.points[0].y);
                     for (let i = 1; i < el.points.length; i++) {
                         ctx.lineTo(el.points[i].x, el.points[i].y);
@@ -135,12 +150,33 @@ export const Minimap = (props: MinimapProps) => {
                 }
             } else if (el.type === 'text') {
                 // Draw text box
-                ctx.fillStyle = 'rgba(100,100,200,0.3)';
+                ctx.fillStyle = store.theme === 'dark' ? 'rgba(96, 165, 250, 0.3)' : 'rgba(59, 130, 246, 0.3)';
                 ctx.fillRect(el.x, el.y, el.width, el.height);
             } else if (el.type === 'image') {
-                // Draw image placeholder
-                ctx.fillStyle = 'rgba(150,150,150,0.5)';
-                ctx.fillRect(el.x, el.y, el.width, el.height);
+                if (el.dataURL) {
+                    const img = new Image();
+                    img.src = el.dataURL;
+                    if (img.complete) {
+                        ctx.drawImage(img, el.x, el.y, el.width, el.height);
+                    } else {
+                        // Background placeholder
+                        ctx.fillStyle = 'rgba(150,150,150,0.5)';
+                        ctx.fillRect(el.x, el.y, el.width, el.height);
+
+                        // Icon or text
+                        ctx.fillStyle = '#fff';
+                        ctx.font = `${Math.floor(10 / scale)}px Arial`;
+                        ctx.textAlign = 'center';
+                        ctx.fillText('IMG', el.x + el.width / 2, el.y + el.height / 2);
+                    }
+                } else {
+                    ctx.fillStyle = 'rgba(150,150,150,0.5)';
+                    ctx.fillRect(el.x, el.y, el.width, el.height);
+                }
+
+                ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+                ctx.lineWidth = 1 / scale;
+                ctx.strokeRect(el.x, el.y, el.width, el.height);
             }
 
             ctx.restore();
@@ -248,17 +284,33 @@ export const Minimap = (props: MinimapProps) => {
         }
     };
 
+
     // Auto-update on changes
     createEffect(() => {
-        // Depend on elements, viewState, theme to trigger re-render
-        store.elements;
-        store.viewState;
-        store.theme;
-        store.layers;
+        // Deeply track elements for real-time updates (especially during drawing)
+        // By accessing properties inside the effect, Solid will track them.
+        store.elements.forEach(el => {
+            el.points?.length;
+            el.x;
+            el.y;
+            el.width;
+            el.height;
+            el.opacity;
+            el.layerId;
+        });
 
-        // Small delay to batch updates
-        const timer = setTimeout(renderMinimap, 16);
-        onCleanup(() => clearTimeout(timer));
+        store.viewState.panX;
+        store.viewState.panY;
+        store.viewState.scale;
+        store.theme;
+        store.layers.forEach(l => {
+            l.visible;
+            l.opacity;
+        });
+
+        // Use requestAnimationFrame for smooth and batched updates
+        const handle = requestAnimationFrame(renderMinimap);
+        onCleanup(() => cancelAnimationFrame(handle));
     });
 
     onMount(() => {
