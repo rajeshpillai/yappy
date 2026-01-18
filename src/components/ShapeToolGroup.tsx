@@ -73,8 +73,8 @@ const ShapeToolGroup: Component = () => {
                         return <Icon size={20} />;
                     })()}
                     <ChevronDown
-                        size={8}
-                        style="position: absolute; bottom: -2px; right: -4px; opacity: 0.6;"
+                        size={10}
+                        class="submenu-indicator"
                     />
                 </div>
             </button>

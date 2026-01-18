@@ -63,3 +63,16 @@
     z-index: 999;
     background: transparent;
 }
+
+.submenu-indicator {
+    font-size: 14px; /* Maintain increased size */
+    margin-left: 4px; /* Adjust margin for alignment */
+    opacity: 1; /* Fully visible */
+    color: var(--primary-color, #007bff); /* Use primary color */
+    fill: var(--primary-color, #007bff); /* Ensure the icon is filled */
+    vertical-align: middle; /* Align with the text/icon */
+}
+
+.toolbar-btn:hover .submenu-indicator {
+    transform: rotate(180deg); /* Add a hover effect for better visibility */
+}
