@@ -52,7 +52,7 @@ const initialState: AppState = {
         fontStyle: false,
         textAlign: 'left',
         startArrowhead: null,
-        endArrowhead: 'arrow',
+        endArrowhead: null,
         seed: 0
     },
     theme: (localStorage.getItem('theme') as 'light' | 'dark') || 'light',
@@ -228,6 +228,13 @@ export const setSelectedTool = (tool: ElementType | 'selection') => {
     setStore('selectedTool', tool);
     if (tool !== 'selection' && tool !== 'pan' && tool !== 'eraser') {
         setStore('selection', []);
+    }
+
+    // Adjust default styles based on tool
+    if (tool === 'arrow') {
+        updateDefaultStyles({ endArrowhead: 'arrow' });
+    } else if (tool === 'line') {
+        updateDefaultStyles({ endArrowhead: null });
     }
 };
 

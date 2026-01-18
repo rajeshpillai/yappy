@@ -307,7 +307,7 @@ export const properties: PropertyConfig[] = [
         ],
         group: 'style',
         applicableTo: ['arrow', 'line'],
-        defaultValue: 'arrow'
+        defaultValue: null
     },
     {
         key: 'curveType',
