@@ -21,8 +21,8 @@
     z-index: 1000;
     padding: 4px;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2px;
+    grid-template-columns: repeat(4, 1fr); /* Set a fixed number of 4 icons per row */
+    gap: 8px; /* Maintain spacing between icons */
     margin-top: 4px;
 }
 
