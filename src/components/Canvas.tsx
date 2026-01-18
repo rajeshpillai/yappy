@@ -1128,8 +1128,8 @@ const Canvas: Component = () => {
                     });
                 }
             } else {
-                // Clicked empty space - Check if hit multi-selection bounding box
-                if (store.selection.length > 1) {
+                // Clicked empty space - Check if hit selection bounding box
+                if (store.selection.length > 0) {
                     const box = getSelectionBoundingBox();
                     if (box) {
                         const threshold = 10 / store.viewState.scale;
