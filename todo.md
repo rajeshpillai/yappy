@@ -163,6 +163,16 @@
   - Snap elements to guides
   - Guide color customization
 
+## Phase 22: System Design & Cloud Infra
+- [x] Implement Cloud Infrastructure Elements
+  - [x] Add new `ElementType`s: `server`, `loadBalancer`, `firewall`, `user`, `messageQueue`, `lambda`, `router`, `browser`
+  - [x] Create `InfraToolGroup` UI component
+  - [x] Add `InfraToolGroup` to main Toolbar
+  - [x] Implement RoughJS rendering for all new elements
+  - [x] Add support for both Sketch and Architectural styles
+  - [x] Enable Text-Inside-Shape (containerText) for all new elements
+  - [x] Verify selection, hit testing, and connector binding
+
 ## Phase 15: New Shapes & Documentation
 - [x] Implement Diamond Shape (Decision Box)
   - [x] Toolbar integration

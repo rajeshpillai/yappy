@@ -4,6 +4,7 @@ import type { ElementType } from "../types";
 import { MousePointer2, Square, Circle, Minus, Type, MoveUpRight, Eraser, Hand, Image as ImageIcon, Spline, Diamond } from "lucide-solid";
 import PenToolGroup from "./PenToolGroup";
 import ShapeToolGroup from "./ShapeToolGroup";
+import InfraToolGroup from "./InfraToolGroup";
 import "./Toolbar.css";
 
 // Tools that are NOT pens or grouped shapes
@@ -145,6 +146,9 @@ const Toolbar: Component = () => {
 
             {/* Shape Tool Group (Triangle, Hexagon, Star, Hearts, Arrows, etc.) */}
             <ShapeToolGroup />
+
+            {/* Infrastructure Tool Group (Server, LB, Cloud, User, etc.) */}
+            <InfraToolGroup />
 
             {/* Arrow, Line, Bezier */}
             <For each={tools.slice(diamondIndex + 1, bezierIndex + 1)}>

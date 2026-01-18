@@ -1207,6 +1207,231 @@ export const renderElement = (
             ctx.stroke();
             ctx.restore();
         }
+    } else if (el.type === 'server') {
+        const w = el.width, h = el.height, x = el.x, y = el.y;
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(x, y, w, h);
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.strokeRect(x, y, w, h);
+            const slotH = h * 0.05;
+            const slotW = w * 0.7;
+            const slotX = x + (w - slotW) / 2;
+            ctx.fillStyle = strokeColor;
+            for (let i = 0; i < 3; i++) {
+                ctx.fillRect(slotX, y + h - (i + 1) * slotH * 2 - slotH, slotW, slotH);
+            }
+        } else {
+            rc.rectangle(x, y, w, h, options);
+            const slotW = w * 0.7;
+            const slotH = h * 0.05;
+            const slotX = x + (w - slotW) / 2;
+            for (let i = 0; i < 3; i++) {
+                rc.rectangle(slotX, y + h - (i + 1) * slotH * 2 - slotH, slotW, slotH, { ...options, fillStyle: 'solid', fill: strokeColor });
+            }
+        }
+    } else if (el.type === 'loadBalancer') {
+        const cx = el.x + el.width / 2, cy = el.y + el.height / 2;
+        const w = el.width, h = el.height;
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.beginPath();
+                ctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI * 2);
+            ctx.stroke();
+            const arrowLen = w * 0.3;
+            ctx.beginPath();
+            ctx.moveTo(cx - arrowLen, cy);
+            ctx.lineTo(cx + arrowLen, cy);
+            ctx.stroke();
+            // Simple architectural arrowheads
+            ctx.beginPath();
+            ctx.moveTo(cx + arrowLen - 5, cy - 5); ctx.lineTo(cx + arrowLen, cy); ctx.lineTo(cx + arrowLen - 5, cy + 5);
+            ctx.moveTo(cx - arrowLen + 5, cy - 5); ctx.lineTo(cx - arrowLen, cy); ctx.lineTo(cx - arrowLen + 5, cy + 5);
+            ctx.stroke();
+        } else {
+            rc.ellipse(cx, cy, w, h, options);
+            const arrowLen = w * 0.3;
+            rc.line(cx - arrowLen, cy, cx + arrowLen, cy, options);
+            drawArrowhead(rc, cx + arrowLen, cy, 0, 'arrow', options);
+            drawArrowhead(rc, cx - arrowLen, cy, Math.PI, 'arrow', options);
+        }
+    } else if (el.type === 'firewall') {
+        const w = el.width, h = el.height, x = el.x, y = el.y;
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(x, y, w, h);
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.strokeRect(x, y, w, h);
+            const rows = 4, cols = 3;
+            const rowH = h / rows;
+            const colW = w / cols;
+            ctx.beginPath();
+            for (let i = 1; i < rows; i++) {
+                ctx.moveTo(x, y + i * rowH); ctx.lineTo(x + w, y + i * rowH);
+            }
+            for (let i = 0; i < rows; i++) {
+                const shift = (i % 2 === 0) ? 0 : colW / 2;
+                for (let j = 1; j < cols; j++) {
+                    const vx = x + j * colW + shift;
+                    if (vx < x + w) {
+                        ctx.moveTo(vx, y + i * rowH); ctx.lineTo(vx, y + (i + 1) * rowH);
+                    }
+                }
+            }
+            ctx.stroke();
+        } else {
+            rc.rectangle(x, y, w, h, options);
+            const rows = 4, cols = 3;
+            const rowH = h / rows;
+            const colW = w / cols;
+            for (let i = 1; i < rows; i++) {
+                rc.line(x, y + i * rowH, x + w, y + i * rowH, options);
+            }
+            for (let i = 0; i < rows; i++) {
+                const shift = (i % 2 === 0) ? 0 : colW / 2;
+                for (let j = 1; j < cols; j++) {
+                    const vx = x + j * colW + shift;
+                    if (vx < x + w) rc.line(vx, y + i * rowH, vx, y + (i + 1) * rowH, options);
+                }
+            }
+        }
+    } else if (el.type === 'user') {
+        const w = el.width, h = el.height, x = el.x, y = el.y;
+        const headR = Math.min(w, h) * 0.25;
+        const cx = x + w / 2;
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.beginPath(); ctx.arc(cx, y + headR, headR, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.beginPath(); ctx.arc(cx, y + headR, headR, 0, Math.PI * 2); ctx.stroke();
+            const shoulderW = w * 0.8;
+            ctx.beginPath();
+            ctx.moveTo(cx - shoulderW / 2, y + h);
+            ctx.quadraticCurveTo(cx, y + headR * 1.5, cx + shoulderW / 2, y + h);
+            ctx.stroke();
+        } else {
+            rc.circle(cx, y + headR, headR * 2, options);
+            const shoulderW = w * 0.8;
+            const path = `M ${cx - shoulderW / 2} ${y + h} Q ${cx} ${y + headR * 1.5} ${cx + shoulderW / 2} ${y + h} Z`;
+            rc.path(path, options);
+        }
+    } else if (el.type === 'messageQueue') {
+        const w = el.width, h = el.height, x = el.x, y = el.y;
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(x, y, w, h);
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.strokeRect(x, y, w, h);
+            const segments = 4;
+            const segW = w / segments;
+            ctx.beginPath();
+            for (let i = 1; i < segments; i++) {
+                ctx.moveTo(x + i * segW, y); ctx.lineTo(x + i * segW, y + h);
+            }
+            ctx.stroke();
+        } else {
+            rc.rectangle(x, y, w, h, options);
+            const segments = 4;
+            const segW = w / segments;
+            for (let i = 1; i < segments; i++) {
+                rc.line(x + i * segW, y, x + i * segW, y + h, options);
+            }
+        }
+    } else if (el.type === 'lambda') {
+        const cx = el.x + el.width / 2, cy = el.y + el.height / 2;
+        const w = el.width, h = el.height;
+        const zapW = w * 0.4, zapH = h * 0.6;
+        const zx = cx - zapW / 2, zy = cy - zapH / 2;
+        const zapPath = `M ${zx + zapW} ${zy} L ${zx} ${zy + zapH * 0.6} L ${zx + zapW * 0.6} ${zy + zapH * 0.5} L ${zx} ${zy + zapH} L ${zx + zapW} ${zy + zapH * 0.4} L ${zx + zapW * 0.4} ${zy + zapH * 0.5} Z`;
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.beginPath(); ctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.beginPath(); ctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = strokeColor;
+            ctx.fill(new Path2D(zapPath));
+        } else {
+            rc.ellipse(cx, cy, w, h, options);
+            rc.path(zapPath, { ...options, fillStyle: 'solid', fill: strokeColor });
+        }
+    } else if (el.type === 'router') {
+        const w = el.width, h = el.height, x = el.x, y = el.y;
+        const cx = x + w / 2, cy = y + h / 2;
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.beginPath(); ctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.beginPath(); ctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI * 2); ctx.stroke();
+            const r = Math.min(w, h) * 0.3;
+            ctx.beginPath();
+            for (let a = 0; a < 4; a++) {
+                const angle = (Math.PI / 2) * a + Math.PI / 4;
+                ctx.moveTo(cx, cy); ctx.lineTo(cx + r * Math.cos(angle), cy + r * Math.sin(angle));
+            }
+            ctx.stroke();
+        } else {
+            rc.ellipse(cx, cy, w, h, options);
+            const r = Math.min(w, h) * 0.3;
+            for (let a = 0; a < 4; a++) {
+                const angle = (Math.PI / 2) * a + Math.PI / 4;
+                const px = cx + r * Math.cos(angle);
+                const py = cy + r * Math.sin(angle);
+                rc.line(cx, cy, px, py, options);
+                drawArrowhead(rc, px, py, angle, 'arrow', options);
+            }
+        }
+    } else if (el.type === 'browser') {
+        const w = el.width, h = el.height, x = el.x, y = el.y;
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(x, y, w, h);
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.strokeRect(x, y, w, h);
+            const headerH = h * 0.15;
+            ctx.beginPath(); ctx.moveTo(x, y + headerH); ctx.lineTo(x + w, y + headerH); ctx.stroke();
+            ctx.fillStyle = strokeColor;
+            const dotR = headerH * 0.2;
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath(); ctx.arc(x + headerH * (0.5 + i * 0.6), y + headerH / 2, dotR, 0, Math.PI * 2); ctx.fill();
+            }
+        } else {
+            rc.rectangle(x, y, w, h, options);
+            const headerH = h * 0.15;
+            rc.line(x, y + headerH, x + w, y + headerH, options);
+            const dotR = headerH * 0.3;
+            for (let i = 0; i < 3; i++) {
+                rc.circle(x + headerH * (0.5 + i * 0.6), y + headerH / 2, dotR, { ...options, fillStyle: 'solid', fill: strokeColor });
+            }
+        }
     }
 
     // Render containerText (text inside shapes)
@@ -1217,7 +1442,8 @@ export const renderElement = (
         el.type === 'capsule' || el.type === 'stickyNote' || el.type === 'callout' ||
         el.type === 'burst' || el.type === 'speechBubble' || el.type === 'ribbon' ||
         el.type === 'bracketLeft' || el.type === 'bracketRight' ||
-        el.type === 'database' || el.type === 'document' || el.type === 'predefinedProcess' || el.type === 'internalStorage')) {
+        el.type === 'database' || el.type === 'document' || el.type === 'predefinedProcess' || el.type === 'internalStorage' ||
+        el.type === 'server' || el.type === 'loadBalancer' || el.type === 'firewall' || el.type === 'user' || el.type === 'messageQueue' || el.type === 'lambda' || el.type === 'router' || el.type === 'browser')) {
         const fontSize = el.fontSize || 20;
         const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
             el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
