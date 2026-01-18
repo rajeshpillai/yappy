@@ -495,12 +495,13 @@
 **Goal**: Expand drawing primitives with additional predefined shapes
 
 **Implemented**:
-- [x] Add 13 new shape types to type system
+- [x] Add 16 new shape types to type system (including Capsule, Sticky Note, Callout)
 - [x] Implement rendering for all new shapes (sketch + architectural styles)
   - Triangle, Hexagon, Octagon, Parallelogram
   - Star, Cloud, Heart
   - Cross (X), Checkmark (✓)
   - Directional Arrows (Left, Right, Up, Down)
+  - **Mindmap Specific**: Capsule, Sticky Note, Callout
 - [x] Add hit detection for selection and movement
 - [x] Add geometry intersection logic for connector binding
 - [x] Add anchor points for connector snapping

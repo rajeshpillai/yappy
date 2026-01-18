@@ -893,7 +893,8 @@ const Canvas: Component = () => {
         } else if (el.type === 'triangle' || el.type === 'hexagon' || el.type === 'octagon' ||
             el.type === 'parallelogram' || el.type === 'star' || el.type === 'cloud' ||
             el.type === 'heart' || el.type === 'cross' || el.type === 'checkmark' ||
-            el.type === 'arrowLeft' || el.type === 'arrowRight' || el.type === 'arrowUp' || el.type === 'arrowDown') {
+            el.type === 'arrowLeft' || el.type === 'arrowRight' || el.type === 'arrowUp' || el.type === 'arrowDown' ||
+            el.type === 'capsule' || el.type === 'stickyNote' || el.type === 'callout') {
             // For new shapes, use bounding box hit test (simple and effective)
             return true; // Box check already passed above
         }

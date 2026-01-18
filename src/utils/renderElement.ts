@@ -840,7 +840,8 @@ export const renderElement = (
     if (el.containerText && (el.type === 'rectangle' || el.type === 'circle' || el.type === 'diamond' ||
         el.type === 'triangle' || el.type === 'hexagon' || el.type === 'octagon' ||
         el.type === 'parallelogram' || el.type === 'star' || el.type === 'cloud' || el.type === 'heart' ||
-        el.type === 'arrowLeft' || el.type === 'arrowRight' || el.type === 'arrowUp' || el.type === 'arrowDown')) {
+        el.type === 'arrowLeft' || el.type === 'arrowRight' || el.type === 'arrowUp' || el.type === 'arrowDown' ||
+        el.type === 'capsule' || el.type === 'stickyNote' || el.type === 'callout')) {
         const fontSize = el.fontSize || 20;
         const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
             el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
@@ -861,8 +862,9 @@ export const renderElement = (
             maxWidth = maxWidth * 0.7; // ~70% for inscribed square
         }
 
+        const text = el.containerText!;
         // Wrap text if needed
-        const words = el.containerText.split(' ');
+        const words = text.split(' ');
         const lines: string[] = [];
         let currentLine = '';
 

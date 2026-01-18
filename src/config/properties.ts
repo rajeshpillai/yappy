@@ -206,7 +206,7 @@ export const properties: PropertyConfig[] = [
             { label: 'XL', value: 36 }
         ],
         group: 'text',
-        applicableTo: ['text'],
+        applicableTo: ['text', 'rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'line', 'arrow', 'capsule', 'stickyNote', 'callout'],
         defaultValue: 20
     },
     {
@@ -219,7 +219,7 @@ export const properties: PropertyConfig[] = [
             { label: 'Cascadia (Code)', value: 'monospace' }
         ],
         group: 'text',
-        applicableTo: ['text'],
+        applicableTo: ['text', 'rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'line', 'arrow', 'capsule', 'stickyNote', 'callout'],
         defaultValue: 'hand-drawn'
     },
     {
@@ -248,7 +248,7 @@ export const properties: PropertyConfig[] = [
             { label: 'Right', value: 'right' }
         ],
         group: 'text',
-        applicableTo: ['text'],
+        applicableTo: ['text', 'rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'line', 'arrow', 'capsule', 'stickyNote', 'callout'],
         defaultValue: 'left'
     },
     {
