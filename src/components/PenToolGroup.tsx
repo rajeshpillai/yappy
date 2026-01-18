@@ -16,7 +16,7 @@ const PenToolGroup: Component = () => {
     let menuRef: HTMLDivElement | undefined;
 
     const getCurrentPenTool = () => {
-        return penTools.find(t => t.type === store.selectedPenType) || penTools[2]; // Default to fineliner
+        return penTools.find(t => t.type === store.selectedPenType) || penTools[0]; // Default to fineliner
     };
 
     const isPenToolActive = () => {
