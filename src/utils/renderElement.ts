@@ -318,6 +318,90 @@ export const renderElement = (
         } else {
             rc.polygon(points, options);
         }
+    } else if (el.type === 'capsule') {
+        const radius = Math.min(Math.abs(el.width), Math.abs(el.height)) / 2;
+        const path = getRoundedRectPath(el.x, el.y, el.width, el.height, radius);
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fill(new Path2D(path));
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.stroke(new Path2D(path));
+        } else {
+            rc.path(path, options);
+        }
+    } else if (el.type === 'stickyNote') {
+        const fold = Math.min(Math.abs(el.width), Math.abs(el.height)) * 0.15;
+        const x = el.x, y = el.y, w = el.width, h = el.height;
+
+        // Main body polygon (missing the bottom right corner)
+        const mainPoints: [number, number][] = [
+            [x, y],
+            [x + w, y],
+            [x + w, y + h - fold],
+            [x + w - fold, y + h],
+            [x, y + h]
+        ];
+
+        // The fold triangle
+        const foldPoints: [number, number][] = [
+            [x + w, y + h - fold],
+            [x + w - fold, y + h - fold],
+            [x + w - fold, y + h]
+        ];
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                rc.polygon(mainPoints, { ...options, stroke: 'none', fill: backgroundColor });
+                rc.polygon(foldPoints, { ...options, stroke: 'none', fill: backgroundColor, fillStyle: 'solid', opacity: 0.3 });
+            }
+            ctx.beginPath();
+            ctx.moveTo(mainPoints[0][0], mainPoints[0][1]);
+            for (let i = 1; i < mainPoints.length; i++) ctx.lineTo(mainPoints[i][0], mainPoints[i][1]);
+            ctx.closePath();
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(foldPoints[0][0], foldPoints[0][1]);
+            ctx.lineTo(foldPoints[1][0], foldPoints[1][1]);
+            ctx.lineTo(foldPoints[2][0], foldPoints[2][1]);
+            ctx.stroke();
+        } else {
+            rc.polygon(mainPoints, options);
+            rc.polygon(foldPoints, { ...options, fillStyle: 'solid', opacity: 0.3 });
+        }
+    } else if (el.type === 'callout') {
+        const x = el.x, y = el.y, w = el.width, h = el.height;
+        const tailHeight = h * 0.2;
+        const rectHeight = h - tailHeight;
+
+        const path = `
+            M ${x} ${y} 
+            L ${x + w} ${y} 
+            L ${x + w} ${y + rectHeight} 
+            L ${x + w * 0.7} ${y + rectHeight} 
+            L ${x + w * 0.5} ${y + h} 
+            L ${x + w * 0.3} ${y + rectHeight} 
+            L ${x} ${y + rectHeight} 
+            Z
+        `;
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fill(new Path2D(path));
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.stroke(new Path2D(path));
+        } else {
+            rc.path(path, options);
+        }
     } else if (el.type === 'star') {
         const cx = el.x + el.width / 2;
         const cy = el.y + el.height / 2;

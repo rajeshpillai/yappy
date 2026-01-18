@@ -3,12 +3,16 @@ import { store, setSelectedTool, setSelectedShapeType } from "../store/appStore"
 import type { ElementType } from "../types";
 import {
     Triangle, Hexagon, Octagon, Square, Star, Cloud, Heart, X, Check,
-    ArrowLeft, ArrowRight, ArrowUp, ArrowDown, ChevronDown
+    ArrowLeft, ArrowRight, ArrowUp, ArrowDown, ChevronDown,
+    Pill, StickyNote, MessageSquare
 } from "lucide-solid";
 import "./PenToolGroup.css"; // Reuse the same CSS
 
 // Shape tools to group
 const shapeTools: { type: ElementType; icon: Component<{ size?: number; color?: string }>; label: string }[] = [
+    { type: 'capsule', icon: Pill, label: 'Capsule (Node)' },
+    { type: 'stickyNote', icon: StickyNote, label: 'Sticky Note' },
+    { type: 'callout', icon: MessageSquare, label: 'Callout (Thought)' },
     { type: 'triangle', icon: Triangle, label: 'Triangle' },
     { type: 'hexagon', icon: Hexagon, label: 'Hexagon' },
     { type: 'octagon', icon: Octagon, label: 'Octagon' },
