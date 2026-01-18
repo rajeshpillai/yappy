@@ -106,7 +106,11 @@ export function getAnchorPoints(element: DrawingElement): AnchorPoint[] {
             anchors = rawAnchors;
         }
     } else if (element.type === 'cloud' || element.type === 'heart' || element.type === 'checkmark' || element.type === 'cross' ||
-        element.type === 'arrowLeft' || element.type === 'arrowRight' || element.type === 'arrowUp' || element.type === 'arrowDown') {
+        element.type === 'arrowLeft' || element.type === 'arrowRight' || element.type === 'arrowUp' || element.type === 'arrowDown' ||
+        element.type === 'capsule' || element.type === 'stickyNote' || element.type === 'callout' ||
+        element.type === 'burst' || element.type === 'speechBubble' || element.type === 'ribbon' ||
+        element.type === 'bracketLeft' || element.type === 'bracketRight' ||
+        element.type === 'database' || element.type === 'document' || element.type === 'predefinedProcess' || element.type === 'internalStorage') {
         // For complex shapes, use 4 cardinal points
         const rawAnchors: AnchorPoint[] = [
             { x: cx, y: cy - h / 2, position: 'top' },

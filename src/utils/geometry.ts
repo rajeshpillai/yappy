@@ -237,7 +237,11 @@ export const intersectElementWithLine = (
     } else if (element.type === 'triangle' || element.type === 'hexagon' || element.type === 'octagon' ||
         element.type === 'parallelogram' || element.type === 'star' || element.type === 'cloud' ||
         element.type === 'heart' || element.type === 'arrowLeft' || element.type === 'arrowRight' ||
-        element.type === 'arrowUp' || element.type === 'arrowDown') {
+        element.type === 'arrowUp' || element.type === 'arrowDown' ||
+        element.type === 'capsule' || element.type === 'stickyNote' || element.type === 'callout' ||
+        element.type === 'burst' || element.type === 'speechBubble' || element.type === 'ribbon' ||
+        element.type === 'bracketLeft' || element.type === 'bracketRight' ||
+        element.type === 'database' || element.type === 'document' || element.type === 'predefinedProcess' || element.type === 'internalStorage') {
         // For complex/polygon shapes, use simplified bounding box intersection
         // This is similar to rectangle but provides reasonable approximation
         let p = { x: a.x, y: a.y };
