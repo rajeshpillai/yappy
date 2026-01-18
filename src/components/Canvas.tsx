@@ -71,6 +71,9 @@ const Canvas: Component = () => {
     const [snappingGuides, setSnappingGuides] = createSignal<SnappingGuide[]>([]);
     const [spacingGuides, setSpacingGuides] = createSignal<SpacingGuide[]>([]);
 
+    // Interactive Connector State
+    let draggingFromConnector: { elementId: string; anchorPosition: string; startX: number; startY: number } | null = null;
+
     let initialElementX = 0;
     let initialElementY = 0;
     let initialElementWidth = 0;
@@ -340,6 +343,42 @@ const Canvas: Component = () => {
                             ctx.arc(rotH.x, rotH.y, handleSize / 2, 0, 2 * Math.PI);
                             ctx.fill();
                             ctx.stroke();
+                        }
+
+                        // Draw Connector Handles (Interactive connection points)
+                        // Only for shapes, not lines/arrows, and only when selection tool is active
+                        if (el.type !== 'line' && el.type !== 'arrow' && store.selectedTool === 'selection') {
+                            const connectorSize = 10 / scale;
+                            const cx = el.x + el.width / 2;
+                            const cy = el.y + el.height / 2;
+                            const connectorHandles = [
+                                { pos: 'top', x: cx, y: el.y - connectorSize },
+                                { pos: 'right', x: el.x + el.width + connectorSize, y: cy },
+                                { pos: 'bottom', x: cx, y: el.y + el.height + connectorSize },
+                                { pos: 'left', x: el.x - connectorSize, y: cy }
+                            ];
+
+                            connectorHandles.forEach(ch => {
+                                // Draw connector circle
+                                ctx.fillStyle = '#10b981'; // Green
+                                ctx.strokeStyle = '#ffffff';
+                                ctx.lineWidth = 1.5 / scale;
+                                ctx.beginPath();
+                                ctx.arc(ch.x, ch.y, connectorSize / 2, 0, Math.PI * 2);
+                                ctx.fill();
+                                ctx.stroke();
+
+                                // Draw "+" icon
+                                ctx.strokeStyle = '#ffffff';
+                                ctx.lineWidth = 1.5 / scale;
+                                const plusSize = connectorSize * 0.35;
+                                ctx.beginPath();
+                                ctx.moveTo(ch.x - plusSize, ch.y);
+                                ctx.lineTo(ch.x + plusSize, ch.y);
+                                ctx.moveTo(ch.x, ch.y - plusSize);
+                                ctx.lineTo(ch.x, ch.y + plusSize);
+                                ctx.stroke();
+                            });
                         }
 
                         ctx.restore();
@@ -795,6 +834,26 @@ const Canvas: Component = () => {
             if (Math.abs(local.x - rotH.x) <= handleSize && Math.abs(local.y - rotH.y) <= handleSize / 2) {
                 return { id: el.id, handle: 'rotate' };
             }
+
+            // Check Connector Handles (only for non-line/arrow shapes)
+            if (el.type !== 'line' && el.type !== 'arrow') {
+                const connectorSize = 10 / scale;
+                const ecx = el.x + el.width / 2;
+                const ecy = el.y + el.height / 2;
+                const connectorHandles = [
+                    { type: 'connector-top', x: ecx, y: el.y - connectorSize },
+                    { type: 'connector-right', x: el.x + el.width + connectorSize, y: ecy },
+                    { type: 'connector-bottom', x: ecx, y: el.y + el.height + connectorSize },
+                    { type: 'connector-left', x: el.x - connectorSize, y: ecy }
+                ];
+
+                for (const ch of connectorHandles) {
+                    const dist = Math.sqrt(Math.pow(local.x - ch.x, 2) + Math.pow(local.y - ch.y, 2));
+                    if (dist <= connectorSize / 2 + 2 / scale) { // Small tolerance
+                        return { id: el.id, handle: ch.type };
+                    }
+                }
+            }
         }
         return null;
     };
@@ -1012,6 +1071,77 @@ const Canvas: Component = () => {
         if (store.selectedTool === 'selection') {
             const hitHandle = getHandleAtPosition(x, y);
             if (hitHandle) {
+                // Check if it's a connector handle
+                if (hitHandle.handle.startsWith('connector-')) {
+                    const sourceEl = store.elements.find(e => e.id === hitHandle.id);
+                    if (sourceEl) {
+                        // Get the anchor position from the connector handle type
+                        const anchorPosition = hitHandle.handle.replace('connector-', '');
+                        const ecx = sourceEl.x + sourceEl.width / 2;
+                        const ecy = sourceEl.y + sourceEl.height / 2;
+
+                        let anchorX: number, anchorY: number;
+                        switch (anchorPosition) {
+                            case 'top':
+                                anchorX = ecx;
+                                anchorY = sourceEl.y;
+                                break;
+                            case 'right':
+                                anchorX = sourceEl.x + sourceEl.width;
+                                anchorY = ecy;
+                                break;
+                            case 'bottom':
+                                anchorX = ecx;
+                                anchorY = sourceEl.y + sourceEl.height;
+                                break;
+                            case 'left':
+                                anchorX = sourceEl.x;
+                                anchorY = ecy;
+                                break;
+                            default:
+                                anchorX = ecx;
+                                anchorY = ecy;
+                        }
+
+                        // Start drawing an arrow from this anchor
+                        pushToHistory();
+                        isDrawing = true;
+                        startX = anchorX;
+                        startY = anchorY;
+                        currentId = crypto.randomUUID();
+
+                        // Store connector drag state
+                        draggingFromConnector = {
+                            elementId: sourceEl.id,
+                            anchorPosition,
+                            startX: anchorX,
+                            startY: anchorY
+                        };
+
+                        const newElement = {
+                            ...store.defaultElementStyles,
+                            id: currentId,
+                            type: 'arrow',
+                            x: anchorX,
+                            y: anchorY,
+                            width: 0,
+                            height: 0,
+                            seed: Math.floor(Math.random() * 2 ** 31),
+                            layerId: store.activeLayerId,
+                            curveType: store.defaultElementStyles.curveType || 'straight',
+                            startBinding: { elementId: sourceEl.id, focus: 0, gap: 5 }
+                        } as DrawingElement;
+
+                        addElement(newElement);
+
+                        // Update source element's boundElements
+                        const existing = sourceEl.boundElements || [];
+                        updateElement(sourceEl.id, { boundElements: [...existing, { id: currentId, type: 'arrow' }] });
+
+                        return;
+                    }
+                }
+
                 pushToHistory();
                 isDragging = true;
                 draggingHandle = hitHandle.handle;
@@ -1257,22 +1387,47 @@ const Canvas: Component = () => {
         const actualType = tool === 'bezier' ? 'line' : tool;
         const actualCurveType = tool === 'bezier' ? 'bezier' : (store.defaultElementStyles.curveType || 'straight');
 
+        // Check for start binding at creation time (source connection fix)
+        let startBindingData: { elementId: string; focus: number; gap: number } | undefined;
+        let snappedStartX = creationX;
+        let snappedStartY = creationY;
+
+        if (tool === 'line' || tool === 'arrow' || tool === 'bezier') {
+            const match = checkBinding(creationX, creationY, currentId);
+            if (match) {
+                startBindingData = { elementId: match.element.id, focus: 0, gap: 5 };
+                snappedStartX = match.snapPoint.x;
+                snappedStartY = match.snapPoint.y;
+                startX = snappedStartX;
+                startY = snappedStartY;
+            }
+        }
+
         const newElement = {
             ...store.defaultElementStyles,
             id: currentId,
             type: actualType,
-            x: creationX,
-            y: creationY,
+            x: snappedStartX,
+            y: snappedStartY,
             width: 0,
             height: 0,
             seed: Math.floor(Math.random() * 2 ** 31),
             layerId: store.activeLayerId,
             curveType: actualCurveType as 'straight' | 'bezier' | 'elbow',
             points: (tool === 'fineliner' || tool === 'inkbrush') ? [{ x: 0, y: 0, t: Date.now() }] : undefined,
+            startBinding: startBindingData,
         } as DrawingElement;
 
-
         addElement(newElement);
+
+        // Update target's boundElements if we have a start binding
+        if (startBindingData) {
+            const target = store.elements.find(e => e.id === startBindingData!.elementId);
+            if (target) {
+                const existing = target.boundElements || [];
+                updateElement(target.id, { boundElements: [...existing, { id: currentId, type: actualType as 'arrow' }] });
+            }
+        }
     };
 
     const handlePointerMove = (e: PointerEvent) => {
@@ -1842,10 +1997,17 @@ const Canvas: Component = () => {
                     'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage'].includes(store.selectedTool)) {
                     setSelectedTool('selection');
                 }
+
+                // If this was drawn from a connector handle, select the new arrow and switch to selection
+                if (draggingFromConnector) {
+                    setStore('selection', [currentId]);
+                    setSelectedTool('selection');
+                }
             }
         }
         isDrawing = false;
         currentId = null;
+        draggingFromConnector = null; // Reset connector drag state
     };
 
     const commitText = () => {

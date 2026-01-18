@@ -549,3 +549,21 @@
   - [ ] Trapezoid
   - [ ] Right-Angle Triangle
   - [ ] Pentagon/Septagon (Completing set)
+
+---
+
+### Phase 33: Interactive Connectors (draw.io style)
+**Goal**: Improve the connection workflow with visual connector handles for quick, intuitive diagram creation.
+
+- [x] **Source Connection Fix**
+  - [x] Check for startBinding at line/arrow creation time
+  - [x] Snap start point to nearby shapes automatically
+- [x] **Interactive Connector Handles**
+  - [x] Show green "+" handles at anchor points when shape is selected
+  - [x] Click & drag from handle to create arrow with auto-binding
+  - [x] Auto-select created arrow after drawing
+  - [x] Handle detection in getHandleAtPosition
+- [ ] **Future Enhancements**
+  - [ ] Show connector handles on hover (with modifier key)
+  - [ ] Elbow/orthogonal connector routing
+  - [ ] Custom anchor point positioning
