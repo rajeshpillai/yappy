@@ -986,16 +986,36 @@ const Canvas: Component = () => {
                 let cp1 = { x: el.x, y: el.y };
                 let cp2 = { x: endX, y: endY };
 
-                if (Math.abs(w) > Math.abs(h)) {
+                if (el.controlPoints && el.controlPoints.length > 0) {
+                    const cp = el.controlPoints[0];
+                    // Convert Quadratic (P0, P1, P2) to Cubic (P0, CP1, CP2, P3) for hit testing
+                    // CP1 = P0 + 2/3 * (P1 - P0)
+                    // CP2 = P2 + 2/3 * (P1 - P2)
+
+                    const p0 = { x: el.x, y: el.y };
+                    const p1 = cp;
+                    const p2 = { x: endX, y: endY };
+
+                    const cp1Cube = {
+                        x: p0.x + (2 / 3) * (p1.x - p0.x),
+                        y: p0.y + (2 / 3) * (p1.y - p0.y)
+                    };
+                    const cp2Cube = {
+                        x: p2.x + (2 / 3) * (p1.x - p2.x),
+                        y: p2.y + (2 / 3) * (p1.y - p2.y)
+                    };
+
+                    return isPointOnBezier(p, p0, cp1Cube, cp2Cube, p2, threshold);
+
+                } else if (Math.abs(w) > Math.abs(h)) {
                     cp1 = { x: el.x + w / 2, y: el.y };
                     cp2 = { x: endX - w / 2, y: endY };
+                    return isPointOnBezier(p, { x: el.x, y: el.y }, cp1, cp2, { x: endX, y: endY }, threshold);
                 } else {
                     cp1 = { x: el.x, y: el.y + h / 2 };
                     cp2 = { x: endX, y: endY - h / 2 };
+                    return isPointOnBezier(p, { x: el.x, y: el.y }, cp1, cp2, { x: endX, y: endY }, threshold);
                 }
-                // Use threshold / scale? No, threshold is already correct?
-                // The threshold passed to hitTestElement is "10 / scale".
-                return isPointOnBezier(p, { x: el.x, y: el.y }, cp1, cp2, { x: endX, y: endY }, threshold);
             } else {
                 // Line
                 return distanceToSegment(p, { x: el.x, y: el.y }, { x: el.x + el.width, y: el.y + el.height }) <= threshold;
