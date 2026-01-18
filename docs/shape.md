@@ -56,6 +56,7 @@ Standard shapes defined by a bounding box (x, y, width, height) follow these ste
 5.  **Hit Testing**: Add to `hitTestElement` in `src/components/Canvas.tsx`. Usually `isPointInPolygon` or AABB check.
 6.  **Intersections (Crucial)**: Update `intersectElementWithLine` in `src/utils/geometry.ts`. This enables connector snapping.
 7.  **Normalization**: Add type to `handlePointerUp` in `Canvas.tsx` to handle negative drag widths (flip).
+8.  **Minimap Support**: Since the Minimap uses `renderElement`, your shape will render automatically. Ensure properties are tracked in the reactivity loop in `src/components/Minimap.tsx` for real-time updates.
 
 ## 2. Creating a Drawing Tool (Pen/Marker)
 
@@ -70,6 +71,7 @@ Drawing tools are point-based and captured in real-time.
 4.  **Rendering**:
     - Use `ctx.beginPath()` for raw canvas performance or `perfect-freehand` for smooth strokes.
     - **Marker Specific**: Use `ctx.globalAlpha` and `ctx.globalCompositeOperation = 'multiply'` for highlighter effects.
+5.  **Minimap Support**: Ensure the new pen type is included in the Minimap's draw loop. Since Minimap uses `renderElement`, adding logic there is usually sufficient.
 
 ## 3. Key Features to Remember
 
@@ -78,3 +80,4 @@ Drawing tools are point-based and captured in real-time.
 *   **Performance**: For complex paths, use `ctx.save()` and `ctx.restore()` sparingly.
 *   **Z-Index**: Elements are rendered in the order they appear in `store.elements`.
 *   **Binding**: If you want other elements to "stick" to yours, you **must** implement the intersection logic in `geometry.ts`.
+*   **Minimap Consistency**: New elements must utilize `renderElement` to ensure they are visible in the Navigator. If the element has unique reactive properties, update the `track()` function in `Minimap.tsx`.

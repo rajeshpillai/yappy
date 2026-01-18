@@ -182,6 +182,7 @@
 - [x] Update Documentation
   - [x] `docs/shape.md`: Shape Attribute Matrix & Developer Guide
   - [x] `docs/api.md`: Added `createDiamond`
+  - [x] `docs/layers.md`: Technical details on Layering & Rendering
 
 ## Phase 16: Alignment Tools
 - [x] Implement Alignment & Distribution Tools
@@ -281,6 +282,7 @@
 - **Bidirectional Bindings**: Essential for stable connections. Arrows need `startBinding`/`endBinding` AND shapes need `boundElements`.
 - **CSS Reliability**: Avoid undefined theme variables (`--bg-primary` vs `--bg-panel`). Use explicit contrast fallbacks to prevent "invisible text" bugs in dialogs.
 - **Template Schema**: Templates are static objects; they lack the runtime safety of `api.ts` helpers. Always include all `DrawingElement` properties to prevent rendering glitches.
+- **Minimap Fidelity**: Always utilize `renderElement` for the Minimap to ensure 1:1 visual parity with the main canvas. Any new `ElementType` must be verified in the Minimap, and its reactive properties (width, points, etc.) must be added to the `track()` loop in `Minimap.tsx` to enable real-time updates.
 - [x] Element property normalization
   - [x] Added `normalizeElement()` function in migration.ts
   - [x] Prevents runtime errors from missing properties
