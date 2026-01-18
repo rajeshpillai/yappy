@@ -1755,6 +1755,7 @@ const Canvas: Component = () => {
                                 }
 
                                 updateElement(id, { controlPoints: newControlPoints }, false);
+                                requestAnimationFrame(draw);
                                 return; // Skip resize logic
                             }
                         }

@@ -896,6 +896,14 @@ export const renderElement = (
             let cp1: { x: number; y: number };
             let cp2: { x: number; y: number };
 
+            // Determine Start/End points (handle anti-diagonal lines)
+            let start = { x: el.x, y: el.y };
+            let end = { x: endX, y: endY };
+            if (el.points && el.points.length >= 2) {
+                start = { x: el.x + el.points[0].x, y: el.y + el.points[0].y };
+                end = { x: el.x + el.points[el.points.length - 1].x, y: el.y + el.points[el.points.length - 1].y };
+            }
+
             if (el.controlPoints && el.controlPoints.length > 0) {
                 // Use stored control points
                 // For quadratic bezier (one control point), we might need to adapt if we want cubic.
@@ -909,6 +917,11 @@ export const renderElement = (
                 // RoughJS supports standard SVG path data.
                 if (el.controlPoints.length > 1) {
                     cp2 = el.controlPoints[1];
+                    // Cubic Bezier support can be added if needed, but usually filtered by lines 910 check
+                    // Assuming fallback to quadratic logic is not needed if length > 1
+                    // Wait, the original code had an else block for length > 1? 
+                    // No, original code was: if (length > 1) { cp2 = ... } else { ... use Q ... }
+                    // So I need to replicate that structure.
                 } else {
                     // Quadratic feel using Cubic C command:
                     // CP1 = start + 2/3 * (control - start)
@@ -919,49 +932,49 @@ export const renderElement = (
                     // or use "Q" command if supported.
 
                     // Let's use Q command for quadratic bezier if only 1 point
-                    const path = `M ${el.x} ${el.y} Q ${cp1.x} ${cp1.y}, ${endX} ${endY}`;
+                    const path = `M ${start.x} ${start.y} Q ${cp1.x} ${cp1.y}, ${end.x} ${end.y}`;
                     rc.path(path, options);
 
                     // Draw arrows and return
                     if (el.startArrowhead) {
-                        const angle = Math.atan2(el.y - cp1.y, el.x - cp1.x);
-                        drawArrowhead(rc, el.x, el.y, angle, el.startArrowhead, options);
+                        const angle = Math.atan2(start.y - cp1.y, start.x - cp1.x);
+                        drawArrowhead(rc, start.x, start.y, angle, el.startArrowhead, options);
                     }
                     if (el.endArrowhead) {
-                        const angle = Math.atan2(endY - cp1.y, endX - cp1.x);
-                        drawArrowhead(rc, endX, endY, angle, el.endArrowhead, options);
+                        const angle = Math.atan2(end.y - cp1.y, end.x - cp1.x);
+                        drawArrowhead(rc, end.x, end.y, angle, el.endArrowhead, options);
                     }
                     return;
                 }
 
             } else {
                 // Default Heuristics (existing logic)
-                cp1 = { x: el.x, y: el.y };
-                cp2 = { x: endX, y: endY };
+                cp1 = { x: start.x, y: start.y };
+                cp2 = { x: end.x, y: end.y };
 
                 // Simple heuristic: if width > height, assume horizontal flow
                 if (Math.abs(w) > Math.abs(h)) {
-                    cp1 = { x: el.x + w / 2, y: el.y };
-                    cp2 = { x: endX - w / 2, y: endY };
+                    cp1 = { x: start.x + w / 2, y: start.y };
+                    cp2 = { x: end.x - w / 2, y: end.y };
                 } else {
-                    cp1 = { x: el.x, y: el.y + h / 2 };
-                    cp2 = { x: endX, y: endY - h / 2 };
+                    cp1 = { x: start.x, y: start.y + h / 2 };
+                    cp2 = { x: end.x, y: end.y - h / 2 };
                 }
             }
 
-            const path = `M ${el.x} ${el.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${endX} ${endY}`;
+            const path = `M ${start.x} ${start.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${end.x} ${end.y}`;
             rc.path(path, options);
 
             // Start Arrowhead (at p0, angle from cp1 -> p0)
             if (el.startArrowhead) {
-                const angle = Math.atan2(el.y - cp1.y, el.x - cp1.x);
-                drawArrowhead(rc, el.x, el.y, angle, el.startArrowhead, options);
+                const angle = Math.atan2(start.y - cp1.y, start.x - cp1.x);
+                drawArrowhead(rc, start.x, start.y, angle, el.startArrowhead, options);
             }
 
             // End Arrowhead (at p3, angle from cp2 -> p3)
             if (el.endArrowhead) {
-                const angle = Math.atan2(endY - cp2.y, endX - cp2.x);
-                drawArrowhead(rc, endX, endY, angle, el.endArrowhead, options);
+                const angle = Math.atan2(end.y - cp2.y, end.x - cp2.x);
+                drawArrowhead(rc, end.x, end.y, angle, el.endArrowhead, options);
             }
 
         } else if (el.curveType === 'elbow') {
