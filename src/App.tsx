@@ -8,6 +8,7 @@ import PropertyPanel from './components/PropertyPanel';
 import LayerPanel from './components/LayerPanel';
 import CommandPalette from './components/CommandPalette';
 import { initAPI } from './api';
+import { Settings } from 'lucide-solid';
 
 const App: Component = () => {
   // Removed showHelp state as it is now in Menu.tsx
@@ -97,6 +98,33 @@ const App: Component = () => {
       <Menu />
       <Canvas />
       <CommandPalette />
+
+      {/* Floating Property Panel Toggle (bottom-right corner) */}
+      <button
+        class="floating-settings-btn"
+        onClick={() => togglePropertyPanel()}
+        title="Toggle Properties (Alt+Enter)"
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          width: '48px',
+          height: '48px',
+          'border-radius': '50%',
+          border: 'none',
+          background: store.showPropertyPanel ? '#3b82f6' : '#ffffff',
+          color: store.showPropertyPanel ? '#ffffff' : '#4b5563',
+          'box-shadow': '0 4px 12px rgba(0, 0, 0, 0.15)',
+          cursor: 'pointer',
+          display: 'flex',
+          'align-items': 'center',
+          'justify-content': 'center',
+          'z-index': '1000',
+          transition: 'all 0.2s ease'
+        }}
+      >
+        <Settings size={24} />
+      </button>
     </div>
   );
 };
