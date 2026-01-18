@@ -1044,6 +1044,17 @@ const Canvas: Component = () => {
                         initialElementWidth = el.width;
                         initialElementHeight = el.height;
                         initialElementFontSize = el.fontSize || 20;
+
+                        // Capture initial position for the single element to support point scaling
+                        initialPositions.clear();
+                        initialPositions.set(el.id, {
+                            x: el.x,
+                            y: el.y,
+                            width: el.width,
+                            height: el.height,
+                            fontSize: el.fontSize,
+                            points: el.points ? [...el.points] : undefined
+                        });
                     }
                 }
                 return;
@@ -1465,13 +1476,28 @@ const Canvas: Component = () => {
 
                             const updates: any = { x: newX, y: newY, width: newWidth, height: newHeight };
 
+                            // Scale factors for points/content
+                            const scaleX = initialElementWidth === 0 ? 1 : newWidth / initialElementWidth;
+                            const scaleY = initialElementHeight === 0 ? 1 : newHeight / initialElementHeight;
+
                             // Scale font size for text
                             if (el.type === 'text') {
-                                const scaleY = newHeight / initialElementHeight;
                                 if (scaleY > 0) {
                                     let newFontSize = initialElementFontSize * scaleY;
                                     newFontSize = Math.max(newFontSize, 8);
                                     updates.fontSize = newFontSize;
+                                }
+                            }
+
+                            // Scale points for pen tools
+                            if ((el.type === 'fineliner' || el.type === 'inkbrush') && el.points) {
+                                const init = initialPositions.get(id);
+                                if (init && init.points) {
+                                    updates.points = init.points.map((p: any) => ({
+                                        x: p.x * scaleX,
+                                        y: p.y * scaleY,
+                                        p: p.p
+                                    }));
                                 }
                             }
 
