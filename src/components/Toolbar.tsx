@@ -1,7 +1,7 @@
 import { type Component, For } from "solid-js";
-import { store, setSelectedTool, addElement } from "../store/appStore";
+import { store, setSelectedTool, addElement, togglePropertyPanel } from "../store/appStore";
 import type { ElementType } from "../types";
-import { MousePointer2, Square, Circle, Minus, Type, MoveUpRight, Eraser, Hand, Image as ImageIcon, Spline, Diamond } from "lucide-solid";
+import { MousePointer2, Square, Circle, Minus, Type, MoveUpRight, Eraser, Hand, Image as ImageIcon, Spline, Diamond, Settings } from "lucide-solid";
 import PenToolGroup from "./PenToolGroup";
 import ShapeToolGroup from "./ShapeToolGroup";
 import "./Toolbar.css";
@@ -174,6 +174,15 @@ const Toolbar: Component = () => {
                     </button>
                 )}
             </For>
+
+            {/* Property Panel Toggle (mobile-friendly) */}
+            <button
+                class={`toolbar-btn mobile-property-toggle ${store.showPropertyPanel ? 'active' : ''}`}
+                onClick={() => togglePropertyPanel()}
+                title="Properties Panel"
+            >
+                <Settings size={20} />
+            </button>
         </div>
     );
 };

@@ -67,3 +67,10 @@
     color: #3b82f6;
     border-color: #bfdbfe;
 }
+
+/* Mobile Property Panel Toggle - always visible, provides quick access */
+.mobile-property-toggle {
+    margin-left: 4px;
+    border-left: 1px solid #e5e7eb;
+    padding-left: 8px;
+}
