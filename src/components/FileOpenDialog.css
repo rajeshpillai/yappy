@@ -71,9 +71,11 @@
     border: 1px solid #eee;
 }
 
-.file-item:hover {
+.file-item:hover,
+.file-item.active {
     background: #f8f9fa;
-    border-color: #ddd;
+    border-color: #3b82f6;
+    outline: 2px solid #3b82f6;
 }
 
 .file-item span {
