@@ -23,7 +23,7 @@ interface AppState {
     minimapVisible: boolean;
     zenMode: boolean;
     showCommandPalette: boolean;
-    selectedPenType: 'fineliner' | 'inkbrush';
+    selectedPenType: 'fineliner' | 'inkbrush' | 'marker';
     selectedShapeType: 'triangle' | 'hexagon' | 'octagon' | 'parallelogram' | 'star' | 'cloud' | 'heart' | 'cross' | 'checkmark' | 'arrowLeft' | 'arrowRight' | 'arrowUp' | 'arrowDown';
     layerGroupingModeEnabled: boolean;
     maxLayers: number;
@@ -688,7 +688,7 @@ export const setCanvasBackgroundColor = (color: string) => {
     setStore('canvasBackgroundColor', color);
 };
 
-export const setSelectedPenType = (penType: 'fineliner' | 'inkbrush') => {
+export const setSelectedPenType = (penType: 'fineliner' | 'inkbrush' | 'marker') => {
     setStore('selectedPenType', penType);
 };
 

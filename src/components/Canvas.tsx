@@ -1054,7 +1054,7 @@ const Canvas: Component = () => {
                 // Line
                 return distanceToSegment(p, { x: el.x, y: el.y }, { x: el.x + el.width, y: el.y + el.height }) <= threshold;
             }
-        } else if ((el.type === 'fineliner' || el.type === 'inkbrush') && el.points) {
+        } else if ((el.type === 'fineliner' || el.type === 'inkbrush' || el.type === 'marker') && el.points) {
             // For pen types, points are now relative to el.x, el.y
             // The point p is in local unrotated space matches el.x/y system.
             // But valid points are relative. So we need to check distance relative to (el.x, el.y).
@@ -1527,7 +1527,7 @@ const Canvas: Component = () => {
             seed: Math.floor(Math.random() * 2 ** 31),
             layerId: store.activeLayerId,
             curveType: actualCurveType as 'straight' | 'bezier' | 'elbow',
-            points: (tool === 'fineliner' || tool === 'inkbrush') ? [{ x: 0, y: 0, t: Date.now() }] : undefined,
+            points: (tool === 'fineliner' || tool === 'inkbrush' || tool === 'marker') ? [{ x: 0, y: 0, t: Date.now() }] : undefined,
             startBinding: startBindingData,
         } as DrawingElement;
 
@@ -1816,7 +1816,7 @@ const Canvas: Component = () => {
                             }
 
                             // Scale points for pen tools
-                            if ((el.type === 'fineliner' || el.type === 'inkbrush') && el.points) {
+                            if ((el.type === 'fineliner' || el.type === 'inkbrush' || el.type === 'marker') && el.points) {
                                 const init = initialPositions.get(id);
                                 if (init && init.points) {
                                     updates.points = init.points.map((p: any) => ({
@@ -1931,7 +1931,7 @@ const Canvas: Component = () => {
             return;
         }
 
-        if (store.selectedTool === 'fineliner') {
+        if (store.selectedTool === 'fineliner' || store.selectedTool === 'marker') {
             const el = store.elements.find(e => e.id === currentId);
             if (el && el.points) {
                 const { x: ex, y: ey } = getWorldCoordinates(e.clientX, e.clientY);
@@ -1939,10 +1939,10 @@ const Canvas: Component = () => {
                 const newPoint = {
                     x: ex - startX,
                     y: ey - startY,
-                    p: 0.5  // Constant pressure for fine liner
+                    p: 0.5  // Constant pressure for fine liner and marker
                 };
 
-                // No distance threshold for fineliner - capture all points for smoothest curves
+                // No distance threshold for these - capture all points for smoothest curves
                 const newPoints = [...el.points, newPoint];
                 updateElement(currentId, { points: newPoints }, false);
             }
@@ -2169,9 +2169,9 @@ const Canvas: Component = () => {
                     if (el.height < 0) {
                         updateElement(currentId, { y: el.y + el.height, height: Math.abs(el.height) });
                     }
-                } else if (el.type === 'fineliner') {
+                } else if (el.type === 'fineliner' || el.type === 'marker') {
                     if (el.points && el.points.length > 2) {
-                        // Simple normalization for fineliner - keep all points for smooth curves
+                        // Simple normalization - keep all points for smooth curves
                         const updates = normalizePencil({ ...el, points: el.points });
                         if (updates) {
                             updateElement(currentId, updates);

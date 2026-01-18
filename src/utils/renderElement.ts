@@ -1165,6 +1165,48 @@ export const renderElement = (
         } else {
             ctx.fillText(el.text, el.x, el.y + fontSize);
         }
+    } else if (el.type === 'marker' && el.points && el.points.length > 0) {
+        // Marker: Smooth quadratic Bézier curves with thicker strokes
+        const absPoints = el.points.map(p => ({ ...p, x: el.x + p.x, y: el.y + p.y }));
+
+        if (absPoints.length < 6) {
+            // For very few points, draw a circle
+            ctx.beginPath();
+            ctx.arc(absPoints[0].x, absPoints[0].y, el.strokeWidth * 2, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fillStyle = strokeColor;
+            ctx.globalAlpha = ((el.opacity ?? 100) / 100) * layerOpacity * 0.5;
+            ctx.fill();
+        } else {
+            // Draw smooth quadratic Bézier curves using the midpoint technique
+            ctx.save();
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth * 4; // Significantly thicker for highlighter
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'square'; // Chisel tip effect
+            ctx.globalAlpha = ((el.opacity ?? 100) / 100) * layerOpacity * 0.5; // Semi-transparent "highlighter" feel
+            ctx.globalCompositeOperation = 'multiply'; // Highlighters darker when they overlap
+
+            ctx.beginPath();
+            ctx.moveTo(absPoints[0].x, absPoints[0].y);
+
+            // Draw quadratic curves using midpoints as control points
+            for (let i = 1; i < absPoints.length - 2; i++) {
+                const midX = (absPoints[i].x + absPoints[i + 1].x) / 2;
+                const midY = (absPoints[i].y + absPoints[i + 1].y) / 2;
+                ctx.quadraticCurveTo(absPoints[i].x, absPoints[i].y, midX, midY);
+            }
+
+            // Connect to the last two points
+            const lastIdx = absPoints.length - 1;
+            ctx.quadraticCurveTo(
+                absPoints[lastIdx - 1].x, absPoints[lastIdx - 1].y,
+                absPoints[lastIdx].x, absPoints[lastIdx].y
+            );
+
+            ctx.stroke();
+            ctx.restore();
+        }
     }
 
     // Render containerText (text inside shapes)

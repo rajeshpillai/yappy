@@ -470,3 +470,27 @@
   - [x] Offset handles from shape for easier touch access
   - [x] Larger touch targets (12px visual, 18px offset)
   - [x] Hover animation (scale & glow) for better feedback
+
+## Phase 27: Advanced Custom Drawing Features
+- [ ] Add customizable shape libraries (user-defined shapes and import/export options)
+- [ ] Implement parametric shapes with adjustable properties (e.g., rounded rectangles, stars)
+- [ ] Introduce smart shapes that dynamically resize based on content (e.g., flowchart shapes)
+- [ ] Add interactive widgets (sliders, toggles, input fields) for diagrams
+- [ ] Enable data-driven shapes that bind to external data sources (e.g., JSON, APIs)
+- [ ] Support text on paths (e.g., curved or custom paths)
+- [ ] Add advanced text effects (shadows, gradients, outlines)
+- [ ] Implement snapping to midpoints, intersections, and custom anchor points
+- [ ] Add advanced connectors with customizable styles (e.g., curved lines, arrowheads)
+  - Note: Connectors already support line types such as dashed and dotted.
+- [ ] Introduce smart routing for connectors (e.g., orthogonal routing, A* pathfinding)
+- [ ] Add animation support for elements (e.g., transitions, blinking, movement)
+- [ ] Implement layer blend modes (e.g., multiply, screen, overlay)
+- [ ] Add layer thumbnails/previews for better navigation
+- [ ] Enable rulers and draggable guides for precise alignment
+- [ ] Add advanced resizing options (e.g., constrained resizing, multi-selection handles)
+- [ ] Implement voice commands for tool actions (e.g., "Draw a rectangle here")
+- [ ] Add advanced export options (e.g., export specific layers, animated GIFs/videos)
+- [ ] Integrate with third-party tools (e.g., Figma, Notion, Google Docs)
+- [ ] Implement AI-powered auto-suggestions for shapes, connectors, and layouts
+- [ ] Add error detection for diagram issues (e.g., disconnected connectors, overlapping shapes)
+- [ ] Introduce specialized tools for mind mapping, storyboarding, and wireframing
