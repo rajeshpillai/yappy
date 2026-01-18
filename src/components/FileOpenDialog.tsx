@@ -20,10 +20,10 @@ const FileOpenDialog: Component<FileOpenDialogProps> = (props) => {
         try {
             const list = await storage.listDrawings();
             const fileObjects = list
-                .map(f => ({
-                    id: f,
-                    name: f.replace('.json', '')
-                }))
+                .map(f => {
+                    const name = f.replace('.json', '');
+                    return { id: name, name };
+                })
                 .sort((a, b) => a.name.localeCompare(b.name));
 
             setFiles(fileObjects);
