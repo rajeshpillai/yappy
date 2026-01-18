@@ -23,7 +23,6 @@ export const getCommands = (): Command[] => {
         { id: 'tool-line', label: 'Line Tool', category: 'Tools', action: () => setSelectedTool('line'), shortcut: 'L' },
         { id: 'tool-arrow', label: 'Arrow Tool', category: 'Tools', action: () => setSelectedTool('arrow'), shortcut: 'A' },
         { id: 'tool-text', label: 'Text Tool', category: 'Tools', action: () => setSelectedTool('text'), shortcut: 'T' },
-        { id: 'tool-pencil', label: 'Pencil Tool', category: 'Tools', action: () => setSelectedTool('pencil'), shortcut: 'P' },
         { id: 'tool-eraser', label: 'Eraser Tool', category: 'Tools', action: () => setSelectedTool('eraser'), shortcut: 'E' },
         { id: 'tool-bezier', label: 'Bezier Tool', category: 'Tools', action: () => setSelectedTool('bezier'), shortcut: 'B' },
         { id: 'tool-diamond', label: 'Diamond Tool', category: 'Tools', action: () => setSelectedTool('diamond'), shortcut: 'D' },

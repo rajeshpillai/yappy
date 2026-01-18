@@ -369,7 +369,7 @@ const Menu: Component = () => {
                         else if (key === 'a' || key === '5') setSelectedTool('arrow');
                         else if (key === 't' || key === '6') setSelectedTool('text');
                         else if (key === 'e' || key === '7') setSelectedTool('eraser');
-                        else if (key === 'p' || key === '8') setSelectedTool('pencil');
+                        else if (key === 'p' || key === '8') setSelectedTool('fineliner');
                         else if (key === '9' || key === 'i') fileInputRef?.click();
                         else if (key === 'b' || key === '0') setSelectedTool('bezier');
                         else if (key === 'd') setSelectedTool('diamond');

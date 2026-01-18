@@ -133,17 +133,6 @@ export const Minimap = (props: MinimapProps) => {
                     ctx.lineWidth = 1 / scale;
                     ctx.stroke();
                 }
-            } else if (el.type === 'pencil') {
-                if (el.points && el.points.length > 1) {
-                    ctx.beginPath();
-                    ctx.moveTo(el.points[0].x, el.points[0].y);
-                    for (let i = 1; i < el.points.length; i++) {
-                        ctx.lineTo(el.points[i].x, el.points[i].y);
-                    }
-                    ctx.strokeStyle = el.strokeColor;
-                    ctx.lineWidth = 1 / scale;
-                    ctx.stroke();
-                }
             } else if (el.type === 'text') {
                 // Draw text box
                 ctx.fillStyle = 'rgba(100,100,200,0.3)';

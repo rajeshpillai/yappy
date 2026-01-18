@@ -123,9 +123,6 @@ export const exportToSvg = () => {
             } else {
                 node = rc.line(el.x, el.y, endX, endY, options);
             }
-        } else if (el.type === 'pencil' && el.points) {
-            const points: [number, number][] = el.points.map(p => [el.x + p.x, el.y + p.y]);
-            node = rc.linearPath(points, options);
         } else if (el.type === 'text' && el.text) {
             const textText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             textText.textContent = el.text;

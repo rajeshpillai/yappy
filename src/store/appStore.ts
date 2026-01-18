@@ -1,5 +1,5 @@
 import { createStore } from "solid-js/store";
-import type { DrawingElement, ViewState, ElementType, Layer, GridSettings, PencilSettings } from "../types";
+import type { DrawingElement, ViewState, ElementType, Layer, GridSettings } from "../types";
 
 interface AppState {
     elements: DrawingElement[];
@@ -13,7 +13,6 @@ interface AppState {
     gridSettings: GridSettings;
     showCanvasProperties: boolean;
     canvasBackgroundColor: string;
-    pencilSettings: PencilSettings;
     undoStackLength: number;
     redoStackLength: number;
     // Panel Visibility
@@ -24,7 +23,7 @@ interface AppState {
     minimapVisible: boolean;
     zenMode: boolean;
     showCommandPalette: boolean;
-    selectedPenType: 'pencil' | 'calligraphy' | 'fineliner' | 'inkbrush';
+    selectedPenType: 'fineliner' | 'inkbrush';
     selectedShapeType: 'triangle' | 'hexagon' | 'octagon' | 'parallelogram' | 'star' | 'cloud' | 'heart' | 'cross' | 'checkmark' | 'arrowLeft' | 'arrowRight' | 'arrowUp' | 'arrowDown';
     layerGroupingModeEnabled: boolean;
     maxLayers: number;
@@ -81,13 +80,6 @@ const initialState: AppState = {
     },
     showCanvasProperties: false,
     canvasBackgroundColor: '#ffffff',
-    pencilSettings: {
-        penMode: false,
-        smoothing: 1,
-        tolerance: 0.5,
-        stabilization: 2,
-        pressure: true
-    },
     undoStackLength: 0,
     redoStackLength: 0,
     showPropertyPanel: false,
@@ -689,11 +681,7 @@ export const setCanvasBackgroundColor = (color: string) => {
     setStore('canvasBackgroundColor', color);
 };
 
-export const updatePencilSettings = (updates: Partial<PencilSettings>) => {
-    setStore('pencilSettings', (s) => ({ ...s, ...updates }));
-};
-
-export const setSelectedPenType = (penType: 'pencil' | 'calligraphy' | 'fineliner' | 'inkbrush') => {
+export const setSelectedPenType = (penType: 'fineliner' | 'inkbrush') => {
     setStore('selectedPenType', penType);
 };
 

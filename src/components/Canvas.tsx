@@ -18,7 +18,6 @@ import {
     copyToClipboard, cutToClipboard, pasteFromClipboard,
     flipSelected, lockSelected, copyStyle, pasteStyle
 } from '../utils/objectContextActions';
-import { simplifyPoints } from "../utils/pencilOptimizer";
 import { perfMonitor } from "../utils/performanceMonitor";
 
 
@@ -51,13 +50,6 @@ const Canvas: Component = () => {
 
     let canvasRef: HTMLCanvasElement | undefined;
 
-    // Minimum distance between points to reduce micro-jitter (in pixels)
-    const MIN_POINT_DISTANCE = 2;
-    const CALLIGRAPHY_MIN_DISTANCE = 3;
-
-    // Calligraphy state for velocity calculation
-    let lastCalligraphyVelocity = 0;
-    const VELOCITY_FILTER_WEIGHT = 0.7;
 
     let isDrawing = false;
     let currentId: string | null = null;
@@ -84,7 +76,6 @@ const Canvas: Component = () => {
     let initialElementWidth = 0;
     let initialElementHeight = 0;
 
-    let initialElementPoints: { x: number; y: number }[] | undefined;
     let initialElementFontSize = 20;
 
     // OPTIMIZATION: Throttle smart snapping calculations
@@ -542,7 +533,7 @@ const Canvas: Component = () => {
                 for (const element of store.elements) {
                     if (element.id === currentId) continue;
                     if (!canInteractWithElement(element)) continue;
-                    if (element.type === 'line' || element.type === 'arrow' || element.type === 'pencil' || element.type === 'bezier') continue;
+                    if (element.type === 'line' || element.type === 'arrow' || element.type === 'bezier') continue;
                     if (element.layerId !== store.activeLayerId) continue;
 
                     const cx = element.x + element.width / 2;
@@ -888,7 +879,7 @@ const Canvas: Component = () => {
                 // Line
                 return distanceToSegment(p, { x: el.x, y: el.y }, { x: el.x + el.width, y: el.y + el.height }) <= threshold;
             }
-        } else if ((el.type === 'pencil' || el.type === 'calligraphy' || el.type === 'fineliner' || el.type === 'inkbrush') && el.points) {
+        } else if ((el.type === 'fineliner' || el.type === 'inkbrush') && el.points) {
             // For pen types, points are now relative to el.x, el.y
             // The point p is in local unrotated space matches el.x/y system.
             // But valid points are relative. So we need to check distance relative to (el.x, el.y).
@@ -921,7 +912,7 @@ const Canvas: Component = () => {
         for (const target of store.elements) {
             if (target.id === excludeId) continue;
             if (!canInteractWithElement(target)) continue;
-            if (target.type === 'line' || target.type === 'arrow' || target.type === 'pencil' || target.type === 'bezier') continue;
+            if (target.type === 'line' || target.type === 'arrow' || target.type === 'bezier') continue;
 
             const activeLayer = store.layers.find(l => l.id === store.activeLayerId);
             if (!activeLayer) continue;
@@ -1049,7 +1040,6 @@ const Canvas: Component = () => {
                         initialElementY = el.y;
                         initialElementWidth = el.width;
                         initialElementHeight = el.height;
-                        initialElementPoints = el.points ? [...el.points] : undefined;
                         initialElementFontSize = el.fontSize || 20;
                     }
                 }
@@ -1260,15 +1250,9 @@ const Canvas: Component = () => {
             seed: Math.floor(Math.random() * 2 ** 31),
             layerId: store.activeLayerId,
             curveType: actualCurveType as 'straight' | 'bezier' | 'elbow',
-            points: (tool === 'pencil' || tool === 'calligraphy' || tool === 'fineliner' || tool === 'inkbrush') ? [{ x: 0, y: 0, t: Date.now() }] : undefined,
+            points: (tool === 'fineliner' || tool === 'inkbrush') ? [{ x: 0, y: 0, t: Date.now() }] : undefined,
         } as DrawingElement;
 
-        if (store.selectedTool === 'pencil') {
-            // No stabilizer needed - using incremental Bézier smoothing
-        }
-        if (store.selectedTool === 'calligraphy') {
-            lastCalligraphyVelocity = 0;
-        }
 
         addElement(newElement);
     };
@@ -1478,17 +1462,6 @@ const Canvas: Component = () => {
 
                             const updates: any = { x: newX, y: newY, width: newWidth, height: newHeight };
 
-                            // Scale points for pencil
-                            if (el.type === 'pencil' && initialElementPoints) {
-                                const scaleX = newWidth / initialElementWidth;
-                                const scaleY = newHeight / initialElementHeight;
-
-                                const newPoints = initialElementPoints.map(p => ({
-                                    x: p.x * (initialElementWidth === 0 ? 1 : scaleX),
-                                    y: p.y * (initialElementHeight === 0 ? 1 : scaleY)
-                                }));
-                                updates.points = newPoints;
-                            }
                             // Scale font size for text
                             if (el.type === 'text') {
                                 const scaleY = newHeight / initialElementHeight;
@@ -1603,74 +1576,7 @@ const Canvas: Component = () => {
             return;
         }
 
-        if (store.selectedTool === 'pencil') {
-            const el = store.elements.find(e => e.id === currentId);
-            if (el && el.points) {
-                const { x: ex, y: ey } = getWorldCoordinates(e.clientX, e.clientY);
-                const newPoint = {
-                    x: ex - startX,
-                    y: ey - startY,
-                    p: (store.pencilSettings.pressure && e.pressure !== undefined) ? e.pressure : 0.5
-                };
-
-                // Distance threshold to skip micro-jitter (only when penMode is enabled)
-                if (store.pencilSettings.penMode && el.points.length > 0) {
-                    const lastPoint = el.points[el.points.length - 1];
-                    const dx = newPoint.x - lastPoint.x;
-                    const dy = newPoint.y - lastPoint.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < MIN_POINT_DISTANCE) {
-                        return; // Skip this point - too close
-                    }
-                }
-
-                // Add point and update - the rendering will handle Bézier smoothing
-                const newPoints = [...el.points, newPoint];
-                updateElement(currentId, { points: newPoints }, false);
-            }
-        } else if (store.selectedTool === 'calligraphy') {
-            const el = store.elements.find(e => e.id === currentId);
-            if (el && el.points) {
-                const { x: ex, y: ey } = getWorldCoordinates(e.clientX, e.clientY);
-                const now = Date.now();
-                const lastPoint = el.points[el.points.length - 1];
-
-                // Distance threshold
-                const dx = (ex - startX) - lastPoint.x;
-                const dy = (ey - startY) - lastPoint.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-
-                if (dist < CALLIGRAPHY_MIN_DISTANCE) {
-                    return; // Skip this point - too close
-                }
-
-                // Calculate velocity (pixels per millisecond)
-                const timeDelta = Math.max(now - (lastPoint.t || now), 1);
-                const velocity = dist / timeDelta;
-
-                // Smooth velocity with filter
-                const smoothedVelocity = VELOCITY_FILTER_WEIGHT * velocity + (1 - VELOCITY_FILTER_WEIGHT) * lastCalligraphyVelocity;
-                lastCalligraphyVelocity = smoothedVelocity;
-
-                // Calculate pressure based on velocity (inverse: faster = thinner)
-                // Velocity typically ranges 0-2 px/ms, map to 0.2-1.0 pressure
-                const velocityPressure = Math.max(0.2, Math.min(1.0, 1.0 / (1 + smoothedVelocity * 2)));
-
-                // Use actual pressure if available, blend with velocity
-                const actualPressure = (e.pressure !== undefined && e.pressure > 0) ? e.pressure : 0.5;
-                const finalPressure = actualPressure * velocityPressure;
-
-                const newPoint = {
-                    x: ex - startX,
-                    y: ey - startY,
-                    p: finalPressure,
-                    t: now
-                };
-
-                const newPoints = [...el.points, newPoint];
-                updateElement(currentId, { points: newPoints }, false);
-            }
-        } else if (store.selectedTool === 'fineliner') {
+        if (store.selectedTool === 'fineliner') {
             const el = store.elements.find(e => e.id === currentId);
             if (el && el.points) {
                 const { x: ex, y: ey } = getWorldCoordinates(e.clientX, e.clientY);
@@ -1872,30 +1778,6 @@ const Canvas: Component = () => {
                     if (el.height < 0) {
                         updateElement(currentId, { y: el.y + el.height, height: Math.abs(el.height) });
                     }
-                } else if (el.type === 'pencil') {
-                    if (el.points && el.points.length > 2) {
-                        // Only apply simplification when penMode is enabled
-                        const finalPoints = store.pencilSettings.penMode
-                            ? simplifyPoints(el.points, store.pencilSettings.tolerance / store.viewState.scale)
-                            : el.points;
-
-                        // Normalize pencil
-                        const updates = normalizePencil({ ...el, points: finalPoints });
-                        if (updates) {
-                            updateElement(currentId, updates);
-                        }
-                    }
-                } else if (el.type === 'calligraphy') {
-                    if (el.points && el.points.length > 2) {
-                        // Light simplification for calligraphy
-                        const simplified = simplifyPoints(el.points, 0.3 / store.viewState.scale);
-
-                        // Normalize calligraphy like pencil
-                        const updates = normalizePencil({ ...el, points: simplified });
-                        if (updates) {
-                            updateElement(currentId, updates);
-                        }
-                    }
                 } else if (el.type === 'fineliner') {
                     if (el.points && el.points.length > 2) {
                         // Simple normalization for fineliner - keep all points for smooth curves
@@ -1913,15 +1795,15 @@ const Canvas: Component = () => {
                         }
                     }
                 }
-            }
 
-            // Switch back to selection tool after drawing (except for pencil/eraser?) 
-            // User requested "After a shape is drawn". Usually pencil is continuous.
-            // Let's reset for Shapes (Rect, Circle, Line, Arrow, Bezier).
-            if (['rectangle', 'circle', 'line', 'arrow', 'image', 'bezier', 'diamond',
-                'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart',
-                'cross', 'checkmark', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown'].includes(store.selectedTool)) {
-                setSelectedTool('selection');
+                // Switch back to selection tool after drawing (except for pencil/eraser?) 
+                // User requested "After a shape is drawn". Usually pencil is continuous.
+                // Let's reset for Shapes (Rect, Circle, Line, Arrow, Bezier).
+                if (['rectangle', 'circle', 'line', 'arrow', 'image', 'bezier', 'diamond',
+                    'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart',
+                    'cross', 'checkmark', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown'].includes(store.selectedTool)) {
+                    setSelectedTool('selection');
+                }
             }
         }
         isDrawing = false;

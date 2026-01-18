@@ -1,7 +1,6 @@
 import type { DrawingElement } from "../types";
 import type { RoughCanvas } from "roughjs/bin/canvas";
 import { getImage } from "./imageCache";
-import { pointsToSvgPath } from "./pencilOptimizer";
 
 export const renderElement = (
     rc: RoughCanvas,
@@ -619,62 +618,6 @@ export const renderElement = (
                 if (el.endArrowhead) {
                     drawArrowhead(rc, endX, endY, angle, el.endArrowhead, options);
                 }
-            }
-        }
-    } else if (el.type === 'pencil' && el.points && el.points.length > 0) {
-        // Use average pressure to scale stroke width if available
-        let finalOptions = { ...options };
-        const hasPressure = el.points.some(p => p.p !== undefined && p.p > 0);
-        if (hasPressure) {
-            const avgPressure = el.points.reduce((acc, p) => acc + (p.p || 0.5), 0) / el.points.length;
-            finalOptions.strokeWidth = el.strokeWidth * (0.5 + avgPressure); // Scale from 0.5x to 1.5x
-        }
-
-        // Generate smooth SVG path from absolute world points to avoid offset
-        const absPoints = el.points.map(p => ({ ...p, x: el.x + p.x, y: el.y + p.y }));
-        const pathData = pointsToSvgPath(absPoints);
-        if (pathData) {
-            rc.path(pathData, finalOptions);
-        } else {
-            // Fallback for very few points
-            const points: [number, number][] = el.points.map(p => [el.x + p.x, el.y + p.y]);
-            rc.linearPath(points, finalOptions);
-        }
-    } else if (el.type === 'calligraphy' && el.points && el.points.length > 0) {
-        // Calligraphy: Draw with variable stroke width based on per-point pressure
-        const absPoints = el.points.map(p => ({ ...p, x: el.x + p.x, y: el.y + p.y }));
-
-        if (absPoints.length < 2) {
-            // Single dot
-            ctx.beginPath();
-            ctx.arc(absPoints[0].x, absPoints[0].y, el.strokeWidth / 2, 0, Math.PI * 2);
-            ctx.fillStyle = strokeColor;
-            ctx.fill();
-        } else {
-            // Draw variable-width stroke using filled circles along the path
-            ctx.fillStyle = strokeColor;
-            ctx.beginPath();
-
-            const minWidth = el.strokeWidth * 0.3;
-            const maxWidth = el.strokeWidth * 1.5;
-
-            for (let i = 0; i < absPoints.length; i++) {
-                const p = absPoints[i];
-                const pressure = p.p ?? 0.5;
-                const width = minWidth + (maxWidth - minWidth) * pressure;
-
-                ctx.moveTo(p.x + width / 2, p.y);
-                ctx.arc(p.x, p.y, width / 2, 0, Math.PI * 2);
-            }
-
-            ctx.fill();
-
-            // Also draw the smooth path for continuity
-            const pathData = pointsToSvgPath(absPoints);
-            if (pathData) {
-                const avgPressure = absPoints.reduce((acc, p) => acc + (p.p || 0.5), 0) / absPoints.length;
-                const avgWidth = minWidth + (maxWidth - minWidth) * avgPressure;
-                rc.path(pathData, { ...options, strokeWidth: avgWidth * 0.8 });
             }
         }
     } else if (el.type === 'fineliner' && el.points && el.points.length > 0) {

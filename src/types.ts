@@ -1,4 +1,4 @@
-export type ElementType = 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | 'pencil' | 'calligraphy' | 'fineliner' | 'inkbrush' | 'eraser' | 'pan' | 'selection' | 'image' | 'bezier' | 'diamond' | 'triangle' | 'hexagon' | 'octagon' | 'parallelogram' | 'star' | 'cloud' | 'heart' | 'cross' | 'checkmark' | 'arrowLeft' | 'arrowUp' | 'arrowDown' | 'arrowRight';
+export type ElementType = 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | 'fineliner' | 'inkbrush' | 'eraser' | 'pan' | 'selection' | 'image' | 'bezier' | 'diamond' | 'triangle' | 'hexagon' | 'octagon' | 'parallelogram' | 'star' | 'cloud' | 'heart' | 'cross' | 'checkmark' | 'arrowLeft' | 'arrowUp' | 'arrowDown' | 'arrowRight';
 export type FillStyle = 'hachure' | 'solid' | 'cross-hatch';
 export type StrokeStyle = 'solid' | 'dashed' | 'dotted';
 export type FontFamily = 'hand-drawn' | 'sans-serif' | 'monospace';
@@ -6,13 +6,6 @@ export type TextAlign = 'left' | 'center' | 'right';
 export type VerticalAlign = 'top' | 'middle' | 'bottom';
 export type ArrowHead = 'arrow' | 'triangle' | 'dot' | 'circle' | 'bar' | null;
 
-export interface PencilSettings {
-    penMode: boolean;        // Enable advanced smoothing
-    smoothing: number;       // Chaikin iterations (0-5)
-    tolerance: number;       // RDP tolerance (0-5)
-    stabilization: number;   // Moving average window size (1-10)
-    pressure: boolean;       // Enable pressure sensitivity
-}
 
 export type Point = {
     x: number;

@@ -1,13 +1,11 @@
 import { type Component, createSignal, Show, For, onMount, onCleanup } from "solid-js";
 import { store, setSelectedTool, setSelectedPenType } from "../store/appStore";
 import type { ElementType } from "../types";
-import { Pencil, PenLine, Pen, Brush, ChevronDown } from "lucide-solid";
+import { Pen, Brush, ChevronDown } from "lucide-solid";
 
-type PenType = 'pencil' | 'calligraphy' | 'fineliner' | 'inkbrush';
+export type PenType = 'fineliner' | 'inkbrush';
 
 const penTools: { type: PenType; icon: Component<{ size?: number }>; label: string }[] = [
-    { type: 'pencil', icon: Pencil, label: 'Pencil' },
-    { type: 'calligraphy', icon: PenLine, label: 'Calligraphy' },
     { type: 'fineliner', icon: Pen, label: 'Fine Liner' },
     { type: 'inkbrush', icon: Brush, label: 'Ink Brush' },
 ];
@@ -22,7 +20,7 @@ const PenToolGroup: Component = () => {
     };
 
     const isPenToolActive = () => {
-        return ['pencil', 'calligraphy', 'fineliner', 'inkbrush'].includes(store.selectedTool);
+        return ['fineliner', 'inkbrush'].includes(store.selectedTool);
     };
 
     const handleClick = () => {

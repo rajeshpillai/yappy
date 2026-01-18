@@ -154,7 +154,7 @@ export const properties: PropertyConfig[] = [
         max: 20,
         step: 1,
         group: 'stroke',
-        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'pencil', 'calligraphy', 'fineliner', 'inkbrush', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'cross', 'checkmark', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown'],
+        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'fineliner', 'inkbrush', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'cross', 'checkmark', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown'],
         defaultValue: 1
     },
     {
@@ -167,7 +167,7 @@ export const properties: PropertyConfig[] = [
             { label: 'Dashed', value: 'dashed' },
             { label: 'Dotted', value: 'dotted' }
         ],
-        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'pencil', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'cross', 'checkmark', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown'], // Exclude text
+        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'cross', 'checkmark', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown'], // Exclude text
         defaultValue: 'solid'
     },
     {
@@ -337,7 +337,7 @@ export const properties: PropertyConfig[] = [
         label: 'Locked',
         type: 'toggle',
         group: 'advanced',
-        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'text', 'pencil', 'image', 'diamond'],
+        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'text', 'image', 'diamond'],
         defaultValue: false
     },
 
@@ -354,57 +354,15 @@ export const properties: PropertyConfig[] = [
         label: 'Keep Proportions',
         type: 'toggle',
         group: 'dimensions',
-        applicableTo: ['rectangle', 'circle', 'image', 'diamond', 'pencil'],
+        applicableTo: ['rectangle', 'circle', 'image', 'diamond'],
         defaultValue: false
-    },
-    // Pencil Specific (Tool/Canvas Level)
-    {
-        key: 'penMode',
-        label: 'Pen Mode',
-        type: 'toggle',
-        group: 'advanced',
-        applicableTo: ['pencil'],
-        defaultValue: false
-    },
-    {
-        key: 'pencilSmoothing',
-        label: 'Smoothing',
-        type: 'slider',
-        min: 0,
-        max: 5,
-        step: 1,
-        group: 'advanced',
-        applicableTo: ['pencil'],
-        defaultValue: 1
-    },
-    {
-        key: 'pencilTolerance',
-        label: 'Simplicity',
-        type: 'slider',
-        min: 0,
-        max: 5,
-        step: 0.1,
-        group: 'advanced',
-        applicableTo: ['pencil'],
-        defaultValue: 0.5
-    },
-    {
-        key: 'pencilStabilization',
-        label: 'Stabilization',
-        type: 'slider',
-        min: 1,
-        max: 10,
-        step: 1,
-        group: 'advanced',
-        applicableTo: ['pencil'],
-        defaultValue: 4
     },
     {
         key: 'pressureEnabled',
         label: 'Pressure',
         type: 'toggle',
         group: 'advanced',
-        applicableTo: ['pencil'],
+        applicableTo: ['fineliner', 'inkbrush'],
         defaultValue: true
     }
 ];
