@@ -2057,7 +2057,6 @@ export const renderElement = (
         } else {
             // Fallback calculation (Simple S-curve)
             const dx = end.x - start.x;
-            const dy = end.y - start.y;
             cp1 = { x: start.x + dx * 0.5, y: start.y }; // Control point 1
             cp2 = { x: end.x - dx * 0.5, y: end.y };     // Control point 2
         }
@@ -2069,7 +2068,7 @@ export const renderElement = (
             el.strokeWidth || 1,
             el.containerText || el.text || "", // Pass text
             strokeColor, // Text color matches branch
-            getFontString(el.width, el.height, el.fontFamily, '16px') // Font
+            getFontString(el.fontFamily || 'hand-drawn') // Font
         );
     }
 
