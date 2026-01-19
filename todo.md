@@ -565,3 +565,21 @@
 - [x] Implement Keyboard Shortcuts (`Tab` for Child, `Enter` for Sibling, `Space` for Toggle)
 - [x] Add Hierarchy Management to Context Menu (Clear Parent, Make Child)
 - [x] Ensure connectors correctly follow hierarchical visibility 
+
+## Phase 39: Mindmap Polish & Connectivity
+- [x] Implement hierarchical movement (descendants follow parent)
+- [x] Default connectors to Bezier for cleaner visuals
+- [x] Fix mindmap persistence (preserve hierarchy on save/load)
+- [x] Implement dynamic anchor switching (horizontal & vertical)
+
+## Phase 40: Mindmap Expansion
+- [x] Add "Add Child" and "Add Sibling" commands to context menu
+- [x] Implement style inheritance for children/siblings
+- [x] Add dynamic vertical spacing for siblings
+- [x] Create technical documentation [docs/mindmap.md]
+
+## Phase 41: Organic Mindmap Shapes
+- [x] Implement **Organic Branch** tool (Tapered, hand-drawn look)
+- [x] Ensure branches behave as functional Bezier connectors
+- [x] Implement Text-on-Path rendering for branches
+- [x] Fix connectivity and binding for specialized branch shapes
