@@ -75,9 +75,8 @@ export interface DrawingElement {
     boundElements?: { id: string; type: 'arrow' | 'text' }[] | null;
     isSelected?: boolean;
     layerId: string; // Reference to parent layer
-    startBinding?: { elementId: string; focus: number; gap: number } | null;
-
-    endBinding?: { elementId: string; focus: number; gap: number } | null;
+    startBinding?: { elementId: string; focus: number; gap: number; position?: string } | null;
+    endBinding?: { elementId: string; focus: number; gap: number; position?: string } | null;
     curveType?: 'straight' | 'bezier' | 'elbow';
     constrained?: boolean; // Keep proportions
     autoResize?: boolean; // Auto-resize based on text

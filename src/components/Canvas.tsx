@@ -96,7 +96,7 @@ const Canvas: Component = () => {
     let draggingHandle: string | null = null;
     const [selectionBox, setSelectionBox] = createSignal<{ x: number, y: number, w: number, h: number } | null>(null);
     let initialPositions = new Map<string, any>();
-    const [suggestedBinding, setSuggestedBinding] = createSignal<{ elementId: string; px: number; py: number } | null>(null);
+    const [suggestedBinding, setSuggestedBinding] = createSignal<{ elementId: string; px: number; py: number; position?: string } | null>(null);
     const [snappingGuides, setSnappingGuides] = createSignal<SnappingGuide[]>([]);
     const [spacingGuides, setSpacingGuides] = createSignal<SpacingGuide[]>([]);
 
@@ -1222,7 +1222,7 @@ const Canvas: Component = () => {
     // Helper: Binding Check
     const checkBinding = (x: number, y: number, excludeId: string) => {
         const threshold = 40 / store.viewState.scale;
-        const anchorSnapThreshold = 15 / store.viewState.scale; // Smaller threshold for anchor snap
+        const anchorSnapThreshold = 25 / store.viewState.scale; // Increased to include handle area (usually 18px away)
         let bindingHit = null;
 
         for (const target of store.elements) {
@@ -1271,13 +1271,13 @@ const Canvas: Component = () => {
             // **ENHANCEMENT**: Try anchor snap first
             const closestAnchor = findClosestAnchor(bindingHit, { x, y }, anchorSnapThreshold);
             if (closestAnchor) {
-                return { element: bindingHit, snapPoint: { x: closestAnchor.x, y: closestAnchor.y } };
+                return { element: bindingHit, snapPoint: { x: closestAnchor.x, y: closestAnchor.y }, position: closestAnchor.position };
             }
 
             // Fallback to existing edge intersection logic
             const snapPoint = intersectElementWithLine(bindingHit, { x, y }, 5);
             if (snapPoint) {
-                return { element: bindingHit, snapPoint };
+                return { element: bindingHit, snapPoint, position: 'edge' };
             }
         }
         return null;
@@ -1298,7 +1298,9 @@ const Canvas: Component = () => {
                 { x: ex, y: ey },
                 store.elements,
                 startEl,
-                endEl
+                endEl,
+                line.startBinding?.position,
+                line.endBinding?.position
             );
 
             // Convert world points to relative points for storage
@@ -1379,7 +1381,7 @@ const Canvas: Component = () => {
                             seed: Math.floor(Math.random() * 2 ** 31),
                             layerId: store.activeLayerId,
                             curveType: store.defaultElementStyles.curveType || 'straight',
-                            startBinding: { elementId: sourceEl.id, focus: 0, gap: 5 }
+                            startBinding: { elementId: sourceEl.id, focus: 0, gap: 5, position: anchorPosition }
                         } as DrawingElement;
 
                         addElement(newElement);
@@ -1645,7 +1647,12 @@ const Canvas: Component = () => {
         if (tool === 'line' || tool === 'arrow' || tool === 'bezier') {
             const match = checkBinding(creationX, creationY, currentId);
             if (match) {
-                startBindingData = { elementId: match.element.id, focus: 0, gap: 5 };
+                startBindingData = {
+                    elementId: match.element.id,
+                    focus: 0,
+                    gap: 5,
+                    position: match.position
+                };
                 snappedStartX = match.snapPoint.x;
                 snappedStartY = match.snapPoint.y;
                 startX = snappedStartX;
@@ -1757,7 +1764,7 @@ const Canvas: Component = () => {
                     if ((el.type === 'line' || el.type === 'arrow') && (draggingHandle === 'tl' || draggingHandle === 'br')) {
                         const match = checkBinding(x, y, el.id);
                         if (match) {
-                            setSuggestedBinding({ elementId: match.element.id, px: match.snapPoint.x, py: match.snapPoint.y });
+                            setSuggestedBinding({ elementId: match.element.id, px: match.snapPoint.x, py: match.snapPoint.y, position: match.position });
                             x = match.snapPoint.x;
                             y = match.snapPoint.y;
                         } else {
@@ -2051,11 +2058,29 @@ const Canvas: Component = () => {
                                             let changed = false;
 
                                             if (line.startBinding?.elementId === el.id) {
-                                                const p = intersectElementWithLine(el, { x: eX, y: eY }, line.startBinding.gap);
+                                                const pos = line.startBinding.position;
+                                                let p;
+                                                if (pos && pos !== 'edge') {
+                                                    const anchors = getAnchorPoints(el);
+                                                    const anchor = anchors.find(a => a.position === pos);
+                                                    if (anchor) p = { x: anchor.x, y: anchor.y };
+                                                }
+                                                if (!p) {
+                                                    p = intersectElementWithLine(el, { x: eX, y: eY }, line.startBinding.gap);
+                                                }
                                                 if (p) { sX = p.x; sY = p.y; changed = true; }
                                             }
                                             if (line.endBinding?.elementId === el.id) {
-                                                const p = intersectElementWithLine(el, { x: sX, y: sY }, line.endBinding.gap);
+                                                const pos = line.endBinding.position;
+                                                let p;
+                                                if (pos && pos !== 'edge') {
+                                                    const anchors = getAnchorPoints(el);
+                                                    const anchor = anchors.find(a => a.position === pos);
+                                                    if (anchor) p = { x: anchor.x, y: anchor.y };
+                                                }
+                                                if (!p) {
+                                                    p = intersectElementWithLine(el, { x: sX, y: sY }, line.endBinding.gap);
+                                                }
                                                 if (p) { eX = p.x; eY = p.y; changed = true; }
                                             }
 
@@ -2136,7 +2161,7 @@ const Canvas: Component = () => {
                 if (currentId) {
                     const match = checkBinding(x, y, currentId);
                     if (match) {
-                        setSuggestedBinding({ elementId: match.element.id, px: match.snapPoint.x, py: match.snapPoint.y });
+                        setSuggestedBinding({ elementId: match.element.id, px: match.snapPoint.x, py: match.snapPoint.y, position: match.position });
                         finalX = match.snapPoint.x;
                         finalY = match.snapPoint.y;
                     } else {
@@ -2283,7 +2308,12 @@ const Canvas: Component = () => {
                     const el = store.elements.find(e => e.id === elId);
                     if (el && (el.type === 'line' || el.type === 'arrow')) {
                         const isStart = draggingHandle === 'tl';
-                        const bindingData = { elementId: binding.elementId, focus: 0, gap: 5 };
+                        const bindingData = {
+                            elementId: binding.elementId,
+                            focus: 0,
+                            gap: 5,
+                            position: binding.position
+                        };
 
                         updateElement(elId, isStart ? { startBinding: bindingData } : { endBinding: bindingData });
 
@@ -2313,7 +2343,12 @@ const Canvas: Component = () => {
                 // Binding for new lines/arrows/bezier
                 if ((el.type === 'line' || el.type === 'arrow') && suggestedBinding()) {
                     const binding = suggestedBinding()!;
-                    const bindingData = { elementId: binding.elementId, focus: 0, gap: 5 };
+                    const bindingData = {
+                        elementId: binding.elementId,
+                        focus: 0,
+                        gap: 5,
+                        position: binding.position
+                    };
                     // New lines are drawn from x,y (TopLeft) to x+width, y+height.
                     // The end point (width/height) is where the mouse is.
                     // So we update 'endBinding'.

@@ -1083,16 +1083,21 @@ export const renderElement = (
 
             rc.linearPath(drawPoints, options);
 
-            if (el.startArrowhead && drawPoints.length >= 2) {
-                const p0 = drawPoints[0];
-                const p1 = drawPoints[1];
+            // Filter out duplicate points for arrowhead calculation
+            const cleanDrawPoints = drawPoints.filter((p, i, self) =>
+                i === 0 || Math.abs(p[0] - self[i - 1][0]) > 0.1 || Math.abs(p[1] - self[i - 1][1]) > 0.1
+            );
+
+            if (el.startArrowhead && cleanDrawPoints.length >= 2) {
+                const p0 = cleanDrawPoints[0];
+                const p1 = cleanDrawPoints[1];
                 const angle = Math.atan2(p0[1] - p1[1], p0[0] - p1[0]);
                 drawArrowhead(rc, p0[0], p0[1], angle, el.startArrowhead, options);
             }
 
-            if (el.endArrowhead && drawPoints.length >= 2) {
-                const pn = drawPoints[drawPoints.length - 1];
-                const pn_1 = drawPoints[drawPoints.length - 2];
+            if (el.endArrowhead && cleanDrawPoints.length >= 2) {
+                const pn = cleanDrawPoints[cleanDrawPoints.length - 1];
+                const pn_1 = cleanDrawPoints[cleanDrawPoints.length - 2];
                 const angle = Math.atan2(pn[1] - pn_1[1], pn[0] - pn_1[0]);
                 drawArrowhead(rc, pn[0], pn[1], angle, el.endArrowhead, options);
             }
