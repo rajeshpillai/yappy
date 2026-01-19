@@ -1118,11 +1118,14 @@ export const renderElement = (
 
         if (el.renderStyle === 'architectural') {
             if (backgroundColor) {
-                rc.polygon(leftEar, { ...options, stroke: 'none', fill: backgroundColor });
-                rc.polygon(rightEar, { ...options, stroke: 'none', fill: backgroundColor });
                 rc.polygon(mainPts, { ...options, stroke: 'none', fill: backgroundColor });
-                rc.polygon(leftFold, { ...options, stroke: 'none', fill: backgroundColor, fillStyle: 'solid', opacity: 0.4 });
-                rc.polygon(rightFold, { ...options, stroke: 'none', fill: backgroundColor, fillStyle: 'solid', opacity: 0.4 });
+                // Darken ears and folds by using a semi-transparent black overlay if there's a background
+                rc.polygon(leftEar, { ...options, stroke: 'none', fill: backgroundColor });
+                rc.polygon(leftEar, { ...options, stroke: 'none', fill: '#000000', fillStyle: 'solid', opacity: 0.1 });
+                rc.polygon(rightEar, { ...options, stroke: 'none', fill: backgroundColor });
+                rc.polygon(rightEar, { ...options, stroke: 'none', fill: '#000000', fillStyle: 'solid', opacity: 0.1 });
+                rc.polygon(leftFold, { ...options, stroke: 'none', fill: '#000000', fillStyle: 'solid', opacity: 0.3 });
+                rc.polygon(rightFold, { ...options, stroke: 'none', fill: '#000000', fillStyle: 'solid', opacity: 0.3 });
             }
             const drawPoly = (pts: [number, number][]) => {
                 ctx.beginPath();
@@ -1136,14 +1139,15 @@ export const renderElement = (
             drawPoly(leftEar);
             drawPoly(rightEar);
             drawPoly(mainPts);
-            drawPoly(leftFold);
-            drawPoly(rightFold);
         } else {
             rc.polygon(leftEar, options);
             rc.polygon(rightEar, options);
             rc.polygon(mainPts, options);
-            rc.polygon(leftFold, { ...options, fillStyle: 'solid', opacity: 0.4 });
-            rc.polygon(rightFold, { ...options, fillStyle: 'solid', opacity: 0.4 });
+            // Rough shadows
+            rc.polygon(leftFold, { ...options, fill: strokeColor, fillStyle: 'solid', opacity: 0.2 });
+            rc.polygon(rightFold, { ...options, fill: strokeColor, fillStyle: 'solid', opacity: 0.2 });
+            rc.polygon(leftEar, { ...options, fill: '#000000', fillStyle: 'solid', opacity: 0.05 });
+            rc.polygon(rightEar, { ...options, fill: '#000000', fillStyle: 'solid', opacity: 0.05 });
         }
     } else if (el.type === 'line' || el.type === 'arrow') {
         const endX = el.x + el.width;
@@ -1719,7 +1723,17 @@ export const renderElement = (
         el.type === 'trapezoid' || el.type === 'rightTriangle' || el.type === 'pentagon' || el.type === 'septagon' || el.type === 'starPerson' || el.type === 'scroll' || el.type === 'doubleBanner')) {
 
         ctx.save();
-        const metrics = measureContainerText(ctx, el, el.containerText, el.width - 20);
+        let maxWidth = el.width - 20;
+        let startYOffset = 0;
+
+        if (el.type === 'doubleBanner') {
+            maxWidth = el.width * 0.65;
+            startYOffset = - (el.height * 0.1); // Move up slightly into the main panel
+        } else if (el.type === 'starPerson') {
+            startYOffset = el.height * 0.15; // Move down into the chest/belly area
+        }
+
+        const metrics = measureContainerText(ctx, el, el.containerText, maxWidth);
 
         ctx.font = getFontString(el);
         ctx.fillStyle = strokeColor;
@@ -1727,7 +1741,7 @@ export const renderElement = (
         ctx.textBaseline = 'middle';
 
         const centerX = el.x + el.width / 2;
-        const startY = el.y + (el.height - metrics.textHeight) / 2 + metrics.lineHeight / 2;
+        const startY = el.y + (el.height - metrics.textHeight) / 2 + metrics.lineHeight / 2 + startYOffset;
 
         metrics.lines.forEach((line, index) => {
             const y = startY + index * metrics.lineHeight;

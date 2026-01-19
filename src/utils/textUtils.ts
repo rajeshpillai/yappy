@@ -58,7 +58,9 @@ export const measureContainerText = (
     // we use a smaller inscribed area for wrapping
     let wrapWidth = availableWidth;
     if (el.type === 'circle' || el.type === 'diamond') {
-        wrapWidth = availableWidth * 0.707;
+        wrapWidth = availableWidth * 0.707; // sqrt(2)/2 approx
+    } else if (el.type === 'doubleBanner') {
+        wrapWidth = availableWidth * 0.65; // Stay within the front panel
     }
 
     const lines = wrapText(ctx, text, wrapWidth);
@@ -99,7 +101,7 @@ export const fitShapeToText = (
 
     let metrics = measureContainerText(ctx, el, text, targetWrapWidth);
 
-    const scaleFactor = (el.type === 'circle' || el.type === 'diamond' ? 0.707 : 1);
+    const scaleFactor = (el.type === 'circle' || el.type === 'diamond') ? 0.707 : (el.type === 'doubleBanner' ? 0.65 : 1);
 
     let finalWidth = (metrics.textWidth / scaleFactor) + padding;
     let finalHeight = (metrics.textHeight / scaleFactor) + padding;

@@ -244,6 +244,12 @@ export const setSelectedTool = (tool: ElementType | 'selection') => {
     } else if (tool === 'line') {
         updateDefaultStyles({ endArrowhead: null });
     }
+
+    if (tool === 'starPerson' || tool === 'scroll' || tool === 'wavyDivider' || tool === 'doubleBanner') {
+        updateDefaultStyles({ autoResize: false });
+    } else {
+        updateDefaultStyles({ autoResize: true });
+    }
 };
 
 export const updateDefaultStyles = (updates: Partial<DrawingElement>) => {

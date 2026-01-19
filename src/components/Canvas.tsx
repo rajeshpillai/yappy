@@ -1206,7 +1206,8 @@ const Canvas: Component = () => {
             el.type === 'bracketLeft' || el.type === 'bracketRight' ||
             el.type === 'database' || el.type === 'document' || el.type === 'predefinedProcess' || el.type === 'internalStorage' ||
             el.type === 'server' || el.type === 'loadBalancer' || el.type === 'firewall' || el.type === 'user' || el.type === 'messageQueue' || el.type === 'lambda' || el.type === 'router' || el.type === 'browser' ||
-            el.type === 'trapezoid' || el.type === 'rightTriangle' || el.type === 'pentagon' || el.type === 'septagon') {
+            el.type === 'trapezoid' || el.type === 'rightTriangle' || el.type === 'pentagon' || el.type === 'septagon' ||
+            el.type === 'starPerson' || el.type === 'scroll' || el.type === 'wavyDivider' || el.type === 'doubleBanner') {
             // For new shapes, use bounding box hit test (simple and effective)
             return true; // Box check already passed above
         }
@@ -2395,7 +2396,7 @@ const Canvas: Component = () => {
                 if (['rectangle', 'circle', 'line', 'arrow', 'image', 'bezier', 'diamond',
                     'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart',
                     'cross', 'checkmark', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown',
-                    'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon'].includes(store.selectedTool)) {
+                    'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'starPerson', 'scroll', 'wavyDivider', 'doubleBanner'].includes(store.selectedTool)) {
                     setSelectedTool('selection');
                 }
 
@@ -2502,7 +2503,7 @@ const Canvas: Component = () => {
                 }
 
                 // Only allow editing containerText for shapes and lines
-                const shapeTypes = ['rectangle', 'circle', 'diamond', 'line', 'arrow', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon'];
+                const shapeTypes = ['rectangle', 'circle', 'diamond', 'line', 'arrow', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'starPerson', 'scroll', 'wavyDivider', 'doubleBanner'];
                 if (shapeTypes.includes(el.type)) {
                     setEditingId(el.id);
                     setEditText(el.containerText || '');
