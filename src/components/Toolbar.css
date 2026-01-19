@@ -1,8 +1,10 @@
 .toolbar-container {
     position: fixed;
     top: 60px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    width: fit-content;
     display: flex;
     gap: 4px;
     padding: 4px;
@@ -16,29 +18,33 @@
 /* Mobile: constrain width and enable horizontal scroll */
 @media (max-width: 768px) {
     .toolbar-container {
-        max-width: calc(100vw - 16px);
+        max-width: calc(100vw - 20px);
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
         -ms-overflow-style: none;
+        gap: 2px;
+        padding: 6px;
     }
 
     .toolbar-container::-webkit-scrollbar {
         display: none;
     }
 
-    /* Ensure dropdowns still appear above the scrollable container on mobile */
-    .pen-tool-group,
-    .shape-tool-group {
+    /* Ensure dropdowns appear centered and accessible on mobile */
+    .pen-tool-group {
         position: static;
     }
 
     .pen-tool-dropdown {
         position: fixed;
         top: 110px;
-        /* Below toolbar */
         left: 50%;
         transform: translateX(-50%);
+        width: calc(100vw - 40px);
+        max-width: 320px;
+        grid-template-columns: repeat(5, 1fr);
+        /* More columns on mobile if narrow icons */
     }
 }
 

@@ -7,6 +7,7 @@ import ShapeToolGroup from "./ShapeToolGroup";
 import SketchnoteToolGroup from "./SketchnoteToolGroup";
 import InfraToolGroup from "./InfraToolGroup";
 import MathToolGroup from "./MathToolGroup";
+import WireframeToolGroup from "./WireframeToolGroup";
 import "./Toolbar.css";
 
 // Tools that are NOT pens or grouped shapes
@@ -154,6 +155,9 @@ const Toolbar: Component = () => {
 
             {/* Infrastructure Tool Group (Server, LB, Cloud, User, etc.) */}
             <InfraToolGroup />
+
+            {/* Wireframing Essentials (Browser Window, Mobile, Input, Button) */}
+            <WireframeToolGroup />
 
             {/* Geometric & Math Tool Group (Trapezoid, Pentagon, etc.) */}
             <MathToolGroup />

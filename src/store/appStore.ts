@@ -28,6 +28,7 @@ interface AppState {
     selectedInfraType: 'server' | 'loadBalancer' | 'firewall' | 'user' | 'messageQueue' | 'lambda' | 'router' | 'browser';
     selectedMathType: 'trapezoid' | 'rightTriangle' | 'pentagon' | 'septagon';
     selectedSketchnoteType: 'starPerson' | 'scroll' | 'wavyDivider' | 'doubleBanner';
+    selectedWireframeType: 'browserWindow' | 'mobilePhone' | 'ghostButton' | 'inputField';
     layerGroupingModeEnabled: boolean;
     maxLayers: number;
     canvasTexture: 'none' | 'dots' | 'grid' | 'graph' | 'paper';
@@ -99,6 +100,7 @@ const initialState: AppState = {
     selectedInfraType: 'server',
     selectedMathType: 'trapezoid',
     selectedSketchnoteType: 'starPerson',
+    selectedWireframeType: 'browserWindow',
     layerGroupingModeEnabled: false,
     maxLayers: 20,
     canvasTexture: 'none',
@@ -246,7 +248,8 @@ export const setSelectedTool = (tool: ElementType | 'selection') => {
     }
 
     if (tool === 'starPerson' || tool === 'scroll' || tool === 'wavyDivider' || tool === 'doubleBanner' ||
-        tool === 'lightbulb' || tool === 'signpost' || tool === 'burstBlob') {
+        tool === 'lightbulb' || tool === 'signpost' || tool === 'burstBlob' ||
+        tool === 'browserWindow' || tool === 'mobilePhone' || tool === 'ghostButton' || tool === 'inputField') {
         updateDefaultStyles({ autoResize: false });
     } else {
         updateDefaultStyles({ autoResize: true });
@@ -733,6 +736,10 @@ export const setSelectedMathType = (mathType: 'trapezoid' | 'rightTriangle' | 'p
 
 export const setSelectedSketchnoteType = (sketchnoteType: 'starPerson' | 'scroll' | 'wavyDivider' | 'doubleBanner') => {
     setStore('selectedSketchnoteType', sketchnoteType);
+};
+
+export const setSelectedWireframeType = (wireframeType: 'browserWindow' | 'mobilePhone' | 'ghostButton' | 'inputField') => {
+    setStore('selectedWireframeType', wireframeType);
 };
 
 export const setGridStyle = (style: 'lines' | 'dots') => {

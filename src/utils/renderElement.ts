@@ -1827,6 +1827,115 @@ export const renderElement = (
                 rc.circle(x + headerH * (0.5 + i * 0.6), y + headerH / 2, dotR, { ...options, fillStyle: 'solid', fill: strokeColor });
             }
         }
+    } else if (el.type === 'browserWindow') {
+        const w = el.width, h = el.height, x = el.x, y = el.y;
+        const headerH = Math.min(h * 0.15, 30);
+        const dotR = headerH * 0.2;
+        const addressH = headerH * 0.6;
+        const addressW = w * 0.6;
+        const addressX = x + (w - addressW) / 2;
+        const addressY = y + (headerH - addressH) / 2;
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(x, y, w, h);
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.strokeRect(x, y, w, h);
+            ctx.beginPath(); ctx.moveTo(x, y + headerH); ctx.lineTo(x + w, y + headerH); ctx.stroke();
+
+            // Dots
+            ctx.fillStyle = strokeColor;
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath(); ctx.arc(x + headerH * (0.4 + i * 0.5), y + headerH / 2, dotR, 0, Math.PI * 2); ctx.fill();
+            }
+            // Address Bar
+            ctx.strokeRect(addressX, addressY, addressW, addressH);
+        } else {
+            rc.rectangle(x, y, w, h, options);
+            rc.line(x, y + headerH, x + w, y + headerH, options);
+            for (let i = 0; i < 3; i++) {
+                rc.circle(x + headerH * (0.4 + i * 0.5), y + headerH / 2, dotR * 2, { ...options, fillStyle: 'solid', fill: strokeColor });
+            }
+            rc.rectangle(addressX, addressY, addressW, addressH, options);
+        }
+    } else if (el.type === 'mobilePhone') {
+        const w = el.width, h = el.height, x = el.x, y = el.y;
+        const r = Math.min(w, h) * 0.15;
+        const notchW = w * 0.3;
+        const notchH = h * 0.03;
+        const homeBarW = w * 0.4;
+        const homeBarY = y + h - (h * 0.05);
+
+        const path = getRoundedRectPath(x, y, w, h, r);
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fill(new Path2D(path));
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.stroke(new Path2D(path));
+
+            // Notch
+            ctx.beginPath();
+            ctx.roundRect(x + (w - notchW) / 2, y + 5, notchW, notchH, 5);
+            ctx.fillStyle = strokeColor;
+            ctx.fill();
+
+            // Home bar
+            ctx.beginPath();
+            ctx.roundRect(x + (w - homeBarW) / 2, homeBarY, homeBarW, 4, 2);
+            ctx.fill();
+        } else {
+            rc.path(path, options);
+            // Notch
+            rc.rectangle(x + (w - notchW) / 2, y + 5, notchW, notchH, { ...options, fillStyle: 'solid', fill: strokeColor });
+            // Home bar
+            rc.line(x + (w - homeBarW) / 2, homeBarY, x + (w + homeBarW) / 2, homeBarY, options);
+        }
+    } else if (el.type === 'ghostButton') {
+        const w = el.width, h = el.height, x = el.x, y = el.y;
+        const r = Math.min(w, h) * 0.2;
+        const path = getRoundedRectPath(x, y, w, h, r);
+        const ghostOptions = { ...options, strokeStyle: 'dashed', strokeLineDash: [4, 4] };
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fill(new Path2D(path));
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.setLineDash([4, 4]);
+            ctx.stroke(new Path2D(path));
+            ctx.setLineDash([]);
+        } else {
+            rc.path(path, ghostOptions);
+        }
+    } else if (el.type === 'inputField') {
+        const w = el.width, h = el.height, x = el.x, y = el.y;
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(x, y, w, h);
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.strokeRect(x, y, w, h);
+            // Cursor
+            ctx.beginPath();
+            ctx.moveTo(x + 10, y + 8);
+            ctx.lineTo(x + 10, y + h - 8);
+            ctx.stroke();
+        } else {
+            rc.rectangle(x, y, w, h, options);
+            // Cursor
+            rc.line(x + 10, y + 8, x + 10, y + h - 8, options);
+        }
     }
 
     // Render containerText (text inside shapes)
@@ -1840,7 +1949,8 @@ export const renderElement = (
         el.type === 'database' || el.type === 'document' || el.type === 'predefinedProcess' || el.type === 'internalStorage' ||
         el.type === 'server' || el.type === 'loadBalancer' || el.type === 'firewall' || el.type === 'user' || el.type === 'messageQueue' || el.type === 'lambda' || el.type === 'router' || el.type === 'browser' ||
         el.type === 'trapezoid' || el.type === 'rightTriangle' || el.type === 'pentagon' || el.type === 'septagon' || el.type === 'starPerson' || el.type === 'scroll' || el.type === 'doubleBanner' ||
-        el.type === 'lightbulb' || el.type === 'signpost' || el.type === 'burstBlob')) {
+        el.type === 'lightbulb' || el.type === 'signpost' || el.type === 'burstBlob' ||
+        el.type === 'browserWindow' || el.type === 'mobilePhone' || el.type === 'ghostButton' || el.type === 'inputField')) {
 
         ctx.save();
         let maxWidth = el.width - 20;
@@ -1857,6 +1967,27 @@ export const renderElement = (
         } else if (el.type === 'signpost') {
             maxWidth = el.width * 0.8; // Board width
             startYOffset = - (el.height * 0.15); // Move up to board
+        } else if (el.type === 'browserWindow') {
+            const headerH = Math.min(el.height * 0.15, 30);
+            startYOffset = headerH / 2; // Move down below header
+        } else if (el.type === 'mobilePhone') {
+            startYOffset = - (el.height * 0.05); // Move up slightly from center
+        } else if (el.type === 'inputField') {
+            ctx.textAlign = 'left';
+            const centerX = el.x + 25; // Offset from cursor
+            startYOffset = 0;
+            // Overriding the render loop logic slightly for inputField alignment
+            const metrics = measureContainerText(ctx, el, el.containerText || '', el.width - 30);
+            ctx.font = getFontString(el);
+            ctx.fillStyle = adjustColor(el.strokeColor);
+            ctx.textBaseline = 'middle';
+            const startY = el.y + (el.height - metrics.textHeight) / 2 + metrics.lineHeight / 2;
+            metrics.lines.forEach((line, index) => {
+                const y = startY + index * metrics.lineHeight;
+                ctx.fillText(line, centerX, y);
+            });
+            ctx.restore();
+            return; // Exit early as we did custom render
         }
 
         const metrics = measureContainerText(ctx, el, el.containerText, maxWidth);

@@ -19,11 +19,25 @@
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     z-index: 1000;
-    padding: 4px;
+    padding: 8px;
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Set a fixed number of 4 icons per row */
-    gap: 8px; /* Maintain spacing between icons */
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
     margin-top: 4px;
+    max-height: 70vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+/* Custom scrollbar for better visibility on mobile */
+.pen-tool-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.pen-tool-dropdown::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 3px;
 }
 
 .dropdown-item {
