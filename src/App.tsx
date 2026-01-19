@@ -2,7 +2,8 @@ import { type Component, onMount, onCleanup, Show } from 'solid-js';
 import {
   undo, redo, store, deleteElements, togglePropertyPanel, toggleLayerPanel,
   toggleMinimap, toggleZenMode, toggleCommandPalette, moveSelectedElements,
-  switchLayerByIndex, cycleStrokeStyle, cycleFillStyle
+  switchLayerByIndex, cycleStrokeStyle, cycleFillStyle,
+  addChildNode, addSiblingNode, toggleCollapseSelection
 } from './store/appStore';
 import Canvas from './components/Canvas';
 import Toolbar from './components/Toolbar';
@@ -99,6 +100,23 @@ const App: Component = () => {
           else if (e.key === 'ArrowRight') dx = nudgeAmount;
 
           moveSelectedElements(dx, dy, true);
+        }
+      }
+      // Mindmap Shortcuts
+      else if (key === 'tab') {
+        if (store.selection.length === 1) {
+          e.preventDefault();
+          addChildNode(store.selection[0]);
+        }
+      } else if (key === 'enter' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        if (store.selection.length === 1) {
+          e.preventDefault();
+          addSiblingNode(store.selection[0]);
+        }
+      } else if (key === ' ' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        if (store.selection.length > 0) {
+          e.preventDefault();
+          toggleCollapseSelection();
         }
       }
     };

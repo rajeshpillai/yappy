@@ -555,3 +555,13 @@
 - [x] Implement `Mobile Phone Group` (Container for app screens)
 - [x] Implement `Ghost Button` (Interactive UI element)
 - [x] Implement `Input Field` (Form element with label support)
+
+## Phase 38: Hierarchical Mindmap Support
+- [x] Extend data model with `parentId` and `isCollapsed`
+- [x] Support Subtree Movement (Parent moves descendants by default)
+- [x] Implement `Alt` key override for independent parent movement
+- [x] Implement Hierarchical Visibility (Collapsed subtrees hidden from canvas)
+- [x] Add Mindmap Toggle Handles (+/-) for collapsible nodes
+- [x] Implement Keyboard Shortcuts (`Tab` for Child, `Enter` for Sibling, `Space` for Toggle)
+- [x] Add Hierarchy Management to Context Menu (Clear Parent, Make Child)
+- [x] Ensure connectors correctly follow hierarchical visibility 

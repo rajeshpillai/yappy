@@ -184,6 +184,165 @@ export const addElement = (element: DrawingElement) => {
     setStore("elements", (els) => [...els, element]);
 };
 
+export const addChildNode = (parentId: string) => {
+    const parent = store.elements.find(e => e.id === parentId);
+    if (!parent) return;
+
+    pushToHistory();
+    const newId = crypto.randomUUID();
+    const hOffset = 150;
+    const vOffset = 0;
+
+    const newElement: DrawingElement = {
+        ...store.defaultElementStyles,
+        id: newId,
+        type: (parent.type === 'image' || parent.type === 'line' || parent.type === 'arrow') ? 'rectangle' : parent.type,
+        x: parent.x + parent.width + hOffset,
+        y: parent.y + vOffset,
+        width: parent.width > 0 ? parent.width : 100,
+        height: parent.height > 0 ? parent.height : 60,
+        layerId: store.activeLayerId,
+        parentId: parent.id,
+        text: "",
+        isCollapsed: false,
+        angle: 0,
+        seed: Math.floor(Math.random() * 2 ** 31),
+        roundness: null,
+        locked: false,
+        link: null,
+        opacity: 100,
+        renderStyle: 'sketch',
+        strokeColor: store.defaultElementStyles.strokeColor || '#000000',
+        backgroundColor: store.defaultElementStyles.backgroundColor || 'transparent',
+        fillStyle: store.defaultElementStyles.fillStyle || 'hachure',
+        strokeStyle: store.defaultElementStyles.strokeStyle || 'solid',
+        strokeWidth: store.defaultElementStyles.strokeWidth || 1,
+        roughness: store.defaultElementStyles.roughness || 1
+    };
+
+    const connector: DrawingElement = {
+        ...store.defaultElementStyles,
+        id: crypto.randomUUID(),
+        type: 'arrow',
+        x: parent.x + parent.width,
+        y: parent.y + parent.height / 2,
+        width: hOffset,
+        height: 0,
+        layerId: store.activeLayerId,
+        startBinding: { elementId: parent.id, gap: 5, position: 'right', focus: 0 },
+        endBinding: { elementId: newId, gap: 5, position: 'left', focus: 0 },
+        angle: 0,
+        seed: Math.floor(Math.random() * 2 ** 31),
+        roundness: null,
+        locked: false,
+        link: null,
+        opacity: 100,
+        renderStyle: 'sketch',
+        strokeColor: store.defaultElementStyles.strokeColor || '#000000',
+        backgroundColor: store.defaultElementStyles.backgroundColor || 'transparent',
+        fillStyle: store.defaultElementStyles.fillStyle || 'hachure',
+        strokeStyle: store.defaultElementStyles.strokeStyle || 'solid',
+        strokeWidth: store.defaultElementStyles.strokeWidth || 1,
+        roughness: store.defaultElementStyles.roughness || 1,
+        points: [0, 0, hOffset, 0]
+    };
+
+    const connectorId = connector.id;
+    setStore("elements", els => [...els, newElement, connector]);
+
+    // Movement sync: Add connector to boundElements of both nodes
+    setStore("elements", e => e.id === parentId, "boundElements", b => [...(b || []), { id: connectorId, type: 'arrow' as const }]);
+    setStore("elements", e => e.id === newId, "boundElements", b => [...(b || []), { id: connectorId, type: 'arrow' as const }]);
+
+    setStore("selection", [newId]);
+    return newId;
+};
+
+export const addSiblingNode = (siblingId: string) => {
+    const sibling = store.elements.find(e => e.id === siblingId);
+    if (!sibling) return;
+
+    const parentId = sibling.parentId;
+    if (!parentId) return;
+
+    pushToHistory();
+    const newId = crypto.randomUUID();
+    const vOffset = 100;
+
+    const newElement: DrawingElement = {
+        ...store.defaultElementStyles,
+        id: newId,
+        type: sibling.type,
+        x: sibling.x,
+        y: sibling.y + vOffset,
+        width: sibling.width,
+        height: sibling.height,
+        layerId: store.activeLayerId,
+        parentId: parentId,
+        text: "",
+        isCollapsed: false,
+        angle: 0,
+        seed: Math.floor(Math.random() * 2 ** 31),
+        roundness: null,
+        locked: false,
+        link: null,
+        opacity: 100,
+        renderStyle: 'sketch',
+        strokeColor: store.defaultElementStyles.strokeColor || '#000000',
+        backgroundColor: store.defaultElementStyles.backgroundColor || 'transparent',
+        fillStyle: store.defaultElementStyles.fillStyle || 'hachure',
+        strokeStyle: store.defaultElementStyles.strokeStyle || 'solid',
+        strokeWidth: store.defaultElementStyles.strokeWidth || 1,
+        roughness: store.defaultElementStyles.roughness || 1
+    };
+
+    const connector: DrawingElement = {
+        ...store.defaultElementStyles,
+        id: crypto.randomUUID(),
+        type: 'arrow',
+        x: sibling.x - 150,
+        y: sibling.y + vOffset + sibling.height / 2,
+        width: 150,
+        height: 0,
+        layerId: store.activeLayerId,
+        startBinding: { elementId: parentId, gap: 5, position: 'right', focus: 0 },
+        endBinding: { elementId: newId, gap: 5, position: 'left', focus: 0 },
+        angle: 0,
+        seed: Math.floor(Math.random() * 2 ** 31),
+        roundness: null,
+        locked: false,
+        link: null,
+        opacity: 100,
+        renderStyle: 'sketch',
+        strokeColor: store.defaultElementStyles.strokeColor || '#000000',
+        backgroundColor: store.defaultElementStyles.backgroundColor || 'transparent',
+        fillStyle: store.defaultElementStyles.fillStyle || 'hachure',
+        strokeStyle: store.defaultElementStyles.strokeStyle || 'solid',
+        strokeWidth: store.defaultElementStyles.strokeWidth || 1,
+        roughness: store.defaultElementStyles.roughness || 1,
+        points: [0, 0, 150, 0]
+    };
+
+    const connectorId = connector.id;
+    setStore("elements", els => [...els, newElement, connector]);
+
+    // Movement sync: Add connector to boundElements of both nodes
+    setStore("elements", e => e.id === parentId, "boundElements", b => [...(b || []), { id: connectorId, type: 'arrow' as const }]);
+    setStore("elements", e => e.id === newId, "boundElements", b => [...(b || []), { id: connectorId, type: 'arrow' as const }]);
+
+    setStore("selection", [newId]);
+    return newId;
+};
+
+export const toggleCollapseSelection = () => {
+    if (store.selection.length === 0) return;
+    pushToHistory();
+    setStore('elements',
+        el => store.selection.includes(el.id),
+        el => ({ isCollapsed: !el.isCollapsed })
+    );
+};
+
 export const setShowCanvasProperties = (visible: boolean) => {
     setStore("showCanvasProperties", visible);
 };
@@ -906,3 +1065,18 @@ export const loadTemplate = (templateData: {
     });
 };
 
+
+export const toggleCollapse = (id: string) => {
+    const el = store.elements.find(e => e.id === id);
+    if (el) {
+        updateElement(id, { isCollapsed: !el.isCollapsed }, true);
+    }
+};
+
+export const setParent = (childId: string, parentId: string | null) => {
+    updateElement(childId, { parentId }, true);
+};
+
+export const clearParent = (id: string) => {
+    updateElement(id, { parentId: null }, true);
+};

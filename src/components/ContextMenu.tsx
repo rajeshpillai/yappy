@@ -81,7 +81,7 @@ const ContextMenu: Component<ContextMenuProps> = (props) => {
             setActiveSubmenu(activeSubmenu() === index ? null : index);
         } else {
             item.onClick?.();
-            if (!props.parent) props.onClose(); // Only close root if leaf clicked
+            props.onClose(); // Close the menu chain on leaf click
         }
     };
 

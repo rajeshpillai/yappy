@@ -80,6 +80,8 @@ export interface DrawingElement {
     curveType?: 'straight' | 'bezier' | 'elbow';
     constrained?: boolean; // Keep proportions
     autoResize?: boolean; // Auto-resize based on text
+    parentId?: string | null;
+    isCollapsed?: boolean;
 }
 
 export interface Layer {

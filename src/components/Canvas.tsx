@@ -1,6 +1,7 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show, untrack } from "solid-js";
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
-import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit, isLayerVisible, isLayerLocked } from "../store/appStore";
+import { isElementHiddenByHierarchy, getDescendants } from "../utils/hierarchy";
+import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit, isLayerVisible, isLayerLocked, toggleCollapse, setParent, clearParent } from "../store/appStore";
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse, intersectElementWithLine, isPointOnBezier } from "../utils/geometry";
 import { getAnchorPoints, findClosestAnchor } from "../utils/anchorPoints";
 import { calculateSmartElbowRoute } from "../utils/routing";
@@ -351,6 +352,21 @@ const Canvas: Component = () => {
                 // FIX: Always render the element currently being drawn
                 if (el.id === currentId) return true;
 
+                // Mindmap Visibility Check
+                if (isElementHiddenByHierarchy(el, store.elements)) return false;
+
+                // Hide connectors if their bound elements are hidden
+                if (el.type === 'line' || el.type === 'arrow') {
+                    if (el.startBinding) {
+                        const startEl = store.elements.find(e => e.id === el.startBinding?.elementId);
+                        if (startEl && isElementHiddenByHierarchy(startEl, store.elements)) return false;
+                    }
+                    if (el.endBinding) {
+                        const endEl = store.elements.find(e => e.id === el.endBinding?.elementId);
+                        if (endEl && isElementHiddenByHierarchy(endEl, store.elements)) return false;
+                    }
+                }
+
                 // OPTIMIZATION: Skip elements smaller than 1px on screen (invisible when zoomed out)
                 const screenWidth = Math.abs(el.width) * scale;
                 const screenHeight = Math.abs(el.height) * scale;
@@ -450,116 +466,184 @@ const Canvas: Component = () => {
                             ctx.lineTo(rotH.x, rotH.y);
                             ctx.stroke();
                             ctx.beginPath();
-                            ctx.arc(rotH.x, rotH.y, handleSize / 2, 0, 2 * Math.PI);
+                            ctx.arc(rotH.x, rotH.y, handleSize / 2, 0, Math.PI * 2);
                             ctx.fill();
                             ctx.stroke();
                         }
+                    }
 
-                        if ((el.type === 'line' || el.type === 'arrow' || el.type === 'bezier') && el.controlPoints && store.selectedTool === 'selection') {
-                            const cpSize = 10 / scale;
-                            if (el.controlPoints.length === 1) {
-                                const cp = el.controlPoints[0];
-                                let start = { x: el.x, y: el.y };
-                                let end = { x: el.x + el.width, y: el.y + el.height };
-                                if (el.points && el.points.length >= 2) {
-                                    const pts = normalizePoints(el.points);
-                                    if (pts.length > 0) {
-                                        start = { x: el.x + pts[0].x, y: el.y + pts[0].y };
-                                        end = { x: el.x + pts[pts.length - 1].x, y: el.y + pts[pts.length - 1].y };
-                                    }
+                    // Mindmap Toggle Handle (+) / (-)
+                    const hasChildren = store.elements.some(e => e.parentId === el.id);
+                    if (hasChildren && el.type !== 'line' && el.type !== 'arrow') {
+                        const toggleSize = 14 / scale;
+                        const centerX = el.x + el.width + 15 / scale;
+                        const centerY = el.y + el.height / 2;
+
+                        ctx.beginPath();
+                        ctx.arc(centerX, centerY, toggleSize / 2, 0, Math.PI * 2);
+                        ctx.fillStyle = el.isCollapsed ? '#10b981' : (isDarkMode ? '#333' : '#fff');
+                        ctx.fill();
+                        ctx.strokeStyle = '#10b981';
+                        ctx.lineWidth = 2 / scale;
+                        ctx.stroke();
+
+                        // Draw + or -
+                        ctx.beginPath();
+                        ctx.strokeStyle = el.isCollapsed ? '#fff' : '#10b981';
+                        ctx.lineWidth = 2 / scale;
+                        // Horizontal line
+                        ctx.moveTo(centerX - toggleSize / 4, centerY);
+                        ctx.lineTo(centerX + toggleSize / 4, centerY);
+                        if (el.isCollapsed) {
+                            // Vertical line for +
+                            ctx.moveTo(centerX, centerY - toggleSize / 4);
+                            ctx.lineTo(centerX, centerY + toggleSize / 4);
+                        }
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+                }
+
+                // Visual Indicator for Collapsed Nodes (Subtle glow)
+                if (el.isCollapsed && !store.selection.includes(el.id)) {
+                    ctx.save();
+                    if (el.angle) {
+                        ctx.translate(cx, cy);
+                        ctx.rotate(el.angle);
+                        ctx.translate(-cx, -cy);
+                    }
+                    ctx.shadowBlur = 10 / scale;
+                    ctx.shadowColor = '#10b981';
+                    ctx.strokeStyle = '#10b981';
+                    ctx.lineWidth = 1 / scale;
+                    const p = 1 / scale;
+                    ctx.strokeRect(el.x - p, el.y - p, el.width + p * 2, el.height + p * 2);
+                    ctx.restore();
+                }
+
+                // Selection-dependent UI (Control points, Connectors)
+                if (store.selection.includes(el.id)) {
+                    if ((el.type === 'line' || el.type === 'arrow' || el.type === 'bezier') && el.controlPoints && store.selectedTool === 'selection') {
+                        const cpSize = 10 / scale;
+                        if (el.controlPoints.length === 1) {
+                            const cp = el.controlPoints[0];
+                            let start = { x: el.x, y: el.y };
+                            let end = { x: el.x + el.width, y: el.y + el.height };
+                            if (el.points && el.points.length >= 2) {
+                                const pts = normalizePoints(el.points);
+                                if (pts.length > 0) {
+                                    start = { x: el.x + pts[0].x, y: el.y + pts[0].y };
+                                    end = { x: el.x + pts[pts.length - 1].x, y: el.y + pts[pts.length - 1].y };
                                 }
+                            }
 
-                                const curveX = 0.25 * start.x + 0.5 * cp.x + 0.25 * end.x;
-                                const curveY = 0.25 * start.y + 0.5 * cp.y + 0.25 * end.y;
+                            const curveX = 0.25 * start.x + 0.5 * cp.x + 0.25 * end.x;
+                            const curveY = 0.25 * start.y + 0.5 * cp.y + 0.25 * end.y;
 
+                            ctx.fillStyle = '#3b82f6';
+                            ctx.strokeStyle = '#ffffff';
+                            ctx.lineWidth = 1.5 / scale;
+                            ctx.beginPath();
+                            ctx.arc(curveX, curveY, cpSize / 2, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.stroke();
+                        } else {
+                            el.controlPoints.forEach((cp) => {
+                                // Draw normal CP handles (Off-Curve)
                                 ctx.fillStyle = '#3b82f6';
                                 ctx.strokeStyle = '#ffffff';
                                 ctx.lineWidth = 1.5 / scale;
                                 ctx.beginPath();
-                                ctx.arc(curveX, curveY, cpSize / 2, 0, Math.PI * 2);
+                                ctx.arc(cp.x, cp.y, cpSize / 2, 0, Math.PI * 2);
                                 ctx.fill();
-                                ctx.stroke();
-                            } else {
-                                el.controlPoints.forEach((cp) => {
-                                    // Draw normal CP handles (Off-Curve)
-                                    ctx.fillStyle = '#3b82f6';
-                                    ctx.strokeStyle = '#ffffff';
-                                    ctx.lineWidth = 1.5 / scale;
-                                    ctx.beginPath();
-                                    ctx.arc(cp.x, cp.y, cpSize / 2, 0, Math.PI * 2);
-                                    ctx.fill();
-                                    ctx.stroke();
-                                });
-                            }
-                        }
-
-                        // Draw Connector Handles (Interactive connection points)
-                        // Only for shapes, not lines/arrows, and only when selection tool is active
-                        if (el.type !== 'line' && el.type !== 'arrow' && store.selectedTool === 'selection') {
-                            const connectorSize = 12 / scale; // Slightly larger for better touch
-                            const connectorOffset = 18 / scale; // Offset from shape edge for easier clicking
-                            const cx = el.x + el.width / 2;
-                            const cy = el.y + el.height / 2;
-                            const connectorHandles = [
-                                { pos: 'top', x: cx, y: el.y - connectorOffset },
-                                { pos: 'right', x: el.x + el.width + connectorOffset, y: cy },
-                                { pos: 'bottom', x: cx, y: el.y + el.height + connectorOffset },
-                                { pos: 'left', x: el.x - connectorOffset, y: cy }
-                            ];
-
-                            connectorHandles.forEach(ch => {
-                                const isHovered = hoveredConnector && hoveredConnector.elementId === el.id && hoveredConnector.handle === `connector-${ch.pos}`;
-                                const currentSize = isHovered ? connectorSize * 1.3 : connectorSize;
-
-                                // Draw connecting line from shape to handle
-                                ctx.strokeStyle = isHovered ? 'rgba(16, 185, 129, 0.8)' : 'rgba(16, 185, 129, 0.4)';
-                                ctx.lineWidth = (isHovered ? 2 : 1) / scale;
-                                ctx.setLineDash([3 / scale, 3 / scale]);
-                                ctx.beginPath();
-                                if (ch.pos === 'top') {
-                                    ctx.moveTo(ch.x, el.y);
-                                    ctx.lineTo(ch.x, ch.y);
-                                } else if (ch.pos === 'right') {
-                                    ctx.moveTo(el.x + el.width, ch.y);
-                                    ctx.lineTo(ch.x, ch.y);
-                                } else if (ch.pos === 'bottom') {
-                                    ctx.moveTo(ch.x, el.y + el.height);
-                                    ctx.lineTo(ch.x, ch.y);
-                                } else if (ch.pos === 'left') {
-                                    ctx.moveTo(el.x, ch.y);
-                                    ctx.lineTo(ch.x, ch.y);
-                                }
-                                ctx.stroke();
-                                ctx.setLineDash([]);
-
-                                // Draw connector circle with subtle glow
-                                ctx.shadowColor = 'rgba(16, 185, 129, 0.5)';
-                                ctx.shadowBlur = (isHovered ? 8 : 4) / scale;
-                                ctx.fillStyle = isHovered ? '#059669' : '#10b981'; // Darker green on hover
-                                ctx.strokeStyle = '#ffffff';
-                                ctx.lineWidth = 2 / scale;
-                                ctx.beginPath();
-                                ctx.arc(ch.x, ch.y, currentSize / 2, 0, Math.PI * 2);
-                                ctx.fill();
-                                ctx.stroke();
-                                ctx.shadowBlur = 0;
-
-                                // Draw "+" icon
-                                ctx.strokeStyle = '#ffffff';
-                                ctx.lineWidth = 1.5 / scale;
-                                const plusSize = currentSize * 0.3;
-                                ctx.beginPath();
-                                ctx.moveTo(ch.x - plusSize, ch.y);
-                                ctx.lineTo(ch.x + plusSize, ch.y);
-                                ctx.moveTo(ch.x, ch.y - plusSize);
-                                ctx.lineTo(ch.x, ch.y + plusSize);
                                 ctx.stroke();
                             });
                         }
+                    }
 
-                        ctx.restore();
+                    // Draw Connector Handles (Interactive connection points)
+                    // Only for shapes, not lines/arrows, and only when selection tool is active
+                    if (el.type !== 'line' && el.type !== 'arrow' && store.selectedTool === 'selection') {
+                        const connectorSize = 14 / scale; // Slightly larger
+                        const connectorOffset = 32 / scale; // Increased offset to clear mindmap toggle
+                        const cx = el.x + el.width / 2;
+                        const cy = el.y + el.height / 2;
+                        const connectorHandles = [
+                            { pos: 'top', x: cx, y: el.y - connectorOffset },
+                            { pos: 'right', x: el.x + el.width + connectorOffset, y: cy },
+                            { pos: 'bottom', x: cx, y: el.y + el.height + connectorOffset },
+                            { pos: 'left', x: el.x - connectorOffset, y: cy }
+                        ];
+
+                        connectorHandles.forEach(ch => {
+                            const isHovered = hoveredConnector && hoveredConnector.elementId === el.id && hoveredConnector.handle === `connector-${ch.pos}`;
+                            const currentSize = isHovered ? connectorSize * 1.3 : connectorSize;
+
+                            // Draw connecting line from shape to handle
+                            ctx.strokeStyle = isHovered ? 'rgba(16, 185, 129, 0.8)' : 'rgba(16, 185, 129, 0.4)';
+                            ctx.lineWidth = (isHovered ? 2 : 1) / scale;
+                            ctx.setLineDash([3 / scale, 3 / scale]);
+                            ctx.beginPath();
+                            if (ch.pos === 'top') {
+                                ctx.moveTo(ch.x, el.y);
+                                ctx.lineTo(ch.x, ch.y);
+                            } else if (ch.pos === 'right') {
+                                ctx.moveTo(el.x + el.width, ch.y);
+                                ctx.lineTo(ch.x, ch.y);
+                            } else if (ch.pos === 'bottom') {
+                                ctx.moveTo(ch.x, el.y + el.height);
+                                ctx.lineTo(ch.x, ch.y);
+                            } else if (ch.pos === 'left') {
+                                ctx.moveTo(el.x, ch.y);
+                                ctx.lineTo(ch.x, ch.y);
+                            }
+                            ctx.stroke();
+                            ctx.setLineDash([]);
+
+                            // Draw connector circle with subtle glow
+                            ctx.shadowColor = 'rgba(16, 185, 129, 0.5)';
+                            ctx.shadowBlur = (isHovered ? 8 : 4) / scale;
+                            ctx.fillStyle = isHovered ? '#059669' : '#10b981'; // Darker green on hover
+                            ctx.strokeStyle = '#ffffff';
+                            ctx.lineWidth = 2 / scale;
+                            ctx.beginPath();
+                            ctx.arc(ch.x, ch.y, currentSize / 2, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.stroke();
+                            ctx.shadowBlur = 0;
+
+                            // Draw outward-pointing arrow icon
+                            ctx.strokeStyle = '#ffffff';
+                            ctx.lineWidth = 1.8 / scale;
+                            const arrowSize = currentSize * 0.25;
+                            ctx.beginPath();
+                            if (ch.pos === 'top') {
+                                ctx.moveTo(ch.x - arrowSize, ch.y + arrowSize / 2);
+                                ctx.lineTo(ch.x, ch.y - arrowSize / 2);
+                                ctx.lineTo(ch.x + arrowSize, ch.y + arrowSize / 2);
+                            } else if (ch.pos === 'right') {
+                                ctx.moveTo(ch.x - arrowSize / 2, ch.y - arrowSize);
+                                ctx.lineTo(ch.x + arrowSize / 2, ch.y);
+                                ctx.lineTo(ch.x - arrowSize / 2, ch.y + arrowSize);
+                            } else if (ch.pos === 'bottom') {
+                                ctx.moveTo(ch.x - arrowSize, ch.y - arrowSize / 2);
+                                ctx.lineTo(ch.x, ch.y + arrowSize / 2);
+                                ctx.lineTo(ch.x + arrowSize, ch.y - arrowSize / 2);
+                            } else if (ch.pos === 'left') {
+                                ctx.moveTo(ch.x + arrowSize / 2, ch.y - arrowSize);
+                                ctx.lineTo(ch.x - arrowSize / 2, ch.y);
+                                ctx.lineTo(ch.x + arrowSize / 2, ch.y + arrowSize);
+                            }
+                            ctx.stroke();
+                        });
                     }
                 }
+
+                // This ctx.restore() was for the main selection block, but that block is now split.
+                // If there was an initial ctx.save() for the element, it should be here.
+                // For now, it seems this restore was tied to the selection block's save.
+                // Since the selection block now has its own save/restore, this one is removed.
+                // If an element-level save/restore is needed, it should be added around the element rendering.
             });
         });
 
@@ -809,6 +893,7 @@ const Canvas: Component = () => {
             e.fontWeight; e.fontStyle;
             e.startArrowhead; e.endArrowhead;
             e.containerText; e.labelPosition; // Track label properties for immediate updates
+            e.isCollapsed; e.parentId; // Track hierarchy state for immediate updates
         });
         store.viewState.scale;
         store.viewState.panX;
@@ -832,15 +917,15 @@ const Canvas: Component = () => {
         requestAnimationFrame(draw);
     });
 
-    // Auto-refresh elbow points if curveType changes or bound elements move
+    // Auto-refresh bound lines if bound elements move or hierarchy changes
     createEffect(() => {
         store.elements.forEach(el => {
-            if ((el.type === 'line' || el.type === 'arrow') && el.curveType === 'elbow') {
-                const newPoints = refreshLinePoints(el);
-                if (newPoints && JSON.stringify(newPoints) !== JSON.stringify(el.points)) {
-                    // Update WITHOUT pushing to history to avoid infinite history spam during drag
-                    updateElement(el.id, { points: newPoints }, false);
-                }
+            if (el.boundElements && el.boundElements.length > 0) {
+                // Reactive trigger: track moving node's geometry
+                el.x; el.y; el.width; el.height;
+                untrack(() => {
+                    el.boundElements?.forEach(b => refreshBoundLine(b.id));
+                });
             }
         });
     });
@@ -966,7 +1051,29 @@ const Canvas: Component = () => {
             }
         }
 
-        // 2. Single element handles
+        // 2. Mindmap Toggle Handles (Priority over element selection)
+        for (let i = store.elements.length - 1; i >= 0; i--) {
+            const el = store.elements[i];
+            if (isElementHiddenByHierarchy(el, store.elements)) continue;
+
+            const hasChildren = store.elements.some(e => e.parentId === el.id);
+            if (hasChildren && el.type !== 'line' && el.type !== 'arrow') {
+                const ecx = el.x + el.width / 2;
+                const ecy = el.y + el.height / 2;
+                const local = unrotatePoint(x, y, ecx, ecy, el.angle || 0);
+
+                const toggleSize = 14 / scale;
+                const tx = el.x + el.width + 15 / scale;
+                const ty = el.y + el.height / 2;
+
+                const dist = Math.sqrt(Math.pow(local.x - tx, 2) + Math.pow(local.y - ty, 2));
+                if (dist <= (toggleSize / 2) + (5 / scale)) {
+                    return { id: el.id, handle: 'mindmap-toggle' };
+                }
+            }
+        }
+
+        // 3. Single element handles
         for (let i = store.elements.length - 1; i >= 0; i--) {
             const el = store.elements[i];
             if (!store.selection.includes(el.id)) continue;
@@ -1045,8 +1152,8 @@ const Canvas: Component = () => {
 
             // Check Connector Handles (only for non-line/arrow shapes)
             if (el.type !== 'line' && el.type !== 'arrow') {
-                const connectorSize = 12 / scale;
-                const connectorOffset = 18 / scale;
+                const connectorSize = 14 / scale;
+                const connectorOffset = 32 / scale;
                 const ecx = el.x + el.width / 2;
                 const ecy = el.y + el.height / 2;
                 const connectorHandles = [
@@ -1097,6 +1204,7 @@ const Canvas: Component = () => {
 
 
     const hitTestElement = (el: DrawingElement, x: number, y: number, threshold: number): boolean => {
+        if (isElementHiddenByHierarchy(el, store.elements)) return false;
         // Transform point to local non-rotated space
         const cx = el.x + el.width / 2;
         const cy = el.y + el.height / 2;
@@ -1309,7 +1417,67 @@ const Canvas: Component = () => {
             // Convert world points to relative points for storage
             return rawPoints.map(p => ({ x: p.x - sx, y: p.y - sy }));
         }
+
+        // If it's a straight line/arrow that already has points, update them to be consistent with sx/sy
+        if (line.points && line.points.length >= 2) {
+            return [0, 0, ex - sx, ey - sy];
+        }
+
         return undefined;
+    };
+
+    const refreshBoundLine = (lineId: string) => {
+        const line = store.elements.find(l => l.id === lineId);
+        if (!line || (line.type !== 'line' && line.type !== 'arrow')) return;
+
+        let sX = line.x;
+        let sY = line.y;
+        let eX = line.x + line.width;
+        let eY = line.y + line.height;
+        let changed = false;
+
+        if (line.startBinding) {
+            const el = store.elements.find(e => e.id === line.startBinding.elementId);
+            if (el) {
+                const pos = line.startBinding.position;
+                let p;
+                if (pos && pos !== 'edge') {
+                    const anchors = getAnchorPoints(el);
+                    const anchor = anchors.find(a => a.position === pos);
+                    if (anchor) p = { x: anchor.x, y: anchor.y };
+                }
+                if (!p) p = intersectElementWithLine(el, { x: eX, y: eY }, line.startBinding.gap);
+                if (p) { sX = p.x; sY = p.y; changed = true; }
+            }
+        }
+
+        if (line.endBinding) {
+            const el = store.elements.find(e => e.id === line.endBinding.elementId);
+            if (el) {
+                const pos = line.endBinding.position;
+                let p;
+                if (pos && pos !== 'edge') {
+                    const anchors = getAnchorPoints(el);
+                    const anchor = anchors.find(a => a.position === pos);
+                    if (anchor) p = { x: anchor.x, y: anchor.y };
+                }
+                if (!p) p = intersectElementWithLine(el, { x: sX, y: sY }, line.endBinding.gap);
+                if (p) { eX = p.x; eY = p.y; changed = true; }
+            }
+        }
+
+        if (changed) {
+            const points = refreshLinePoints(line, sX, sY, eX, eY);
+            if (sX !== line.x || sY !== line.y || (eX - sX) !== line.width || (eY - sY) !== line.height || JSON.stringify(points) !== JSON.stringify(line.points)) {
+                updateElement(line.id, {
+                    x: sX,
+                    y: sY,
+                    width: eX - sX,
+                    height: eY - sY,
+                    points
+                }, false);
+            }
+        }
     };
 
     const handlePointerDown = (e: PointerEvent) => {
@@ -1326,6 +1494,12 @@ const Canvas: Component = () => {
         if (store.selectedTool === 'selection') {
             const hitHandle = getHandleAtPosition(x, y);
             if (hitHandle) {
+                // Mindmap toggle logic
+                if (hitHandle.handle === 'mindmap-toggle') {
+                    toggleCollapse(hitHandle.id);
+                    return;
+                }
+
                 // Check if it's a connector handle
                 if (hitHandle.handle.startsWith('connector-')) {
                     const sourceEl = store.elements.find(e => e.id === hitHandle.id);
@@ -1412,8 +1586,15 @@ const Canvas: Component = () => {
                         initialElementHeight = box.height;
 
                         initialPositions.clear();
+                        const toCapture = new Set(store.selection);
+
+                        // Add descendants to capture list
+                        store.selection.forEach(selId => {
+                            getDescendants(selId, store.elements).forEach(d => toCapture.add(d.id));
+                        });
+
                         store.elements.forEach(el => {
-                            if (store.selection.includes(el.id)) {
+                            if (toCapture.has(el.id)) {
                                 initialPositions.set(el.id, {
                                     x: el.x,
                                     y: el.y,
@@ -2042,64 +2223,19 @@ const Canvas: Component = () => {
                         dy = Math.round(dy / gridSize) * gridSize;
                     }
 
-                    store.selection.forEach(selId => {
+                    const skipHierarchy = e.altKey;
+
+                    initialPositions.forEach((initPos, selId) => {
+                        // If Alt is held, only move selected items, not their (unselected) descendants
+                        if (skipHierarchy && !store.selection.includes(selId)) return;
+
                         const el = store.elements.find(e => e.id === selId);
                         if (el && canInteractWithElement(el)) {
-                            const initPos = initialPositions.get(selId);
-                            if (initPos) {
-                                updateElement(selId, { x: initPos.x + dx, y: initPos.y + dy }, false);
+                            updateElement(selId, { x: initPos.x + dx, y: initPos.y + dy }, false);
 
-                                // Update Bound Lines
-                                if (el.boundElements) {
-                                    el.boundElements.forEach(b => {
-                                        const line = store.elements.find(l => l.id === b.id);
-                                        if (line) {
-                                            let sX = line.x;
-                                            let sY = line.y;
-                                            let eX = line.x + line.width;
-                                            let eY = line.y + line.height;
-                                            let changed = false;
-
-                                            if (line.startBinding?.elementId === el.id) {
-                                                const pos = line.startBinding.position;
-                                                let p;
-                                                if (pos && pos !== 'edge') {
-                                                    const anchors = getAnchorPoints(el);
-                                                    const anchor = anchors.find(a => a.position === pos);
-                                                    if (anchor) p = { x: anchor.x, y: anchor.y };
-                                                }
-                                                if (!p) {
-                                                    p = intersectElementWithLine(el, { x: eX, y: eY }, line.startBinding.gap);
-                                                }
-                                                if (p) { sX = p.x; sY = p.y; changed = true; }
-                                            }
-                                            if (line.endBinding?.elementId === el.id) {
-                                                const pos = line.endBinding.position;
-                                                let p;
-                                                if (pos && pos !== 'edge') {
-                                                    const anchors = getAnchorPoints(el);
-                                                    const anchor = anchors.find(a => a.position === pos);
-                                                    if (anchor) p = { x: anchor.x, y: anchor.y };
-                                                }
-                                                if (!p) {
-                                                    p = intersectElementWithLine(el, { x: sX, y: sY }, line.endBinding.gap);
-                                                }
-                                                if (p) { eX = p.x; eY = p.y; changed = true; }
-                                            }
-
-                                            if (changed) {
-                                                const points = refreshLinePoints(line, sX, sY, eX, eY);
-                                                updateElement(line.id, {
-                                                    x: sX,
-                                                    y: sY,
-                                                    width: eX - sX,
-                                                    height: eY - sY,
-                                                    points
-                                                }, false);
-                                            }
-                                        }
-                                    });
-                                }
+                            // Update Bound Lines
+                            if (el.boundElements) {
+                                el.boundElements.forEach(b => refreshBoundLine(b.id));
                             }
                         }
                     });
@@ -2636,6 +2772,44 @@ const Canvas: Component = () => {
                 { label: 'Duplicate', shortcut: 'Ctrl+D', onClick: () => store.selection.forEach(id => duplicateElement(id)) },
                 { separator: true }
             );
+
+            // Hierarchy Submenu
+            const firstId = store.selection[0];
+            const firstEl = store.elements.find(e => e.id === firstId);
+            if (firstEl) {
+                const hierarchyItems: MenuItem[] = [];
+
+                if (firstEl.parentId) {
+                    hierarchyItems.push({ label: 'Clear Parent', onClick: () => clearParent(firstId) });
+                }
+
+                const hasChildren = store.elements.some(e => e.parentId === firstId);
+                if (hasChildren) {
+                    hierarchyItems.push({
+                        label: firstEl.isCollapsed ? 'Expand Subtree' : 'Collapse Subtree',
+                        onClick: () => toggleCollapse(firstId)
+                    });
+                }
+
+                if (selectionCount === 2) {
+                    const childId = store.selection[0];
+                    const parentId = store.selection[1];
+                    hierarchyItems.push({
+                        label: 'Set as Child of Selected',
+                        onClick: () => setParent(childId, parentId)
+                    });
+                }
+
+                if (hierarchyItems.length > 0) {
+                    items.push({ label: 'Hierarchy', submenu: hierarchyItems });
+                }
+            }
+
+            if (selectionCount === 2) {
+                // Remove the old flat version if it exists (redundant now but let's be clean)
+            }
+
+            items.push({ separator: true });
 
             // Grouping
             if (selectionCount > 1) {
