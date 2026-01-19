@@ -8,6 +8,7 @@ import SketchnoteToolGroup from "./SketchnoteToolGroup";
 import InfraToolGroup from "./InfraToolGroup";
 import MathToolGroup from "./MathToolGroup";
 import WireframeToolGroup from "./WireframeToolGroup";
+import MindmapToolGroup from "./MindmapToolGroup";
 import "./Toolbar.css";
 
 // Tools that are NOT pens or grouped shapes
@@ -165,6 +166,9 @@ const Toolbar: Component = () => {
 
             {/* Shape Tool Group (Triangle, Hexagon, Star, Hearts, Arrows, etc.) */}
             <ShapeToolGroup />
+
+            {/* Mindmap Tool Group (Organic Branch, Central Topic) */}
+            <MindmapToolGroup />
 
             {/* Sketchnote Essentials Group (Star Person, Scroll, Divider, Banner) */}
             <SketchnoteToolGroup />

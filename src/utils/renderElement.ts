@@ -18,6 +18,104 @@ export const normalizePoints = (points: any[] | number[] | undefined): { x: numb
     return points as { x: number; y: number }[];
 };
 
+// Helper: Calculate cubic bezier point at t
+const cubicBezier = (p0: number, p1: number, p2: number, p3: number, t: number) => {
+    const k = 1 - t;
+    return k * k * k * p0 + 3 * k * k * t * p1 + 3 * k * t * t * p2 + t * t * t * p3;
+};
+
+// Helper: Calculate cubic bezier tangent angle at t
+const cubicBezierAngle = (p0: { x: number, y: number }, p1: { x: number, y: number }, p2: { x: number, y: number }, p3: { x: number, y: number }, t: number) => {
+    const dx = 3 * (1 - t) * (1 - t) * (p1.x - p0.x) + 6 * (1 - t) * t * (p2.x - p1.x) + 3 * t * t * (p3.x - p2.x);
+    const dy = 3 * (1 - t) * (1 - t) * (p1.y - p0.y) + 6 * (1 - t) * t * (p2.y - p1.y) + 3 * t * t * (p3.y - p2.y);
+    return Math.atan2(dy, dx);
+};
+
+const drawOrganicBranch = (
+    ctx: CanvasRenderingContext2D,
+    start: { x: number, y: number },
+    end: { x: number, y: number },
+    cp1: { x: number, y: number },
+    cp2: { x: number, y: number },
+    color: string,
+    width: number,
+    text: string = "",
+    textColor: string = "#000000",
+    font: string = "16px sans-serif"
+) => {
+    const segments = 20;
+    const pointsTop: { x: number, y: number }[] = [];
+    const pointsBottom: { x: number, y: number }[] = [];
+
+    // Tapering: Start thick, end thin
+    const startWidth = Math.max(width * 8, 4);
+    const endWidth = Math.max(width * 2, 2);
+
+    for (let i = 0; i <= segments; i++) {
+        const t = i / segments;
+        const x = cubicBezier(start.x, cp1.x, cp2.x, end.x, t);
+        const y = cubicBezier(start.y, cp1.y, cp2.y, end.y, t);
+
+        const angle = cubicBezierAngle(start, cp1, cp2, end, t);
+
+        // Linear interpolation of width
+        const currentWidth = startWidth + (endWidth - startWidth) * t;
+        const halfWidth = currentWidth / 2;
+
+        // Calculate offset points (normal to curve)
+        const offsetX = Math.cos(angle + Math.PI / 2) * halfWidth;
+        const offsetY = Math.sin(angle + Math.PI / 2) * halfWidth;
+
+        pointsTop.push({ x: x + offsetX, y: y + offsetY });
+        pointsBottom.push({ x: x - offsetX, y: y - offsetY });
+    }
+
+    // Draw the tapered shape
+    ctx.beginPath();
+    ctx.moveTo(pointsTop[0].x, pointsTop[0].y);
+    for (let i = 1; i < pointsTop.length; i++) {
+        ctx.lineTo(pointsTop[i].x, pointsTop[i].y);
+    }
+    // Connect to bottom end
+    ctx.lineTo(pointsBottom[pointsBottom.length - 1].x, pointsBottom[pointsBottom.length - 1].y);
+    // Trace back bottom
+    for (let i = pointsBottom.length - 2; i >= 0; i--) {
+        ctx.lineTo(pointsBottom[i].x, pointsBottom[i].y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = color; // Use stroke color as fill for the "stroke" shape
+    ctx.fill();
+
+    // Text on Path
+    if (text) {
+        ctx.save();
+        ctx.font = font;
+        ctx.fillStyle = textColor;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Place text near center 
+        const centerX = cubicBezier(start.x, cp1.x, cp2.x, end.x, 0.5);
+        const centerY = cubicBezier(start.y, cp1.y, cp2.y, end.y, 0.5);
+        const angle = cubicBezierAngle(start, cp1, cp2, end, 0.5);
+
+        // Offset text slightly above branch
+        const textOffset = -15;
+
+        ctx.translate(centerX, centerY);
+
+        let rawAngle = angle;
+        if (rawAngle > Math.PI / 2 || rawAngle < -Math.PI / 2) {
+            rawAngle += Math.PI;
+        }
+
+        ctx.rotate(rawAngle);
+        ctx.fillText(text, 0, textOffset);
+
+        ctx.restore();
+    }
+};
+
 export const renderElement = (
     rc: RoughCanvas,
     ctx: CanvasRenderingContext2D,
@@ -1936,6 +2034,43 @@ export const renderElement = (
             // Cursor
             rc.line(x + 10, y + 8, x + 10, y + h - 8, options);
         }
+    } else if (el.type === 'organicBranch') {
+        const strokeColor = adjustColor(el.strokeColor);
+        // Calculate Control Points (similar to Bezier/Arrow logic)
+        let start = { x: el.x, y: el.y };
+        let end = { x: el.x + el.width, y: el.y + el.height };
+
+        if (el.points && el.points.length >= 2) {
+            const pts = normalizePoints(el.points);
+            if (pts.length > 0) {
+                start = { x: el.x + pts[0].x, y: el.y + pts[0].y };
+                end = { x: el.x + pts[pts.length - 1].x, y: el.y + pts[pts.length - 1].y };
+            }
+        }
+
+        // Logic for CP from Canvas (refreshBoundLine typically handles this updates into el.controlPoints?)
+        // If el.controlPoints exists, use it. Else calculate default curve.
+        let cp1, cp2;
+        if (el.controlPoints && el.controlPoints.length === 2) {
+            cp1 = { x: el.controlPoints[0].x, y: el.controlPoints[0].y };
+            cp2 = { x: el.controlPoints[1].x, y: el.controlPoints[1].y };
+        } else {
+            // Fallback calculation (Simple S-curve)
+            const dx = end.x - start.x;
+            const dy = end.y - start.y;
+            cp1 = { x: start.x + dx * 0.5, y: start.y }; // Control point 1
+            cp2 = { x: end.x - dx * 0.5, y: end.y };     // Control point 2
+        }
+
+        drawOrganicBranch(
+            ctx,
+            start, end, cp1, cp2,
+            strokeColor,
+            el.strokeWidth || 1,
+            el.containerText || el.text || "", // Pass text
+            strokeColor, // Text color matches branch
+            getFontString(el.width, el.height, el.fontFamily, '16px') // Font
+        );
     }
 
     // Render containerText (text inside shapes)
