@@ -59,6 +59,8 @@ export const normalizeElement = (el: Partial<DrawingElement> & { id: string; typ
         ...(el.startBinding !== undefined && { startBinding: el.startBinding }),
         ...(el.endBinding !== undefined && { endBinding: el.endBinding }),
         ...(el.curveType !== undefined && { curveType: el.curveType }),
+        ...(el.parentId !== undefined && { parentId: el.parentId }),
+        ...(el.isCollapsed !== undefined && { isCollapsed: el.isCollapsed }),
     } as DrawingElement;
 };
 
