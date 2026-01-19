@@ -40,8 +40,33 @@ const DoubleBannerIcon: Component<{ size?: number; color?: string }> = (props) =
     </svg>
 );
 
+const LightbulbIcon: Component<{ size?: number; color?: string }> = (props) => (
+    <svg width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="9" y1="18" x2="15" y2="18" />
+        <line x1="10" y1="22" x2="14" y2="22" />
+        <path d="M 15.09,14 C 15.09,14 17,12.5 17,10.6 C 17,7.5 14.5,5 11,5 C 7.5,5 5,7.5 5,10.6 C 5,12.5 6.91,14 6.91,14" />
+    </svg>
+);
+
+const SignpostIcon: Component<{ size?: number; color?: string }> = (props) => (
+    <svg width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="3" x2="12" y2="22" />
+        <path d="M 4,6 L 18,6 L 21,9 L 18,12 L 4,12 Z" />
+        <circle cx="12" cy="9" r="1" fill="currentColor" stroke="none" />
+    </svg>
+);
+
+const BurstBlobIcon: Component<{ size?: number; color?: string }> = (props) => (
+    <svg width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M 12,2 L 14.5,8 L 21,9 L 16.5,14 L 18,21 L 12,17 L 6,21 L 7.5,14 L 3,9 L 9.5,8 Z" />
+    </svg>
+);
+
 const sketchnoteTools: { type: ElementType; icon: Component<{ size?: number; color?: string }>; label: string }[] = [
     { type: 'starPerson', icon: StarPersonIcon, label: 'Star Person (Character)' },
+    { type: 'lightbulb', icon: LightbulbIcon, label: 'Lightbulb (Idea)' },
+    { type: 'signpost', icon: SignpostIcon, label: 'Signpost (Direction)' },
+    { type: 'burstBlob', icon: BurstBlobIcon, label: 'Jagged Burst (Impact)' },
     { type: 'scroll', icon: ScrollIcon, label: 'Scroll Container' },
     { type: 'wavyDivider', icon: WavyDividerIcon, label: 'Wavy Divider' },
     { type: 'doubleBanner', icon: DoubleBannerIcon, label: 'Double Banner' },

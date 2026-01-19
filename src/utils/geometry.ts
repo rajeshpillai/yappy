@@ -243,6 +243,7 @@ export const intersectElementWithLine = (
         element.type === 'bracketLeft' || element.type === 'bracketRight' ||
         element.type === 'database' || element.type === 'document' || element.type === 'predefinedProcess' || element.type === 'internalStorage' ||
         element.type === 'server' || element.type === 'loadBalancer' || element.type === 'firewall' || element.type === 'user' || element.type === 'messageQueue' || element.type === 'lambda' || element.type === 'router' || element.type === 'browser' || element.type === 'trapezoid' || element.type === 'rightTriangle' || element.type === 'pentagon' || element.type === 'septagon' || element.type === 'starPerson' || element.type === 'scroll' || element.type === 'wavyDivider' || element.type === 'doubleBanner' ||
+        element.type === 'lightbulb' || element.type === 'signpost' || element.type === 'burstBlob' ||
         element.type === 'fineliner' || element.type === 'inkbrush' || element.type === 'marker') {
         // For complex/polygon shapes, use simplified bounding box intersection
         // This is similar to rectangle but provides reasonable approximation

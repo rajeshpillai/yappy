@@ -61,6 +61,12 @@ export const measureContainerText = (
         wrapWidth = availableWidth * 0.707; // sqrt(2)/2 approx
     } else if (el.type === 'doubleBanner') {
         wrapWidth = availableWidth * 0.65; // Stay within the front panel
+    } else if (el.type === 'lightbulb') {
+        wrapWidth = availableWidth * 0.7; // In bulb
+    } else if (el.type === 'signpost') {
+        wrapWidth = availableWidth * 0.8; // On board
+    } else if (el.type === 'burstBlob') {
+        wrapWidth = availableWidth * 0.6; // Inner radius
     }
 
     const lines = wrapText(ctx, text, wrapWidth);
@@ -101,7 +107,11 @@ export const fitShapeToText = (
 
     let metrics = measureContainerText(ctx, el, text, targetWrapWidth);
 
-    const scaleFactor = (el.type === 'circle' || el.type === 'diamond') ? 0.707 : (el.type === 'doubleBanner' ? 0.65 : 1);
+    const scaleFactor = (el.type === 'circle' || el.type === 'diamond') ? 0.707 :
+        (el.type === 'doubleBanner' ? 0.65 :
+            (el.type === 'lightbulb' ? 0.7 :
+                (el.type === 'signpost' ? 0.8 :
+                    (el.type === 'burstBlob' ? 0.6 : 1))));
 
     let finalWidth = (metrics.textWidth / scaleFactor) + padding;
     let finalHeight = (metrics.textHeight / scaleFactor) + padding;

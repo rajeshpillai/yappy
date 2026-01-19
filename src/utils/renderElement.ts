@@ -1149,6 +1149,116 @@ export const renderElement = (
             rc.polygon(leftEar, { ...options, fill: '#000000', fillStyle: 'solid', opacity: 0.05 });
             rc.polygon(rightEar, { ...options, fill: '#000000', fillStyle: 'solid', opacity: 0.05 });
         }
+    } else if (el.type === 'lightbulb') {
+        const x = el.x, y = el.y, w = el.width, h = el.height;
+        const cx = x + w / 2;
+        const bulbR = Math.min(w, h / 1.5) / 2;
+        const baseW = w * 0.4;
+        const baseH = h * 0.25;
+        const baseY = y + h - baseH;
+
+        // Bulb shape (circle merging into base)
+        const bulbPath = `
+            M ${cx - baseW / 2} ${baseY}
+            C ${cx - baseW / 2} ${y + bulbR} ${x} ${y + bulbR * 1.5} ${x} ${y + bulbR}
+            A ${bulbR} ${bulbR} 0 1 1 ${x + w} ${y + bulbR}
+            C ${x + w} ${y + bulbR * 1.5} ${cx + baseW / 2} ${y + bulbR} ${cx + baseW / 2} ${baseY}
+            Z
+        `;
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fill(new Path2D(bulbPath));
+                ctx.fillRect(cx - baseW / 2, baseY, baseW, baseH);
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.stroke(new Path2D(bulbPath));
+            // Base threads
+            ctx.beginPath();
+            ctx.rect(cx - baseW / 2, baseY, baseW, baseH);
+            ctx.moveTo(cx - baseW / 2, baseY + baseH / 3); ctx.lineTo(cx + baseW / 2, baseY + baseH / 3);
+            ctx.moveTo(cx - baseW / 2, baseY + 2 * baseH / 3); ctx.lineTo(cx + baseW / 2, baseY + 2 * baseH / 3);
+            ctx.stroke();
+            // Filament
+            ctx.beginPath();
+            ctx.moveTo(cx - bulbR / 3, y + bulbR);
+            ctx.lineTo(cx, y + bulbR / 2);
+            ctx.lineTo(cx + bulbR / 3, y + bulbR);
+            ctx.stroke();
+        } else {
+            rc.path(bulbPath, options);
+            // Base threads
+            const baseX = cx - baseW / 2;
+            rc.rectangle(baseX, baseY, baseW, baseH, options);
+            rc.line(baseX, baseY + baseH / 3, baseX + baseW, baseY + baseH / 3, options);
+            rc.line(baseX, baseY + 2 * baseH / 3, baseX + baseW, baseY + 2 * baseH / 3, options);
+            // Filament
+            rc.path(`M ${cx - bulbR / 3} ${y + bulbR} L ${cx} ${y + bulbR / 2} L ${cx + bulbR / 3} ${y + bulbR}`, { ...options, fill: 'none' });
+        }
+    } else if (el.type === 'signpost') {
+        const x = el.x, y = el.y, w = el.width, h = el.height;
+        const cx = x + w / 2;
+        const poleW = Math.max(4, w * 0.05);
+        const boardH = h * 0.3;
+        const boardW = w * 0.9;
+        const boardY = y + h * 0.1;
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(cx - poleW / 2, y, poleW, h); // Pole
+                ctx.fillRect(cx - boardW / 2, boardY, boardW, boardH); // Board
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.strokeRect(cx - poleW / 2, y, poleW, h);
+            ctx.strokeRect(cx - boardW / 2, boardY, boardW, boardH);
+            // Nail
+            ctx.beginPath(); ctx.arc(cx, boardY + boardH / 2, 2, 0, Math.PI * 2); ctx.stroke();
+        } else {
+            // Pole
+            rc.rectangle(cx - poleW / 2, y, poleW, h, { ...options, fill: 'none' }); // Pole usually barely filled
+            // Board
+            rc.rectangle(cx - boardW / 2, boardY, boardW, boardH, options);
+            // Nail
+            rc.circle(cx, boardY + boardH / 2, 4, { ...options, fill: strokeColor, fillStyle: 'solid' });
+        }
+    } else if (el.type === 'burstBlob') {
+        const x = el.x, y = el.y, w = el.width, h = el.height;
+        const cx = x + w / 2;
+        const cy = y + h / 2;
+        const rx = w / 2;
+        const ry = h / 2;
+        const spikes = 12;
+        const outerR = Math.min(rx, ry);
+        const innerR = outerR * 0.6;
+
+        let path = "";
+        for (let i = 0; i < spikes * 2; i++) {
+            const r = (i % 2 === 0) ? outerR : innerR;
+            // Add some randomness for jagged effect
+            const rVar = r + (Math.random() - 0.5) * (outerR * 0.1);
+            const angle = (Math.PI * i) / spikes;
+            const px = cx + Math.cos(angle) * w / h * rVar; // Elliptical scaling
+            const py = cy + Math.sin(angle) * rVar;
+            if (i === 0) path += `M ${px} ${py}`;
+            else path += ` L ${px} ${py}`;
+        }
+        path += " Z";
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fill(new Path2D(path));
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.stroke(new Path2D(path));
+        } else {
+            rc.path(path, options);
+        }
     } else if (el.type === 'line' || el.type === 'arrow') {
         const endX = el.x + el.width;
         const endY = el.y + el.height;
@@ -1720,7 +1830,8 @@ export const renderElement = (
         el.type === 'bracketLeft' || el.type === 'bracketRight' ||
         el.type === 'database' || el.type === 'document' || el.type === 'predefinedProcess' || el.type === 'internalStorage' ||
         el.type === 'server' || el.type === 'loadBalancer' || el.type === 'firewall' || el.type === 'user' || el.type === 'messageQueue' || el.type === 'lambda' || el.type === 'router' || el.type === 'browser' ||
-        el.type === 'trapezoid' || el.type === 'rightTriangle' || el.type === 'pentagon' || el.type === 'septagon' || el.type === 'starPerson' || el.type === 'scroll' || el.type === 'doubleBanner')) {
+        el.type === 'trapezoid' || el.type === 'rightTriangle' || el.type === 'pentagon' || el.type === 'septagon' || el.type === 'starPerson' || el.type === 'scroll' || el.type === 'doubleBanner' ||
+        el.type === 'lightbulb' || el.type === 'signpost' || el.type === 'burstBlob')) {
 
         ctx.save();
         let maxWidth = el.width - 20;
@@ -1731,6 +1842,12 @@ export const renderElement = (
             startYOffset = - (el.height * 0.1); // Move up slightly into the main panel
         } else if (el.type === 'starPerson') {
             startYOffset = el.height * 0.15; // Move down into the chest/belly area
+        } else if (el.type === 'lightbulb') {
+            maxWidth = el.width * 0.7; // Inscribed in bulb
+            startYOffset = - (el.height * 0.1); // Move up from base
+        } else if (el.type === 'signpost') {
+            maxWidth = el.width * 0.8; // Board width
+            startYOffset = - (el.height * 0.15); // Move up to board
         }
 
         const metrics = measureContainerText(ctx, el, el.containerText, maxWidth);

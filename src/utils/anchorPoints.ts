@@ -109,9 +109,10 @@ export function getAnchorPoints(element: DrawingElement): AnchorPoint[] {
         element.type === 'arrowLeft' || element.type === 'arrowRight' || element.type === 'arrowUp' || element.type === 'arrowDown' ||
         element.type === 'capsule' || element.type === 'stickyNote' || element.type === 'callout' ||
         element.type === 'burst' || element.type === 'speechBubble' || element.type === 'ribbon' ||
+        element.type === 'server' || element.type === 'loadBalancer' || element.type === 'firewall' || element.type === 'user' || element.type === 'messageQueue' || element.type === 'lambda' || element.type === 'router' || element.type === 'browser' || element.type === 'trapezoid' || element.type === 'rightTriangle' || element.type === 'pentagon' || element.type === 'septagon' || element.type === 'starPerson' || element.type === 'scroll' || element.type === 'wavyDivider' || element.type === 'doubleBanner' ||
+        element.type === 'lightbulb' || element.type === 'signpost' || element.type === 'burstBlob' ||
         element.type === 'bracketLeft' || element.type === 'bracketRight' ||
-        element.type === 'database' || element.type === 'document' || element.type === 'predefinedProcess' || element.type === 'internalStorage' ||
-        element.type === 'trapezoid' || element.type === 'rightTriangle' || element.type === 'pentagon' || element.type === 'septagon' || element.type === 'starPerson' || element.type === 'scroll' || element.type === 'doubleBanner') {
+        element.type === 'database' || element.type === 'document' || element.type === 'predefinedProcess' || element.type === 'internalStorage') {
         // For complex shapes, use 4 cardinal points
         const rawAnchors: AnchorPoint[] = [
             { x: cx, y: cy - h / 2, position: 'top' },

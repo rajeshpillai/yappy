@@ -245,7 +245,8 @@ export const setSelectedTool = (tool: ElementType | 'selection') => {
         updateDefaultStyles({ endArrowhead: null });
     }
 
-    if (tool === 'starPerson' || tool === 'scroll' || tool === 'wavyDivider' || tool === 'doubleBanner') {
+    if (tool === 'starPerson' || tool === 'scroll' || tool === 'wavyDivider' || tool === 'doubleBanner' ||
+        tool === 'lightbulb' || tool === 'signpost' || tool === 'burstBlob') {
         updateDefaultStyles({ autoResize: false });
     } else {
         updateDefaultStyles({ autoResize: true });

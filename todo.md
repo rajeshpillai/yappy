@@ -544,6 +544,11 @@
   - [x] Reactive resizing on property changes (font size, style, weight)
   - [x] Shape-specific inscribed area math for circles and diamonds
 
+## Phase 36.5: Sketchnote Essentials Pack (Level 2)
+- [x] Implement `Lightbulb` (Idea/Insight)
+- [x] Implement `Signpost` (Decision/Direction)
+- [x] Implement `Jagged Burst` (Impact/Warning)
+
 ## Phase 37: Wireframing Essentials (Level 2)
 - [ ] Implement `Browser Window` (Container for web pages)
 - [ ] Implement `Mobile Phone Group` (Container for app screens)
