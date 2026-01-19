@@ -9,6 +9,7 @@ export interface MenuItem {
     separator?: boolean;
     disabled?: boolean;
     submenu?: MenuItem[];
+    gridColumns?: number; // Number of columns for grid layout in submenu
 }
 
 interface ContextMenuProps {
@@ -17,6 +18,7 @@ interface ContextMenuProps {
     items: MenuItem[];
     onClose: () => void;
     parent?: boolean; // Internal use for styling
+    gridColumns?: number; // Number of columns for grid layout
 }
 
 const ContextMenu: Component<ContextMenuProps> = (props) => {
@@ -102,7 +104,11 @@ const ContextMenu: Component<ContextMenuProps> = (props) => {
                 left: props.parent ? '100%' : `${position().x}px`,
                 top: props.parent ? '0' : `${position().y}px`,
                 position: props.parent ? 'absolute' : 'fixed',
-                "margin-left": props.parent ? '-4px' : '0'
+                "margin-left": props.parent ? '-4px' : '0',
+                display: props.gridColumns ? 'grid' : 'block',
+                "grid-template-columns": props.gridColumns ? `repeat(${props.gridColumns}, 1fr)` : undefined,
+                gap: props.gridColumns ? '4px' : undefined,
+                padding: props.gridColumns ? '8px' : undefined
             }}
         >
             <For each={props.items}>
@@ -141,6 +147,7 @@ const ContextMenu: Component<ContextMenuProps> = (props) => {
                                     items={item.submenu!}
                                     onClose={props.onClose}
                                     parent={true}
+                                    gridColumns={item.gridColumns}
                                 />
                             </Show>
                         </Show>

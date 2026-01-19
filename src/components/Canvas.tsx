@@ -21,6 +21,7 @@ import {
 } from '../utils/objectContextActions';
 import { perfMonitor } from "../utils/performanceMonitor";
 import { fitShapeToText } from "../utils/textUtils";
+import { changeElementType, getTransformOptions } from "../utils/elementTransforms";
 
 
 const Canvas: Component = () => {
@@ -2969,6 +2970,27 @@ const Canvas: Component = () => {
 
                 if (hierarchyItems.length > 0) {
                     items.push({ label: 'Hierarchy', submenu: hierarchyItems });
+                }
+            }
+
+            // Transform Shape (only for single selection)
+            if (selectionCount === 1) {
+                const el = store.elements.find(e => e.id === store.selection[0]);
+                if (el) {
+                    const transformOptions = getTransformOptions(el.type);
+                    if (transformOptions.length > 0) {
+                        items.push({
+                            label: 'Transform Shape',
+                            submenu: transformOptions.map(t => ({
+                                label: t.charAt(0).toUpperCase() + t.slice(1).replace(/([A-Z])/g, ' $1'),
+                                onClick: () => {
+                                    changeElementType(store.selection[0], t);
+                                    requestAnimationFrame(draw);
+                                }
+                            })),
+                            gridColumns: 3
+                        });
+                    }
                 }
             }
 
