@@ -1693,10 +1693,17 @@ const Canvas: Component = () => {
                     startX = x;
                     startY = y;
 
-                    // Capture initial positions for ALL selected elements
+                    // Capture initial positions for ALL selected elements and their descendants
                     initialPositions.clear();
+                    const idsToMove = new Set<string>(store.selection);
+
+                    // Include descendants in the move set
+                    store.selection.forEach(id => {
+                        getDescendants(id, store.elements).forEach(d => idsToMove.add(d.id));
+                    });
+
                     store.elements.forEach(el => {
-                        if (store.selection.includes(el.id)) {
+                        if (idsToMove.has(el.id)) {
                             initialPositions.set(el.id, {
                                 x: el.x,
                                 y: el.y,
