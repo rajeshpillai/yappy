@@ -1,0 +1,540 @@
+{
+  "elements": [
+    {
+      "id": "title-text",
+      "type": "text",
+      "x": 300,
+      "y": 40,
+      "width": 600,
+      "height": 50,
+      "strokeColor": "#1e3a8a",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "architectural",
+      "seed": 1001,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "guide-layer",
+      "text": "How to Use Antigravity AI Code Editor",
+      "fontSize": 36,
+      "fontFamily": "sans-serif",
+      "textAlign": "center"
+    },
+    {
+      "id": "step-1",
+      "type": "cloud",
+      "x": -70.83332061767578,
+      "y": 86.11108779907227,
+      "width": 314.7222137451172,
+      "height": 271.3888931274414,
+      "strokeColor": "#000000",
+      "backgroundColor": "#dcfce7",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 1002,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "guide-layer",
+      "containerText": "1. User Request: 'Implement Login Flow'",
+      "boundElements": [
+        {
+          "id": "arr-1",
+          "type": "arrow"
+        }
+      ]
+    },
+    {
+      "id": "step-2",
+      "type": "database",
+      "x": 350,
+      "y": 150,
+      "width": 180,
+      "height": 120,
+      "strokeColor": "#000000",
+      "backgroundColor": "#d1fae5",
+      "fillStyle": "hachure",
+      "strokeWidth": 1.5,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 1003,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "guide-layer",
+      "containerText": "2. Context Scanning: Analyzes workspace files",
+      "boundElements": [
+        {
+          "id": "arr-1",
+          "type": "arrow"
+        },
+        {
+          "id": "arr-2",
+          "type": "arrow"
+        }
+      ]
+    },
+    {
+      "id": "step-3",
+      "type": "speechBubble",
+      "x": 600,
+      "y": 150,
+      "width": 180,
+      "height": 120,
+      "strokeColor": "#000000",
+      "backgroundColor": "#fef9c3",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 1004,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "guide-layer",
+      "containerText": "3. Thinking: Drafting implementation plan",
+      "boundElements": [
+        {
+          "id": "arr-2",
+          "type": "arrow"
+        },
+        {
+          "id": "arr-3",
+          "type": "arrow"
+        }
+      ]
+    },
+    {
+      "id": "step-4",
+      "type": "predefinedProcess",
+      "x": 870.8332824707031,
+      "y": 152.79411070682403,
+      "width": 180,
+      "height": 120,
+      "strokeColor": "#000000",
+      "backgroundColor": "#ffedd5",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 1005,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "guide-layer",
+      "containerText": "4. Execution: Writing code changes",
+      "boundElements": [
+        {
+          "id": "arr-3",
+          "type": "arrow"
+        },
+        {
+          "id": "arr-4",
+          "type": "arrow"
+        }
+      ]
+    },
+    {
+      "id": "step-5",
+      "type": "diamond",
+      "x": 844.1028791485896,
+      "y": 359.7222137451172,
+      "width": 180,
+      "height": 120,
+      "strokeColor": "#000000",
+      "backgroundColor": "#f3e8ff",
+      "fillStyle": "hachure",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 1006,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "guide-layer",
+      "containerText": "5. Review: Human-in-the-loop confirmation",
+      "boundElements": [
+        {
+          "id": "arr-4",
+          "type": "arrow"
+        },
+        {
+          "id": "arr-5",
+          "type": "arrow"
+        }
+      ]
+    },
+    {
+      "id": "step-6",
+      "type": "checkmark",
+      "x": 600,
+      "y": 350,
+      "width": 180,
+      "height": 120,
+      "strokeColor": "#000000",
+      "backgroundColor": "#dcfce7",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 1007,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "guide-layer",
+      "containerText": "6. Verify: Automated tests passing",
+      "boundElements": [
+        {
+          "id": "arr-5",
+          "type": "arrow"
+        },
+        {
+          "id": "arr-6",
+          "type": "arrow"
+        }
+      ]
+    },
+    {
+      "id": "step-7",
+      "type": "star",
+      "x": 311.11106872558594,
+      "y": 334.44446563720703,
+      "width": 205,
+      "height": 164.44442749023438,
+      "strokeColor": "#000000",
+      "backgroundColor": "#fef08a",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 1008,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "guide-layer",
+      "containerText": "Task Complete! 🎉",
+      "boundElements": [
+        {
+          "id": "arr-6",
+          "type": "arrow"
+        }
+      ]
+    },
+    {
+      "id": "arr-1",
+      "type": "arrow",
+      "x": 248.8888931274414,
+      "y": 214.53053712828626,
+      "width": 101.1111068725586,
+      "height": -4.530537128286255,
+      "strokeColor": "#000000",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 2001,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "guide-layer",
+      "startBinding": {
+        "elementId": "step-1",
+        "focus": 0,
+        "gap": 5
+      },
+      "endBinding": {
+        "elementId": "step-2",
+        "focus": 0,
+        "gap": 5
+      }
+    },
+    {
+      "id": "arr-2",
+      "type": "arrow",
+      "x": 530,
+      "y": 210,
+      "width": 70,
+      "height": 0,
+      "strokeColor": "#000000",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 2002,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "guide-layer",
+      "startBinding": {
+        "elementId": "step-2",
+        "focus": 0,
+        "gap": 5
+      },
+      "endBinding": {
+        "elementId": "step-3",
+        "focus": 0,
+        "gap": 5
+      }
+    },
+    {
+      "id": "arr-3",
+      "type": "arrow",
+      "x": 780,
+      "y": 210,
+      "width": 85.83328247070312,
+      "height": 1.3262364664098811,
+      "strokeColor": "#000000",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 2003,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "guide-layer",
+      "startBinding": {
+        "elementId": "step-3",
+        "focus": 0,
+        "gap": 5
+      },
+      "endBinding": {
+        "elementId": "step-4",
+        "focus": 0,
+        "gap": 5
+      }
+    },
+    {
+      "id": "arr-4",
+      "type": "arrow",
+      "x": 949.8648860545351,
+      "y": 277.79411070682403,
+      "width": -13.26903005820202,
+      "height": 78.63382403938078,
+      "strokeColor": "#000000",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 2004,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "guide-layer",
+      "startBinding": {
+        "elementId": "step-4",
+        "focus": 0,
+        "gap": 5
+      },
+      "endBinding": {
+        "elementId": "step-5",
+        "focus": 0,
+        "gap": 5
+      }
+    },
+    {
+      "id": "arr-5",
+      "type": "arrow",
+      "x": 847.1230430835399,
+      "y": 414.23473315804597,
+      "width": -67.12304308353987,
+      "height": -4.2347331580459695,
+      "strokeColor": "#000000",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 2005,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "guide-layer",
+      "startBinding": {
+        "elementId": "step-5",
+        "focus": 0,
+        "gap": 5
+      },
+      "endBinding": {
+        "elementId": "step-6",
+        "focus": 0,
+        "gap": 5
+      }
+    },
+    {
+      "id": "arr-6",
+      "type": "arrow",
+      "x": 600,
+      "y": 410,
+      "width": -78.88893127441406,
+      "height": 2.82166547136012,
+      "strokeColor": "#000000",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 2006,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "guide-layer",
+      "startBinding": {
+        "elementId": "step-6",
+        "focus": 0,
+        "gap": 5
+      },
+      "endBinding": {
+        "elementId": "step-7",
+        "focus": 0,
+        "gap": 5
+      }
+    },
+    {
+      "id": "highlighter-1",
+      "type": "marker",
+      "x": 840,
+      "y": 340,
+      "width": 200,
+      "height": 140,
+      "strokeColor": "#eab308",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 4,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 40,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 3001,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "guide-layer",
+      "points": [
+        0,
+        0,
+        20,
+        5,
+        40,
+        0,
+        60,
+        10,
+        80,
+        5,
+        100,
+        15,
+        120,
+        5,
+        150,
+        10,
+        180,
+        0,
+        200,
+        5
+      ]
+    },
+    {
+      "id": "note-1",
+      "type": "stickyNote",
+      "x": 87.91667938232422,
+      "y": 499.4445037841797,
+      "width": 200,
+      "height": 100,
+      "strokeColor": "#ca8a04",
+      "backgroundColor": "#fef9c3",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0.05,
+      "renderStyle": "sketch",
+      "seed": 4001,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "guide-layer",
+      "containerText": "Pro Tip: Provide clear context for better results!"
+    }
+  ],
+  "viewState": {
+    "scale": 0.8,
+    "panX": 257.77778328200935,
+    "panY": 101.11111246509294
+  },
+  "layers": [
+    {
+      "id": "guide-layer",
+      "name": "Antigravity Guide",
+      "visible": true,
+      "locked": false,
+      "opacity": 1,
+      "order": 1,
+      "isGroup": false,
+      "expanded": true
+    }
+  ],
+  "gridSettings": {
+    "enabled": false,
+    "snapToGrid": false,
+    "objectSnapping": true,
+    "gridSize": 20,
+    "gridColor": "#e0e0e0",
+    "gridOpacity": 0.5,
+    "style": "dots"
+  },
+  "canvasBackgroundColor": "#ffffff",
+  "version": 2
+}
