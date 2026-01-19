@@ -1439,27 +1439,37 @@ const Canvas: Component = () => {
         const startEl = line.startBinding ? store.elements.find(e => e.id === line.startBinding?.elementId) : null;
         const endEl = line.endBinding ? store.elements.find(e => e.id === line.endBinding?.elementId) : null;
 
-        // Dynamic Anchor Switching: Flip left/right based on relative centers
+        // Dynamic Anchor Switching: Snap to the closest cardinal anchor
         if (startEl && endEl) {
             const startCenterX = startEl.x + startEl.width / 2;
+            const startCenterY = startEl.y + startEl.height / 2;
             const endCenterX = endEl.x + endEl.width / 2;
+            const endCenterY = endEl.y + endEl.height / 2;
+
+            const dx = endCenterX - startCenterX;
+            const dy = endCenterY - startCenterY;
 
             const currentStartPos = line.startBinding?.position;
             const currentEndPos = line.endBinding?.position;
 
-            // Only flip if they are already on horizontal anchors (or missing anchors)
-            if (!currentStartPos || currentStartPos === 'left' || currentStartPos === 'right') {
-                const idealStartPos = startCenterX < endCenterX ? 'right' : 'left';
-                const idealEndPos = startCenterX < endCenterX ? 'left' : 'right';
+            let idealStartPos: string;
+            let idealEndPos: string;
 
-                if (currentStartPos !== idealStartPos || currentEndPos !== idealEndPos) {
-                    updateElement(line.id, {
-                        startBinding: { ...line.startBinding!, position: idealStartPos },
-                        endBinding: { ...line.endBinding!, position: idealEndPos }
-                    }, false);
-                    // Re-fetch to get updated positions
-                    return refreshBoundLine(lineId);
-                }
+            if (Math.abs(dx) > Math.abs(dy)) {
+                idealStartPos = dx > 0 ? 'right' : 'left';
+                idealEndPos = dx > 0 ? 'left' : 'right';
+            } else {
+                idealStartPos = dy > 0 ? 'bottom' : 'top';
+                idealEndPos = dy > 0 ? 'top' : 'bottom';
+            }
+
+            if (currentStartPos !== idealStartPos || currentEndPos !== idealEndPos) {
+                updateElement(line.id, {
+                    startBinding: { ...line.startBinding!, position: idealStartPos as any },
+                    endBinding: { ...line.endBinding!, position: idealEndPos as any }
+                }, false);
+                // Re-fetch to get updated positions
+                return refreshBoundLine(lineId);
             }
         }
 
