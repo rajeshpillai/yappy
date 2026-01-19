@@ -1641,7 +1641,7 @@ const Canvas: Component = () => {
         const actualCurveType = tool === 'bezier' ? 'bezier' : (store.defaultElementStyles.curveType || 'straight');
 
         // Check for start binding at creation time (source connection fix)
-        let startBindingData: { elementId: string; focus: number; gap: number } | undefined;
+        let startBindingData: { elementId: string; focus: number; gap: number; position?: string } | undefined;
         let snappedStartX = creationX;
         let snappedStartY = creationY;
 
