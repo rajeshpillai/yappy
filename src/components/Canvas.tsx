@@ -1436,8 +1436,35 @@ const Canvas: Component = () => {
         let eY = line.y + line.height;
         let changed = false;
 
+        const startEl = line.startBinding ? store.elements.find(e => e.id === line.startBinding?.elementId) : null;
+        const endEl = line.endBinding ? store.elements.find(e => e.id === line.endBinding?.elementId) : null;
+
+        // Dynamic Anchor Switching: Flip left/right based on relative centers
+        if (startEl && endEl) {
+            const startCenterX = startEl.x + startEl.width / 2;
+            const endCenterX = endEl.x + endEl.width / 2;
+
+            const currentStartPos = line.startBinding?.position;
+            const currentEndPos = line.endBinding?.position;
+
+            // Only flip if they are already on horizontal anchors (or missing anchors)
+            if (!currentStartPos || currentStartPos === 'left' || currentStartPos === 'right') {
+                const idealStartPos = startCenterX < endCenterX ? 'right' : 'left';
+                const idealEndPos = startCenterX < endCenterX ? 'left' : 'right';
+
+                if (currentStartPos !== idealStartPos || currentEndPos !== idealEndPos) {
+                    updateElement(line.id, {
+                        startBinding: { ...line.startBinding!, position: idealStartPos },
+                        endBinding: { ...line.endBinding!, position: idealEndPos }
+                    }, false);
+                    // Re-fetch to get updated positions
+                    return refreshBoundLine(lineId);
+                }
+            }
+        }
+
         if (line.startBinding) {
-            const el = store.elements.find(e => e.id === line.startBinding.elementId);
+            const el = startEl || store.elements.find(e => e.id === line.startBinding!.elementId);
             if (el) {
                 const pos = line.startBinding.position;
                 let p;
@@ -1452,7 +1479,7 @@ const Canvas: Component = () => {
         }
 
         if (line.endBinding) {
-            const el = store.elements.find(e => e.id === line.endBinding.elementId);
+            const el = endEl || store.elements.find(e => e.id === line.endBinding!.elementId);
             if (el) {
                 const pos = line.endBinding.position;
                 let p;
