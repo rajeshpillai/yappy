@@ -134,8 +134,24 @@ const Toolbar: Component = () => {
                 accept="image/*"
                 style={{ display: 'none' }}
             />
-            {/* Pan, Selection, Rectangle, Circle, Diamond */}
-            <For each={tools.slice(0, diamondIndex + 1)}>
+            {/* Pan, Selection */}
+            <For each={tools.slice(0, 2)}>
+                {(tool) => (
+                    <button
+                        class={`toolbar-btn ${store.selectedTool === tool.type ? 'active' : ''}`}
+                        onClick={() => handleToolClick(tool.type)}
+                        title={tool.label}
+                    >
+                        <tool.icon size={20} />
+                    </button>
+                )}
+            </For>
+
+            {/* Pen Tool Group (Pencil, Calligraphy, Fine Liner, Ink Brush) */}
+            <PenToolGroup />
+
+            {/* Rectangle, Circle, Diamond */}
+            <For each={tools.slice(2, diamondIndex + 1)}>
                 {(tool) => (
                     <button
                         class={`toolbar-btn ${store.selectedTool === tool.type ? 'active' : ''}`}
@@ -175,8 +191,6 @@ const Toolbar: Component = () => {
                 )}
             </For>
 
-            {/* Pen Tool Group (Pencil, Calligraphy, Fine Liner, Ink Brush) */}
-            <PenToolGroup />
 
             {/* Text, Image, Eraser */}
             <For each={tools.slice(bezierIndex + 1)}>
