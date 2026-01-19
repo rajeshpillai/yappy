@@ -543,3 +543,9 @@
   - [x] Dynamic width/height adjustment based on `containerText`
   - [x] Reactive resizing on property changes (font size, style, weight)
   - [x] Shape-specific inscribed area math for circles and diamonds
+
+## Phase 37: Wireframing Essentials (Level 2)
+- [ ] Implement `Browser Window` (Container for web pages)
+- [ ] Implement `Mobile Phone Group` (Container for app screens)
+- [ ] Implement `Ghost Button` (Interactive UI element)
+- [ ] Implement `Input Field` (Form element with label support)
