@@ -980,6 +980,171 @@ export const renderElement = (
         } else {
             rc.polygon(points, options);
         }
+    } else if (el.type === 'starPerson') {
+        const x = el.x, y = el.y, w = el.width, h = el.height;
+        const headRadius = Math.min(Math.abs(w), Math.abs(h)) * 0.15;
+        const cx = x + w / 2;
+
+        // Head
+        const headX = cx;
+        const headY = y + headRadius;
+
+        // Body points (a 5-limbed star with the top point as the neck)
+        const bodyPoints: [number, number][] = [
+            [cx, y + headRadius * 2], // Neck
+            [x, y + h * 0.4],         // Left Arm
+            [cx, y + h * 0.5],         // Middle
+            [x + w, y + h * 0.4],     // Right Arm
+            [cx, y + headRadius * 2], // Back to neck
+            [x + w * 0.8, y + h],     // Right Leg
+            [cx, y + h * 0.7],         // Crotch
+            [x + w * 0.2, y + h],     // Left Leg
+            [cx, y + headRadius * 2], // Back to neck
+        ];
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                rc.ellipse(headX, headY, headRadius * 2, headRadius * 2, { ...options, stroke: 'none', fill: backgroundColor });
+                rc.polygon(bodyPoints, { ...options, stroke: 'none', fill: backgroundColor });
+            }
+            ctx.beginPath();
+            ctx.ellipse(headX, headY, headRadius, headRadius, 0, 0, Math.PI * 2);
+            ctx.moveTo(bodyPoints[0][0], bodyPoints[0][1]);
+            for (let i = 1; i < bodyPoints.length; i++) ctx.lineTo(bodyPoints[i][0], bodyPoints[i][1]);
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.stroke();
+        } else {
+            rc.ellipse(headX, headY, headRadius * 2, headRadius * 2, options);
+            rc.polygon(bodyPoints, options);
+        }
+    } else if (el.type === 'scroll') {
+        const x = el.x, y = el.y, w = el.width, h = el.height;
+        const rollH = h * 0.15;
+
+        // Main body path
+        const path = `
+            M ${x} ${y + rollH}
+            L ${x + w} ${y + rollH}
+            L ${x + w} ${y + h - rollH}
+            L ${x} ${y + h - rollH}
+            Z
+            M ${x} ${y + rollH}
+            C ${x - rollH} ${y + rollH} ${x - rollH} ${y} ${x} ${y}
+            L ${x + w} ${y}
+            C ${x + w + rollH} ${y} ${x + w + rollH} ${y + rollH} ${x + w} ${y + rollH}
+            M ${x} ${y + h - rollH}
+            C ${x - rollH} ${y + h - rollH} ${x - rollH} ${y + h} ${x} ${y + h}
+            L ${x + w} ${y + h}
+            C ${x + w + rollH} ${y + h} ${x + w + rollH} ${y + h - rollH} ${x + w} ${y + h - rollH}
+        `;
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(x, y + rollH, w, h - 2 * rollH);
+            }
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.stroke(new Path2D(path));
+        } else {
+            rc.path(path, options);
+        }
+    } else if (el.type === 'wavyDivider') {
+        const x = el.x, y = el.y, w = el.width, h = el.height;
+        const cy = y + h / 2;
+        const segments = Math.max(2, Math.floor(w / 40));
+        const segW = w / segments;
+        const amplitude = h / 2;
+
+        let path = `M ${x} ${cy}`;
+        for (let i = 0; i < segments; i++) {
+            const sx = x + i * segW;
+            const ex = x + (i + 1) * segW;
+            const mx = sx + segW / 2;
+            const ay = i % 2 === 0 ? cy - amplitude : cy + amplitude;
+            path += ` Q ${mx} ${ay} ${ex} ${cy}`;
+        }
+
+        if (el.renderStyle === 'architectural') {
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.stroke(new Path2D(path));
+        } else {
+            rc.path(path, { ...options, fill: 'none' });
+        }
+    } else if (el.type === 'doubleBanner') {
+        const x = el.x, y = el.y, w = el.width, h = el.height;
+        const earW = w * 0.15;
+        const earH = h * 0.25;
+
+        // Main front panel
+        const mainPts: [number, number][] = [
+            [x + earW, y],
+            [x + w - earW, y],
+            [x + w - earW, y + h - earH],
+            [x + earW, y + h - earH]
+        ];
+
+        // Left back ear
+        const leftEar: [number, number][] = [
+            [x + earW, y + earH],
+            [x, y + earH],
+            [x + earW / 2, y + h / 2],
+            [x, y + h],
+            [x + earW, y + h]
+        ];
+
+        // Right back ear
+        const rightEar: [number, number][] = [
+            [x + w - earW, y + earH],
+            [x + w, y + earH],
+            [x + w - earW / 2, y + h / 2],
+            [x + w, y + h],
+            [x + w - earW, y + h]
+        ];
+
+        // Fold triangles (shadows)
+        const leftFold: [number, number][] = [
+            [x + earW, y + h - earH],
+            [x + earW, y + earH],
+            [x + earW * 0.6, y + h - earH]
+        ];
+        const rightFold: [number, number][] = [
+            [x + w - earW, y + h - earH],
+            [x + w - earW, y + earH],
+            [x + w - earW * 0.6, y + h - earH]
+        ];
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                rc.polygon(leftEar, { ...options, stroke: 'none', fill: backgroundColor });
+                rc.polygon(rightEar, { ...options, stroke: 'none', fill: backgroundColor });
+                rc.polygon(mainPts, { ...options, stroke: 'none', fill: backgroundColor });
+                rc.polygon(leftFold, { ...options, stroke: 'none', fill: backgroundColor, fillStyle: 'solid', opacity: 0.4 });
+                rc.polygon(rightFold, { ...options, stroke: 'none', fill: backgroundColor, fillStyle: 'solid', opacity: 0.4 });
+            }
+            const drawPoly = (pts: [number, number][]) => {
+                ctx.beginPath();
+                ctx.moveTo(pts[0][0], pts[0][1]);
+                for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+                ctx.closePath();
+                ctx.stroke();
+            };
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            drawPoly(leftEar);
+            drawPoly(rightEar);
+            drawPoly(mainPts);
+            drawPoly(leftFold);
+            drawPoly(rightFold);
+        } else {
+            rc.polygon(leftEar, options);
+            rc.polygon(rightEar, options);
+            rc.polygon(mainPts, options);
+            rc.polygon(leftFold, { ...options, fillStyle: 'solid', opacity: 0.4 });
+            rc.polygon(rightFold, { ...options, fillStyle: 'solid', opacity: 0.4 });
+        }
     } else if (el.type === 'line' || el.type === 'arrow') {
         const endX = el.x + el.width;
         const endY = el.y + el.height;
@@ -1551,7 +1716,7 @@ export const renderElement = (
         el.type === 'bracketLeft' || el.type === 'bracketRight' ||
         el.type === 'database' || el.type === 'document' || el.type === 'predefinedProcess' || el.type === 'internalStorage' ||
         el.type === 'server' || el.type === 'loadBalancer' || el.type === 'firewall' || el.type === 'user' || el.type === 'messageQueue' || el.type === 'lambda' || el.type === 'router' || el.type === 'browser' ||
-        el.type === 'trapezoid' || el.type === 'rightTriangle' || el.type === 'pentagon' || el.type === 'septagon')) {
+        el.type === 'trapezoid' || el.type === 'rightTriangle' || el.type === 'pentagon' || el.type === 'septagon' || el.type === 'starPerson' || el.type === 'scroll' || el.type === 'doubleBanner')) {
 
         ctx.save();
         const metrics = measureContainerText(ctx, el, el.containerText, el.width - 20);

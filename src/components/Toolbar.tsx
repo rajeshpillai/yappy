@@ -4,6 +4,7 @@ import type { ElementType } from "../types";
 import { MousePointer2, Square, Circle, Minus, Type, MoveUpRight, Eraser, Hand, Image as ImageIcon, Spline, Diamond } from "lucide-solid";
 import PenToolGroup from "./PenToolGroup";
 import ShapeToolGroup from "./ShapeToolGroup";
+import SketchnoteToolGroup from "./SketchnoteToolGroup";
 import InfraToolGroup from "./InfraToolGroup";
 import MathToolGroup from "./MathToolGroup";
 import "./Toolbar.css";
@@ -147,6 +148,9 @@ const Toolbar: Component = () => {
 
             {/* Shape Tool Group (Triangle, Hexagon, Star, Hearts, Arrows, etc.) */}
             <ShapeToolGroup />
+
+            {/* Sketchnote Essentials Group (Star Person, Scroll, Divider, Banner) */}
+            <SketchnoteToolGroup />
 
             {/* Infrastructure Tool Group (Server, LB, Cloud, User, etc.) */}
             <InfraToolGroup />

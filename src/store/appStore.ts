@@ -27,6 +27,7 @@ interface AppState {
     selectedShapeType: 'triangle' | 'hexagon' | 'octagon' | 'parallelogram' | 'star' | 'cloud' | 'heart' | 'cross' | 'checkmark' | 'arrowLeft' | 'arrowRight' | 'arrowUp' | 'arrowDown' | 'capsule' | 'stickyNote' | 'callout' | 'burst' | 'speechBubble' | 'ribbon' | 'bracketLeft' | 'bracketRight' | 'database' | 'document' | 'predefinedProcess' | 'internalStorage';
     selectedInfraType: 'server' | 'loadBalancer' | 'firewall' | 'user' | 'messageQueue' | 'lambda' | 'router' | 'browser';
     selectedMathType: 'trapezoid' | 'rightTriangle' | 'pentagon' | 'septagon';
+    selectedSketchnoteType: 'starPerson' | 'scroll' | 'wavyDivider' | 'doubleBanner';
     layerGroupingModeEnabled: boolean;
     maxLayers: number;
     canvasTexture: 'none' | 'dots' | 'grid' | 'graph' | 'paper';
@@ -97,6 +98,7 @@ const initialState: AppState = {
     selectedShapeType: 'triangle',
     selectedInfraType: 'server',
     selectedMathType: 'trapezoid',
+    selectedSketchnoteType: 'starPerson',
     layerGroupingModeEnabled: false,
     maxLayers: 20,
     canvasTexture: 'none',
@@ -230,7 +232,6 @@ export const setViewState = (updates: Partial<ViewState>) => {
     setStore("viewState", (vs) => ({ ...vs, ...updates }));
 };
 
-// Actions
 export const setSelectedTool = (tool: ElementType | 'selection') => {
     setStore('selectedTool', tool);
     if (tool !== 'selection' && tool !== 'pan' && tool !== 'eraser') {
@@ -721,6 +722,10 @@ export const setSelectedInfraType = (infraType: 'server' | 'loadBalancer' | 'fir
 
 export const setSelectedMathType = (mathType: 'trapezoid' | 'rightTriangle' | 'pentagon' | 'septagon') => {
     setStore('selectedMathType', mathType);
+};
+
+export const setSelectedSketchnoteType = (sketchnoteType: 'starPerson' | 'scroll' | 'wavyDivider' | 'doubleBanner') => {
+    setStore('selectedSketchnoteType', sketchnoteType);
 };
 
 export const setGridStyle = (style: 'lines' | 'dots') => {

@@ -521,6 +521,12 @@
 
 ---
 
+## Phase 36: Sketchnote Essentials Pack (Level 1)
+- [x] Implement `Star Person` (Universal functional character)
+- [x] Implement `Scroll Container` (For lists and summaries)
+- [x] Implement `Wavy Divider` (Organic topic separator)
+- [x] Implement `Double-Fold Banner` (Main headings)
+
 ### Phase 35: Productivity & Auto-resize
 **Goal**: Enhance drawing efficiency with keyboard shortcuts, canvas textures, and smart auto-resizing.
 
