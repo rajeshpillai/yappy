@@ -19,6 +19,7 @@ import {
     flipSelected, lockSelected, copyStyle, pasteStyle
 } from '../utils/objectContextActions';
 import { perfMonitor } from "../utils/performanceMonitor";
+import { fitShapeToText } from "../utils/textUtils";
 
 
 const Canvas: Component = () => {
@@ -46,6 +47,34 @@ const Canvas: Component = () => {
                 setActiveLayer(topLayerId);
             }
         }
+    });
+
+    // Reactive Auto-Resize for property changes (fontSize, fontFamily, etc)
+    createEffect(() => {
+        if (!canvasRef) return;
+        const ctx = canvasRef.getContext("2d");
+        if (!ctx) return;
+
+        // We track font properties and text of selected elements
+        store.elements.forEach(el => {
+            const isLine = el.type === 'line' || el.type === 'arrow';
+            if (el.isSelected && el.autoResize && el.containerText && !isLine) {
+                // Tracking these properties
+                el.fontSize;
+                el.fontFamily;
+                el.fontWeight;
+                el.fontStyle;
+                el.containerText;
+
+                const dims = fitShapeToText(ctx, el, el.containerText);
+                if (Math.abs(dims.width - el.width) > 2 || Math.abs(dims.height - el.height) > 2) {
+                    untrack(() => updateElement(el.id, {
+                        width: dims.width,
+                        height: dims.height
+                    }));
+                }
+            }
+        });
     });
 
     let canvasRef: HTMLCanvasElement | undefined;
@@ -2378,7 +2407,22 @@ const Canvas: Component = () => {
             }
         } else {
             // For shapes with containerText
-            updateElement(id, { containerText: newText }, true);
+            const isLine = el.type === 'line' || el.type === 'arrow';
+            if (el.autoResize && canvasRef && !isLine) {
+                const ctx = canvasRef.getContext("2d");
+                if (ctx) {
+                    const dims = fitShapeToText(ctx, el, newText);
+                    updateElement(id, {
+                        containerText: newText,
+                        width: dims.width,
+                        height: dims.height,
+                    }, true);
+                } else {
+                    updateElement(id, { containerText: newText }, true);
+                }
+            } else {
+                updateElement(id, { containerText: newText }, true);
+            }
         }
 
         setEditingId(null);

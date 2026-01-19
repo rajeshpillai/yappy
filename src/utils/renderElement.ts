@@ -1,6 +1,7 @@
 import type { DrawingElement } from "../types";
 import type { RoughCanvas } from "roughjs/bin/canvas";
 import { getImage } from "./imageCache";
+import { measureContainerText, getFontString } from "./textUtils";
 
 // Helper to normalize points (supports both old Point[] and new packed number[])
 export const normalizePoints = (points: any[] | number[] | undefined): { x: number; y: number }[] => {
@@ -1546,61 +1547,24 @@ export const renderElement = (
         el.type === 'database' || el.type === 'document' || el.type === 'predefinedProcess' || el.type === 'internalStorage' ||
         el.type === 'server' || el.type === 'loadBalancer' || el.type === 'firewall' || el.type === 'user' || el.type === 'messageQueue' || el.type === 'lambda' || el.type === 'router' || el.type === 'browser' ||
         el.type === 'trapezoid' || el.type === 'rightTriangle' || el.type === 'pentagon' || el.type === 'septagon')) {
-        const fontSize = el.fontSize || 20;
-        const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
-            el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
-                'Handlee, cursive';
-        const fontWeight = el.fontWeight ? 'bold ' : '';
-        const fontStyle = el.fontStyle ? 'italic ' : '';
-        ctx.font = `${fontStyle}${fontWeight}${fontSize}px ${fontFamily}`;
+
+        ctx.save();
+        const metrics = measureContainerText(ctx, el, el.containerText, el.width - 20);
+
+        ctx.font = getFontString(el);
         ctx.fillStyle = strokeColor;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
-        // Calculate available width for text (with padding)
-        const padding = 10;
-        let maxWidth = el.width - padding * 2;
-
-        // Adjust for circles and diamonds (inscribed area is smaller)
-        if (el.type === 'circle' || el.type === 'diamond') {
-            maxWidth = maxWidth * 0.7; // ~70% for inscribed square
-        }
-
-        const text = el.containerText!;
-        // Wrap text if needed
-        const words = text.split(' ');
-        const lines: string[] = [];
-        let currentLine = '';
-
-        for (const word of words) {
-            const testLine = currentLine ? `${currentLine} ${word}` : word;
-            const metrics = ctx.measureText(testLine);
-
-            if (metrics.width > maxWidth && currentLine) {
-                lines.push(currentLine);
-                currentLine = word;
-            } else {
-                currentLine = testLine;
-            }
-        }
-        if (currentLine) {
-            lines.push(currentLine);
-        }
-
-        // Render lines centered
-        const lineHeight = fontSize * 1.2;
-        const totalHeight = lines.length * lineHeight;
         const centerX = el.x + el.width / 2;
-        const startY = el.y + (el.height - totalHeight) / 2 + lineHeight / 2;
+        const startY = el.y + (el.height - metrics.textHeight) / 2 + metrics.lineHeight / 2;
 
-        lines.forEach((line, index) => {
-            const y = startY + index * lineHeight;
-            ctx.fillText(line, centerX, y, maxWidth);
+        metrics.lines.forEach((line, index) => {
+            const y = startY + index * metrics.lineHeight;
+            ctx.fillText(line, centerX, y, el.width - 10);
         });
 
-        // Reset text alignment
-        ctx.textAlign = 'start';
-        ctx.textBaseline = 'alphabetic';
+        ctx.restore();
     }
 
     // Render containerText for lines and arrows (at midpoint)

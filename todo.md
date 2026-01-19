@@ -498,7 +498,7 @@
 ## Phase 27: Advanced Custom Drawing Features
 - [ ] Add customizable shape libraries (user-defined shapes and import/export options)
 - [ ] Implement parametric shapes with adjustable properties (e.g., rounded rectangles, stars)
-- [ ] Introduce smart shapes that dynamically resize based on content (e.g., flowchart shapes)
+- [x] Introduce smart shapes that dynamically resize based on content (e.g., flowchart shapes) <!-- id: 100 -->
 - [ ] Add interactive widgets (sliders, toggles, input fields) for diagrams
 - [ ] Enable data-driven shapes that bind to external data sources (e.g., JSON, APIs)
 - [ ] Support text on paths (e.g., curved or custom paths)
@@ -518,3 +518,22 @@
 - [ ] Implement AI-powered auto-suggestions for shapes, connectors, and layouts
 - [ ] Add error detection for diagram issues (e.g., disconnected connectors, overlapping shapes)
 - [ ] Introduce specialized tools for mind mapping, storyboarding, and wireframing
+
+---
+
+### Phase 35: Productivity & Auto-resize
+**Goal**: Enhance drawing efficiency with keyboard shortcuts, canvas textures, and smart auto-resizing.
+
+- [x] **Productivity Shortcuts**
+  - [x] `Alt + 1-9`: Switch active layers
+  - [x] `S`: Cycle stroke style (Solid, Dashed, Dotted)
+  - [x] `F`: Cycle fill style (Hachure, Solid, Zigzag, etc.)
+  - [x] `\`, `H`, `M`, `P`: Toggle Minimap, Help, Canvas Panels, Zenith mode
+- [x] **Canvas Customization**
+  - [x] Background Textures (Dots, Grid, Graph, Paper)
+  - [x] Minimap sync with background color
+- [x] **Auto-Resizing Shapes (Level 2)**
+  - [x] `autoResize` attribute for elements
+  - [x] Dynamic width/height adjustment based on `containerText`
+  - [x] Reactive resizing on property changes (font size, style, weight)
+  - [x] Shape-specific inscribed area math for circles and diamonds

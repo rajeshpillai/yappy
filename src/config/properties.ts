@@ -295,6 +295,14 @@ export const properties: PropertyConfig[] = [
         applicableTo: ['line', 'arrow'],
         defaultValue: 'middle'
     },
+    {
+        key: 'autoResize',
+        label: 'Auto Resize',
+        type: 'toggle',
+        group: 'text',
+        applicableTo: ['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon'],
+        defaultValue: true
+    },
 
     // Linear
     {

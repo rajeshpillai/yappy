@@ -1,5 +1,5 @@
 export type ElementType = 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | 'fineliner' | 'inkbrush' | 'marker' | 'eraser' | 'pan' | 'selection' | 'image' | 'bezier' | 'diamond' | 'triangle' | 'hexagon' | 'octagon' | 'parallelogram' | 'star' | 'cloud' | 'heart' | 'cross' | 'checkmark' | 'arrowLeft' | 'arrowUp' | 'arrowDown' | 'arrowRight' | 'capsule' | 'stickyNote' | 'callout' | 'burst' | 'speechBubble' | 'ribbon' | 'bracketLeft' | 'bracketRight' | 'database' | 'document' | 'predefinedProcess' | 'internalStorage' | 'server' | 'loadBalancer' | 'firewall' | 'user' | 'messageQueue' | 'lambda' | 'router' | 'browser' | 'trapezoid' | 'rightTriangle' | 'pentagon' | 'septagon';
-export type FillStyle = 'hachure' | 'solid' | 'cross-hatch';
+export type FillStyle = 'hachure' | 'solid' | 'cross-hatch' | 'zigzag' | 'dots' | 'dashed' | 'zigzag-line';
 export type StrokeStyle = 'solid' | 'dashed' | 'dotted';
 export type FontFamily = 'hand-drawn' | 'sans-serif' | 'monospace';
 export type TextAlign = 'left' | 'center' | 'right';
@@ -80,6 +80,7 @@ export interface DrawingElement {
     endBinding?: { elementId: string; focus: number; gap: number } | null;
     curveType?: 'straight' | 'bezier' | 'elbow';
     constrained?: boolean; // Keep proportions
+    autoResize?: boolean; // Auto-resize based on text
 }
 
 export interface Layer {

@@ -56,6 +56,7 @@ const initialState: AppState = {
         textAlign: 'left',
         startArrowhead: null,
         endArrowhead: null,
+        autoResize: true,
         seed: 0
     },
     theme: (localStorage.getItem('theme') as 'light' | 'dark') || 'light',
