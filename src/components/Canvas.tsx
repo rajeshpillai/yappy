@@ -1,7 +1,7 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show, untrack } from "solid-js";
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
 import { isElementHiddenByHierarchy, getDescendants } from "../utils/hierarchy";
-import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit, isLayerVisible, isLayerLocked, toggleCollapse, setParent, clearParent } from "../store/appStore";
+import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit, isLayerVisible, isLayerLocked, toggleCollapse, setParent, clearParent, addChildNode, addSiblingNode } from "../store/appStore";
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse, intersectElementWithLine, isPointOnBezier } from "../utils/geometry";
 import { getAnchorPoints, findClosestAnchor } from "../utils/anchorPoints";
 import { calculateSmartElbowRoute } from "../utils/routing";
@@ -2822,6 +2822,14 @@ const Canvas: Component = () => {
             const firstEl = store.elements.find(e => e.id === firstId);
             if (firstEl) {
                 const hierarchyItems: MenuItem[] = [];
+
+                if (selectionCount === 1) {
+                    hierarchyItems.push({ label: 'Add Child', onClick: () => addChildNode(firstId) });
+                    if (firstEl.parentId) {
+                        hierarchyItems.push({ label: 'Add Sibling', onClick: () => addSiblingNode(firstId) });
+                    }
+                    hierarchyItems.push({ separator: true });
+                }
 
                 if (firstEl.parentId) {
                     hierarchyItems.push({ label: 'Clear Parent', onClick: () => clearParent(firstId) });

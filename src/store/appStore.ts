@@ -195,6 +195,16 @@ export const addChildNode = (parentId: string) => {
 
     const newElement: DrawingElement = {
         ...store.defaultElementStyles,
+        // Inherit styles from parent
+        strokeColor: parent.strokeColor,
+        backgroundColor: parent.backgroundColor,
+        fillStyle: parent.fillStyle,
+        strokeWidth: parent.strokeWidth,
+        roughness: parent.roughness,
+        renderStyle: parent.renderStyle,
+        opacity: parent.opacity,
+        strokeStyle: parent.strokeStyle || 'solid',
+
         id: newId,
         type: (parent.type === 'image' || parent.type === 'line' || parent.type === 'arrow') ? 'rectangle' : parent.type,
         x: parent.x + parent.width + hOffset,
@@ -210,14 +220,6 @@ export const addChildNode = (parentId: string) => {
         roundness: null,
         locked: false,
         link: null,
-        opacity: 100,
-        renderStyle: 'sketch',
-        strokeColor: store.defaultElementStyles.strokeColor || '#000000',
-        backgroundColor: store.defaultElementStyles.backgroundColor || 'transparent',
-        fillStyle: store.defaultElementStyles.fillStyle || 'hachure',
-        strokeStyle: store.defaultElementStyles.strokeStyle || 'solid',
-        strokeWidth: store.defaultElementStyles.strokeWidth || 1,
-        roughness: store.defaultElementStyles.roughness || 1
     };
 
     const connector: DrawingElement = {
@@ -238,13 +240,13 @@ export const addChildNode = (parentId: string) => {
         locked: false,
         link: null,
         opacity: 100,
-        renderStyle: 'sketch',
-        strokeColor: store.defaultElementStyles.strokeColor || '#000000',
-        backgroundColor: store.defaultElementStyles.backgroundColor || 'transparent',
-        fillStyle: store.defaultElementStyles.fillStyle || 'hachure',
-        strokeStyle: store.defaultElementStyles.strokeStyle || 'solid',
-        strokeWidth: store.defaultElementStyles.strokeWidth || 1,
-        roughness: store.defaultElementStyles.roughness || 1,
+        renderStyle: parent.renderStyle,
+        strokeColor: parent.strokeColor,
+        backgroundColor: parent.backgroundColor,
+        fillStyle: parent.fillStyle,
+        strokeStyle: parent.strokeStyle,
+        strokeWidth: parent.strokeWidth,
+        roughness: parent.roughness,
         points: [0, 0, hOffset, 0]
     };
 
@@ -268,10 +270,21 @@ export const addSiblingNode = (siblingId: string) => {
 
     pushToHistory();
     const newId = crypto.randomUUID();
-    const vOffset = 100;
+    // Dynamic spacing based on sibling height
+    const vOffset = sibling.height + 40;
 
     const newElement: DrawingElement = {
         ...store.defaultElementStyles,
+        // Inherit styles from sibling
+        strokeColor: sibling.strokeColor,
+        backgroundColor: sibling.backgroundColor,
+        fillStyle: sibling.fillStyle,
+        strokeWidth: sibling.strokeWidth,
+        roughness: sibling.roughness,
+        renderStyle: sibling.renderStyle,
+        opacity: sibling.opacity,
+        strokeStyle: sibling.strokeStyle || 'solid',
+
         id: newId,
         type: sibling.type,
         x: sibling.x,
@@ -287,14 +300,6 @@ export const addSiblingNode = (siblingId: string) => {
         roundness: null,
         locked: false,
         link: null,
-        opacity: 100,
-        renderStyle: 'sketch',
-        strokeColor: store.defaultElementStyles.strokeColor || '#000000',
-        backgroundColor: store.defaultElementStyles.backgroundColor || 'transparent',
-        fillStyle: store.defaultElementStyles.fillStyle || 'hachure',
-        strokeStyle: store.defaultElementStyles.strokeStyle || 'solid',
-        strokeWidth: store.defaultElementStyles.strokeWidth || 1,
-        roughness: store.defaultElementStyles.roughness || 1
     };
 
     const connector: DrawingElement = {
@@ -315,13 +320,13 @@ export const addSiblingNode = (siblingId: string) => {
         locked: false,
         link: null,
         opacity: 100,
-        renderStyle: 'sketch',
-        strokeColor: store.defaultElementStyles.strokeColor || '#000000',
-        backgroundColor: store.defaultElementStyles.backgroundColor || 'transparent',
-        fillStyle: store.defaultElementStyles.fillStyle || 'hachure',
-        strokeStyle: store.defaultElementStyles.strokeStyle || 'solid',
-        strokeWidth: store.defaultElementStyles.strokeWidth || 1,
-        roughness: store.defaultElementStyles.roughness || 1,
+        renderStyle: sibling.renderStyle,
+        strokeColor: sibling.strokeColor,
+        backgroundColor: sibling.backgroundColor,
+        fillStyle: sibling.fillStyle,
+        strokeStyle: sibling.strokeStyle,
+        strokeWidth: sibling.strokeWidth,
+        roughness: sibling.roughness,
         points: [0, 0, 150, 0]
     };
 
