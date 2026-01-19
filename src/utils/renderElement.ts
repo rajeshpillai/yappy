@@ -1235,11 +1235,20 @@ export const renderElement = (
         const outerR = Math.min(rx, ry);
         const innerR = outerR * 0.6;
 
+        const seed = el.seed || 1;
+        const randomSeeded = (s: number) => {
+            let t = s += 0x6D2B79F5;
+            t = Math.imul(t ^ t >>> 15, t | 1);
+            t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+            return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        };
+
         let path = "";
         for (let i = 0; i < spikes * 2; i++) {
             const r = (i % 2 === 0) ? outerR : innerR;
             // Add some randomness for jagged effect
-            const rVar = r + (Math.random() - 0.5) * (outerR * 0.1);
+            const rnd = randomSeeded(seed + i); // Deterministic randomness
+            const rVar = r + (rnd - 0.5) * (outerR * 0.1);
             const angle = (Math.PI * i) / spikes;
             const px = cx + Math.cos(angle) * w / h * rVar; // Elliptical scaling
             const py = cy + Math.sin(angle) * rVar;

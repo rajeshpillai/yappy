@@ -548,6 +548,7 @@
 - [x] Implement `Lightbulb` (Idea/Insight)
 - [x] Implement `Signpost` (Decision/Direction)
 - [x] Implement `Jagged Burst` (Impact/Warning)
+  - [x] Fix: Made burst jaggedness deterministic to prevent animation jitter
 
 ## Phase 37: Wireframing Essentials (Level 2)
 - [ ] Implement `Browser Window` (Container for web pages)
