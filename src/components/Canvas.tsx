@@ -1517,7 +1517,8 @@ const Canvas: Component = () => {
                 };
 
                 // For organicBranch or bezier, we must update control points to follow the start/end moves
-                if (line.controlPoints && line.controlPoints.length === 2 && (line.type === 'organicBranch' || line.type === 'bezier' || line.type === 'line' || line.type === 'arrow')) {
+                const hasControlPoints = line.controlPoints && line.controlPoints.length === 2;
+                if (hasControlPoints && (line.type === 'organicBranch' || line.type === 'bezier' || line.type === 'line' || line.type === 'arrow')) {
                     const dSX = sX - line.x;
                     const dSY = sY - line.y;
                     // End point logic: eX/eY are absolute bottom-right coordinates

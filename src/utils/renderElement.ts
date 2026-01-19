@@ -2068,7 +2068,7 @@ export const renderElement = (
             el.strokeWidth || 1,
             el.containerText || el.text || "", // Pass text
             strokeColor, // Text color matches branch
-            getFontString(el.fontFamily || 'hand-drawn') // Font
+            getFontString(el) // Font
         );
     }
 
