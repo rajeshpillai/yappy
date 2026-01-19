@@ -242,11 +242,30 @@ const HelpDialog: Component<Props> = (props) => {
                                                 <span class="keycap">G</span>
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
+
+                                {/* Design & Layers Shortcuts */}
+                                <div class="shortcut-column">
+                                    <h4>Design & Layers</h4>
+                                    <div class="shortcut-list">
                                         <div class="shortcut-item">
-                                            <span class="shortcut-label">New Layer</span>
+                                            <span class="shortcut-label">Switch Layer</span>
                                             <div class="shortcut-keys">
-                                                <span class="keycap">Shift</span>
-                                                <span class="keycap">N</span>
+                                                <span class="keycap">Alt</span>
+                                                <span class="keycap">1-9</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Cycle Stroke Style</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">S</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Cycle Fill Style</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">F</span>
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
@@ -264,17 +283,17 @@ const HelpDialog: Component<Props> = (props) => {
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
-                                            <span class="shortcut-label">Toggle Minimap</span>
+                                            <span class="shortcut-label">New Layer</span>
                                             <div class="shortcut-keys">
-                                                <span class="keycap">Alt</span>
-                                                <span class="keycap">M</span>
+                                                <span class="keycap">Shift</span>
+                                                <span class="keycap">N</span>
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
-                                            <span class="shortcut-label">Toggle Panels</span>
+                                            <span class="shortcut-label">Zen Mode</span>
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Alt</span>
-                                                <span class="keycap">\</span>
+                                                <span class="keycap">Z</span>
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
@@ -292,10 +311,17 @@ const HelpDialog: Component<Props> = (props) => {
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
-                                            <span class="shortcut-label">Zen Mode</span>
+                                            <span class="shortcut-label">Toggle Minimap</span>
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Alt</span>
-                                                <span class="keycap">Z</span>
+                                                <span class="keycap">M</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Toggle Panels</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Alt</span>
+                                                <span class="keycap">\</span>
                                             </div>
                                         </div>
                                         <div class="shortcut-item">

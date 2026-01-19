@@ -29,6 +29,7 @@ interface AppState {
     selectedMathType: 'trapezoid' | 'rightTriangle' | 'pentagon' | 'septagon';
     layerGroupingModeEnabled: boolean;
     maxLayers: number;
+    canvasTexture: 'none' | 'dots' | 'grid' | 'graph' | 'paper';
 }
 
 const initialState: AppState = {
@@ -97,6 +98,7 @@ const initialState: AppState = {
     selectedMathType: 'trapezoid',
     layerGroupingModeEnabled: false,
     maxLayers: 20,
+    canvasTexture: 'none',
 }; // Default light background
 
 export const [store, setStore] = createStore<AppState>(initialState);
@@ -576,6 +578,14 @@ export const setActiveLayer = (id: string) => {
     }
 };
 
+export const switchLayerByIndex = (index: number) => {
+    const sortedLayers = [...store.layers].sort((a, b) => a.order - b.order).reverse(); // Match UI order (top to bottom)
+    const target = sortedLayers[index];
+    if (target) {
+        setActiveLayer(target.id);
+    }
+};
+
 export const mergeLayerDown = (id: string) => {
     const idx = store.layers.findIndex(l => l.id === id);
     if (idx <= 0) return; // Top layer in array is bottom visually if reversed, but store order 0 is bottom.
@@ -692,6 +702,10 @@ export const setCanvasBackgroundColor = (color: string) => {
     setStore('canvasBackgroundColor', color);
 };
 
+export const setCanvasTexture = (texture: 'none' | 'dots' | 'grid' | 'graph' | 'paper') => {
+    setStore('canvasTexture', texture);
+};
+
 export const setSelectedPenType = (penType: 'fineliner' | 'inkbrush' | 'marker') => {
     setStore('selectedPenType', penType);
 };
@@ -791,6 +805,44 @@ export const alignSelectedElements = (type: AlignmentType) => {
             }
         );
     }
+};
+
+export const cycleStrokeStyle = () => {
+    if (store.selection.length === 0) {
+        // Cycle default style
+        const styles: DrawingElement['strokeStyle'][] = ['solid', 'dashed', 'dotted'];
+        const current = store.defaultElementStyles.strokeStyle || 'solid';
+        const next = styles[(styles.indexOf(current) + 1) % styles.length];
+        updateDefaultStyles({ strokeStyle: next });
+        return;
+    }
+
+    pushToHistory();
+    setStore('elements', (el) => store.selection.includes(el.id), (el) => {
+        const styles: DrawingElement['strokeStyle'][] = ['solid', 'dashed', 'dotted'];
+        const current = el.strokeStyle || 'solid';
+        const next = styles[(styles.indexOf(current) + 1) % styles.length];
+        return { strokeStyle: next };
+    });
+};
+
+export const cycleFillStyle = () => {
+    if (store.selection.length === 0) {
+        // Cycle default style
+        const styles: DrawingElement['fillStyle'][] = ['hachure', 'solid', 'zigzag', 'cross-hatch', 'dots', 'dashed', 'zigzag-line'];
+        const current = store.defaultElementStyles.fillStyle || 'hachure';
+        const next = styles[(styles.indexOf(current) + 1) % styles.length];
+        updateDefaultStyles({ fillStyle: next });
+        return;
+    }
+
+    pushToHistory();
+    setStore('elements', (el) => store.selection.includes(el.id), (el) => {
+        const styles: DrawingElement['fillStyle'][] = ['hachure', 'solid', 'zigzag', 'cross-hatch', 'dots', 'dashed', 'zigzag-line'];
+        const current = el.fillStyle || 'hachure';
+        const next = styles[(styles.indexOf(current) + 1) % styles.length];
+        return { fillStyle: next };
+    });
 };
 
 export const distributeSelectedElements = (type: DistributionType) => {

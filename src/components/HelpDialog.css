@@ -94,8 +94,8 @@
 
 .shortcuts-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 48px;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 32px;
 }
 
 .shortcut-column h4 {

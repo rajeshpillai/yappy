@@ -73,7 +73,12 @@ export const Minimap = (props: MinimapProps) => {
         ctx.clearRect(0, 0, MINIMAP_WIDTH, MINIMAP_HEIGHT);
 
         // Fill background
-        ctx.fillStyle = store.theme === 'dark' ? '#2a2a2a' : '#f5f5f5';
+        const isDarkMode = store.theme === 'dark';
+        let bgColor = store.canvasBackgroundColor;
+        if (!bgColor) {
+            bgColor = isDarkMode ? "#121212" : "#fafafa";
+        }
+        ctx.fillStyle = bgColor;
         ctx.fillRect(0, 0, MINIMAP_WIDTH, MINIMAP_HEIGHT);
 
         // Save context

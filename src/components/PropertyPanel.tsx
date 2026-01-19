@@ -1,5 +1,5 @@
 import { type Component, Show, createMemo, For, createSignal, createEffect } from "solid-js";
-import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, alignSelectedElements, distributeSelectedElements, togglePropertyPanel, minimizePropertyPanel, setMaxLayers } from "../store/appStore";
+import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, alignSelectedElements, distributeSelectedElements, togglePropertyPanel, minimizePropertyPanel, setMaxLayers, setCanvasTexture } from "../store/appStore";
 import {
     Copy, ChevronsDown, ChevronDown, ChevronUp, ChevronsUp, Trash2, Palette,
     AlignLeft, AlignCenterHorizontal, AlignRight,
@@ -200,6 +200,7 @@ const PropertyPanel: Component = () => {
             else if (key === 'gridOpacity') updateGridSettings({ gridOpacity: value });
             else if (key === 'objectSnapping') updateGridSettings({ objectSnapping: value });
             else if (key === 'maxLayers') setMaxLayers(parseInt(value));
+            else if (key === 'canvasTexture') setCanvasTexture(value);
         } else {
             updateDefaultStyles({ [key]: finalValue });
         }

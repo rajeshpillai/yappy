@@ -1,5 +1,9 @@
 import { type Component, onMount, onCleanup, Show } from 'solid-js';
-import { undo, redo, store, deleteElements, togglePropertyPanel, toggleLayerPanel, toggleMinimap, toggleZenMode, toggleCommandPalette, moveSelectedElements } from './store/appStore';
+import {
+  undo, redo, store, deleteElements, togglePropertyPanel, toggleLayerPanel,
+  toggleMinimap, toggleZenMode, toggleCommandPalette, moveSelectedElements,
+  switchLayerByIndex, cycleStrokeStyle, cycleFillStyle
+} from './store/appStore';
 import Canvas from './components/Canvas';
 import Toolbar from './components/Toolbar';
 import Menu from './components/Menu';
@@ -35,6 +39,11 @@ const App: Component = () => {
         } else if (e.key.toLowerCase() === 'z') {
           e.preventDefault();
           toggleZenMode();
+        } else if (key >= '1' && key <= '9') {
+          // Layer Switching: Alt + 1-9
+          e.preventDefault();
+          const index = parseInt(key) - 1;
+          switchLayerByIndex(index);
         }
         return; // Handle Alt and exit
       }
@@ -44,8 +53,18 @@ const App: Component = () => {
         return;
       }
 
+      const key = e.key.toLowerCase();
+
+      // Style Cycling
+      if (key === 's' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        cycleStrokeStyle();
+      } else if (key === 'f' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        cycleFillStyle();
+      }
       // Undo/Redo
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+      else if ((e.ctrlKey || e.metaKey) && key === 'z') {
         e.preventDefault();
         if (e.shiftKey) {
           redo();

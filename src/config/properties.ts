@@ -31,6 +31,21 @@ export const properties: PropertyConfig[] = [
         defaultValue: '#fafafa'
     },
     {
+        key: 'canvasTexture',
+        label: 'Canvas Texture',
+        type: 'select',
+        options: [
+            { label: 'None', value: 'none' },
+            { label: 'Dots', value: 'dots' },
+            { label: 'Grid', value: 'grid' },
+            { label: 'Graph Paper', value: 'graph' },
+            { label: 'Recycled Paper', value: 'paper' }
+        ],
+        group: 'canvas',
+        applicableTo: ['canvas'],
+        defaultValue: 'none'
+    },
+    {
         key: 'maxLayers',
         label: 'Max Layers',
         type: 'number',

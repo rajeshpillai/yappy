@@ -123,6 +123,86 @@ const Canvas: Component = () => {
         ctx.fillStyle = bgColor;
         ctx.fillRect(0, 0, canvasRef.width, canvasRef.height);
 
+        // Render Canvas Texture
+        if (store.canvasTexture !== 'none') {
+            const texture = store.canvasTexture;
+            const { scale, panX, panY } = store.viewState;
+
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0); // Use screen coordinates for texture
+
+            if (texture === 'dots' || texture === 'grid' || texture === 'graph') {
+                const spacing = texture === 'graph' ? 40 : 20;
+                const subSpacing = spacing / 4;
+                const dotColor = isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
+                const lineColor = isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.03)';
+                const majorLineColor = isDarkMode ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.07)';
+
+                const startX = (panX % (spacing * scale));
+                const startY = (panY % (spacing * scale));
+
+                if (texture === 'dots') {
+                    ctx.fillStyle = dotColor;
+                    for (let x = startX; x < canvasRef.width; x += spacing * scale) {
+                        for (let y = startY; y < canvasRef.height; y += spacing * scale) {
+                            ctx.beginPath();
+                            ctx.arc(x, y, 1, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    }
+                } else if (texture === 'grid') {
+                    ctx.strokeStyle = lineColor;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    for (let x = startX; x < canvasRef.width; x += spacing * scale) {
+                        ctx.moveTo(x, 0); ctx.lineTo(x, canvasRef.height);
+                    }
+                    for (let y = startY; y < canvasRef.height; y += spacing * scale) {
+                        ctx.moveTo(0, y); ctx.lineTo(canvasRef.width, y);
+                    }
+                    ctx.stroke();
+                } else if (texture === 'graph') {
+                    // Minor lines
+                    ctx.strokeStyle = lineColor;
+                    ctx.lineWidth = 0.5;
+                    ctx.beginPath();
+                    for (let x = (panX % (subSpacing * scale)); x < canvasRef.width; x += subSpacing * scale) {
+                        ctx.moveTo(x, 0); ctx.lineTo(x, canvasRef.height);
+                    }
+                    for (let y = (panY % (subSpacing * scale)); y < canvasRef.height; y += subSpacing * scale) {
+                        ctx.moveTo(0, y); ctx.lineTo(canvasRef.width, y);
+                    }
+                    ctx.stroke();
+
+                    // Major lines
+                    ctx.strokeStyle = majorLineColor;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    for (let x = startX; x < canvasRef.width; x += spacing * scale) {
+                        ctx.moveTo(x, 0); ctx.lineTo(x, canvasRef.height);
+                    }
+                    for (let y = startY; y < canvasRef.height; y += spacing * scale) {
+                        ctx.moveTo(0, y); ctx.lineTo(canvasRef.width, y);
+                    }
+                    ctx.stroke();
+                }
+            } else if (texture === 'paper') {
+                // Subtle grain effect using noise pattern
+                // We'll use a pre-calculated pattern for performance if this were a production app
+                // For now, let's draw a few thousand tiny light/dark dots
+                ctx.globalAlpha = 0.05;
+                ctx.fillStyle = isDarkMode ? '#ffffff' : '#000000';
+                for (let i = 0; i < 5000; i++) {
+                    const x = Math.random() * canvasRef.width;
+                    const y = Math.random() * canvasRef.height;
+                    ctx.fillRect(x, y, 1, 1);
+                }
+                ctx.globalAlpha = 1;
+            }
+
+            ctx.restore();
+        }
+
         ctx.save();
 
         const { scale, panX, panY } = store.viewState;
@@ -718,6 +798,7 @@ const Canvas: Component = () => {
         store.gridSettings.gridOpacity;
         store.gridSettings.style;
         store.canvasBackgroundColor;
+        store.canvasTexture;
         snappingGuides();
         requestAnimationFrame(draw);
     });
