@@ -21,7 +21,7 @@ import {
 } from '../utils/objectContextActions';
 import { perfMonitor } from "../utils/performanceMonitor";
 import { fitShapeToText } from "../utils/textUtils";
-import { changeElementType, getTransformOptions } from "../utils/elementTransforms";
+import { changeElementType, getTransformOptions, getShapeIcon, getShapeTooltip, getCurveTypeOptions, getCurveTypeIcon, getCurveTypeTooltip } from "../utils/elementTransforms";
 
 
 const Canvas: Component = () => {
@@ -2982,9 +2982,33 @@ const Canvas: Component = () => {
                         items.push({
                             label: 'Transform Shape',
                             submenu: transformOptions.map(t => ({
-                                label: t.charAt(0).toUpperCase() + t.slice(1).replace(/([A-Z])/g, ' $1'),
+                                icon: getShapeIcon(t),
+                                tooltip: getShapeTooltip(t),
                                 onClick: () => {
                                     changeElementType(store.selection[0], t);
+                                    requestAnimationFrame(draw);
+                                }
+                            })),
+                            gridColumns: 3
+                        });
+                    }
+                }
+            }
+
+            // Change Curve Style (for line/arrow connectors)
+            if (selectionCount === 1) {
+                const el = store.elements.find(e => e.id === store.selection[0]);
+                if (el && (el.type === 'line' || el.type === 'arrow')) {
+                    const currentCurveType = el.curveType || 'straight';
+                    const curveOptions = getCurveTypeOptions(currentCurveType);
+                    if (curveOptions.length > 0) {
+                        items.push({
+                            label: 'Change Curve Style',
+                            submenu: curveOptions.map(ct => ({
+                                icon: getCurveTypeIcon(ct),
+                                tooltip: getCurveTypeTooltip(ct),
+                                onClick: () => {
+                                    updateElement(store.selection[0], { curveType: ct as any }, true);
                                     requestAnimationFrame(draw);
                                 }
                             })),

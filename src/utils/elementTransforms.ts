@@ -88,3 +88,87 @@ export const getTransformOptions = (currentType: ElementType): ElementType[] => 
 
     return [];
 };
+
+export const getShapeIcon = (type: ElementType): string => {
+    const iconMap: Record<string, string> = {
+        // Connectors
+        'line': '─',
+        'arrow': '→',
+        'bezier': '⤴',
+        'organicBranch': '🌿',
+
+        // Curve types (for submenu)
+        'straight': '─',
+        'elbow': '└─',
+
+        // Basic shapes
+        'rectangle': '□',
+        'circle': '○',
+        'diamond': '◇',
+        'triangle': '△',
+        'hexagon': '⬡',
+        'octagon': '⬢',
+        'parallelogram': '▱',
+        'star': '★',
+        'cloud': '☁',
+        'heart': '♥',
+        'cross': '✕',
+        'checkmark': '✓',
+
+        // Flowchart
+        'database': '🗄',
+        'document': '📄',
+        'predefinedProcess': '⊞',
+        'internalStorage': '⊡',
+
+        // Infrastructure
+        'server': '🖥',
+        'loadBalancer': '⚖',
+        'firewall': '🛡',
+        'user': '👤',
+        'messageQueue': '📬',
+        'lambda': 'λ',
+        'router': '🔀',
+        'browser': '🌐',
+
+        // Mindmap
+        'capsule': '⬭',
+        'stickyNote': '📝',
+        'callout': '💬',
+        'speechBubble': '💭',
+        'burst': '💥',
+
+        // Geometric
+        'trapezoid': '⏢',
+        'rightTriangle': '◿',
+        'pentagon': '⬠',
+        'septagon': '⬡',
+
+        // Wireframe
+        'browserWindow': '🖼',
+        'mobilePhone': '📱'
+    };
+
+    return iconMap[type] || '◻';
+};
+
+export const getShapeTooltip = (type: ElementType): string => {
+    return type.charAt(0).toUpperCase() + type.slice(1).replace(/([A-Z])/g, ' $1');
+};
+
+export const getCurveTypeOptions = (currentType: string): string[] => {
+    return ['straight', 'bezier', 'elbow'].filter(t => t !== currentType);
+};
+
+export const getCurveTypeIcon = (curveType: string): string => {
+    const iconMap: Record<string, string> = {
+        'straight': '─',
+        'bezier': '⤴',
+        'elbow': '└─'
+    };
+    return iconMap[curveType] || '─';
+};
+
+export const getCurveTypeTooltip = (curveType: string): string => {
+    return curveType.charAt(0).toUpperCase() + curveType.slice(1);
+};

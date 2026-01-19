@@ -583,3 +583,21 @@
 - [x] Ensure branches behave as functional Bezier connectors
 - [x] Implement Text-on-Path rendering for branches
 - [x] Fix connectivity and binding for specialized branch shapes
+
+## Phase 42: Transform Shape Feature
+- [x] Implement Transform Shape context menu
+  - [x] Create `elementTransforms.ts` utility with `changeElementType` function
+  - [x] Add Transform Shape submenu below Hierarchy in context menu
+  - [x] Restrict transformations to like-for-like families (connectors ↔ connectors, shapes ↔ shapes)
+- [x] Icon-based menu with tooltips
+  - [x] Replace text labels with visual icons (→, ─, ⤴, 🌿, □, ○, etc.)
+  - [x] Add tooltip support to MenuItem interface
+  - [x] Implement 3-column grid layout for compact display
+- [x] Curve style options for connectors
+  - [x] Add "Change Curve Style" submenu for line/arrow elements
+  - [x] Support straight, bezier, and elbow routing
+  - [x] Create curve type icon mapping (─, ⤴, └─)
+- [x] UX improvements
+  - [x] Immediate visual updates on transformation
+  - [x] Scrollable menu with max-height: 80vh
+  - [x] Fixed positioning for submenus to prevent clipping

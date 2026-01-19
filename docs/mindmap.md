@@ -116,3 +116,50 @@ To maintain visual consistency within a branch, new nodes inherit specific style
 *   **`isElementHiddenByHierarchy(el, elements)`**: traverse up the parent chain; if any ancestor `isCollapsed`, return `true`.
 *   **`getDescendants(parentId, elements)`**: Returns a flat array of all recursive children for a given parent ID.
 *   **`isDescendantOf(targetId, ancestorId, elements)`**: Boolean check for ancestry.
+
+## 5. Transform Shape Feature
+
+The Transform Shape feature allows users to convert elements between different types while preserving their properties (position, size, text, styles).
+
+### Implementation
+
+*   **Location**: `src/utils/elementTransforms.ts`
+*   **Core Function**: `changeElementType(elementId, newType)`
+*   **Menu Integration**: Context menu "Transform Shape" submenu (appears below Hierarchy)
+
+### Type Families
+
+Transformations are restricted to "like-for-like" families to prevent data loss:
+
+*   **Connectors**: `line`, `arrow`, `bezier`, `organicBranch`
+*   **Shapes**: All shape types (rectangle, circle, diamond, etc.)
+
+### Curve Style Options
+
+For `line` and `arrow` connectors, a separate "Change Curve Style" submenu allows switching between routing algorithms:
+
+*   **Straight** (`curveType: 'straight'`): Direct line between points
+*   **Bezier** (`curveType: 'bezier'`): Smooth curved path with control points
+*   **Elbow** (`curveType: 'elbow'`): Right-angle orthogonal routing
+
+### Icon-Based Menu
+
+The Transform Shape menu uses visual icons for better UX:
+
+*   **3-column grid layout**: Compact display, especially on mobile
+*   **Unicode/emoji icons**: → (arrow), ─ (line), ⤴ (bezier), 🌿 (organic), └─ (elbow), □ (rectangle), ○ (circle), etc.
+*   **Tooltips**: Hover to see full shape names
+*   **Scrollable**: Menu supports vertical scrolling when many options are present
+
+### Control Point Initialization
+
+When transforming to `bezier` or `organicBranch`, the system automatically initializes control points:
+
+```typescript
+const dx = endX - startX;
+const dy = endY - startY;
+const cp1 = { x: startX + dx * 0.25, y: startY + dy * 0.1 };
+const cp2 = { x: endX - dx * 0.25, y: endY - dy * 0.1 };
+```
+
+This creates a default S-curve that can be adjusted by dragging the control point handles.

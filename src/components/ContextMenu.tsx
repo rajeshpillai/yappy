@@ -10,6 +10,8 @@ export interface MenuItem {
     disabled?: boolean;
     submenu?: MenuItem[];
     gridColumns?: number; // Number of columns for grid layout in submenu
+    icon?: string; // Icon to display (emoji or Unicode symbol)
+    tooltip?: string; // Tooltip text for hover
 }
 
 interface ContextMenuProps {
@@ -126,11 +128,16 @@ const ContextMenu: Component<ContextMenuProps> = (props) => {
                                 class={`context-menu-item ${item.disabled ? 'disabled' : ''} ${activeSubmenu() === index() ? 'active' : ''}`}
                                 onClick={() => handleItemClick(item, index())}
                                 disabled={item.disabled}
+                                title={item.tooltip || item.label}
                             >
                                 <span class="menu-item-check">
                                     {item.checked ? '✓' : ''}
                                 </span>
-                                <span class="menu-item-label">{item.label}</span>
+                                <Show when={item.icon} fallback={
+                                    <span class="menu-item-label">{item.label}</span>
+                                }>
+                                    <span class="menu-item-icon" style={{ "font-size": "20px", "line-height": "1" }}>{item.icon}</span>
+                                </Show>
                                 <Show when={item.shortcut}>
                                     <span class="menu-item-shortcut">{item.shortcut}</span>
                                 </Show>
@@ -142,11 +149,17 @@ const ContextMenu: Component<ContextMenuProps> = (props) => {
                             {/* Submenu rendering */}
                             <Show when={item.submenu && activeSubmenu() === index()}>
                                 <ContextMenu
-                                    x={0}
-                                    y={0}
+                                    x={(() => {
+                                        const buttonRect = menuRef?.querySelector(`.menu-item-wrapper:nth-child(${index() + 1}) button`)?.getBoundingClientRect();
+                                        return buttonRect ? buttonRect.right : 0;
+                                    })()}
+                                    y={(() => {
+                                        const buttonRect = menuRef?.querySelector(`.menu-item-wrapper:nth-child(${index() + 1}) button`)?.getBoundingClientRect();
+                                        return buttonRect ? buttonRect.top : 0;
+                                    })()}
                                     items={item.submenu!}
                                     onClose={props.onClose}
-                                    parent={true}
+                                    parent={false}
                                     gridColumns={item.gridColumns}
                                 />
                             </Show>

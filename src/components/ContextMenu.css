@@ -6,8 +6,15 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     padding: 4px;
     min-width: 220px;
+    max-height: 80vh;
+    overflow-y: auto;
+    overflow-x: visible;
     z-index: 10000;
     font-size: 14px;
+}
+
+.menu-item-wrapper {
+    position: relative;
 }
 
 .context-menu-item {
