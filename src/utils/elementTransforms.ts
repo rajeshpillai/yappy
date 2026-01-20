@@ -24,21 +24,11 @@ export const changeElementType = (elementId: string, newType: ElementType, pushH
     // Connector-specific logic
     if (newIsConnector) {
         if (newType === 'bezier' || newType === 'organicBranch') {
+            updates.curveType = 'bezier'; // Force curve rendering
+
             // Need control points
             if (!element.controlPoints || element.controlPoints.length !== 2) {
-                // Initialize default S-curve control points based on start/end
-                // For non-connectors this is hard, but we ruled that out.
-                // Existing connector has x,y,width,height. Start=TL, End=BR (roughly).
-                // Or use actual points?
-                // Let's use x,y and width,height for S-curve default.
-
-                // We need relative points for the S-curve logic we used in creation
-                // But x/y/w/h are already normalized?
-                // Assume start is at (0,0) relative and end is at (w,h) relative or vice versa?
-                // Actually, existing lines might have negative width/height?
-                // No, appStore/Canvas normalizes them usually?
-                // Let's rely on absolute positions.
-
+                // ... (existing control point logic) ...
                 const startX = element.x;
                 const startY = element.y;
                 const endX = element.x + element.width;
@@ -48,10 +38,6 @@ export const changeElementType = (elementId: string, newType: ElementType, pushH
                 const dx = endX - startX;
                 const dy = endY - startY;
 
-                // Vertical vs Horizontal logic?
-                // Let's stick to the horizontal S-curve default for now or simple midpoint logic.
-                // Or better: 1/3 and 2/3 along the path?
-                // Standard default:
                 const cp1 = { x: startX + dx * 0.25, y: startY + dy * 0.1 };
                 const cp2 = { x: endX - dx * 0.25, y: endY - dy * 0.1 };
 
@@ -59,8 +45,16 @@ export const changeElementType = (elementId: string, newType: ElementType, pushH
             }
         } else {
             // Straight line/arrow
-            // Remove control points so it renders straight
-            updates.controlPoints = undefined;
+            // We usually default to straight when converting FROM a curved type (Bezier/Organic) to a simple Line/Arrow
+            // to avoid weird lingering curves unless the user explicitly set it.
+            // However, if the user had an "Arrow with Elbow", and converts to "Line", they might expect "Line with Elbow".
+            // But if they convert "Bezier" (Type) to "Line", they expect Straight Line?
+            // Let's reset to straight if coming from Bezier/OrganicBranch types.
+            if (element.type === 'bezier' || element.type === 'organicBranch') {
+                updates.curveType = 'straight';
+                updates.controlPoints = undefined;
+            }
+            // If they are just swapping Line <-> Arrow, we preserve curveType (Elbow/Straight/BezierStyle).
         }
     }
 
