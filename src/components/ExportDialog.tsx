@@ -1,5 +1,6 @@
-import { type Component, createSignal, Show } from "solid-js";
+import { type Component, createSignal, Show, createEffect } from "solid-js";
 import { X } from "lucide-solid";
+import { store } from "../store/appStore";
 import { exportToPng, exportToSvg } from "../utils/export";
 import "./ExportDialog.css";
 
@@ -12,12 +13,22 @@ const ExportDialog: Component<ExportDialogProps> = (props) => {
     const [format, setFormat] = createSignal<'png' | 'svg'>('png');
     const [scale, setScale] = createSignal<number>(2);
     const [hasBackground, setHasBackground] = createSignal(true);
+    const [onlySelected, setOnlySelected] = createSignal(store.selection.length > 0);
+
+    // Auto-update onlySelected when dialog opens or selection changes
+    createEffect(() => {
+        if (props.isOpen && store.selection.length > 0) {
+            setOnlySelected(true);
+        } else if (props.isOpen && store.selection.length === 0) {
+            setOnlySelected(false);
+        }
+    });
 
     const handleExport = () => {
         if (format() === 'png') {
-            exportToPng(scale(), hasBackground());
+            exportToPng(scale(), hasBackground(), onlySelected());
         } else {
-            exportToSvg();
+            exportToSvg(onlySelected());
         }
         props.onClose();
     };
@@ -46,6 +57,19 @@ const ExportDialog: Component<ExportDialogProps> = (props) => {
                                     SVG
                                 </label>
                             </div>
+                        </div>
+
+                        <div class="option-group">
+                            <label class="checkbox-label" classList={{ disabled: store.selection.length === 0 }}>
+                                <input
+                                    type="checkbox"
+                                    checked={onlySelected()}
+                                    onChange={(e) => setOnlySelected(e.currentTarget.checked)}
+                                    disabled={store.selection.length === 0}
+                                />
+                                Export Selection Only
+                                {store.selection.length === 0 && <span class="hint">(No items selected)</span>}
+                            </label>
                         </div>
 
                         <Show when={format() === 'png'}>

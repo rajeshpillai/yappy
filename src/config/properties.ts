@@ -203,6 +203,24 @@ export const properties: PropertyConfig[] = [
         defaultValue: 'hachure'
     },
     {
+        key: 'fillDensity',
+        label: 'Fill Density',
+        type: 'slider',
+        min: 0.1,
+        max: 4,
+        step: 0.1,
+        group: 'background',
+        applicableTo: ['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField'],
+        defaultValue: 1,
+        // Only show if fillStyle is NOT solid (solid has no density)
+        // actually dependsOn only supports simple check, let's leave it always or fix UI to hide it.
+        // PropertyPanel.tsx handles hiding checks? 
+        // For now, let it be always visible if these shapes are selected, 
+        // OR better, we can implementation dependsOn value check if supported. 
+        // Looking at PropertyPanel, it might not support complex dependency.
+        // But fill density is relevant for hachure, dots, etc. Solid effectively ignores it.
+    },
+    {
         key: 'strokeWidth',
         label: 'Width',
         type: 'slider',

@@ -23,6 +23,7 @@ import { perfMonitor } from "../utils/performanceMonitor";
 import { fitShapeToText } from "../utils/textUtils";
 import { changeElementType, getTransformOptions, getShapeIcon, getShapeTooltip, getCurveTypeOptions, getCurveTypeIcon, getCurveTypeTooltip } from "../utils/elementTransforms";
 import { getGroupsSortedByPriority, isPointInGroupBounds } from "../utils/groupUtils";
+import { exportToPng, exportToSvg } from "../utils/export";
 
 
 const Canvas: Component = () => {
@@ -904,7 +905,10 @@ const Canvas: Component = () => {
             e.shapeRatio; // Track shape ratio (sharpness)
             e.drawInnerBorder; // Track double border toggle
             e.innerBorderDistance; // Track double border distance
+            e.drawInnerBorder; // Track double border toggle
+            e.innerBorderDistance; // Track double border distance
             e.strokeLineJoin; // Track corner style
+            e.fillDensity; // Track fill density
         });
         store.viewState.scale;
         store.viewState.panX;
@@ -2002,7 +2006,7 @@ const Canvas: Component = () => {
             y: snappedStartY,
             width: 0,
             height: 0,
-            seed: Math.floor(Math.random() * 2 ** 31),
+            seed: Math.floor(Math.random() * 2 ** 31) + 1,
             layerId: store.activeLayerId,
             curveType: actualCurveType as 'straight' | 'bezier' | 'elbow',
             points: (tool === 'fineliner' || tool === 'inkbrush' || tool === 'marker') ? [0, 0] : undefined,
@@ -3157,6 +3161,20 @@ const Canvas: Component = () => {
             if (isAnyGrouped) {
                 items.push({ label: 'Ungroup', shortcut: 'Ctrl+Shift+G', onClick: ungroupSelected });
             }
+
+            items.push({ separator: true });
+
+            // Export Selection
+            items.push(
+                {
+                    label: 'Export as PNG',
+                    onClick: () => exportToPng(2, true, true) // 2x scale, white bg, selection only
+                },
+                {
+                    label: 'Export as SVG',
+                    onClick: () => exportToSvg(true) // selection only
+                }
+            );
 
             items.push({ separator: true });
 

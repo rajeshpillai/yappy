@@ -150,6 +150,11 @@ export const renderElement = (
     const backgroundColor = el.backgroundColor === 'transparent' ? undefined : adjustColor(el.backgroundColor);
     const fillStyle = el.fillStyle; // Usually 'hachure', 'solid' etc.
 
+    // Calculate Fill Density (Inverse of gap)
+    const density = el.fillDensity || 1;
+    const baseGap = 5; // Standard roughjs gap
+    const hachureGap = Math.max(0.5, baseGap / density); // Prevent 0 or infinite density
+
     // RoughJS Options
     const options: any = {
         seed: el.seed,
@@ -163,7 +168,69 @@ export const renderElement = (
         strokeLineDash: el.strokeStyle === 'dashed' ? [10, 10] : (el.strokeStyle === 'dotted' ? [5, 10] : undefined),
         strokeLineJoin: el.strokeLineJoin || 'round',
         strokeLineCap: (el.strokeLineJoin === 'miter' || el.strokeLineJoin === 'bevel') ? 'butt' : 'round',
+        hachureGap: hachureGap,
+        hachureAngle: -41 + (el.seed % 360), // Add some randomness to angle if needed, or keep fixed
     };
+
+    // Ensure seed is valid (RoughJS might behave randomly with seed 0)
+    if (!options.seed) {
+        options.seed = 1;
+    }
+
+    // Custom Deterministic 'Dots' Fill Logic
+    let customDotsDraw: (() => void) | null = null;
+    let dotColor = backgroundColor;
+
+    if (fillStyle === 'dots') {
+        // Disable RoughJS fill so we handle it manually
+        options.fill = undefined;
+        options.fillStyle = 'solid';
+
+        // Helper to draw deterministic dots
+        customDotsDraw = () => {
+            if (!dotColor) return;
+
+            // Simple LCG for deterministic seeding
+            let currentSeed = (el.seed || 1) >>> 0;
+            const nextRandom = () => {
+                currentSeed = (currentSeed * 1664525 + 1013904223) >>> 0;
+                return currentSeed / 4294967296;
+            };
+
+            // Use density calculated above
+            const baseDotGap = 4 * (el.strokeWidth || 1) + 6;
+            const gap = Math.max(2, baseDotGap / density);
+            const radius = (el.strokeWidth || 1);
+
+            // Cover the bounding box
+            // We jitter exact positions to look "rough"
+            ctx.save();
+            ctx.fillStyle = dotColor;
+
+            // Generate dots
+            const cols = Math.ceil(el.width / gap);
+            const rows = Math.ceil(el.height / gap);
+
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    // Jitter
+                    const dx = (nextRandom() - 0.5) * gap;
+                    const dy = (nextRandom() - 0.5) * gap;
+
+                    // Chance to skip for irregularity (70% fill)
+                    if (nextRandom() > 0.8) continue;
+
+                    const x = el.x + i * gap + dx + gap / 2;
+                    const y = el.y + j * gap + dy + gap / 2;
+
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            ctx.restore();
+        };
+    }
 
     // Helper to draw arrowheads
     const drawArrowhead = (rc: any, x: number, y: number, angle: number, type: string, options: any) => {
@@ -187,11 +254,6 @@ export const renderElement = (
     const getRoundedRectPath = (x: number, y: number, w: number, h: number, r: number) => {
         const rX = Math.min(Math.abs(w) / 2, r);
         const rY = Math.min(Math.abs(h) / 2, r);
-        // Ensure positive width/height for path generation (handle negative w/h by swapping if needed, 
-        // but typically we draw from top-left. Let's assume normalized x,y,w,h or handle sign)
-        // For simplicity, we assume normalized input or rely on M/L commands handling it.
-        // But arc commands in SVG are sensitive.
-        // Let's rely on standard "rect with corner radius" logic.
         return `M ${x + rX} ${y} L ${x + w - rX} ${y} Q ${x + w} ${y} ${x + w} ${y + rY} L ${x + w} ${y + h - rY} Q ${x + w} ${y + h} ${x + w - rX} ${y + h} L ${x + rX} ${y + h} Q ${x} ${y + h} ${x} ${y + h - rY} L ${x} ${y + rY} Q ${x} ${y} ${x + rX} ${y}`;
     };
 
@@ -202,15 +264,6 @@ export const renderElement = (
         const cx = x + w2;
         const cy = y + h2;
 
-        // Corner radius needs to be scaled relative to side lengths
-        // Simple approach: shrink the diamond vertices towards center and use quadratic curves
-        // Vertex 0: Top (cx, y)
-        // Vertex 1: Right (x+w, cy)
-        // Vertex 2: Bottom (cx, y+h)
-        // Vertex 3: Left (x, cy)
-
-        // A diamond is just a polygon. To round it, we cut the corners.
-        // The "radius" effectively shortens the side.
         const len = Math.hypot(w2, h2);
         const validR = Math.min(r, len / 2);
         const ratio = validR / len;
@@ -246,8 +299,23 @@ export const renderElement = (
         const drawRect = (x: number, y: number, w: number, h: number, r: number, isInner = false) => {
             const opts = isInner ? { ...options, stroke: el.innerBorderColor || strokeColor, fill: 'none' } : options;
 
+            // Custom Dots Handling
+            if (customDotsDraw && !isInner) {
+                ctx.save();
+                ctx.beginPath();
+                if (r > 0) {
+                    const path = new Path2D(getRoundedRectPath(x, y, w, h, r));
+                    ctx.clip(path);
+                } else {
+                    ctx.rect(x, y, w, h);
+                    ctx.clip();
+                }
+                customDotsDraw();
+                ctx.restore();
+            }
+
             if (el.renderStyle === 'architectural') {
-                if (!isInner && backgroundColor) {
+                if (!isInner && backgroundColor && fillStyle !== 'dots') { // Skip if dots (handled manually) or empty
                     if (r > 0) {
                         const path = getRoundedRectPath(x, y, w, h, r);
                         rc.path(path, { ...opts, stroke: 'none', fill: backgroundColor });
@@ -293,13 +361,23 @@ export const renderElement = (
         const drawCircle = (x: number, y: number, w: number, h: number, isInner = false) => {
             const opts = isInner ? { ...options, stroke: el.innerBorderColor || strokeColor, fill: 'none' } : options;
 
+            // Custom Dots Handling
+            if (customDotsDraw && !isInner) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.ellipse(x + w / 2, y + h / 2, Math.abs(w) / 2, Math.abs(h) / 2, 0, 0, Math.PI * 2);
+                ctx.clip();
+                customDotsDraw();
+                ctx.restore();
+            }
+
             if (el.renderStyle === 'architectural') {
                 const cx = x + w / 2;
                 const cy = y + h / 2;
                 const rx = Math.abs(w) / 2;
                 const ry = Math.abs(h) / 2;
 
-                if (!isInner && backgroundColor) {
+                if (!isInner && backgroundColor && fillStyle !== 'dots') {
                     rc.ellipse(cx, cy, Math.abs(w), Math.abs(h), { ...options, stroke: 'none', fill: backgroundColor });
                 }
 
@@ -341,8 +419,28 @@ export const renderElement = (
 
             const opts = isInner ? { ...options, stroke: el.innerBorderColor || strokeColor, fill: 'none' } : options;
 
+            // Custom Dots Handling
+            if (customDotsDraw && !isInner) {
+                ctx.save();
+                // Build clipped path
+                if (r > 0) {
+                    const path = new Path2D(getRoundedDiamondPath(x, y, w, h, r));
+                    ctx.clip(path);
+                } else {
+                    ctx.beginPath();
+                    ctx.moveTo(points[0][0], points[0][1]);
+                    ctx.lineTo(points[1][0], points[1][1]);
+                    ctx.lineTo(points[2][0], points[2][1]);
+                    ctx.lineTo(points[3][0], points[3][1]);
+                    ctx.closePath();
+                    ctx.clip();
+                }
+                customDotsDraw();
+                ctx.restore();
+            }
+
             if (el.renderStyle === 'architectural') {
-                if (!isInner && backgroundColor) {
+                if (!isInner && backgroundColor && fillStyle !== 'dots') {
                     if (r > 0) {
                         const path = getRoundedDiamondPath(x, y, w, h, r);
                         rc.path(path, { ...opts, stroke: 'none', fill: backgroundColor });
@@ -401,8 +499,21 @@ export const renderElement = (
 
             const opts = isInner ? { ...options, stroke: el.innerBorderColor || strokeColor, fill: 'none' } : options;
 
+            // Custom Dots Handling
+            if (customDotsDraw && !isInner) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(points[0][0], points[0][1]);
+                ctx.lineTo(points[1][0], points[1][1]);
+                ctx.lineTo(points[2][0], points[2][1]);
+                ctx.closePath();
+                ctx.clip();
+                customDotsDraw();
+                ctx.restore();
+            }
+
             if (el.renderStyle === 'architectural') {
-                if (!isInner && backgroundColor) {
+                if (!isInner && backgroundColor && fillStyle !== 'dots') {
                     rc.polygon(points, { ...opts, stroke: 'none', fill: backgroundColor });
                 }
                 ctx.beginPath();
@@ -427,6 +538,7 @@ export const renderElement = (
         if (el.drawInnerBorder) {
             const dist = el.innerBorderDistance || 5;
             if (el.width > dist * 2 && el.height > dist * 2) {
+
                 // Approximate inner triangle by reducing bbox
                 drawTriangle(el.x + dist, el.y + dist, el.width - dist * 2, el.height - dist * 2, true);
             }

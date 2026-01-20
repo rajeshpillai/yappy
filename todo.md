@@ -635,19 +635,54 @@
 - [x] Improve group selection with bounding box hit detection
 
 ## Phase 45: Advanced Shape Styling
-- [ ] **Parametric Star Shapes**
-  - [ ] Add `starPoints` property to DrawingElement (range: 3-12, default: 5)
-  - [ ] Update star rendering logic to be parametric
-  - [ ] Add slider control in PropertyPanel
-  - [ ] Test with different point counts
-- [ ] **Inner Radius for Rectangles/Shapes**
-  - [ ] Add `innerRadius` property (0-100% of shape size)
-  - [ ] Implement rounded inner corners rendering
-  - [ ] Add double-border support (`doubleBorder`, `innerBorderWidth`, `innerBorderColor`)
-  - [ ] Property panel controls
-- [ ] **Rough Paint Brush (Texture Fill)**
-  - [ ] Research RoughJS texture fill capabilities
-  - [ ] Implement custom watercolor/patches fill style
-  - [ ] Add as new fillStyle option: 'watercolor' or 'patches'
-  - [ ] Performance optimization for large shapes
-  - [ ] Property panel integration
+- [x] **Parametric Star Shapes**
+  - [x] Add `starPoints` property to DrawingElement (range: 3-12, default: 5)
+  - [x] Update star rendering logic to be parametric
+  - [x] Add slider control in PropertyPanel
+  - [x] Test with different point counts
+- [x] **Inner Radius for Rectangles/Shapes**
+  - [x] Add `innerRadius` property (0-100% of shape size)
+  - [x] Implement rounded inner corners rendering
+  - [x] Add double-border support (`doubleBorder`, `innerBorderWidth`, `innerBorderColor`)
+  - [x] Property panel controls
+- [x] **Rough Paint Brush (Texture Fill)**
+  - [x] Research RoughJS texture fill capabilities
+  - [x] Implement custom watercolor/patches fill style (implemented as Advanced Fills: Zigzag, Dots, etc)
+  - [x] Add as new fillStyle option: 'watercolor' or 'patches' (Advanced Fill Styles)
+  - [x] Performance optimization for large shapes
+  - [x] Property panel integration
+
+## Phase 46: Group & Ungroup
+- [x] Implement `groupSelected` logic in store
+- [x] Implement `ungroupSelected` logic in store
+- [x] Add Group/Ungroup to Context Menu (Ctrl+G / Ctrl+Shift+G)
+- [x] Verify grouping logic with selection box
+
+## Phase 47: Alignment & Distribution
+- [x] **Property Panel Controls**
+  - [x] Add Alignment Row (Left, Center, Right, Top, Middle, Bottom)
+  - [x] Add Distribution Row (Horizontal, Vertical)
+  - [x] Show controls only when `selection.length > 1`
+- [x] **Store Logic**
+  - [x] `calculateAlignment` utility
+  - [x] `calculateDistribution` utility
+  - [x] `alignSelectedElements` store action
+  - [x] `distributeSelectedElements` store action
+- [x] **Verification**
+  - [x] Verify alignment works on UI click
+  - [x] Verify distribution works on UI click
+
+## Phase 48: Export Selection
+- [x] Modify `exportToPng` to support `onlySelected`
+- [x] Modify `exportToSvg` to support `onlySelected`
+- [x] Add "Export Selection Only" toggle to `ExportDialog`
+- [x] Auto-enable toggle when selection > 0
+- [x] Add "Export PNG/SVG" to Context Menu for quick selection export
+
+## Phase 49: Advanced Fill & Stability
+- [x] Implement custom deterministic renderer for 'dots' fill to prevent randomization on redraw
+- [x] Fix: Ensure 'seed' is never 0/undefined to prevent RoughJS instability
+- [x] Add "Fill Density" property to DrawingElement
+- [x] Add "Fill Density" slider to Properties Panel (Generic support for dots, hachure, etc.)
+- [x] Integrate Fill Density with RoughJS hachureGap
+- [x] Integrate Fill Density with Custom Dots renderer

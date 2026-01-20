@@ -3,8 +3,12 @@ import { renderElement } from "./renderElement";
 import rough from 'roughjs/bin/rough';
 
 
-export const exportToPng = async (scale: number, background: boolean) => {
-    const elements = store.elements;
+export const exportToPng = async (scale: number, background: boolean, onlySelected: boolean) => {
+    let elements = store.elements;
+    if (onlySelected) {
+        if (store.selection.length === 0) return; // Nothing to export
+        elements = elements.filter(el => store.selection.includes(el.id));
+    }
     if (elements.length === 0) return;
 
     // Calculate Bounds
@@ -50,8 +54,12 @@ export const exportToPng = async (scale: number, background: boolean) => {
     link.click();
 };
 
-export const exportToSvg = () => {
-    const elements = store.elements;
+export const exportToSvg = (onlySelected: boolean) => {
+    let elements = store.elements;
+    if (onlySelected) {
+        if (store.selection.length === 0) return;
+        elements = elements.filter(el => store.selection.includes(el.id));
+    }
     if (elements.length === 0) return;
 
     // Calculate Bounds
