@@ -22,6 +22,7 @@ import {
 import { perfMonitor } from "../utils/performanceMonitor";
 import { fitShapeToText } from "../utils/textUtils";
 import { changeElementType, getTransformOptions, getShapeIcon, getShapeTooltip, getCurveTypeOptions, getCurveTypeIcon, getCurveTypeTooltip } from "../utils/elementTransforms";
+import { getGroupsSortedByPriority, isPointInGroupBounds } from "../utils/groupUtils";
 
 
 const Canvas: Component = () => {
@@ -1690,6 +1691,81 @@ const Canvas: Component = () => {
             let hitId: string | null = null;
             const threshold = 10 / store.viewState.scale;
 
+            // STEP 1: Check if click is within any group's bounding box
+            // This makes grouped elements (like Block Text) easier to select
+            const sortedGroups = getGroupsSortedByPriority(store.elements, store.layers);
+
+            for (const { groupId } of sortedGroups) {
+                // Check if any element in this group is on a visible, unlocked layer
+                const groupElements = store.elements.filter(el =>
+                    el.groupIds && el.groupIds.includes(groupId)
+                );
+
+                // Skip if all elements are locked or on locked/invisible layers
+                const hasInteractableElement = groupElements.some(el =>
+                    canInteractWithElement(el) && isLayerVisible(el.layerId)
+                );
+
+                if (!hasInteractableElement) continue;
+
+                // Check if point is within group bounds
+                if (isPointInGroupBounds(x, y, groupId, store.elements)) {
+                    // Select all elements in this group
+                    const idsToSelect = groupElements.map(el => el.id);
+
+                    const isAllSelected = idsToSelect.every(id => store.selection.includes(id));
+
+                    if (e.shiftKey || e.ctrlKey || e.metaKey) {
+                        if (isAllSelected) {
+                            // Toggle off
+                            setStore('selection', s => s.filter(id => !idsToSelect.includes(id)));
+                        } else {
+                            // Toggle on
+                            setStore('selection', s => [...new Set([...s, ...idsToSelect])]);
+                        }
+                    } else {
+                        if (!isAllSelected) {
+                            setStore('selection', idsToSelect);
+                        }
+                    }
+
+                    // Initialize Move
+                    if (store.selection.length > 0) {
+                        pushToHistory();
+                        isDragging = true;
+                        draggingHandle = null;
+                        startX = x;
+                        startY = y;
+
+                        // Capture initial positions for ALL selected elements and their descendants
+                        initialPositions.clear();
+                        const idsToMove = new Set<string>(store.selection);
+
+                        // Include descendants in the move set
+                        store.selection.forEach(id => {
+                            getDescendants(id, store.elements).forEach(d => idsToMove.add(d.id));
+                        });
+
+                        store.elements.forEach(el => {
+                            if (idsToMove.has(el.id)) {
+                                initialPositions.set(el.id, {
+                                    x: el.x,
+                                    y: el.y,
+                                    width: el.width,
+                                    height: el.height,
+                                    fontSize: el.fontSize,
+                                    points: el.points ? [...el.points] : undefined,
+                                    controlPoints: el.controlPoints ? el.controlPoints.map(cp => ({ ...cp })) : undefined
+                                });
+                            }
+                        });
+                    }
+
+                    return; // Group hit detected, stop processing
+                }
+            }
+
+            // STEP 2: Fall back to individual element hit testing
             // Sort elements by visual order (Top to Bottom) for hit testing
             // Visual Order = Highest Layer Order -> Highest Array Index
             const sortedElements = store.elements.map((el, index) => {
