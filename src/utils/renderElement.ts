@@ -636,7 +636,9 @@ export const renderElement = (
         const h = el.height;
         const x = el.x;
         const y = el.y;
-        const r = Math.min(Math.abs(w), Math.abs(h)) * 0.2; // Border radius
+        // Parametric Border Radius (default 20%)
+        const radiusPercent = el.borderRadius !== undefined ? el.borderRadius : 20;
+        const r = Math.min(Math.abs(w), Math.abs(h)) * (radiusPercent / 100);
         const tailWidth = w * 0.15;
         const tailHeight = h * 0.2;
         const rectHeight = h - tailHeight;
