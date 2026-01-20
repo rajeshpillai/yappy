@@ -161,7 +161,7 @@ export const renderElement = (
         fill: backgroundColor,
         fillStyle: fillStyle,
         strokeLineDash: el.strokeStyle === 'dashed' ? [10, 10] : (el.strokeStyle === 'dotted' ? [5, 10] : undefined),
-        strokeLineJoin: 'round',
+        strokeLineJoin: el.strokeLineJoin || 'round',
         strokeLineCap: 'round',
     };
 
