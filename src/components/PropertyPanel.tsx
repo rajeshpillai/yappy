@@ -168,13 +168,44 @@ const PropertyPanel: Component = () => {
         return properties.filter(p => {
             // Filter out properties that don't make sense for defaults (like locked, link, angle, width/height?)
             if (target.type === 'defaults') {
-                if (['locked', 'link', 'angle', 'containerText', 'text'].includes(p.key)) return false;
+                if (['locked', 'link', 'angle', 'containerText', 'text', 'shadowOffsetX', 'shadowOffsetY'].includes(p.key)) return false;
             }
 
-            if (p.applicableTo === 'all') return true;
-            if (Array.isArray(p.applicableTo)) {
-                return p.applicableTo.includes(targetType as any);
+            if (p.applicableTo !== 'all') {
+                if (Array.isArray(p.applicableTo) && !p.applicableTo.includes(targetType as any)) {
+                    return false;
+                }
             }
+
+            // Dependency Check
+            if (p.dependsOn) {
+                const depKey = typeof p.dependsOn === 'string' ? p.dependsOn : p.dependsOn.key;
+                const requiredVal = typeof p.dependsOn === 'string' ? true : p.dependsOn.value;
+
+                let currentValue: any;
+
+                if (target.type === 'element') {
+                    currentValue = (target.data as any)[depKey];
+                } else if (target.type === 'defaults') {
+                    currentValue = (store.defaultElementStyles as any)[depKey];
+                } else if (target.type === 'canvas') {
+                    // Not handled yet for canvas deps
+                }
+
+                // If it depends on a toggle (boolean) and requiredVal is boolean
+                if (typeof requiredVal === 'boolean') {
+                    if (!!currentValue !== requiredVal) return false;
+                }
+                // If requiredVal is array (one of)
+                else if (Array.isArray(requiredVal)) {
+                    if (!requiredVal.includes(currentValue)) return false;
+                }
+                // Exact match
+                else {
+                    if (currentValue !== requiredVal) return false;
+                }
+            }
+
             return true;
         });
     });

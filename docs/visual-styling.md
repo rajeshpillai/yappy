@@ -13,6 +13,9 @@ Support for **Linear** and **Radial** gradients has been added to the Architectu
 | `gradientEnd` | `string` (Hex/RGB) | The ending color (100%). |
 | `gradientDirection` | `number` (Degrees) | Angle of the linear gradient (e.g., 45°). |
 
+> [!NOTE]
+> Gradient properties only appear in the Property Panel when `fillStyle` is set to **Linear Gradient** or **Radial Gradient**.
+
 ### Implementation Details
 *   **Coordinate System**: Gradients are rendered using a **local coordinate system** centered on the element (`cx, cy`). This ensures that:
     1.  Gradients move and rotate perfectly with the shape.

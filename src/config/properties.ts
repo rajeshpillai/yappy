@@ -11,10 +11,11 @@ export interface PropertyConfig {
     applicableTo: (ElementType | 'canvas')[] | 'all';
     defaultValue?: any;
     group: 'style' | 'stroke' | 'background' | 'text' | 'dimensions' | 'advanced' | 'canvas' | 'shadow' | 'gradient';
-    dependsOn?: string; // Key of property that must be truthy for this to show
+    dependsOn?: string | { key: string; value: any | any[] }; // Key of property that must be truthy for this to show
 }
 
 export const properties: PropertyConfig[] = [
+    // ... (lines 18-271 same) ...
     // Canvas Properties
     {
         key: 'canvasBackgroundColor',
@@ -279,8 +280,7 @@ export const properties: PropertyConfig[] = [
         group: 'gradient',
         applicableTo: 'all',
         defaultValue: 45,
-        // Show only if fillStyle is linear
-        // We lack complex logic, so show always or rely on user
+        dependsOn: { key: 'fillStyle', value: ['linear'] }
     },
     // We need 2 color pickers.
     // Since my generic property panel binds directly to keys, I need these keys on the object.
@@ -290,7 +290,8 @@ export const properties: PropertyConfig[] = [
         type: 'color',
         group: 'gradient',
         applicableTo: 'all',
-        defaultValue: '#ffffff'
+        defaultValue: '#ffffff',
+        dependsOn: { key: 'fillStyle', value: ['linear', 'radial'] }
     },
     {
         key: 'gradientEnd',
@@ -298,7 +299,8 @@ export const properties: PropertyConfig[] = [
         type: 'color',
         group: 'gradient',
         applicableTo: 'all',
-        defaultValue: '#000000'
+        defaultValue: '#000000',
+        dependsOn: { key: 'fillStyle', value: ['linear', 'radial'] }
     },
     {
         key: 'shadowEnabled',
