@@ -163,6 +163,26 @@ const HelpDialog: Component<Props> = (props) => {
                                             <span class="shortcut-label">Delete</span>
                                             <div class="shortcut-keys"><span class="keycap">Del</span></div>
                                         </div>
+                                        {/* Mindmap Shortcuts */}
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Add Child Node</span>
+                                            <div class="shortcut-keys"><span class="keycap">Tab</span></div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Add Sibling Node</span>
+                                            <div class="shortcut-keys"><span class="keycap">Enter</span></div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Toggle Collapse</span>
+                                            <div class="shortcut-keys"><span class="keycap">Space</span></div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Toggle Selection</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Ctrl</span>
+                                                <span class="keycap">Click</span>
+                                            </div>
+                                        </div>
                                         <div class="shortcut-item">
                                             <span class="shortcut-label">Open File</span>
                                             <div class="shortcut-keys">

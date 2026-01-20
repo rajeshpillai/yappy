@@ -491,7 +491,7 @@
         }
       ],
       "parentId": "center-node",
-      "isCollapsed": true
+      "isCollapsed": false
     },
     {
       "id": "conn-blue",
