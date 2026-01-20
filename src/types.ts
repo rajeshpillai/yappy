@@ -85,6 +85,7 @@ export interface DrawingElement {
     starPoints?: number; // Number of points for star shapes (3-12, default: 5)
     polygonSides?: number; // Number of sides for polygon shapes (3-20, default: 6)
     borderRadius?: number; // Corner radius percentage (0-50, default: 0)
+    burstPoints?: number; // Number of points for burst shapes (8-32, default: 16)
 }
 
 export interface Layer {

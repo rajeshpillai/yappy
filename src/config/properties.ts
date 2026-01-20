@@ -412,6 +412,17 @@ export const properties: PropertyConfig[] = [
         group: 'dimensions',
         applicableTo: ['polygon'],
         defaultValue: 6
+    },
+    {
+        key: 'burstPoints',
+        label: 'Burst Rays',
+        type: 'slider',
+        min: 8,
+        max: 32,
+        step: 1,
+        group: 'dimensions',
+        applicableTo: ['burst'],
+        defaultValue: 16
     }
 ];
 

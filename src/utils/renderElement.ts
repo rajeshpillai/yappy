@@ -678,7 +678,7 @@ export const renderElement = (
         const cy = el.y + el.height / 2;
         const outerRadius = Math.min(Math.abs(el.width), Math.abs(el.height)) / 2;
         const innerRadius = outerRadius * 0.7;
-        const numPoints = 16;
+        const numPoints = el.burstPoints || 16;
         const points: [number, number][] = [];
 
         for (let i = 0; i < numPoints * 2; i++) {

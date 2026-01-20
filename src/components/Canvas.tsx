@@ -899,6 +899,7 @@ const Canvas: Component = () => {
             e.starPoints; // Track star points for parametric stars
             e.polygonSides; // Track polygon sides for parametric polygons
             e.borderRadius; // Track border radius
+            e.burstPoints; // Track burst points for parametric burst
         });
         store.viewState.scale;
         store.viewState.panX;
