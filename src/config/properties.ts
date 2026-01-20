@@ -193,7 +193,11 @@ export const properties: PropertyConfig[] = [
         options: [
             { label: 'Solid', value: 'solid' },
             { label: 'Hachure', value: 'hachure' },
-            { label: 'Cross-Hatch', value: 'cross-hatch' }
+            { label: 'Cross-Hatch', value: 'cross-hatch' },
+            { label: 'Zigzag', value: 'zigzag' },
+            { label: 'Dots', value: 'dots' },
+            { label: 'Dashed', value: 'dashed' },
+            { label: 'Zigzag Line', value: 'zigzag-line' }
         ],
         applicableTo: ['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField'],
         defaultValue: 'hachure'

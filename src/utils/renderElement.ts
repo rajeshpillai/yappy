@@ -162,7 +162,7 @@ export const renderElement = (
         fillStyle: fillStyle,
         strokeLineDash: el.strokeStyle === 'dashed' ? [10, 10] : (el.strokeStyle === 'dotted' ? [5, 10] : undefined),
         strokeLineJoin: el.strokeLineJoin || 'round',
-        strokeLineCap: 'round',
+        strokeLineCap: (el.strokeLineJoin === 'miter' || el.strokeLineJoin === 'bevel') ? 'butt' : 'round',
     };
 
     // Helper to draw arrowheads
@@ -352,6 +352,11 @@ export const renderElement = (
                 }
 
                 ctx.beginPath();
+                ctx.strokeStyle = isInner ? (el.innerBorderColor || strokeColor) : strokeColor;
+                ctx.lineWidth = el.strokeWidth;
+                ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
+                ctx.lineCap = 'round';
+
                 if (r > 0) {
                     const pathString = getRoundedDiamondPath(x, y, w, h, r);
                     const path = new Path2D(pathString);
@@ -364,11 +369,6 @@ export const renderElement = (
                     ctx.closePath();
                     ctx.stroke();
                 }
-
-                ctx.strokeStyle = isInner ? (el.innerBorderColor || strokeColor) : strokeColor;
-                ctx.lineWidth = el.strokeWidth;
-                ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
-                ctx.lineCap = 'round';
             } else {
                 if (r > 0) {
                     const path = getRoundedDiamondPath(x, y, w, h, r);
