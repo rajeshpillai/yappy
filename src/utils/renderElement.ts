@@ -814,7 +814,7 @@ export const renderElement = (
 
         // Ensure tail bases don't go beyond corners (consider radius 'r')
         // Tip x position relative to x
-        const tipXRel = w * tailPos;
+        // Base Center = Tip X + 0.1w (slanted right) or just simple logic.
         // Base of tail is some width around tipXRel
         // Base left = tipXRel - tailWidth/2, Base right = tipXRel + tailWidth/2?
         // Current hardcoded logic was:
@@ -847,8 +847,7 @@ export const renderElement = (
         // Let's say Base Center is at Tip X + 0.1w.
 
         const tipRelX = w * tailPos;
-        const baseLeftRelX = tipRelX + (w * 0.1);
-        const baseRightRelX = baseLeftRelX + tailWidth;
+        // const baseLeftRelX removed as unused
 
         // Re-clamping base to avoid corner radius issues would be complex but better.
         // Simplified Logic: 
@@ -881,8 +880,7 @@ export const renderElement = (
         }
 
         // Clamp bases to straight segment (between rX and w-rX)
-        const minBase = Math.min(Math.abs(w) / 2, r); // Safe corner
-        const maxBase = w - minBase;
+        // const minBase removed as unused
 
         // If calculated bases are outside corners, clamp/shift them?
         // For now, let properties 'min/max' handle most safety, but simple Math.max/min here helps
