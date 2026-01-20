@@ -874,10 +874,11 @@ export const renderElement = (
         const cy = el.y + el.height / 2;
         const outerRadius = Math.min(el.width, el.height) / 2;
         const innerRadius = outerRadius * 0.4;
+        const numPoints = el.starPoints || 5; // Use starPoints property, default to 5
         const points: [number, number][] = [];
 
-        for (let i = 0; i < 10; i++) {
-            const angle = (Math.PI / 5) * i - Math.PI / 2;
+        for (let i = 0; i < numPoints * 2; i++) {
+            const angle = (Math.PI / numPoints) * i - Math.PI / 2;
             const radius = i % 2 === 0 ? outerRadius : innerRadius;
             points.push([
                 cx + radius * Math.cos(angle),

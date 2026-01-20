@@ -82,6 +82,7 @@ export interface DrawingElement {
     autoResize?: boolean; // Auto-resize based on text
     parentId?: string | null;
     isCollapsed?: boolean;
+    starPoints?: number; // Number of points for star shapes (3-12, default: 5)
 }
 
 export interface Layer {

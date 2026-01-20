@@ -387,6 +387,17 @@ export const properties: PropertyConfig[] = [
         group: 'advanced',
         applicableTo: ['fineliner', 'inkbrush'],
         defaultValue: true
+    },
+    {
+        key: 'starPoints',
+        label: 'Star Points',
+        type: 'slider',
+        min: 3,
+        max: 12,
+        step: 1,
+        group: 'dimensions',
+        applicableTo: ['star'],
+        defaultValue: 5
     }
 ];
 

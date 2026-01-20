@@ -618,16 +618,36 @@
   - [ ] Confirm dialog for large batch operations (>10 items) <!-- Skipped for now, low priority -->
   - [x] Undo/redo support for batch transformations
 
+
 ## Phase 44: Structural Typography (Block Text)
-- [ ] Implement Alphabet Recipe Registry (A-Z)
-  - [ ] Define strokes for straight letters
-  - [ ] Define strokes for curved letters (Bezier support)
-- [ ] Implement `generateBlockText` engine
-  - [ ] Parsing and layout logic (kerning, spacing)
-  - [ ] Element instantiation (Lines/Beziers)
-  - [ ] Automatic grouping of generated text
-- [ ] UI Integration
-  - [ ] Add "Block Text" tool to toolbar
-  - [ ] Input dialog for text entry
-- [ ] Verification
-  - [ ] Verify legibility and styling capabilities
+- [x] Implement Alphabet Recipe Registry (A-Z)
+  - [x] Define strokes for straight letters
+  - [x] Define strokes for curved letters (Bezier support)
+- [x] Implement `generateBlockText` engine
+  - [x] Parsing and layout logic (kerning, spacing)
+  - [x] Element instantiation (Lines/Beziers)
+  - [x] Automatic grouping of generated text
+- [x] UI Integration
+  - [x] Add "Block Text" tool to toolbar
+  - [x] Input dialog for text entry
+- [x] Verification
+  - [x] Verify legibility and styling capabilities
+- [x] Improve group selection with bounding box hit detection
+
+## Phase 45: Advanced Shape Styling
+- [ ] **Parametric Star Shapes**
+  - [ ] Add `starPoints` property to DrawingElement (range: 3-12, default: 5)
+  - [ ] Update star rendering logic to be parametric
+  - [ ] Add slider control in PropertyPanel
+  - [ ] Test with different point counts
+- [ ] **Inner Radius for Rectangles/Shapes**
+  - [ ] Add `innerRadius` property (0-100% of shape size)
+  - [ ] Implement rounded inner corners rendering
+  - [ ] Add double-border support (`doubleBorder`, `innerBorderWidth`, `innerBorderColor`)
+  - [ ] Property panel controls
+- [ ] **Rough Paint Brush (Texture Fill)**
+  - [ ] Research RoughJS texture fill capabilities
+  - [ ] Implement custom watercolor/patches fill style
+  - [ ] Add as new fillStyle option: 'watercolor' or 'patches'
+  - [ ] Performance optimization for large shapes
+  - [ ] Property panel integration
