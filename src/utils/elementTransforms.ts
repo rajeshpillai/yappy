@@ -1,7 +1,7 @@
 import { store, updateElement } from "../store/appStore";
 import type { ElementType, DrawingElement } from "../types";
 
-export const changeElementType = (elementId: string, newType: ElementType) => {
+export const changeElementType = (elementId: string, newType: ElementType, pushHistory = true) => {
     const element = store.elements.find(e => e.id === elementId);
     if (!element) return;
 
@@ -64,7 +64,7 @@ export const changeElementType = (elementId: string, newType: ElementType) => {
         }
     }
 
-    updateElement(elementId, updates, true);
+    updateElement(elementId, updates, pushHistory);
 };
 
 export const getTransformOptions = (currentType: ElementType): ElementType[] => {

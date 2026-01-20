@@ -2973,53 +2973,99 @@ const Canvas: Component = () => {
                 }
             }
 
-            // Transform Shape (only for single selection)
-            if (selectionCount === 1) {
-                const el = store.elements.find(e => e.id === store.selection[0]);
-                if (el) {
-                    const transformOptions = getTransformOptions(el.type);
-                    if (transformOptions.length > 0) {
-                        items.push({
-                            label: 'Transform Shape',
-                            submenu: transformOptions.map(t => ({
-                                icon: getShapeIcon(t),
-                                tooltip: getShapeTooltip(t),
-                                onClick: () => {
-                                    changeElementType(store.selection[0], t);
-                                    requestAnimationFrame(draw);
-                                }
-                            })),
-                            gridColumns: 3
-                        });
-                    }
+            // Batch Transform Logic (Split by Family)
+            const allSelectedElements = store.selection.map(id => store.elements.find(e => e.id === id)).filter(Boolean) as DrawingElement[];
+
+            // Filter selection into families
+            const shapesInSelection = allSelectedElements.filter(el => {
+                const type = el.type;
+                return type !== 'line' && type !== 'arrow' && type !== 'bezier' && type !== 'organicBranch' && type !== 'text' && type !== 'image';
+            });
+
+            const connectorsInSelection = allSelectedElements.filter(el => {
+                const type = el.type;
+                return type === 'line' || type === 'arrow' || type === 'bezier' || type === 'organicBranch';
+            });
+
+            // 1. Transform Shapes
+            if (shapesInSelection.length > 0) {
+                let transformOptions = getTransformOptions(shapesInSelection[0].type);
+                const distinctTypes = new Set(shapesInSelection.map(e => e.type));
+
+                // If mixed types, allow converting to any of the present types as well (e.g. Rect+Circle -> convert all to Rect)
+                if (distinctTypes.size > 1) {
+                    transformOptions.push(shapesInSelection[0].type);
+                }
+
+                if (transformOptions.length > 0) {
+                    items.push({
+                        label: shapesInSelection.length > 1 ? `Transform ${shapesInSelection.length} Shapes` : 'Transform Shape',
+                        submenu: transformOptions.map(t => ({
+                            icon: getShapeIcon(t),
+                            tooltip: getShapeTooltip(t),
+                            onClick: () => {
+                                pushToHistory();
+                                shapesInSelection.forEach(el => changeElementType(el.id, t, false));
+                                requestAnimationFrame(draw);
+                            }
+                        })),
+                        gridColumns: 3
+                    });
                 }
             }
 
-            // Change Curve Style (for line/arrow connectors)
-            if (selectionCount === 1) {
-                const el = store.elements.find(e => e.id === store.selection[0]);
-                if (el && (el.type === 'line' || el.type === 'arrow')) {
-                    const currentCurveType = el.curveType || 'straight';
-                    const curveOptions = getCurveTypeOptions(currentCurveType);
-                    if (curveOptions.length > 0) {
-                        items.push({
-                            label: 'Change Curve Style',
-                            submenu: curveOptions.map(ct => ({
-                                icon: getCurveTypeIcon(ct),
-                                tooltip: getCurveTypeTooltip(ct),
-                                onClick: () => {
-                                    updateElement(store.selection[0], { curveType: ct as any }, true);
-                                    requestAnimationFrame(draw);
-                                }
-                            })),
-                            gridColumns: 3
-                        });
-                    }
+            // 2. Transform Connectors
+            if (connectorsInSelection.length > 0) {
+                let transformOptions = getTransformOptions(connectorsInSelection[0].type);
+                const distinctTypes = new Set(connectorsInSelection.map(e => e.type));
+
+                if (distinctTypes.size > 1) {
+                    transformOptions.push(connectorsInSelection[0].type);
+                }
+
+                if (transformOptions.length > 0) {
+                    items.push({
+                        label: connectorsInSelection.length > 1 ? `Transform ${connectorsInSelection.length} Connectors` : 'Transform Connector',
+                        submenu: transformOptions.map(t => ({
+                            icon: getShapeIcon(t),
+                            tooltip: getShapeTooltip(t),
+                            onClick: () => {
+                                pushToHistory();
+                                connectorsInSelection.forEach(el => changeElementType(el.id, t, false));
+                                requestAnimationFrame(draw);
+                            }
+                        })),
+                        gridColumns: 3
+                    });
                 }
             }
 
-            if (selectionCount === 2) {
-                // Remove the old flat version if it exists (redundant now but let's be clean)
+            // 3. Change Curve Style (Connectors only)
+            if (connectorsInSelection.length > 0) {
+                const firstEl = connectorsInSelection[0];
+                const currentCurveType = firstEl.curveType || 'straight';
+                const curveOptions = getCurveTypeOptions(currentCurveType);
+
+                const distinctCurveTypes = new Set(connectorsInSelection.map(e => e.curveType || 'straight'));
+                if (distinctCurveTypes.size > 1) {
+                    curveOptions.push(currentCurveType);
+                }
+
+                if (curveOptions.length > 0) {
+                    items.push({
+                        label: connectorsInSelection.length > 1 ? 'Change All Curve Styles' : 'Change Curve Style',
+                        submenu: curveOptions.map(ct => ({
+                            icon: getCurveTypeIcon(ct),
+                            tooltip: getCurveTypeTooltip(ct),
+                            onClick: () => {
+                                pushToHistory();
+                                connectorsInSelection.forEach(el => updateElement(el.id, { curveType: ct as any }, false));
+                                requestAnimationFrame(draw);
+                            }
+                        })),
+                        gridColumns: 3
+                    });
+                }
             }
 
             items.push({ separator: true });
