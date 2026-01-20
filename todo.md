@@ -603,17 +603,17 @@
   - [x] Fixed positioning for submenus to prevent clipping
 
 ## Phase 43: Batch Transform (Multi-Selection)
-- [ ] Batch connector transformation
-  - [ ] Enable Transform Shape menu for multi-selection of connectors
-  - [ ] Transform all selected connectors to chosen type (line/arrow/bezier/organicBranch)
-  - [ ] Preserve individual connector properties (bindings, positions, text)
-  - [ ] Support Change Curve Style for multiple connectors simultaneously
-- [ ] Batch shape transformation
-  - [ ] Enable Transform Shape menu for multi-selection of shapes
-  - [ ] Transform all selected shapes to chosen type
-  - [ ] Preserve individual shape properties (position, size, text, styles)
-  - [ ] Handle mixed selections (filter by type family)
-- [ ] UX enhancements
-  - [ ] Show count in menu label (e.g., "Transform 5 Shapes")
-  - [ ] Confirm dialog for large batch operations (>10 items)
-  - [ ] Undo/redo support for batch transformations
+- [x] Batch connector transformation
+  - [x] Enable Transform Shape menu for multi-selection of connectors
+  - [x] Transform all selected connectors to chosen type (line/arrow/bezier/organicBranch)
+  - [x] Preserve individual connector properties (bindings, positions, text)
+  - [x] Support Change Curve Style for multiple connectors simultaneously
+- [x] Batch shape transformation
+  - [x] Enable Transform Shape menu for multi-selection of shapes
+  - [x] Transform all selected shapes to chosen type
+  - [x] Preserve individual shape properties (position, size, text, styles)
+  - [x] Handle mixed selections (filter by type family)
+- [x] UX enhancements
+  - [x] Show count in menu label (e.g., "Transform 5 Shapes")
+  - [ ] Confirm dialog for large batch operations (>10 items) <!-- Skipped for now, low priority -->
+  - [x] Undo/redo support for batch transformations
