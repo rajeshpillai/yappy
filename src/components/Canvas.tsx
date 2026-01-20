@@ -1727,7 +1727,7 @@ const Canvas: Component = () => {
 
                 const isAllSelected = idsToSelect.every(id => store.selection.includes(id));
 
-                if (e.shiftKey) {
+                if (e.shiftKey || e.ctrlKey || e.metaKey) {
                     if (isAllSelected) {
                         // Toggle off
                         setStore('selection', s => s.filter(id => !idsToSelect.includes(id)));
@@ -1806,7 +1806,7 @@ const Canvas: Component = () => {
                     }
                 }
 
-                if (!e.shiftKey) {
+                if (!e.shiftKey && !e.ctrlKey && !e.metaKey) {
                     setStore('selection', []);
                     setShowCanvasProperties(false); // Hide canvas properties on click away
                 }
@@ -2509,7 +2509,7 @@ const Canvas: Component = () => {
                         }
                     });
 
-                    if (e.shiftKey) {
+                    if (e.shiftKey || e.ctrlKey || e.metaKey) {
                         // Add to existing
                         const existing = new Set(store.selection);
                         selectedIds.forEach(id => existing.add(id));
