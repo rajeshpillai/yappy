@@ -903,6 +903,39 @@ export const renderElement = (
         } else {
             rc.polygon(points, options);
         }
+    } else if (el.type === 'polygon') {
+        const cx = el.x + el.width / 2;
+        const cy = el.y + el.height / 2;
+        const radiusX = el.width / 2;
+        const radiusY = el.height / 2;
+        const sides = el.polygonSides || 6; // Default hexagon
+        const points: [number, number][] = [];
+
+        for (let i = 0; i < sides; i++) {
+            const angle = (2 * Math.PI / sides) * i - Math.PI / 2;
+            points.push([
+                cx + radiusX * Math.cos(angle),
+                cy + radiusY * Math.sin(angle)
+            ]);
+        }
+
+        if (el.renderStyle === 'architectural') {
+            if (backgroundColor) {
+                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            }
+            ctx.beginPath();
+            ctx.moveTo(points[0][0], points[0][1]);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i][0], points[i][1]);
+            }
+            ctx.closePath();
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+        } else {
+            rc.polygon(points, options);
+        }
     } else if (el.type === 'cloud') {
         // Cloud shape using overlapping circles (simplified)
         const cy = el.y + el.height / 2;

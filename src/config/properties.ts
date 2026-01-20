@@ -398,6 +398,17 @@ export const properties: PropertyConfig[] = [
         group: 'dimensions',
         applicableTo: ['star'],
         defaultValue: 5
+    },
+    {
+        key: 'polygonSides',
+        label: 'Polygon Sides',
+        type: 'slider',
+        min: 3,
+        max: 20,
+        step: 1,
+        group: 'dimensions',
+        applicableTo: ['polygon'],
+        defaultValue: 6
     }
 ];
 

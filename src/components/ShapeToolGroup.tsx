@@ -5,7 +5,7 @@ import {
     Triangle, Hexagon, Octagon, Square, Star, Cloud, Heart, X, Check,
     ArrowLeft, ArrowRight, ArrowUp, ArrowDown, ChevronDown,
     Pill, StickyNote, MessageSquare, MessageCircle, Zap, Bookmark, ChevronLeft, ChevronRight,
-    Database, FileText, Columns, Layers
+    Database, FileText, Columns, Layers, Pentagon
 } from "lucide-solid";
 import "./PenToolGroup.css"; // Reuse the same CSS
 
@@ -28,6 +28,7 @@ const shapeTools: { type: ElementType; icon: Component<{ size?: number; color?: 
     { type: 'octagon', icon: Octagon, label: 'Octagon' },
     { type: 'parallelogram', icon: Square, label: 'Parallelogram' },
     { type: 'star', icon: Star, label: 'Star' },
+    { type: 'polygon', icon: Pentagon, label: 'Polygon (Parametric)' },
     { type: 'cloud', icon: Cloud, label: 'Cloud' },
     { type: 'heart', icon: Heart, label: 'Heart' },
     { type: 'cross', icon: X, label: 'Cross (X)' },
