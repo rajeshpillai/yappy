@@ -98,7 +98,12 @@ export interface DrawingElement {
     shadowColor?: string;
     shadowBlur?: number;
     shadowOffsetX?: number;
-    shadowOffsetY?: number; // Density of fill patterns (0.1 - 5, default: 1)
+    shadowOffsetX?: number;
+    shadowOffsetY?: number;
+    // Gradient Properties
+    gradientStart?: string;
+    gradientEnd?: string;
+    gradientDirection?: number; // Angle in degrees (0-360)
 }
 
 export interface Layer {

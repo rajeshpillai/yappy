@@ -895,10 +895,10 @@ const Canvas: Component = () => {
             e.shapeRatio; // Track shape ratio (sharpness)
             e.drawInnerBorder; // Track double border toggle
             e.innerBorderDistance; // Track double border distance
-            e.drawInnerBorder; // Track double border toggle
-            e.innerBorderDistance; // Track double border distance
             e.strokeLineJoin; // Track corner style
             e.fillDensity; // Track fill density
+            // Track gradient properties
+            e.gradientStart; e.gradientEnd; e.gradientDirection;
             // Track shadow properties
             e.shadowEnabled; e.shadowColor; e.shadowBlur; e.shadowOffsetX; e.shadowOffsetY;
         });

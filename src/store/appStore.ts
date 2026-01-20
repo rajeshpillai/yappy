@@ -66,7 +66,10 @@ const initialState: AppState = {
         shadowColor: 'rgba(0,0,0,0.3)',
         shadowBlur: 10,
         shadowOffsetX: 5,
-        shadowOffsetY: 5
+        shadowOffsetY: 5,
+        gradientStart: '#ffffff',
+        gradientEnd: '#000000',
+        gradientDirection: 45
     },
     theme: (localStorage.getItem('theme') as 'light' | 'dark') || 'light',
     layers: [

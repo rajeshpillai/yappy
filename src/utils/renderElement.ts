@@ -168,7 +168,68 @@ export const renderElement = (
     const baseGap = 5; // Standard roughjs gap
     const hachureGap = Math.max(0.5, baseGap / density); // Prevent 0 or infinite density
 
-    // RoughJS Options
+    // Gradient & Fill Logic
+    let fillStyleToUse = fillStyle;
+    let fillToUse = backgroundColor;
+
+    // Handle Gradients
+    if (el.gradientStart && el.gradientEnd && (fillStyle === 'linear' || fillStyle === 'radial')) {
+        ctx.save();
+        // Move to element center to use local coordinates
+        // The outer transform already rotated around (cx, cy) roughly, but applied T(c)R T(-c)
+        // If we T(c) now, we get T(c)R T(-c) T(c) = T(c)R. Origin is at center, axes rotated.
+        ctx.translate(cx, cy);
+
+        const w = el.width;
+        const h = el.height;
+        const mw = w / 2;
+        const mh = h / 2;
+
+        if (fillStyle === 'linear') {
+            const angleRad = (el.gradientDirection || 45) * (Math.PI / 180);
+            const r = Math.sqrt(mw ** 2 + mh ** 2);
+
+            // Local Coordinates centered at 0,0
+            const x1 = -Math.cos(angleRad) * r;
+            const y1 = -Math.sin(angleRad) * r;
+            const x2 = Math.cos(angleRad) * r;
+            const y2 = Math.sin(angleRad) * r;
+
+            const grad = ctx.createLinearGradient(x1, y1, x2, y2);
+            grad.addColorStop(0, el.gradientStart);
+            grad.addColorStop(1, el.gradientEnd);
+            ctx.fillStyle = grad;
+        } else {
+            // Radial (at 0,0)
+            const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, Math.max(w, h) / 2);
+            grad.addColorStop(0, el.gradientStart);
+            grad.addColorStop(1, el.gradientEnd);
+            ctx.fillStyle = grad;
+        }
+
+        // Draw shape path for filling at local coords
+        ctx.beginPath();
+        if (el.type === 'rectangle' || el.type === 'image' || el.type === 'text') {
+            // Rect top-left is (-mw, -mh)
+            ctx.roundRect(-mw, -mh, w, h, el.roundness ? 10 : 0);
+        } else if (el.type === 'circle') {
+            // Ellipse center is (0,0)
+            ctx.ellipse(0, 0, mw, mh, 0, 0, Math.PI * 2);
+        } else if (el.points && el.points.length > 0) {
+            // Polygon points are global. Need to shift them to local (0,0)
+            // pt.x - cx, pt.y - cy
+            ctx.moveTo(el.points[0].x - cx, el.points[0].y - cy);
+            for (let i = 1; i < el.points.length; i++) {
+                ctx.lineTo(el.points[i].x - cx, el.points[i].y - cy);
+            }
+            ctx.closePath();
+        }
+        ctx.fill();
+        ctx.restore();
+
+        fillToUse = 'transparent';
+        fillStyleToUse = 'solid';
+    }
     const options: any = {
         seed: el.seed,
         // For architectural style, we want straight lines without randomness
@@ -176,19 +237,15 @@ export const renderElement = (
         bowing: el.renderStyle === 'architectural' ? 0 : 1, // Minimize bowing for archi style
         stroke: strokeColor,
         strokeWidth: el.strokeWidth,
-        fill: backgroundColor,
-        fillStyle: fillStyle,
+        fill: fillToUse,
+        fillStyle: fillStyleToUse,
+        fillWeight: el.fillDensity ? el.fillDensity / 2 : undefined, // Map density to weight
+        hachureGap: hachureGap,
         strokeLineDash: el.strokeStyle === 'dashed' ? [10, 10] : (el.strokeStyle === 'dotted' ? [5, 10] : undefined),
         strokeLineJoin: el.strokeLineJoin || 'round',
         strokeLineCap: (el.strokeLineJoin === 'miter' || el.strokeLineJoin === 'bevel') ? 'butt' : 'round',
-        hachureGap: hachureGap,
         hachureAngle: -41 + (el.seed % 360), // Add some randomness to angle if needed, or keep fixed
     };
-
-    // Ensure seed is valid (RoughJS might behave randomly with seed 0)
-    if (!options.seed) {
-        options.seed = 1;
-    }
 
     // Custom Deterministic 'Dots' Fill Logic
     let customDotsDraw: (() => void) | null = null;
@@ -328,12 +385,14 @@ export const renderElement = (
             }
 
             if (el.renderStyle === 'architectural') {
-                if (!isInner && backgroundColor && fillStyle !== 'dots') { // Skip if dots (handled manually) or empty
+                // Use options.fill (which respects gradient logic) instead of forced backgroundColor
+                const fillVisible = options.fill && options.fill !== 'transparent' && options.fill !== 'none';
+                if (!isInner && fillVisible && fillStyle !== 'dots') {
                     if (r > 0) {
                         const path = getRoundedRectPath(x, y, w, h, r);
-                        rc.path(path, { ...opts, stroke: 'none', fill: backgroundColor });
+                        rc.path(path, { ...opts, stroke: 'none', fill: options.fill });
                     } else {
-                        rc.rectangle(x, y, w, h, { ...opts, stroke: 'none', fill: backgroundColor });
+                        rc.rectangle(x, y, w, h, { ...opts, stroke: 'none', fill: options.fill });
                     }
                 }
 
@@ -390,8 +449,10 @@ export const renderElement = (
                 const rx = Math.abs(w) / 2;
                 const ry = Math.abs(h) / 2;
 
-                if (!isInner && backgroundColor && fillStyle !== 'dots') {
-                    rc.ellipse(cx, cy, Math.abs(w), Math.abs(h), { ...options, stroke: 'none', fill: backgroundColor });
+                // Use options.fill to respect gradient logic
+                const fillVisible = options.fill && options.fill !== 'transparent' && options.fill !== 'none';
+                if (!isInner && fillVisible && fillStyle !== 'dots') {
+                    rc.ellipse(cx, cy, Math.abs(w), Math.abs(h), { ...options, stroke: 'none', fill: options.fill });
                 }
 
                 ctx.beginPath();
@@ -453,12 +514,13 @@ export const renderElement = (
             }
 
             if (el.renderStyle === 'architectural') {
-                if (!isInner && backgroundColor && fillStyle !== 'dots') {
+                const fillVisible = options.fill && options.fill !== 'transparent' && options.fill !== 'none';
+                if (!isInner && fillVisible && fillStyle !== 'dots') {
                     if (r > 0) {
                         const path = getRoundedDiamondPath(x, y, w, h, r);
-                        rc.path(path, { ...opts, stroke: 'none', fill: backgroundColor });
+                        rc.path(path, { ...opts, stroke: 'none', fill: options.fill });
                     } else {
-                        rc.polygon(points, { ...opts, stroke: 'none', fill: backgroundColor });
+                        rc.polygon(points, { ...opts, stroke: 'none', fill: options.fill });
                     }
                 }
 
@@ -526,8 +588,9 @@ export const renderElement = (
             }
 
             if (el.renderStyle === 'architectural') {
-                if (!isInner && backgroundColor && fillStyle !== 'dots') {
-                    rc.polygon(points, { ...opts, stroke: 'none', fill: backgroundColor });
+                const fillVisible = options.fill && options.fill !== 'transparent' && options.fill !== 'none';
+                if (!isInner && fillVisible && fillStyle !== 'dots') {
+                    rc.polygon(points, { ...opts, stroke: 'none', fill: options.fill });
                 }
                 ctx.beginPath();
                 ctx.moveTo(points[0][0], points[0][1]);
@@ -572,8 +635,9 @@ export const renderElement = (
         }
 
         if (el.renderStyle === 'architectural') {
-            if (backgroundColor) {
-                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            const fillVisible = options.fill && options.fill !== 'transparent' && options.fill !== 'none';
+            if (fillVisible) {
+                rc.polygon(points, { ...options, stroke: 'none', fill: options.fill });
             }
             ctx.beginPath();
             ctx.moveTo(points[0][0], points[0][1]);
@@ -604,8 +668,9 @@ export const renderElement = (
         }
 
         if (el.renderStyle === 'architectural') {
-            if (backgroundColor) {
-                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            const fillVisible = options.fill && options.fill !== 'transparent' && options.fill !== 'none';
+            if (fillVisible) {
+                rc.polygon(points, { ...options, stroke: 'none', fill: options.fill });
             }
             ctx.beginPath();
             ctx.moveTo(points[0][0], points[0][1]);
@@ -630,8 +695,9 @@ export const renderElement = (
         ];
 
         if (el.renderStyle === 'architectural') {
-            if (backgroundColor) {
-                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            const fillVisible = options.fill && options.fill !== 'transparent' && options.fill !== 'none';
+            if (fillVisible) {
+                rc.polygon(points, { ...options, stroke: 'none', fill: options.fill });
             }
             ctx.beginPath();
             ctx.moveTo(points[0][0], points[0][1]);
@@ -656,8 +722,9 @@ export const renderElement = (
         ];
 
         if (el.renderStyle === 'architectural') {
-            if (backgroundColor) {
-                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            const fillVisible = options.fill && options.fill !== 'transparent' && options.fill !== 'none';
+            if (fillVisible) {
+                rc.polygon(points, { ...options, stroke: 'none', fill: options.fill });
             }
             ctx.beginPath();
             ctx.moveTo(points[0][0], points[0][1]);
@@ -678,8 +745,9 @@ export const renderElement = (
         ];
 
         if (el.renderStyle === 'architectural') {
-            if (backgroundColor) {
-                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            const fillVisible = options.fill && options.fill !== 'transparent' && options.fill !== 'none';
+            if (fillVisible) {
+                rc.polygon(points, { ...options, stroke: 'none', fill: options.fill });
             }
             ctx.beginPath();
             ctx.moveTo(points[0][0], points[0][1]);
@@ -709,8 +777,9 @@ export const renderElement = (
         }
 
         if (el.renderStyle === 'architectural') {
-            if (backgroundColor) {
-                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            const fillVisible = options.fill && options.fill !== 'transparent' && options.fill !== 'none';
+            if (fillVisible) {
+                rc.polygon(points, { ...options, stroke: 'none', fill: options.fill });
             }
             ctx.beginPath();
             ctx.moveTo(points[0][0], points[0][1]);
@@ -728,8 +797,9 @@ export const renderElement = (
         const path = getRoundedRectPath(el.x, el.y, el.width, el.height, radius);
 
         if (el.renderStyle === 'architectural') {
-            if (backgroundColor) {
-                ctx.fillStyle = backgroundColor;
+            const fillVisible = options.fill && options.fill !== 'transparent' && options.fill !== 'none';
+            if (fillVisible) {
+                ctx.fillStyle = options.fill;
                 ctx.fill(new Path2D(path));
             }
             ctx.strokeStyle = strokeColor;
@@ -759,9 +829,10 @@ export const renderElement = (
         ];
 
         if (el.renderStyle === 'architectural') {
-            if (backgroundColor) {
-                rc.polygon(mainPoints, { ...options, stroke: 'none', fill: backgroundColor });
-                rc.polygon(foldPoints, { ...options, stroke: 'none', fill: backgroundColor, fillStyle: 'solid', opacity: 0.3 });
+            const fillVisible = options.fill && options.fill !== 'transparent' && options.fill !== 'none';
+            if (fillVisible) {
+                rc.polygon(mainPoints, { ...options, stroke: 'none', fill: options.fill });
+                rc.polygon(foldPoints, { ...options, stroke: 'none', fill: options.fill, fillStyle: 'solid', opacity: 0.3 });
             }
             ctx.beginPath();
             ctx.moveTo(mainPoints[0][0], mainPoints[0][1]);

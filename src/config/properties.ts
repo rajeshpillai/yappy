@@ -10,7 +10,7 @@ export interface PropertyConfig {
     step?: number;
     applicableTo: (ElementType | 'canvas')[] | 'all';
     defaultValue?: any;
-    group: 'style' | 'stroke' | 'background' | 'text' | 'dimensions' | 'advanced' | 'canvas' | 'shadow';
+    group: 'style' | 'stroke' | 'background' | 'text' | 'dimensions' | 'advanced' | 'canvas' | 'shadow' | 'gradient';
     dependsOn?: string; // Key of property that must be truthy for this to show
 }
 
@@ -197,7 +197,9 @@ export const properties: PropertyConfig[] = [
             { label: 'Zigzag', value: 'zigzag' },
             { label: 'Dots', value: 'dots' },
             { label: 'Dashed', value: 'dashed' },
-            { label: 'Zigzag Line', value: 'zigzag-line' }
+            { label: 'Zigzag Line', value: 'zigzag-line' },
+            { label: 'Linear Gradient', value: 'linear' },
+            { label: 'Radial Gradient', value: 'radial' }
         ],
         applicableTo: ['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField'],
         defaultValue: 'hachure'
@@ -266,7 +268,38 @@ export const properties: PropertyConfig[] = [
         applicableTo: 'all',
         defaultValue: 100
     },
-    // Shadow Properties
+    // Gradient Properties
+    {
+        key: 'gradientDirection',
+        label: 'Direction (Deg)',
+        type: 'slider',
+        min: 0,
+        max: 360,
+        step: 15,
+        group: 'gradient',
+        applicableTo: 'all',
+        defaultValue: 45,
+        // Show only if fillStyle is linear
+        // We lack complex logic, so show always or rely on user
+    },
+    // We need 2 color pickers.
+    // Since my generic property panel binds directly to keys, I need these keys on the object.
+    {
+        key: 'gradientStart',
+        label: 'Start Color',
+        type: 'color',
+        group: 'gradient',
+        applicableTo: 'all',
+        defaultValue: '#ffffff'
+    },
+    {
+        key: 'gradientEnd',
+        label: 'End Color',
+        type: 'color',
+        group: 'gradient',
+        applicableTo: 'all',
+        defaultValue: '#000000'
+    },
     {
         key: 'shadowEnabled',
         label: 'Drop Shadow',
