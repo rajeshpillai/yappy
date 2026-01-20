@@ -247,17 +247,20 @@ export const renderElement = (
                     drawGeometry(geometry);
                 }
             }
-        } else if (el.points && el.points.length > 0) {
-            // Fallback for generic lines/arrows if not caught by geometry
-            ctx.beginPath();
-            // Polygon points are global. Need to shift them to local (0,0)
-            // pt.x - cx, pt.y - cy
-            ctx.moveTo(el.points[0].x - cx, el.points[0].y - cy);
-            for (let i = 1; i < el.points.length; i++) {
-                ctx.lineTo(el.points[i].x - cx, el.points[i].y - cy);
+        } else {
+            const normalizedPoints = normalizePoints(el.points);
+            if (normalizedPoints.length > 0) {
+                // Fallback for generic lines/arrows if not caught by geometry
+                ctx.beginPath();
+                // Polygon points are global. Need to shift them to local (0,0)
+                // pt.x - cx, pt.y - cy
+                ctx.moveTo(normalizedPoints[0].x - cx, normalizedPoints[0].y - cy);
+                for (let i = 1; i < normalizedPoints.length; i++) {
+                    ctx.lineTo(normalizedPoints[i].x - cx, normalizedPoints[i].y - cy);
+                }
+                ctx.closePath();
+                ctx.fill();
             }
-            ctx.closePath();
-            ctx.fill();
         }
 
         ctx.restore();

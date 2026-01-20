@@ -59,7 +59,6 @@ const initialState: AppState = {
         textAlign: 'left',
         startArrowhead: null,
         endArrowhead: null,
-        endArrowhead: null,
         autoResize: true,
         seed: 0,
         shadowEnabled: false,
