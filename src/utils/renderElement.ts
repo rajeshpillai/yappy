@@ -1,5 +1,6 @@
 import type { DrawingElement } from "../types";
 import type { RoughCanvas } from "roughjs/bin/canvas";
+import { getShapeGeometry } from "./shapeGeometry";
 import { getImage } from "./imageCache";
 import { measureContainerText, getFontString } from "./textUtils";
 
@@ -207,15 +208,48 @@ export const renderElement = (
             ctx.fillStyle = grad;
         }
 
-        // Draw shape path for filling at local coords
-        ctx.beginPath();
-        if (el.type === 'rectangle' || el.type === 'image' || el.type === 'text') {
-            // Rect top-left is (-mw, -mh)
-            ctx.roundRect(-mw, -mh, w, h, el.roundness ? 10 : 0);
-        } else if (el.type === 'circle') {
-            // Ellipse center is (0,0)
-            ctx.ellipse(0, 0, mw, mh, 0, 0, Math.PI * 2);
+
+        // Unified Gradient Rendering using ShapeGeometry
+        const geometry = getShapeGeometry(el);
+
+        if (geometry) {
+            const drawGeometry = (geo: any) => {
+                if (geo.type === 'rect') {
+                    ctx.roundRect(geo.x, geo.y, geo.w, geo.h, geo.r || 0);
+                } else if (geo.type === 'ellipse') {
+                    ctx.ellipse(geo.cx, geo.cy, geo.rx, geo.ry, 0, 0, Math.PI * 2);
+                } else if (geo.type === 'points') {
+                    if (geo.points.length > 0) {
+                        ctx.moveTo(geo.points[0].x, geo.points[0].y);
+                        for (let i = 1; i < geo.points.length; i++) ctx.lineTo(geo.points[i].x, geo.points[i].y);
+                        ctx.closePath();
+                    }
+                } else if (geo.type === 'path') {
+                    ctx.fill(new Path2D(geo.path)); // Fill immediately for path to handle rules
+                } else if (geo.type === 'multi') {
+                    geo.shapes.forEach((s: any) => drawGeometry(s));
+                }
+            };
+
+            ctx.beginPath();
+            if (geometry.type !== 'path' && geometry.type !== 'multi') {
+                drawGeometry(geometry);
+                ctx.fill();
+            } else {
+                // specific handling for path/multi which might do their own fills or accumulated path
+                if (geometry.type === 'multi') {
+                    // For multi-shapes, we need to build one big path or fill each?
+                    // If we fill each, they overlap.
+                    // Better to just call drawGeometry which fills specific paths or builds path
+                    drawGeometry(geometry);
+                } else {
+                    // Path type already filled in helper
+                    drawGeometry(geometry);
+                }
+            }
         } else if (el.points && el.points.length > 0) {
+            // Fallback for generic lines/arrows if not caught by geometry
+            ctx.beginPath();
             // Polygon points are global. Need to shift them to local (0,0)
             // pt.x - cx, pt.y - cy
             ctx.moveTo(el.points[0].x - cx, el.points[0].y - cy);
@@ -223,8 +257,9 @@ export const renderElement = (
                 ctx.lineTo(el.points[i].x - cx, el.points[i].y - cy);
             }
             ctx.closePath();
+            ctx.fill();
         }
-        ctx.fill();
+
         ctx.restore();
 
         fillToUse = 'transparent';

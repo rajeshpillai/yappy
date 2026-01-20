@@ -22,6 +22,9 @@ This document describes the supported properties, attributes, and implementation
 | `roughness` | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | Sloppiness (RoughJS) |
 | `roundness` | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | Rounded corners toggle |
 | `containerText` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | Internal label content |
+| `shadowEnabled` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Drop shadow toggle |
+| `gradientStart` | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | Linear/Radial start color |
+| `gradientDirection`| ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | Gradient Angle |
 
 > ¹ **Polygons** include: Hexagon, Octagon, Star, Cloud, Heart, Arrow (Left/Right/Up/Down), Capsule, Sticky Note, Speech Bubble, Database, Document, etc.
 
