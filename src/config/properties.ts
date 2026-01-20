@@ -423,6 +423,17 @@ export const properties: PropertyConfig[] = [
         group: 'dimensions',
         applicableTo: ['burst'],
         defaultValue: 16
+    },
+    {
+        key: 'tailPosition',
+        label: 'Tip Position',
+        type: 'slider',
+        min: 10,
+        max: 90,
+        step: 5,
+        group: 'dimensions',
+        applicableTo: ['speechBubble'],
+        defaultValue: 20
     }
 ];
 

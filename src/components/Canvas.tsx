@@ -900,6 +900,7 @@ const Canvas: Component = () => {
             e.polygonSides; // Track polygon sides for parametric polygons
             e.borderRadius; // Track border radius
             e.burstPoints; // Track burst points for parametric burst
+            e.tailPosition; // Track tail position for speech bubble
         });
         store.viewState.scale;
         store.viewState.panX;

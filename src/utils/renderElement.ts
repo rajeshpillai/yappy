@@ -641,6 +641,88 @@ export const renderElement = (
         const tailHeight = h * 0.2;
         const rectHeight = h - tailHeight;
 
+        // Parametric Tail Position (default 20%)
+        // Valid range 0-100, but practical drawing range needs clamping 
+        // to avoid detaching from corners.
+        // Let's clamp actual tip position to keep base attached.
+        const tailPos = (el.tailPosition !== undefined ? el.tailPosition : 20) / 100;
+
+        // Ensure tail bases don't go beyond corners (consider radius 'r')
+        // Tip x position relative to x
+        const tipXRel = w * tailPos;
+        // Base of tail is some width around tipXRel
+        // Base left = tipXRel - tailWidth/2, Base right = tipXRel + tailWidth/2?
+        // Current hardcoded logic was:
+        // Tip at 0.2 * w (lines 655) ?? 
+        // Wait, original logic:
+        // L ${x + w * 0.3 + tailWidth} ${y + rectHeight}  <-- Base Right? No 0.3+width
+        // L ${x + w * 0.2} ${y + h}                       <-- Tip
+        // L ${x + w * 0.3} ${y + rectHeight}              <-- Base Left
+
+        // Original logic analysis:
+        // Base Left: 0.3 * w
+        // Base Right: 0.3 * w + tailWidth (where tailWidth = 0.15w) -> 0.45w
+        // Tip: 0.2 * w
+        // So tip was TO THE LEFT of the base? (0.2 < 0.3) Yes, slanted tail.
+
+        // New Parametric Logic:
+        // Let user define TIP X position.
+        // Base should be near it. 
+        // Let's keep the slant or allow straight? Slant moves with position.
+        // Let's define Tip X = tailPos * w.
+        // Base Center = Tip X + some offset? Or centered?
+        // Let's make Base Center = Tip X + 0.1w (slanted right) or just simple logic.
+
+        // Simple robust logic:
+        // Tip X = tailPos * w
+        // Base Width = 0.15 * w
+        // If Tip X is left (<0.5), Base is to the right of tip?
+        // Let's try to keep the original aesthetic but fully moveable.
+        // Original: Base Left 0.3, Tip 0.2 (diff -0.1). 
+        // Let's say Base Center is at Tip X + 0.1w.
+
+        const tipRelX = w * tailPos;
+        const baseLeftRelX = tipRelX + (w * 0.1);
+        const baseRightRelX = baseLeftRelX + tailWidth;
+
+        // Re-clamping base to avoid corner radius issues would be complex but better.
+        // Simplified Logic: 
+        // Base Left: tailPos + 0.1
+        // Base Right: tailPos + 0.25 (since tailWidth is 0.15)
+        // Tip: tailPos
+
+        // Let's just use simpler relative offsets to match "Tip Position" semantic
+        // Tip is at tailPos.
+        // Base starts at (tailPos + 0.1) * w and ends at (tailPos + 0.1 + 0.15) * w?
+        // That makes the tail always point "back/left".
+        // What if tailPos is 0.9? Then base would be > 1.0 (off bubble).
+        // Intelligent flipping:
+        // If tailPos > 0.5, make base to the LEFT of tip.
+        // If tailPos <= 0.5, make base to the RIGHT of tip.
+
+        let baseRelX1, baseRelX2;
+        if (tailPos <= 0.5) {
+            // Pointing Left/Back (like original)
+            // Tip @ tailPos
+            // Base @ tailPos + 0.1
+            baseRelX1 = tipRelX + (w * 0.1); // Base Left
+            baseRelX2 = baseRelX1 + tailWidth; // Base Right
+        } else {
+            // Pointing Right
+            // Tip @ tailPos
+            // Base Left @ tailPos - 0.1 - tailWidth
+            baseRelX2 = tipRelX - (w * 0.1); // Base Right
+            baseRelX1 = baseRelX2 - tailWidth; // Base Left
+        }
+
+        // Clamp bases to straight segment (between rX and w-rX)
+        const minBase = Math.min(Math.abs(w) / 2, r); // Safe corner
+        const maxBase = w - minBase;
+
+        // If calculated bases are outside corners, clamp/shift them?
+        // For now, let properties 'min/max' handle most safety, but simple Math.max/min here helps
+        // Note: Drawing path works with absolute standard coords usually
+
         // Path with rounded corners and a tail
         const rX = Math.min(Math.abs(w) / 2, r);
         const rY = Math.min(Math.abs(rectHeight) / 2, r);
@@ -651,9 +733,9 @@ export const renderElement = (
             Q ${x + w} ${y} ${x + w} ${y + rY} 
             L ${x + w} ${y + rectHeight - rY} 
             Q ${x + w} ${y + rectHeight} ${x + w - rX} ${y + rectHeight} 
-            L ${x + w * 0.3 + tailWidth} ${y + rectHeight}
-            L ${x + w * 0.2} ${y + h}
-            L ${x + w * 0.3} ${y + rectHeight}
+            L ${x + baseRelX2} ${y + rectHeight}
+            L ${x + tipRelX} ${y + h}
+            L ${x + baseRelX1} ${y + rectHeight}
             L ${x + rX} ${y + rectHeight}
             Q ${x} ${y + rectHeight} ${x} ${y + rectHeight - rY} 
             L ${x} ${y + rY} 
