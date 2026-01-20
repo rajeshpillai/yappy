@@ -88,6 +88,9 @@ export interface DrawingElement {
     burstPoints?: number; // Number of points for burst shapes (8-32, default: 16)
     tailPosition?: number; // Tail position percentage (0-100, default: 20)
     shapeRatio?: number; // Inner/Outer radius ratio percentage (10-90, default: var)
+    drawInnerBorder?: boolean; // Toggle for double border
+    innerBorderColor?: string; // Optional color (defaults to strokeColor if null)
+    innerBorderDistance?: number; // Distance from outer border (padding)
 }
 
 export interface Layer {

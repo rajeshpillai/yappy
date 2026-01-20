@@ -242,143 +242,194 @@ export const renderElement = (
             ? Math.min(Math.abs(el.width), Math.abs(el.height)) * (el.borderRadius / 100)
             : (el.roundness ? Math.min(Math.abs(el.width), Math.abs(el.height)) * 0.15 : 0);
 
-        if (el.renderStyle === 'architectural') {
-            if (backgroundColor) {
-                // Fill using RoughJS (sketchy fill) but no stroke
-                // 'none' or transparent stroke ensures only fill is drawn
-                // If radius > 0, we can't easily use rc.rectangle for fill as it doesn't support radius well without path
-                // So use rc.path for filled rounded rect
-                if (radius > 0) {
-                    const path = getRoundedRectPath(el.x, el.y, el.width, el.height, radius);
-                    rc.path(path, { ...options, stroke: 'none', fill: backgroundColor });
+        // Helper to draw rect
+        const drawRect = (x: number, y: number, w: number, h: number, r: number, isInner = false) => {
+            const opts = isInner ? { ...options, stroke: el.innerBorderColor || strokeColor, fill: 'none' } : options;
+
+            if (el.renderStyle === 'architectural') {
+                if (!isInner && backgroundColor) {
+                    if (r > 0) {
+                        const path = getRoundedRectPath(x, y, w, h, r);
+                        rc.path(path, { ...opts, stroke: 'none', fill: backgroundColor });
+                    } else {
+                        rc.rectangle(x, y, w, h, { ...opts, stroke: 'none', fill: backgroundColor });
+                    }
+                }
+
+                ctx.beginPath();
+                if (ctx.roundRect) {
+                    ctx.roundRect(x, y, w, h, r);
                 } else {
-                    rc.rectangle(el.x, el.y, el.width, el.height, { ...options, stroke: 'none', fill: backgroundColor });
+                    ctx.rect(x, y, w, h);
+                }
+                ctx.strokeStyle = isInner ? (el.innerBorderColor || strokeColor) : strokeColor;
+                ctx.lineWidth = el.strokeWidth;
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+                ctx.stroke();
+            } else {
+                if (r > 0) {
+                    const path = getRoundedRectPath(x, y, w, h, r);
+                    rc.path(path, opts);
+                } else {
+                    rc.rectangle(x, y, w, h, opts);
                 }
             }
-            // Outline using native Canvas (perfect straight lines)
-            ctx.beginPath();
-            if (ctx.roundRect) {
-                ctx.roundRect(el.x, el.y, el.width, el.height, radius);
-            } else {
-                ctx.rect(el.x, el.y, el.width, el.height);
-            }
-            ctx.strokeStyle = strokeColor;
-            ctx.lineWidth = el.strokeWidth;
-            ctx.lineJoin = 'round'; // Ensure smooth corners
-            ctx.lineCap = 'round';
-            ctx.stroke();
-        } else {
-            // Sketch Style
-            // Check for roundness or borderRadius
-            if (radius > 0) {
-                const path = getRoundedRectPath(el.x, el.y, el.width, el.height, radius);
-                rc.path(path, options);
-            } else {
-                rc.rectangle(el.x, el.y, el.width, el.height, options);
+        };
+
+        // Draw Outer
+        drawRect(el.x, el.y, el.width, el.height, radius);
+
+        // Draw Inner
+        if (el.drawInnerBorder) {
+            const dist = el.innerBorderDistance || 5;
+            if (el.width > dist * 2 && el.height > dist * 2) {
+                const innerR = Math.max(0, radius - dist);
+                drawRect(el.x + dist, el.y + dist, el.width - dist * 2, el.height - dist * 2, innerR, true);
             }
         }
     } else if (el.type === 'circle') {
-        if (el.renderStyle === 'architectural') {
-            const rx = Math.abs(el.width) / 2;
-            const ry = Math.abs(el.height) / 2;
-            const cx = el.x + el.width / 2;
-            const cy = el.y + el.height / 2;
+        // Helper to draw circle
+        const drawCircle = (x: number, y: number, w: number, h: number, isInner = false) => {
+            const opts = isInner ? { ...options, stroke: el.innerBorderColor || strokeColor, fill: 'none' } : options;
 
-            if (backgroundColor) {
-                rc.ellipse(cx, cy, Math.abs(el.width), Math.abs(el.height), { ...options, stroke: 'none', fill: backgroundColor });
+            if (el.renderStyle === 'architectural') {
+                const cx = x + w / 2;
+                const cy = y + h / 2;
+                const rx = Math.abs(w) / 2;
+                const ry = Math.abs(h) / 2;
+
+                if (!isInner && backgroundColor) {
+                    rc.ellipse(cx, cy, Math.abs(w), Math.abs(h), { ...options, stroke: 'none', fill: backgroundColor });
+                }
+
+                ctx.beginPath();
+                ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+                ctx.strokeStyle = isInner ? (el.innerBorderColor || strokeColor) : strokeColor;
+                ctx.lineWidth = el.strokeWidth;
+                ctx.stroke();
+            } else {
+                rc.ellipse(x + w / 2, y + h / 2, Math.abs(w), Math.abs(h), opts);
             }
+        };
 
-            ctx.beginPath();
-            ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-            ctx.strokeStyle = strokeColor;
-            ctx.lineWidth = el.strokeWidth;
-            ctx.stroke();
-        } else {
-            // Circles are already round!
-            rc.ellipse(el.x + el.width / 2, el.y + el.height / 2, Math.abs(el.width), Math.abs(el.height), options);
+        drawCircle(el.x, el.y, el.width, el.height);
+
+        if (el.drawInnerBorder) {
+            const dist = el.innerBorderDistance || 5;
+            if (el.width > dist * 2 && el.height > dist * 2) {
+                drawCircle(el.x + dist, el.y + dist, el.width - dist * 2, el.height - dist * 2, true);
+            }
         }
     } else if (el.type === 'diamond') {
-        const cx = el.x + el.width / 2;
-        const cy = el.y + el.height / 2;
-        const points: [number, number][] = [
-            [cx, el.y],
-            [el.x + el.width, cy],
-            [cx, el.y + el.height],
-            [el.x, cy]
-        ];
-
         const radius = el.borderRadius !== undefined
             ? Math.min(Math.abs(el.width), Math.abs(el.height)) * (el.borderRadius / 100)
             : (el.roundness ? Math.min(Math.abs(el.width), Math.abs(el.height)) * 0.2 : 0);
 
-        if (el.renderStyle === 'architectural') {
-            if (backgroundColor) {
-                // If rounded, we need a path for fill
-                if (radius > 0) {
-                    const path = getRoundedDiamondPath(el.x, el.y, el.width, el.height, radius);
-                    rc.path(path, { ...options, stroke: 'none', fill: backgroundColor });
+        // Helper to draw diamond
+        const drawDiamond = (x: number, y: number, w: number, h: number, r: number, isInner = false) => {
+            const rx = w / 2;
+            const ry = h / 2;
+            const cx = x + rx;
+            const cy = y + ry;
+            const points: [number, number][] = [
+                [cx, y],
+                [x + w, cy],
+                [cx, y + h],
+                [x, cy]
+            ];
+
+            const opts = isInner ? { ...options, stroke: el.innerBorderColor || strokeColor, fill: 'none' } : options;
+
+            if (el.renderStyle === 'architectural') {
+                if (!isInner && backgroundColor) {
+                    if (r > 0) {
+                        const path = getRoundedDiamondPath(x, y, w, h, r);
+                        rc.path(path, { ...opts, stroke: 'none', fill: backgroundColor });
+                    } else {
+                        rc.polygon(points, { ...opts, stroke: 'none', fill: backgroundColor });
+                    }
+                }
+
+                ctx.beginPath();
+                if (r > 0) {
+                    const pathString = getRoundedDiamondPath(x, y, w, h, r);
+                    const path = new Path2D(pathString);
+                    ctx.stroke(path);
                 } else {
-                    rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+                    ctx.moveTo(points[0][0], points[0][1]);
+                    ctx.lineTo(points[1][0], points[1][1]);
+                    ctx.lineTo(points[2][0], points[2][1]);
+                    ctx.lineTo(points[3][0], points[3][1]);
+                    ctx.closePath();
+                    ctx.stroke();
+                }
+
+                ctx.strokeStyle = isInner ? (el.innerBorderColor || strokeColor) : strokeColor;
+                ctx.lineWidth = el.strokeWidth;
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+            } else {
+                if (r > 0) {
+                    const path = getRoundedDiamondPath(x, y, w, h, r);
+                    rc.path(path, opts);
+                } else {
+                    rc.polygon(points, opts);
                 }
             }
+        };
 
-            ctx.beginPath();
-            if (radius > 0) {
-                // Manual path for rounded diamond in architectural style
-                // We can use the SVG path string logic or draw it manually
-                // Re-using the path generator for simplicity, though efficient canvas calls are better.
-                // Let's use the path generator logic but with ctx commands if needed, 
-                // or just use Path2D if supported. Path2D is standard.
-                const pathString = getRoundedDiamondPath(el.x, el.y, el.width, el.height, radius);
-                const path = new Path2D(pathString);
-                ctx.stroke(path);
-            } else {
-                ctx.moveTo(points[0][0], points[0][1]);
-                ctx.lineTo(points[1][0], points[1][1]);
-                ctx.lineTo(points[2][0], points[2][1]);
-                ctx.lineTo(points[3][0], points[3][1]);
-                ctx.closePath();
-                ctx.stroke();
-            }
+        // Draw Outer
+        drawDiamond(el.x, el.y, el.width, el.height, radius);
 
-            ctx.strokeStyle = strokeColor;
-            ctx.lineWidth = el.strokeWidth;
-            ctx.lineJoin = 'round';
-            ctx.lineCap = 'round';
-            // Stroke already called above
-        } else {
-            // Sketch Style
-            if (radius > 0) {
-                const path = getRoundedDiamondPath(el.x, el.y, el.width, el.height, radius);
-                rc.path(path, options);
-            } else {
-                rc.polygon(points, options);
+        // Draw Inner
+        if (el.drawInnerBorder) {
+            const dist = el.innerBorderDistance || 5;
+            if (el.width > dist * 2 && el.height > dist * 2) {
+                const innerR = Math.max(0, radius - dist);
+                drawDiamond(el.x + dist, el.y + dist, el.width - dist * 2, el.height - dist * 2, innerR, true);
             }
         }
     } else if (el.type === 'triangle') {
-        const cx = el.x + el.width / 2;
-        const points: [number, number][] = [
-            [cx, el.y],                         // Top
-            [el.x + el.width, el.y + el.height], // Bottom right
-            [el.x, el.y + el.height]            // Bottom left
-        ];
+        const drawTriangle = (x: number, y: number, w: number, h: number, isInner = false) => {
+            const cx = x + w / 2;
+            const points: [number, number][] = [
+                [cx, y],                         // Top
+                [x + w, y + h], // Bottom right
+                [x, y + h]            // Bottom left
+            ];
 
-        if (el.renderStyle === 'architectural') {
-            if (backgroundColor) {
-                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            const opts = isInner ? { ...options, stroke: el.innerBorderColor || strokeColor, fill: 'none' } : options;
+
+            if (el.renderStyle === 'architectural') {
+                if (!isInner && backgroundColor) {
+                    rc.polygon(points, { ...opts, stroke: 'none', fill: backgroundColor });
+                }
+                ctx.beginPath();
+                ctx.moveTo(points[0][0], points[0][1]);
+                ctx.lineTo(points[1][0], points[1][1]);
+                ctx.lineTo(points[2][0], points[2][1]);
+                ctx.closePath();
+                ctx.strokeStyle = isInner ? (el.innerBorderColor || strokeColor) : strokeColor;
+                ctx.lineWidth = el.strokeWidth;
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+                ctx.stroke();
+            } else {
+                rc.polygon(points, opts);
             }
-            ctx.beginPath();
-            ctx.moveTo(points[0][0], points[0][1]);
-            ctx.lineTo(points[1][0], points[1][1]);
-            ctx.lineTo(points[2][0], points[2][1]);
-            ctx.closePath();
-            ctx.strokeStyle = strokeColor;
-            ctx.lineWidth = el.strokeWidth;
-            ctx.lineJoin = 'round';
-            ctx.lineCap = 'round';
-            ctx.stroke();
-        } else {
-            rc.polygon(points, options);
+        };
+
+        // Draw Outer
+        drawTriangle(el.x, el.y, el.width, el.height);
+
+        // Draw Inner
+        if (el.drawInnerBorder) {
+            const dist = el.innerBorderDistance || 5;
+            if (el.width > dist * 2 && el.height > dist * 2) {
+                // Approximate inner triangle by reducing bbox
+                drawTriangle(el.x + dist, el.y + dist, el.width - dist * 2, el.height - dist * 2, true);
+            }
         }
     } else if (el.type === 'hexagon') {
         const cx = el.x + el.width / 2;
@@ -1029,37 +1080,54 @@ export const renderElement = (
             rc.polygon(points, options);
         }
     } else if (el.type === 'polygon') {
-        const cx = el.x + el.width / 2;
-        const cy = el.y + el.height / 2;
-        const radiusX = el.width / 2;
-        const radiusY = el.height / 2;
-        const sides = el.polygonSides || 6; // Default hexagon
-        const points: [number, number][] = [];
+        const sides = el.polygonSides || 6;
 
-        for (let i = 0; i < sides; i++) {
-            const angle = (2 * Math.PI / sides) * i - Math.PI / 2;
-            points.push([
-                cx + radiusX * Math.cos(angle),
-                cy + radiusY * Math.sin(angle)
-            ]);
-        }
+        // Helper to draw polygon
+        const drawPolygon = (x: number, y: number, w: number, h: number, isInner = false) => {
+            const cx = x + w / 2;
+            const cy = y + h / 2;
+            const radiusX = Math.abs(w) / 2;
+            const radiusY = Math.abs(h) / 2;
+            const points: [number, number][] = [];
 
-        if (el.renderStyle === 'architectural') {
-            if (backgroundColor) {
-                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+            for (let i = 0; i < sides; i++) {
+                const angle = (2 * Math.PI / sides) * i - Math.PI / 2; // Start at top
+                points.push([
+                    cx + radiusX * Math.cos(angle),
+                    cy + radiusY * Math.sin(angle)
+                ]);
             }
-            ctx.beginPath();
-            ctx.moveTo(points[0][0], points[0][1]);
-            for (let i = 1; i < points.length; i++) {
-                ctx.lineTo(points[i][0], points[i][1]);
+
+            const opts = isInner ? { ...options, stroke: el.innerBorderColor || strokeColor, fill: 'none' } : options;
+
+            if (el.renderStyle === 'architectural') {
+                if (!isInner && backgroundColor) {
+                    rc.polygon(points, { ...opts, stroke: 'none', fill: backgroundColor });
+                }
+                ctx.beginPath();
+                ctx.moveTo(points[0][0], points[0][1]);
+                for (let i = 1; i < points.length; i++) {
+                    ctx.lineTo(points[i][0], points[i][1]);
+                }
+                ctx.closePath();
+                ctx.strokeStyle = isInner ? (el.innerBorderColor || strokeColor) : strokeColor;
+                ctx.lineWidth = el.strokeWidth;
+                ctx.lineJoin = 'round';
+                ctx.stroke();
+            } else {
+                rc.polygon(points, opts);
             }
-            ctx.closePath();
-            ctx.strokeStyle = strokeColor;
-            ctx.lineWidth = el.strokeWidth;
-            ctx.lineJoin = 'round';
-            ctx.stroke();
-        } else {
-            rc.polygon(points, options);
+        };
+
+        // Draw Outer
+        drawPolygon(el.x, el.y, el.width, el.height);
+
+        // Draw Inner
+        if (el.drawInnerBorder) {
+            const dist = el.innerBorderDistance || 5;
+            if (el.width > dist * 2 && el.height > dist * 2) {
+                drawPolygon(el.x + dist, el.y + dist, el.width - dist * 2, el.height - dist * 2, true);
+            }
         }
     } else if (el.type === 'cloud') {
         // Cloud shape using overlapping circles (simplified)

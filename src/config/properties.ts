@@ -134,6 +134,26 @@ export const properties: PropertyConfig[] = [
         applicableTo: ['rectangle', 'diamond', 'capsule', 'speechBubble', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField'],
         defaultValue: 0
     },
+    {
+        key: 'drawInnerBorder',
+        label: 'Double Border',
+        type: 'toggle',
+        group: 'style',
+        applicableTo: ['rectangle', 'circle', 'diamond', 'triangle', 'polygon', 'star', 'hexagon', 'octagon', 'pentagon', 'septagon', 'trapezoid'],
+        defaultValue: false
+    },
+    {
+        key: 'innerBorderDistance',
+        label: 'Border Padding',
+        type: 'slider',
+        min: 2,
+        max: 20,
+        step: 1,
+        group: 'style',
+        applicableTo: ['rectangle', 'circle', 'diamond', 'triangle', 'polygon', 'star', 'hexagon', 'octagon', 'pentagon', 'septagon', 'trapezoid'],
+        defaultValue: 5,
+        dependsOn: 'drawInnerBorder'
+    },
     // Stroke
     {
         key: 'strokeColor',
