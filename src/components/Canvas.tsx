@@ -421,7 +421,7 @@ const Canvas: Component = () => {
                         ctx.strokeStyle = '#3b82f6';
                         ctx.lineWidth = 2 / scale;
 
-                        if (el.type === 'line' || el.type === 'arrow' || el.type === 'organicBranch') {
+                        if (el.type === 'line' || el.type === 'arrow') {
                             // Line/Arrow Specific Handles (Start and End only)
                             const startX = el.x;
                             const startY = el.y;
@@ -1102,7 +1102,7 @@ const Canvas: Component = () => {
                 { type: 'lm', x: el.x - padding, y: el.y + el.height / 2 }
             ];
 
-            if (el.type === 'line' || el.type === 'arrow' || el.type === 'organicBranch') {
+            if (el.type === 'line' || el.type === 'arrow') {
                 handles = [
                     { type: 'tl', x: el.x, y: el.y },
                     { type: 'br', x: el.x + el.width, y: el.y + el.height }
@@ -2275,6 +2275,21 @@ const Canvas: Component = () => {
                                     updates.fontSize = Math.max(8, (init.fontSize || 20) * scaleY);
                                 }
 
+                                // Scale control points for organic branches in group resize
+                                if (element && element.type === 'organicBranch' && init.controlPoints) {
+                                    updates.controlPoints = init.controlPoints.map((cp: any) => {
+                                        // Calculate relative position within original group bounding box
+                                        const relX = (cp.x - initialElementX) / initialElementWidth;
+                                        const relY = (cp.y - initialElementY) / initialElementHeight;
+
+                                        // Apply to new group bounding box
+                                        return {
+                                            x: newX + relX * newWidth,
+                                            y: newY + relY * newHeight
+                                        };
+                                    });
+                                }
+
                                 // Update without history push during drag
                                 updateElement(selId, updates, false);
                             });
@@ -2325,12 +2340,24 @@ const Canvas: Component = () => {
                                 updates.points = refreshLinePoints(el, newX, newY, newX + newWidth, newY + newHeight);
                             }
 
-                            // Update absolute control points if they exist (for organicBranch/Bezier)
-                            // This logic is for SINGLE ELEMENT RESIZING/MOVE via handles (not main drag loop, that's below)
-                            // Wait, lines 2206+ are inside `draggingHandle` block. If dragging a handle, we resize.
-                            // If resizing 'organicBranch' via tl/br (which acts like endpoints), we might need to shift CPs?
-                            // Yes, if I drag start point, CPs should probably move?
-                            // For now, let's focus on the Move Loop (below).
+                            // Scale control points for organic branches during resize
+                            if (el.type === 'organicBranch' && el.controlPoints && el.controlPoints.length > 0) {
+                                const init = initialPositions.get(id);
+                                if (init && init.controlPoints) {
+                                    // Scale control points relative to bounding box resize
+                                    updates.controlPoints = init.controlPoints.map((cp: any) => {
+                                        // Calculate relative position within original bounding box
+                                        const relX = (cp.x - initialElementX) / initialElementWidth;
+                                        const relY = (cp.y - initialElementY) / initialElementHeight;
+
+                                        // Apply to new bounding box
+                                        return {
+                                            x: newX + relX * newWidth,
+                                            y: newY + relY * newHeight
+                                        };
+                                    });
+                                }
+                            }
 
                             updateElement(id, updates, false);
                         }
