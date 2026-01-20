@@ -898,6 +898,7 @@ const Canvas: Component = () => {
             e.isCollapsed; e.parentId; // Track hierarchy state for immediate updates
             e.starPoints; // Track star points for parametric stars
             e.polygonSides; // Track polygon sides for parametric polygons
+            e.borderRadius; // Track border radius
         });
         store.viewState.scale;
         store.viewState.panX;

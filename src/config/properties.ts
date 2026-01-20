@@ -124,12 +124,15 @@ export const properties: PropertyConfig[] = [
         defaultValue: 'sketch'
     },
     {
-        key: 'roundness',
-        label: 'Round Corners',
-        type: 'toggle',
+        key: 'borderRadius',
+        label: 'Roundness',
+        type: 'slider',
+        min: 0,
+        max: 50,
+        step: 1,
         group: 'style',
         applicableTo: ['rectangle', 'diamond', 'capsule', 'speechBubble', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField'],
-        defaultValue: null
+        defaultValue: 0
     },
     // Stroke
     {

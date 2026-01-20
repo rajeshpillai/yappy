@@ -84,6 +84,7 @@ export interface DrawingElement {
     isCollapsed?: boolean;
     starPoints?: number; // Number of points for star shapes (3-12, default: 5)
     polygonSides?: number; // Number of sides for polygon shapes (3-20, default: 6)
+    borderRadius?: number; // Corner radius percentage (0-50, default: 0)
 }
 
 export interface Layer {

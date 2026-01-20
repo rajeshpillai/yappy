@@ -238,15 +238,30 @@ export const renderElement = (
     };
 
     if (el.type === 'rectangle') {
+        const radius = el.borderRadius !== undefined
+            ? Math.min(Math.abs(el.width), Math.abs(el.height)) * (el.borderRadius / 100)
+            : (el.roundness ? Math.min(Math.abs(el.width), Math.abs(el.height)) * 0.15 : 0);
+
         if (el.renderStyle === 'architectural') {
             if (backgroundColor) {
                 // Fill using RoughJS (sketchy fill) but no stroke
                 // 'none' or transparent stroke ensures only fill is drawn
-                rc.rectangle(el.x, el.y, el.width, el.height, { ...options, stroke: 'none', fill: backgroundColor });
+                // If radius > 0, we can't easily use rc.rectangle for fill as it doesn't support radius well without path
+                // So use rc.path for filled rounded rect
+                if (radius > 0) {
+                    const path = getRoundedRectPath(el.x, el.y, el.width, el.height, radius);
+                    rc.path(path, { ...options, stroke: 'none', fill: backgroundColor });
+                } else {
+                    rc.rectangle(el.x, el.y, el.width, el.height, { ...options, stroke: 'none', fill: backgroundColor });
+                }
             }
             // Outline using native Canvas (perfect straight lines)
             ctx.beginPath();
-            ctx.rect(el.x, el.y, el.width, el.height);
+            if (ctx.roundRect) {
+                ctx.roundRect(el.x, el.y, el.width, el.height, radius);
+            } else {
+                ctx.rect(el.x, el.y, el.width, el.height);
+            }
             ctx.strokeStyle = strokeColor;
             ctx.lineWidth = el.strokeWidth;
             ctx.lineJoin = 'round'; // Ensure smooth corners
@@ -254,9 +269,8 @@ export const renderElement = (
             ctx.stroke();
         } else {
             // Sketch Style
-            // Check for roundness
-            if (el.roundness) {
-                const radius = Math.min(Math.abs(el.width), Math.abs(el.height)) * 0.15; // 15% roundness
+            // Check for roundness or borderRadius
+            if (radius > 0) {
                 const path = getRoundedRectPath(el.x, el.y, el.width, el.height, radius);
                 rc.path(path, options);
             } else {
@@ -293,26 +307,48 @@ export const renderElement = (
             [el.x, cy]
         ];
 
+        const radius = el.borderRadius !== undefined
+            ? Math.min(Math.abs(el.width), Math.abs(el.height)) * (el.borderRadius / 100)
+            : (el.roundness ? Math.min(Math.abs(el.width), Math.abs(el.height)) * 0.2 : 0);
+
         if (el.renderStyle === 'architectural') {
             if (backgroundColor) {
-                rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+                // If rounded, we need a path for fill
+                if (radius > 0) {
+                    const path = getRoundedDiamondPath(el.x, el.y, el.width, el.height, radius);
+                    rc.path(path, { ...options, stroke: 'none', fill: backgroundColor });
+                } else {
+                    rc.polygon(points, { ...options, stroke: 'none', fill: backgroundColor });
+                }
             }
+
             ctx.beginPath();
-            ctx.moveTo(points[0][0], points[0][1]);
-            ctx.lineTo(points[1][0], points[1][1]);
-            ctx.lineTo(points[2][0], points[2][1]);
-            ctx.lineTo(points[3][0], points[3][1]);
-            ctx.closePath();
+            if (radius > 0) {
+                // Manual path for rounded diamond in architectural style
+                // We can use the SVG path string logic or draw it manually
+                // Re-using the path generator for simplicity, though efficient canvas calls are better.
+                // Let's use the path generator logic but with ctx commands if needed, 
+                // or just use Path2D if supported. Path2D is standard.
+                const pathString = getRoundedDiamondPath(el.x, el.y, el.width, el.height, radius);
+                const path = new Path2D(pathString);
+                ctx.stroke(path);
+            } else {
+                ctx.moveTo(points[0][0], points[0][1]);
+                ctx.lineTo(points[1][0], points[1][1]);
+                ctx.lineTo(points[2][0], points[2][1]);
+                ctx.lineTo(points[3][0], points[3][1]);
+                ctx.closePath();
+                ctx.stroke();
+            }
 
             ctx.strokeStyle = strokeColor;
             ctx.lineWidth = el.strokeWidth;
             ctx.lineJoin = 'round';
             ctx.lineCap = 'round';
-            ctx.stroke();
+            // Stroke already called above
         } else {
             // Sketch Style
-            if (el.roundness) {
-                const radius = Math.min(Math.abs(el.width), Math.abs(el.height)) * 0.2; // 20% roundness for diamond
+            if (radius > 0) {
                 const path = getRoundedDiamondPath(el.x, el.y, el.width, el.height, radius);
                 rc.path(path, options);
             } else {
