@@ -1,7 +1,8 @@
 import { type Component, For } from "solid-js";
-import { store, setSelectedTool, addElement } from "../store/appStore";
+import { store, setSelectedTool, addElement, setStore } from "../store/appStore";
 import type { ElementType } from "../types";
-import { MousePointer2, Square, Circle, Minus, Type, MoveUpRight, Eraser, Hand, Image as ImageIcon, Spline, Diamond } from "lucide-solid";
+import { MousePointer2, Square, Circle, Minus, Type, MoveUpRight, Eraser, Hand, Image as ImageIcon, Spline, Diamond, CaseUpper } from "lucide-solid";
+import { generateBlockText } from "../utils/blockAlphabet";
 import PenToolGroup from "./PenToolGroup";
 import ShapeToolGroup from "./ShapeToolGroup";
 import SketchnoteToolGroup from "./SketchnoteToolGroup";
@@ -12,7 +13,7 @@ import MindmapToolGroup from "./MindmapToolGroup";
 import "./Toolbar.css";
 
 // Tools that are NOT pens or grouped shapes
-const tools: { type: ElementType | 'selection'; icon: Component<{ size?: number; color?: string }>; label: string }[] = [
+const tools: { type: ElementType | 'selection' | 'block-text'; icon: Component<{ size?: number; color?: string }>; label: string }[] = [
     { type: 'pan', icon: Hand, label: 'Pan Tool' },
     { type: 'selection', icon: MousePointer2, label: 'Selection' },
     { type: 'rectangle', icon: Square, label: 'Rectangle' },
@@ -24,6 +25,7 @@ const tools: { type: ElementType | 'selection'; icon: Component<{ size?: number;
     // Pens are grouped in PenToolGroup
     // New shapes are grouped in ShapeToolGroup
     { type: 'text', icon: Type, label: 'Text' },
+    { type: 'block-text', icon: CaseUpper, label: 'Block Text (Sketchnote)' },
     { type: 'image', icon: ImageIcon, label: 'Insert Image' },
     { type: 'eraser', icon: Eraser, label: 'Eraser' },
 ];
@@ -31,9 +33,32 @@ const tools: { type: ElementType | 'selection'; icon: Component<{ size?: number;
 const Toolbar: Component = () => {
     let fileInputRef: HTMLInputElement | null = null;
 
-    const handleToolClick = (type: ElementType | 'selection') => {
+    const handleToolClick = (type: ElementType | 'selection' | 'block-text') => {
         if (type === 'image') {
             fileInputRef?.click();
+        } else if (type === 'block-text') {
+            const text = prompt("Enter text to generate (A-Z):");
+            if (text) {
+                // Determine center of view
+                const cx = (window.innerWidth / 2) - store.viewState.panX;
+                const cy = (window.innerHeight / 2) - store.viewState.panY;
+
+                const newElements = generateBlockText(
+                    text,
+                    cx - (text.length * 30), // Simple centering offset
+                    cy,
+                    80, // fontSize
+                    '#000000'
+                );
+
+                // Batch add
+                setStore('elements', [...store.elements, ...newElements]);
+
+                // Select them
+                setStore('selection', newElements.map(e => e.id));
+
+                setSelectedTool('selection');
+            }
         } else {
             setSelectedTool(type as ElementType);
         }

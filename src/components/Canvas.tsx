@@ -3073,12 +3073,17 @@ const Canvas: Component = () => {
             // Grouping
             if (selectionCount > 1) {
                 items.push({ label: 'Group', shortcut: 'Ctrl+G', onClick: groupSelected });
-            } else if (selectionCount === 1) {
-                const el = store.elements.find(e => e.id === store.selection[0]);
-                if (el?.groupIds?.length) {
-                    items.push({ label: 'Ungroup', shortcut: 'Ctrl+Shift+G', onClick: ungroupSelected });
-                }
             }
+
+            const isAnyGrouped = store.selection.some(id => {
+                const el = store.elements.find(e => e.id === id);
+                return el?.groupIds && el.groupIds.length > 0;
+            });
+
+            if (isAnyGrouped) {
+                items.push({ label: 'Ungroup', shortcut: 'Ctrl+Shift+G', onClick: ungroupSelected });
+            }
+
             items.push({ separator: true });
 
             // Layering

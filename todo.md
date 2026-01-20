@@ -617,3 +617,17 @@
   - [x] Show count in menu label (e.g., "Transform 5 Shapes")
   - [ ] Confirm dialog for large batch operations (>10 items) <!-- Skipped for now, low priority -->
   - [x] Undo/redo support for batch transformations
+
+## Phase 44: Structural Typography (Block Text)
+- [ ] Implement Alphabet Recipe Registry (A-Z)
+  - [ ] Define strokes for straight letters
+  - [ ] Define strokes for curved letters (Bezier support)
+- [ ] Implement `generateBlockText` engine
+  - [ ] Parsing and layout logic (kerning, spacing)
+  - [ ] Element instantiation (Lines/Beziers)
+  - [ ] Automatic grouping of generated text
+- [ ] UI Integration
+  - [ ] Add "Block Text" tool to toolbar
+  - [ ] Input dialog for text entry
+- [ ] Verification
+  - [ ] Verify legibility and styling capabilities
