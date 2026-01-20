@@ -434,6 +434,17 @@ export const properties: PropertyConfig[] = [
         group: 'dimensions',
         applicableTo: ['speechBubble'],
         defaultValue: 20
+    },
+    {
+        key: 'shapeRatio',
+        label: 'Sharpness',
+        type: 'slider',
+        min: 10,
+        max: 90,
+        step: 5,
+        group: 'dimensions',
+        applicableTo: ['star', 'burst'],
+        defaultValue: 50 // Varied defaults handled in render, but slider needs start.
     }
 ];
 

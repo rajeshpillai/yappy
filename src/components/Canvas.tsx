@@ -901,6 +901,7 @@ const Canvas: Component = () => {
             e.borderRadius; // Track border radius
             e.burstPoints; // Track burst points for parametric burst
             e.tailPosition; // Track tail position for speech bubble
+            e.shapeRatio; // Track shape ratio (sharpness)
         });
         store.viewState.scale;
         store.viewState.panX;

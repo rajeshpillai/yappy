@@ -759,7 +759,10 @@ export const renderElement = (
         const cx = el.x + el.width / 2;
         const cy = el.y + el.height / 2;
         const outerRadius = Math.min(Math.abs(el.width), Math.abs(el.height)) / 2;
-        const innerRadius = outerRadius * 0.7;
+        // Parametric Sharpness (default 0.7)
+        // shapeRatio is percentage of outerRadius. 10% = Very Sharp/Spiky, 90% = Very Dull/Round
+        const ratio = (el.shapeRatio !== undefined ? el.shapeRatio : 70) / 100;
+        const innerRadius = outerRadius * ratio;
         const numPoints = el.burstPoints || 16;
         const points: [number, number][] = [];
 
@@ -991,7 +994,9 @@ export const renderElement = (
         const cx = el.x + el.width / 2;
         const cy = el.y + el.height / 2;
         const outerRadius = Math.min(el.width, el.height) / 2;
-        const innerRadius = outerRadius * 0.4;
+        // Parametric Sharpness (default 0.38)
+        const ratio = (el.shapeRatio !== undefined ? el.shapeRatio : 38) / 100;
+        const innerRadius = outerRadius * ratio;
         const numPoints = el.starPoints || 5; // Use starPoints property, default to 5
         const points: [number, number][] = [];
 

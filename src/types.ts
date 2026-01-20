@@ -87,6 +87,7 @@ export interface DrawingElement {
     borderRadius?: number; // Corner radius percentage (0-50, default: 0)
     burstPoints?: number; // Number of points for burst shapes (8-32, default: 16)
     tailPosition?: number; // Tail position percentage (0-100, default: 20)
+    shapeRatio?: number; // Inner/Outer radius ratio percentage (10-90, default: var)
 }
 
 export interface Layer {
