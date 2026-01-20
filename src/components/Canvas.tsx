@@ -2759,14 +2759,10 @@ const Canvas: Component = () => {
                     });
                 }
 
-                // Switch back to selection tool after drawing (except for pencil/eraser?) 
-                // User requested "After a shape is drawn". Usually pencil is continuous.
-                // Let's reset for Shapes (Rect, Circle, Line, Arrow, Bezier).
-                if (['rectangle', 'circle', 'line', 'arrow', 'image', 'bezier', 'diamond',
-                    'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart',
-                    'cross', 'checkmark', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown',
-                    'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'starPerson', 'scroll', 'wavyDivider', 'doubleBanner',
-                    'lightbulb', 'signpost', 'burstBlob', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField'].includes(store.selectedTool)) {
+                // Switch back to selection tool after drawing (except for continuous tools)
+                // Continuous tools: Pencils, Text, Eraser, Pan, Selection
+                const continuousTools = ['selection', 'pan', 'eraser', 'fineliner', 'inkbrush', 'marker', 'text', 'block-text'];
+                if (!continuousTools.includes(store.selectedTool)) {
                     setSelectedTool('selection');
                 }
 
