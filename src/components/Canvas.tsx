@@ -220,17 +220,7 @@ const Canvas: Component = () => {
                     ctx.stroke();
                 }
             } else if (texture === 'paper') {
-                // Subtle grain effect using noise pattern
-                // We'll use a pre-calculated pattern for performance if this were a production app
-                // For now, let's draw a few thousand tiny light/dark dots
-                ctx.globalAlpha = 0.05;
-                ctx.fillStyle = isDarkMode ? '#ffffff' : '#000000';
-                for (let i = 0; i < 5000; i++) {
-                    const x = Math.random() * canvasRef.width;
-                    const y = Math.random() * canvasRef.height;
-                    ctx.fillRect(x, y, 1, 1);
-                }
-                ctx.globalAlpha = 1;
+                // Handled by CSS Overlay for performance
             }
 
             ctx.restore();
@@ -909,6 +899,8 @@ const Canvas: Component = () => {
             e.innerBorderDistance; // Track double border distance
             e.strokeLineJoin; // Track corner style
             e.fillDensity; // Track fill density
+            // Track shadow properties
+            e.shadowEnabled; e.shadowColor; e.shadowBlur; e.shadowOffsetX; e.shadowOffsetY;
         });
         store.viewState.scale;
         store.viewState.panX;
@@ -3268,6 +3260,28 @@ const Canvas: Component = () => {
                 }}
                 style={{ display: "block", "touch-action": "none", cursor: cursor(), "user-select": "none" }}
             />
+
+            {/* Global Texture Overlay */}
+            <Show when={store.canvasTexture !== 'none' && store.canvasTexture !== 'grid' && store.canvasTexture !== 'graph'}>
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        "pointer-events": "none",
+                        "z-index": 0,
+                        opacity: store.theme === 'dark' ? 0.1 : 0.4,
+                        "background-image": store.canvasTexture === 'paper'
+                            ? `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opactiy='0.5'/%3E%3C/svg%3E")`
+                            : store.canvasTexture === 'dots'
+                                ? `radial-gradient(${store.theme === 'dark' ? '#ffffff' : '#000000'} 1px, transparent 1px)`
+                                : 'none',
+                        "background-size": store.canvasTexture === 'dots' ? '20px 20px' : 'auto'
+                    }}
+                />
+            </Show>
 
             <Show when={showScrollBack()}>
                 <div style={{

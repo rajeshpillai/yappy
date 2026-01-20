@@ -128,6 +128,19 @@ export const renderElement = (
     ctx.save();
     ctx.globalAlpha = ((el.opacity ?? 100) / 100) * layerOpacity;
 
+    // Apply Drop Shadow
+    if (el.shadowEnabled) {
+        ctx.shadowColor = el.shadowColor || 'rgba(0,0,0,0.3)';
+        ctx.shadowBlur = el.shadowBlur || 10;
+        ctx.shadowOffsetX = el.shadowOffsetX || 5;
+        ctx.shadowOffsetY = el.shadowOffsetY || 5;
+    } else {
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+    }
+
     // Apply rotation (center based)
     const cx = el.x + el.width / 2;
     const cy = el.y + el.height / 2;

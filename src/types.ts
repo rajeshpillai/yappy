@@ -92,7 +92,13 @@ export interface DrawingElement {
     innerBorderColor?: string; // Optional color (defaults to strokeColor if null)
     innerBorderDistance?: number; // Distance from outer border (padding)
     strokeLineJoin?: 'round' | 'bevel' | 'miter'; // Corner style (default: 'round')
-    fillDensity?: number; // Density of fill patterns (0.1 - 5, default: 1)
+    fillDensity?: number;
+    // Shadow Properties
+    shadowEnabled?: boolean;
+    shadowColor?: string;
+    shadowBlur?: number;
+    shadowOffsetX?: number;
+    shadowOffsetY?: number; // Density of fill patterns (0.1 - 5, default: 1)
 }
 
 export interface Layer {

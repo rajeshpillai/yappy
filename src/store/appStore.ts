@@ -37,6 +37,7 @@ interface AppState {
 const initialState: AppState = {
     elements: [],
     viewState: { scale: 1, panX: 0, panY: 0 },
+    canvasTexture: 'none',
     selectedTool: 'selection',
     selection: [],
     defaultElementStyles: {
@@ -58,8 +59,14 @@ const initialState: AppState = {
         textAlign: 'left',
         startArrowhead: null,
         endArrowhead: null,
+        endArrowhead: null,
         autoResize: true,
-        seed: 0
+        seed: 0,
+        shadowEnabled: false,
+        shadowColor: 'rgba(0,0,0,0.3)',
+        shadowBlur: 10,
+        shadowOffsetX: 5,
+        shadowOffsetY: 5
     },
     theme: (localStorage.getItem('theme') as 'light' | 'dark') || 'light',
     layers: [
@@ -103,7 +110,6 @@ const initialState: AppState = {
     selectedWireframeType: 'browserWindow',
     layerGroupingModeEnabled: false,
     maxLayers: 20,
-    canvasTexture: 'none',
 }; // Default light background
 
 export const [store, setStore] = createStore<AppState>(initialState);
@@ -352,6 +358,10 @@ export const toggleCollapseSelection = () => {
 
 export const setShowCanvasProperties = (visible: boolean) => {
     setStore("showCanvasProperties", visible);
+    if (visible) {
+        setStore("showPropertyPanel", true);
+        setStore("isPropertyPanelMinimized", false);
+    }
 };
 
 export const deleteElements = (ids: string[]) => {

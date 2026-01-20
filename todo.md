@@ -686,3 +686,16 @@
 - [x] Add "Fill Density" slider to Properties Panel (Generic support for dots, hachure, etc.)
 - [x] Integrate Fill Density with RoughJS hachureGap
 - [x] Integrate Fill Density with Custom Dots renderer
+
+## Phase 50: Visual Depth & Polish
+- [ ] **Global Texture Overlays**
+  - [ ] Implement CSS-based noise/grain overlay
+  - [ ] Add "Canvas Texture" control to global settings (Paper, Noise, Grid)
+- [ ] **Drop Shadows**
+  - [ ] Add shadow properties to `DrawingElement` (color, blur, offset)
+  - [ ] Implement shadow rendering in `renderElement` (Architectural: standard ctx shadow)
+  - [ ] Implement shadow rendering for Sketch mode (Duplicate shape offset method)
+  - [ ] Add Shadow controls to Property Panel
+- [ ] **Gradient Fills (Architectural)**
+  - [ ] Add gradient support to `fillStyle`
+  - [ ] Implement linear gradient renderer for Architectural styling

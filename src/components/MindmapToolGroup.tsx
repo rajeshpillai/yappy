@@ -2,13 +2,13 @@ import { type Component, createSignal, Show } from "solid-js";
 import { store, setSelectedTool } from "../store/appStore";
 import type { ElementType } from "../types";
 import {
-    Brain, Sprout, Share2
+    Brain, Leaf, Share2, ChevronDown
 } from "lucide-solid";
 import "./PenToolGroup.css"; // Reuse styling
 
 // Mindmap-specific tools
 const mindmapTools: { type: ElementType | 'organicBranch' | 'mindmapNode'; icon: Component<{ size?: number; color?: string }>; label: string }[] = [
-    { type: 'organicBranch', icon: Sprout, label: 'Organic Branch' },
+    { type: 'organicBranch', icon: Leaf, label: 'Organic Branch' },
     // We can alias existing shapes for semantic meaning in this group
     { type: 'cloud', icon: Brain, label: 'Central Topic (Cloud)' },
     { type: 'circle', icon: Share2, label: 'Topic (Circle)' },
@@ -55,8 +55,10 @@ const MindmapToolGroup: Component = () => {
                         const Icon = activeTool().icon;
                         return <Icon size={20} />;
                     })()}
-                    {/* Small indicator like ShapeGroup */}
-                    <div style="position: absolute; bottom: 0; right: 0; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 4px solid currentColor; transform: translate(2px, 2px) rotate(-45deg);"></div>
+                    <ChevronDown
+                        size={10}
+                        class="submenu-indicator"
+                    />
                 </div>
             </button>
 

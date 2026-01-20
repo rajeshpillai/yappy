@@ -10,7 +10,7 @@ export interface PropertyConfig {
     step?: number;
     applicableTo: (ElementType | 'canvas')[] | 'all';
     defaultValue?: any;
-    group: 'style' | 'stroke' | 'background' | 'text' | 'dimensions' | 'advanced' | 'canvas';
+    group: 'style' | 'stroke' | 'background' | 'text' | 'dimensions' | 'advanced' | 'canvas' | 'shadow';
     dependsOn?: string; // Key of property that must be truthy for this to show
 }
 
@@ -265,6 +265,60 @@ export const properties: PropertyConfig[] = [
         group: 'style',
         applicableTo: 'all',
         defaultValue: 100
+    },
+    // Shadow Properties
+    {
+        key: 'shadowEnabled',
+        label: 'Drop Shadow',
+        type: 'toggle',
+        group: 'shadow',
+        applicableTo: 'all', // Apply to all shapes
+        defaultValue: false
+    },
+    {
+        key: 'shadowColor',
+        label: 'Shadow Color',
+        type: 'color',
+        group: 'shadow',
+        applicableTo: 'all',
+        defaultValue: 'rgba(0,0,0,0.3)',
+        dependsOn: 'shadowEnabled'
+    },
+    {
+        key: 'shadowBlur',
+        label: 'Blur',
+        type: 'slider',
+        min: 0,
+        max: 50,
+        step: 1,
+        group: 'shadow',
+        applicableTo: 'all',
+        defaultValue: 10,
+        dependsOn: 'shadowEnabled'
+    },
+    {
+        key: 'shadowOffsetX',
+        label: 'Offset X',
+        type: 'slider',
+        min: -50,
+        max: 50,
+        step: 1,
+        group: 'shadow',
+        applicableTo: 'all',
+        defaultValue: 5,
+        dependsOn: 'shadowEnabled'
+    },
+    {
+        key: 'shadowOffsetY',
+        label: 'Offset Y',
+        type: 'slider',
+        min: -50,
+        max: 50,
+        step: 1,
+        group: 'shadow',
+        applicableTo: 'all',
+        defaultValue: 5,
+        dependsOn: 'shadowEnabled'
     },
 
     // Text Specific
