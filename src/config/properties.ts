@@ -11,6 +11,7 @@ export interface PropertyConfig {
     applicableTo: (ElementType | 'canvas')[] | 'all';
     defaultValue?: any;
     group: 'style' | 'stroke' | 'background' | 'text' | 'dimensions' | 'advanced' | 'canvas';
+    dependsOn?: string; // Key of property that must be truthy for this to show
 }
 
 export const properties: PropertyConfig[] = [
@@ -153,6 +154,19 @@ export const properties: PropertyConfig[] = [
         applicableTo: ['rectangle', 'circle', 'diamond', 'triangle', 'polygon', 'star', 'hexagon', 'octagon', 'pentagon', 'septagon', 'trapezoid'],
         defaultValue: 5,
         dependsOn: 'drawInnerBorder'
+    },
+    {
+        key: 'strokeLineJoin',
+        label: 'Corner Style',
+        type: 'select',
+        options: [
+            { label: 'Round', value: 'round' },
+            { label: 'Bevel (Flat)', value: 'bevel' },
+            { label: 'Miter (Sharp)', value: 'miter' }
+        ],
+        group: 'style',
+        applicableTo: ['rectangle', 'diamond', 'triangle', 'polygon', 'star', 'burst', 'hexagon', 'octagon', 'pentagon', 'septagon', 'trapezoid', 'arrow', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'bracketLeft', 'bracketRight', 'parallelogram', 'rightTriangle'],
+        defaultValue: 'round'
     },
     // Stroke
     {

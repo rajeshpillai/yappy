@@ -904,6 +904,7 @@ const Canvas: Component = () => {
             e.shapeRatio; // Track shape ratio (sharpness)
             e.drawInnerBorder; // Track double border toggle
             e.innerBorderDistance; // Track double border distance
+            e.strokeLineJoin; // Track corner style
         });
         store.viewState.scale;
         store.viewState.panX;

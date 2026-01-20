@@ -264,7 +264,7 @@ export const renderElement = (
                 }
                 ctx.strokeStyle = isInner ? (el.innerBorderColor || strokeColor) : strokeColor;
                 ctx.lineWidth = el.strokeWidth;
-                ctx.lineJoin = 'round';
+                ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
                 ctx.lineCap = 'round';
                 ctx.stroke();
             } else {
@@ -367,7 +367,7 @@ export const renderElement = (
 
                 ctx.strokeStyle = isInner ? (el.innerBorderColor || strokeColor) : strokeColor;
                 ctx.lineWidth = el.strokeWidth;
-                ctx.lineJoin = 'round';
+                ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
                 ctx.lineCap = 'round';
             } else {
                 if (r > 0) {
@@ -412,7 +412,7 @@ export const renderElement = (
                 ctx.closePath();
                 ctx.strokeStyle = isInner ? (el.innerBorderColor || strokeColor) : strokeColor;
                 ctx.lineWidth = el.strokeWidth;
-                ctx.lineJoin = 'round';
+                ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
                 ctx.lineCap = 'round';
                 ctx.stroke();
             } else {
@@ -458,7 +458,7 @@ export const renderElement = (
             ctx.closePath();
             ctx.strokeStyle = strokeColor;
             ctx.lineWidth = el.strokeWidth;
-            ctx.lineJoin = 'round';
+            ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
             ctx.stroke();
         } else {
             rc.polygon(points, options);
@@ -490,7 +490,7 @@ export const renderElement = (
             ctx.closePath();
             ctx.strokeStyle = strokeColor;
             ctx.lineWidth = el.strokeWidth;
-            ctx.lineJoin = 'round';
+            ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
             ctx.stroke();
         } else {
             rc.polygon(points, options);
@@ -516,7 +516,7 @@ export const renderElement = (
             ctx.closePath();
             ctx.strokeStyle = strokeColor;
             ctx.lineWidth = el.strokeWidth;
-            ctx.lineJoin = 'round';
+            ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
             ctx.stroke();
         } else {
             rc.polygon(points, options);
@@ -540,7 +540,7 @@ export const renderElement = (
             ctx.closePath();
             ctx.strokeStyle = strokeColor;
             ctx.lineWidth = el.strokeWidth;
-            ctx.lineJoin = 'round';
+            ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
             ctx.stroke();
         } else {
             rc.polygon(points, options);
@@ -562,7 +562,7 @@ export const renderElement = (
             ctx.closePath();
             ctx.strokeStyle = strokeColor;
             ctx.lineWidth = el.strokeWidth;
-            ctx.lineJoin = 'round';
+            ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
             ctx.stroke();
         } else {
             rc.polygon(points, options);
@@ -593,7 +593,7 @@ export const renderElement = (
             ctx.closePath();
             ctx.strokeStyle = strokeColor;
             ctx.lineWidth = el.strokeWidth;
-            ctx.lineJoin = 'round';
+            ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
             ctx.stroke();
         } else {
             rc.polygon(points, options);
@@ -840,7 +840,7 @@ export const renderElement = (
             ctx.closePath();
             ctx.strokeStyle = strokeColor;
             ctx.lineWidth = el.strokeWidth;
-            ctx.lineJoin = 'miter';
+            ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'miter';
             ctx.stroke();
         } else {
             rc.polygon(points, options);
@@ -1074,7 +1074,7 @@ export const renderElement = (
             ctx.closePath();
             ctx.strokeStyle = strokeColor;
             ctx.lineWidth = el.strokeWidth;
-            ctx.lineJoin = 'round';
+            ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
             ctx.stroke();
         } else {
             rc.polygon(points, options);
@@ -1112,7 +1112,7 @@ export const renderElement = (
                 ctx.closePath();
                 ctx.strokeStyle = isInner ? (el.innerBorderColor || strokeColor) : strokeColor;
                 ctx.lineWidth = el.strokeWidth;
-                ctx.lineJoin = 'round';
+                ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
                 ctx.stroke();
             } else {
                 rc.polygon(points, opts);

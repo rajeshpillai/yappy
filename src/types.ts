@@ -91,6 +91,7 @@ export interface DrawingElement {
     drawInnerBorder?: boolean; // Toggle for double border
     innerBorderColor?: string; // Optional color (defaults to strokeColor if null)
     innerBorderDistance?: number; // Distance from outer border (padding)
+    strokeLineJoin?: 'round' | 'bevel' | 'miter'; // Corner style (default: 'round')
 }
 
 export interface Layer {
