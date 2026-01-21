@@ -50,7 +50,7 @@ const MindmapToolGroup: Component = () => {
                 onClick={toggleMenu}
                 title="Mindmap Tools"
             >
-                <div style="position: relative;">
+                <div class="tool-icon-wrapper">
                     {(() => {
                         const Icon = activeTool().icon;
                         return <Icon size={20} />;

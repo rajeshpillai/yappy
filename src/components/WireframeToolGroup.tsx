@@ -73,7 +73,7 @@ const WireframeToolGroup: Component = () => {
                 onClick={toggleMenu}
                 title={activeTool().label}
             >
-                <div style="position: relative;">
+                <div class="tool-icon-wrapper">
                     {(() => {
                         const Icon = activeTool().icon;
                         return <Icon size={20} />;

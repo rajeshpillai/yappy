@@ -19,6 +19,7 @@ import {
     copyToClipboard, cutToClipboard, pasteFromClipboard,
     flipSelected, lockSelected, copyStyle, pasteStyle
 } from '../utils/objectContextActions';
+import { showToast } from "./Toast";
 import { perfMonitor } from "../utils/performanceMonitor";
 import { fitShapeToText } from "../utils/textUtils";
 import { changeElementType, getTransformOptions, getShapeIcon, getShapeTooltip, getCurveTypeOptions, getCurveTypeIcon, getCurveTypeTooltip } from "../utils/elementTransforms";
@@ -1907,11 +1908,11 @@ const Canvas: Component = () => {
         // Check if active layer is visible and unlocked
         const activeLayer = store.layers.find(l => l.id === store.activeLayerId);
         if (!activeLayer?.visible) {
-            alert('Cannot draw on a hidden layer. Please show the layer first or select a visible layer.');
+            showToast('Cannot draw on a hidden layer. Please show the layer first or select a visible layer.', 'error');
             return;
         }
         if (activeLayer?.locked) {
-            alert('Cannot draw on a locked layer. Please unlock the layer first or select an unlocked layer.');
+            showToast('Cannot draw on a locked layer. Please unlock the layer first or select an unlocked layer.', 'error');
             return;
         }
 

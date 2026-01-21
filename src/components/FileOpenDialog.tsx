@@ -1,5 +1,6 @@
 import { type Component, createSignal, onMount, createEffect, For, Show } from "solid-js";
 import { storage } from "../storage/FileSystemStorage";
+import { showToast } from "./Toast";
 import { X, FileText, Trash2 } from "lucide-solid";
 import "./FileOpenDialog.css";
 
@@ -44,8 +45,9 @@ const FileOpenDialog: Component<FileOpenDialogProps> = (props) => {
             try {
                 await storage.deleteDrawing(fileId);
                 fetchFiles();
+                showToast(`Deleted "${displayName}"`, 'success');
             } catch (err) {
-                alert('Failed to delete file');
+                showToast('Failed to delete file', 'error');
             }
         }
     };

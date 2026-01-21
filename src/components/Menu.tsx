@@ -1,4 +1,5 @@
 import { type Component, createSignal, onMount, Show, onCleanup } from "solid-js";
+import { showToast } from "./Toast";
 import { storage } from "../storage/FileSystemStorage";
 import {
     store, setStore, deleteElements, clearHistory, toggleTheme, zoomToFit,
@@ -55,10 +56,10 @@ const Menu: Component = () => {
                     canvasBackgroundColor: store.canvasBackgroundColor,
                     version: 2
                 });
-                alert(`Drawing saved as "${filename}"!`);
+                showToast(`Drawing saved as "${filename}"!`, 'success');
             } catch (e) {
                 console.error(e);
-                alert('Failed to save to workspace');
+                showToast('Failed to save to workspace', 'error');
             }
         } else {
             const data = JSON.stringify({
@@ -115,12 +116,13 @@ const Menu: Component = () => {
                     canvasBackgroundColor: migrated.canvasBackgroundColor || '#fafafa'
                 });
                 setDrawingId(targetId);
+                showToast('Drawing loaded successfully', 'success');
             } else {
-                alert('Drawing not found');
+                showToast('Drawing not found', 'error');
             }
         } catch (e) {
             console.error(e);
-            alert('Failed to load');
+            showToast('Failed to load drawing', 'error');
         }
     };
 
@@ -142,6 +144,7 @@ const Menu: Component = () => {
             setStore("activeLayerId", 'default-layer');
             clearHistory();
             setDrawingId('untitled');
+            showToast('New sketch created', 'info');
         }
         setIsMenuOpen(false);
     };
@@ -153,7 +156,7 @@ const Menu: Component = () => {
     const handleShare = () => {
         const url = `${window.location.origin}${window.location.pathname}?id=${drawingId()}`;
         navigator.clipboard.writeText(url);
-        alert(`Link copied: ${url}`);
+        showToast('Link copied to clipboard', 'success');
     };
 
     const handleTemplateSelect = (template: Template) => {
@@ -164,6 +167,7 @@ const Menu: Component = () => {
         }
         loadTemplate(template.data);
         setIsTemplateBrowserOpen(false);
+        showToast(`Template "${template.metadata.name}" loaded`, 'success');
     };
 
     const handleOpenJson = (e: Event) => {
@@ -186,12 +190,13 @@ const Menu: Component = () => {
                     });
                     const name = file.name.replace(/\.json$/i, '');
                     setDrawingId(name);
+                    showToast('File loaded successfully', 'success');
                 } else {
-                    alert('Invalid file format');
+                    showToast('Invalid file format', 'error');
                 }
             } catch (err) {
                 console.error(err);
-                alert('Failed to parse JSON');
+                showToast('Failed to parse JSON', 'error');
             }
         };
         reader.readAsText(file);

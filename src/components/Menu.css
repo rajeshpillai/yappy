@@ -164,7 +164,7 @@
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
     font-weight: 500;
-    color: var(--text-primary);
+    color: var(--text-secondary);
     z-index: 100;
     font-size: 14px;
     pointer-events: none;

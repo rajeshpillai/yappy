@@ -1,5 +1,6 @@
 import { createStore } from "solid-js/store";
 import type { DrawingElement, ViewState, ElementType, Layer, GridSettings } from "../types";
+import { showToast } from "../components/Toast";
 
 interface AppState {
     elements: DrawingElement[];
@@ -639,7 +640,7 @@ export const addLayer = (name?: string, parentId?: string) => {
 export const deleteLayer = (id: string) => {
     // Cannot delete the last layer
     if (store.layers.length <= 1) {
-        alert('Cannot delete the last layer.');
+        showToast('Cannot delete the last layer.', 'error');
         return;
     }
 

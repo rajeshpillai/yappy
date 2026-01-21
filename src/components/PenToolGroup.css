@@ -1,7 +1,16 @@
 /* Shared styling for grouped tool menus (Pen and Shape tools) */
 .pen-tool-group {
     position: relative;
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tool-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .dropdown-indicator {
@@ -79,14 +88,21 @@
 }
 
 .submenu-indicator {
-    font-size: 14px; /* Maintain increased size */
-    margin-left: 4px; /* Adjust margin for alignment */
-    opacity: 1; /* Fully visible */
-    color: var(--primary-color, #007bff); /* Use primary color */
-    fill: var(--primary-color, #007bff); /* Ensure the icon is filled */
-    vertical-align: middle; /* Align with the text/icon */
+    font-size: 14px;
+    /* Maintain increased size */
+    margin-left: 4px;
+    /* Adjust margin for alignment */
+    opacity: 1;
+    /* Fully visible */
+    color: var(--primary-color, #007bff);
+    /* Use primary color */
+    fill: var(--primary-color, #007bff);
+    /* Ensure the icon is filled */
+    vertical-align: middle;
+    /* Align with the text/icon */
 }
 
 .toolbar-btn:hover .submenu-indicator {
-    transform: rotate(180deg); /* Add a hover effect for better visibility */
+    transform: rotate(180deg);
+    /* Add a hover effect for better visibility */
 }

@@ -59,7 +59,7 @@ const PenToolGroup: Component = () => {
                 onClick={toggleMenu}
                 title={`${getCurrentPenTool().label} (Click for more)`}
             >
-                <div style="position: relative;">
+                <div class="tool-icon-wrapper">
                     {(() => {
                         const Icon = getCurrentPenTool().icon;
                         return <Icon size={20} />;

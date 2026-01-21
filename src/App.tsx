@@ -14,6 +14,7 @@ import LayerPanel from './components/LayerPanel';
 import CommandPalette from './components/CommandPalette';
 import { initAPI } from './api';
 import { Settings } from 'lucide-solid';
+import Toast from './components/Toast';
 
 const App: Component = () => {
   // Removed showHelp state as it is now in Menu.tsx
@@ -163,6 +164,7 @@ const App: Component = () => {
       >
         <Settings size={24} />
       </button>
+      <Toast />
     </div>
   );
 };
