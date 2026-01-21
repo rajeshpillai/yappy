@@ -1,57 +1,50 @@
 {
   "elements": [
     {
+      "id": "ec8de063-2949-4f20-b8ac-12b41ebf0bb2",
+      "type": "rectangle",
+      "x": 477.77777099609375,
+      "y": 111.11112976074219,
+      "width": 153.3333740234375,
+      "height": 119.99998474121094,
       "strokeColor": "#000000",
       "backgroundColor": "transparent",
       "fillStyle": "conic",
       "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 1,
-      "renderStyle": "sketch",
       "opacity": 100,
       "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 263959696,
       "roundness": null,
       "locked": false,
-      "fontSize": 20,
-      "fontFamily": "hand-drawn",
-      "fontWeight": false,
-      "fontStyle": false,
-      "textAlign": "left",
+      "link": null,
+      "layerId": "default-layer",
       "startArrowhead": null,
       "endArrowhead": null,
-      "autoResize": true,
-      "seed": 263959696,
-      "shadowEnabled": false,
-      "shadowColor": "rgba(0,0,0,0.3)",
-      "shadowBlur": 10,
-      "shadowOffsetX": 5,
-      "shadowOffsetY": 5,
-      "gradientStart": "#ffffff",
-      "gradientEnd": "#000000",
-      "gradientDirection": 45,
-      "id": "ec8de063-2949-4f20-b8ac-12b41ebf0bb2",
-      "type": "rectangle",
-      "x": 478.888916015625,
-      "y": 112.22224426269531,
-      "width": 153.3333740234375,
-      "height": 119.99998474121094,
-      "layerId": "default-layer",
+      "fontSize": 20,
+      "fontFamily": "hand-drawn",
+      "textAlign": "left",
       "curveType": "straight",
       "gradientStops": [
         {
+          "offset": 0,
+          "color": "#ea0606"
+        },
+        {
           "offset": 0.5,
-          "color": "#061c51"
+          "color": "#a01313"
         },
         {
-          "offset": 0.57,
-          "color": "#0b046c"
+          "offset": 0.5,
+          "color": "#888888"
         },
         {
-          "offset": 0.87,
-          "color": "#5a69b5"
+          "offset": 1,
+          "color": "#9f0404"
         }
-      ],
-      "fillDensity": 1.1
+      ]
     }
   ],
   "viewState": {
@@ -67,7 +60,9 @@
       "locked": false,
       "opacity": 1,
       "order": 0,
-      "backgroundColor": "transparent"
+      "backgroundColor": "transparent",
+      "isGroup": false,
+      "expanded": true
     }
   ],
   "gridSettings": {

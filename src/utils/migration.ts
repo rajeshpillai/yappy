@@ -61,6 +61,41 @@ export const normalizeElement = (el: Partial<DrawingElement> & { id: string; typ
         ...(el.curveType !== undefined && { curveType: el.curveType }),
         ...(el.parentId !== undefined && { parentId: el.parentId }),
         ...(el.isCollapsed !== undefined && { isCollapsed: el.isCollapsed }),
+        ...(el.constrained !== undefined && { constrained: el.constrained }),
+        ...(el.autoResize !== undefined && { autoResize: el.autoResize }),
+        ...(el.starPoints !== undefined && { starPoints: el.starPoints }),
+        ...(el.polygonSides !== undefined && { polygonSides: el.polygonSides }),
+        ...(el.borderRadius !== undefined && { borderRadius: el.borderRadius }),
+        ...(el.burstPoints !== undefined && { burstPoints: el.burstPoints }),
+        ...(el.tailPosition !== undefined && { tailPosition: el.tailPosition }),
+        ...(el.shapeRatio !== undefined && { shapeRatio: el.shapeRatio }),
+        ...(el.drawInnerBorder !== undefined && { drawInnerBorder: el.drawInnerBorder }),
+        ...(el.innerBorderColor !== undefined && { innerBorderColor: el.innerBorderColor }),
+        ...(el.innerBorderDistance !== undefined && { innerBorderDistance: el.innerBorderDistance }),
+        ...(el.strokeLineJoin !== undefined && { strokeLineJoin: el.strokeLineJoin }),
+        ...(el.fillDensity !== undefined && { fillDensity: el.fillDensity }),
+
+        // Shadows
+        ...(el.shadowEnabled !== undefined && { shadowEnabled: el.shadowEnabled }),
+        ...(el.shadowColor !== undefined && { shadowColor: el.shadowColor }),
+        ...(el.shadowBlur !== undefined && { shadowBlur: el.shadowBlur }),
+        ...(el.shadowOffsetX !== undefined && { shadowOffsetX: el.shadowOffsetX }),
+        ...(el.shadowOffsetY !== undefined && { shadowOffsetY: el.shadowOffsetY }),
+
+        // Gradients
+        ...(el.gradientStart !== undefined && { gradientStart: el.gradientStart }),
+        ...(el.gradientEnd !== undefined && { gradientEnd: el.gradientEnd }),
+        ...(el.gradientDirection !== undefined && { gradientDirection: el.gradientDirection }),
+        ...(el.gradientStops !== undefined && { gradientStops: el.gradientStops }),
+        ...(el.gradientType !== undefined && { gradientType: el.gradientType }),
+        ...(el.gradientHandlePositions !== undefined && { gradientHandlePositions: el.gradientHandlePositions }),
+
+        // Effects
+        ...(el.blendMode !== undefined && { blendMode: el.blendMode }),
+        ...(el.filter !== undefined && { filter: el.filter }),
+
+        // Control Points
+        ...(el.controlPoints !== undefined && { controlPoints: el.controlPoints }),
     } as DrawingElement;
 };
 
