@@ -1,4 +1,4 @@
-import type { Template, TemplateCategory, CategoryInfo } from '../types/templateTypes';
+import type { Template, TemplateCategory, CategoryInfo } from '../types/template-types';
 import * as diagramTemplates from './data/diagrams';
 
 /**
