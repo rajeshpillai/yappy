@@ -169,16 +169,27 @@ export const renderElement = (
     const baseGap = 5; // Standard roughjs gap
     const hachureGap = Math.max(0.5, baseGap / density); // Prevent 0 or infinite density
 
+    // Apply Blend Mode
+    if (el.blendMode) {
+        if (el.blendMode === 'normal') {
+            ctx.globalCompositeOperation = 'source-over';
+        } else {
+            ctx.globalCompositeOperation = el.blendMode as GlobalCompositeOperation;
+        }
+    }
+
     // Gradient & Fill Logic
     let fillStyleToUse = fillStyle;
     let fillToUse = backgroundColor;
 
-    // Handle Gradients
-    if (el.gradientStart && el.gradientEnd && (fillStyle === 'linear' || fillStyle === 'radial')) {
+    // Advanced Gradient Logic
+    const useGradient = (fillStyle === 'linear' || fillStyle === 'radial' || fillStyle === 'conic' || (el.gradientType && el.gradientType !== 'linear' && el.gradientType !== 'radial'));
+    const hasStops = el.gradientStops && el.gradientStops.length > 0;
+    const hasLegacyGradient = el.gradientStart && el.gradientEnd;
+
+    if (useGradient && (hasStops || hasLegacyGradient)) {
         ctx.save();
         // Move to element center to use local coordinates
-        // The outer transform already rotated around (cx, cy) roughly, but applied T(c)R T(-c)
-        // If we T(c) now, we get T(c)R T(-c) T(c) = T(c)R. Origin is at center, axes rotated.
         ctx.translate(cx, cy);
 
         const w = el.width;
@@ -186,28 +197,43 @@ export const renderElement = (
         const mw = w / 2;
         const mh = h / 2;
 
-        if (fillStyle === 'linear') {
+        const gType = el.gradientType || fillStyle || 'linear';
+
+        let grad: CanvasGradient;
+
+        if (gType === 'linear') {
             const angleRad = (el.gradientDirection || 45) * (Math.PI / 180);
             const r = Math.sqrt(mw ** 2 + mh ** 2);
-
             // Local Coordinates centered at 0,0
             const x1 = -Math.cos(angleRad) * r;
             const y1 = -Math.sin(angleRad) * r;
             const x2 = Math.cos(angleRad) * r;
             const y2 = Math.sin(angleRad) * r;
-
-            const grad = ctx.createLinearGradient(x1, y1, x2, y2);
-            grad.addColorStop(0, el.gradientStart);
-            grad.addColorStop(1, el.gradientEnd);
-            ctx.fillStyle = grad;
+            grad = ctx.createLinearGradient(x1, y1, x2, y2);
+        } else if (gType === 'radial') {
+            grad = ctx.createRadialGradient(0, 0, 0, 0, 0, Math.max(w, h) / 2);
+        } else if (gType === 'conic') {
+            // Conic Gradient centered at 0,0, starting angle matches direction
+            const angleRad = (el.gradientDirection || 0) * (Math.PI / 180);
+            // Note: createConicGradient might not be in all TS definitions yet, needs cast or newer lib
+            // We assume environment supports it (modern browsers do)
+            grad = (ctx as any).createConicGradient(angleRad, 0, 0);
         } else {
-            // Radial (at 0,0)
-            const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, Math.max(w, h) / 2);
-            grad.addColorStop(0, el.gradientStart);
-            grad.addColorStop(1, el.gradientEnd);
-            ctx.fillStyle = grad;
+            // Fallback
+            grad = ctx.createLinearGradient(-mw, -mh, mw, mh);
         }
 
+        // Add Stops
+        if (hasStops && el.gradientStops) {
+            el.gradientStops.forEach(stop => {
+                grad.addColorStop(stop.offset, stop.color);
+            });
+        } else if (hasLegacyGradient && el.gradientStart && el.gradientEnd) {
+            grad.addColorStop(0, el.gradientStart);
+            grad.addColorStop(1, el.gradientEnd);
+        }
+
+        ctx.fillStyle = grad;
 
         // Unified Gradient Rendering using ShapeGeometry
         const geometry = getShapeGeometry(el);
@@ -236,14 +262,9 @@ export const renderElement = (
                 drawGeometry(geometry);
                 ctx.fill();
             } else {
-                // specific handling for path/multi which might do their own fills or accumulated path
                 if (geometry.type === 'multi') {
-                    // For multi-shapes, we need to build one big path or fill each?
-                    // If we fill each, they overlap.
-                    // Better to just call drawGeometry which fills specific paths or builds path
                     drawGeometry(geometry);
                 } else {
-                    // Path type already filled in helper
                     drawGeometry(geometry);
                 }
             }
@@ -252,8 +273,6 @@ export const renderElement = (
             if (normalizedPoints.length > 0) {
                 // Fallback for generic lines/arrows if not caught by geometry
                 ctx.beginPath();
-                // Polygon points are global. Need to shift them to local (0,0)
-                // pt.x - cx, pt.y - cy
                 ctx.moveTo(normalizedPoints[0].x - cx, normalizedPoints[0].y - cy);
                 for (let i = 1; i < normalizedPoints.length; i++) {
                     ctx.lineTo(normalizedPoints[i].x - cx, normalizedPoints[i].y - cy);

@@ -200,7 +200,8 @@ export const properties: PropertyConfig[] = [
             { label: 'Dashed', value: 'dashed' },
             { label: 'Zigzag Line', value: 'zigzag-line' },
             { label: 'Linear Gradient', value: 'linear' },
-            { label: 'Radial Gradient', value: 'radial' }
+            { label: 'Radial Gradient', value: 'radial' },
+            { label: 'Conic Gradient', value: 'conic' }
         ],
         applicableTo: ['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField'],
         defaultValue: 'hachure'
@@ -215,13 +216,7 @@ export const properties: PropertyConfig[] = [
         group: 'background',
         applicableTo: ['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField'],
         defaultValue: 1,
-        // Only show if fillStyle is NOT solid (solid has no density)
-        // actually dependsOn only supports simple check, let's leave it always or fix UI to hide it.
-        // PropertyPanel.tsx handles hiding checks? 
-        // For now, let it be always visible if these shapes are selected, 
-        // OR better, we can implementation dependsOn value check if supported. 
-        // Looking at PropertyPanel, it might not support complex dependency.
-        // But fill density is relevant for hachure, dots, etc. Solid effectively ignores it.
+        dependsOn: { key: 'fillStyle', value: ['hachure', 'cross-hatch', 'zigzag', 'dots', 'dashed', 'zigzag-line'] }
     },
     {
         key: 'strokeWidth',
@@ -280,7 +275,34 @@ export const properties: PropertyConfig[] = [
         group: 'gradient',
         applicableTo: 'all',
         defaultValue: 45,
-        dependsOn: { key: 'fillStyle', value: ['linear'] }
+        dependsOn: { key: 'fillStyle', value: ['linear', 'conic'] }
+    },
+    // Blend Mode
+    {
+        key: 'blendMode',
+        label: 'Blend Mode',
+        type: 'select',
+        options: [
+            { label: 'Normal', value: 'normal' },
+            { label: 'Multiply', value: 'multiply' },
+            { label: 'Screen', value: 'screen' },
+            { label: 'Overlay', value: 'overlay' },
+            { label: 'Darken', value: 'darken' },
+            { label: 'Lighten', value: 'lighten' },
+            { label: 'Color Dodge', value: 'color-dodge' },
+            { label: 'Color Burn', value: 'color-burn' },
+            { label: 'Hard Light', value: 'hard-light' },
+            { label: 'Soft Light', value: 'soft-light' },
+            { label: 'Difference', value: 'difference' },
+            { label: 'Exclusion', value: 'exclusion' },
+            { label: 'Hue', value: 'hue' },
+            { label: 'Saturation', value: 'saturation' },
+            { label: 'Color', value: 'color' },
+            { label: 'Luminosity', value: 'luminosity' }
+        ],
+        group: 'style',
+        applicableTo: 'all',
+        defaultValue: 'normal'
     },
     // We need 2 color pickers.
     // Since my generic property panel binds directly to keys, I need these keys on the object.

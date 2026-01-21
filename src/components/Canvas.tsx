@@ -899,8 +899,11 @@ const Canvas: Component = () => {
             e.fillDensity; // Track fill density
             // Track gradient properties
             e.gradientStart; e.gradientEnd; e.gradientDirection;
+            e.gradientStops; e.gradientType;
             // Track shadow properties
             e.shadowEnabled; e.shadowColor; e.shadowBlur; e.shadowOffsetX; e.shadowOffsetY;
+            // Effects
+            e.blendMode;
         });
         store.viewState.scale;
         store.viewState.panX;

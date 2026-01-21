@@ -1,11 +1,11 @@
-import { type Component, Show, createMemo, For, createSignal, createEffect } from "solid-js";
+import { type Component, Show, createMemo, For, createSignal, createEffect, Index } from "solid-js";
 import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, alignSelectedElements, distributeSelectedElements, togglePropertyPanel, minimizePropertyPanel, setMaxLayers, setCanvasTexture } from "../store/appStore";
 import {
     Copy, ChevronsDown, ChevronDown, ChevronUp, ChevronsUp, Trash2, Palette,
     AlignLeft, AlignCenterHorizontal, AlignRight,
     AlignStartVertical, AlignCenterVertical, AlignEndVertical,
     AlignHorizontalDistributeCenter, AlignVerticalDistributeCenter,
-    Minus, X
+    Minus, X, Plus
 } from "lucide-solid";
 import "./PropertyPanel.css";
 import { properties, type PropertyConfig } from "../config/properties";
@@ -110,6 +110,97 @@ const ColorControl: Component<{ prop: PropertyConfig, value: any, onChange: (val
                         </div>
                     </div>
                 </Show>
+            </div>
+        </div>
+    );
+};
+
+const GradientEditor: Component<{ target: any, onChange: (key: string, val: any) => void }> = (props) => {
+    // Helper to get current stops or defaults
+    const stops = createMemo(() => {
+        const targetData = props.target?.data;
+        if (!targetData) return [];
+
+        const s = targetData.gradientStops;
+        if (s && s.length > 0) return s;
+
+        // Fallback to start/end if available
+        if (targetData.gradientStart && targetData.gradientEnd) {
+            return [
+                { offset: 0, color: targetData.gradientStart },
+                { offset: 1, color: targetData.gradientEnd }
+            ];
+        }
+        return [
+            { offset: 0, color: '#ffffff' },
+            { offset: 1, color: '#000000' }
+        ];
+    });
+
+    const updateStops = (newStops: any[]) => {
+        // Sort by offset
+        const sorted = [...newStops].sort((a, b) => a.offset - b.offset);
+        props.onChange('gradientStops', sorted);
+    };
+
+    const addStop = () => {
+        const current = stops();
+        // Add at 0.5 or nice gap
+        const newStop = { offset: 0.5, color: '#888888' };
+        updateStops([...current, newStop]);
+    };
+
+    const removeStop = (index: number) => {
+        const current = stops();
+        if (current.length <= 2) return; // Min 2 stops
+        const newStops = current.filter((_: any, i: number) => i !== index);
+        updateStops(newStops);
+    };
+
+    const updateStop = (index: number, field: 'offset' | 'color', val: any) => {
+        const current = stops().map((s: any) => ({ ...s }));
+        (current[index] as any)[field] = val;
+        updateStops(current);
+    };
+
+    // Render gradient preview
+    const gradientString = createMemo(() => {
+        return `linear-gradient(90deg, ${stops().map((s: any) => `${s.color} ${s.offset * 100}%`).join(', ')})`;
+    });
+
+    return (
+        <div class="gradient-editor">
+            <div class="gradient-preview" style={{ background: gradientString(), height: '20px', "border-radius": '4px', "margin-bottom": '8px', border: '1px solid #ccc' }}></div>
+
+            <Index each={stops()}>
+                {(stop, i) => (
+                    <div class="control-row stop-row" style={{ "margin-bottom": '4px', display: 'flex', "align-items": 'center', gap: '4px' }}>
+                        <input
+                            type="range"
+                            min="0" max="1" step="0.01"
+                            value={stop().offset}
+                            onInput={(e) => updateStop(i, 'offset', parseFloat(e.currentTarget.value))}
+                            style={{ flex: 1 }}
+                        />
+                        <div style={{ width: '24px', height: '24px', position: 'relative', overflow: 'hidden', "border-radius": '4px', border: '1px solid #ccc' }}>
+                            <input
+                                type="color"
+                                value={stop().color}
+                                onInput={(e) => updateStop(i, 'color', e.currentTarget.value)}
+                                style={{ position: 'absolute', top: "-4px", left: "-4px", width: '40px', height: '40px', padding: 0, border: 'none' }}
+                            />
+                        </div>
+                        <button class="icon-btn small" onClick={() => removeStop(i)} disabled={stops().length <= 2} title="Remove Stop">
+                            <Minus size={14} />
+                        </button>
+                    </div>
+                )}
+            </Index>
+
+            <div class="control-row" style={{ "justify-content": 'flex-end', "margin-top": '8px' }}>
+                <button class="icon-btn" onClick={addStop} title="Add Stop">
+                    <Plus size={16} /> Add Stop
+                </button>
             </div>
         </div>
     );
@@ -423,12 +514,21 @@ const PropertyPanel: Component = () => {
                                 <Show when={activeTarget()?.type === 'multi'}>
                                     <AlignmentControls />
                                 </Show>
-                                <For each={Object.entries(groupedProperties())}>
-                                    {([group, props]) => (
+                                <For each={Object.keys(groupedProperties())}>
+                                    {(group) => (
                                         <div class="property-group">
                                             <div class="group-title">{group.toUpperCase()}</div>
-                                            <For each={props}>
-                                                {(prop) => renderControl(prop)}
+                                            <Show when={group === 'gradient' && activeTarget()?.type === 'element'}>
+                                                <GradientEditor
+                                                    target={activeTarget()}
+                                                    onChange={handleChange}
+                                                />
+                                            </Show>
+                                            <For each={groupedProperties()[group]}>
+                                                {(prop) => {
+                                                    if (group === 'gradient' && (prop.key === 'gradientStart' || prop.key === 'gradientEnd')) return null;
+                                                    return renderControl(prop);
+                                                }}
                                             </For>
                                         </div>
                                     )}
