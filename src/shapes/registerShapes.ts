@@ -5,6 +5,9 @@ import { CircleRenderer } from "./renderers/CircleRenderer";
 import { DiamondRenderer } from "./renderers/DiamondRenderer";
 import { TriangleRenderer } from "./renderers/TriangleRenderer";
 import { SimplePolygonRenderer } from "./renderers/SimplePolygonRenderer";
+import { StarRenderer } from "./renderers/StarRenderer";
+import { PathShapeRenderer } from "./renderers/PathShapeRenderer";
+import { LineShapeRenderer } from "./renderers/LineShapeRenderer";
 
 /**
  * Register all shape renderers
@@ -28,7 +31,14 @@ export function registerShapeRenderers(): void {
     ShapeRegistry.register('septagon', new PolygonRenderer(7));
     ShapeRegistry.register('octagon', new PolygonRenderer(8));
 
+    // Decorative shapes
+    ShapeRegistry.register('star', new StarRenderer());
+    ShapeRegistry.register('cloud', PathShapeRenderer.cloud());
+    ShapeRegistry.register('heart', PathShapeRenderer.heart());
+    ShapeRegistry.register('cross', LineShapeRenderer.cross());
+    ShapeRegistry.register('checkmark', LineShapeRenderer.checkmark());
+
     // TODO: Register other shape renderers as they are migrated
-    // ShapeRegistry.register('star', new StarRenderer());
+    // ShapeRegistry.register('arrowLeft', ...);
     // etc.
 }

@@ -1,0 +1,93 @@
+import { ShapeRenderer } from "../base/ShapeRenderer";
+import type { RenderContext, RenderOptions } from "../base/types";
+
+/**
+ * PathShapeRenderer - Handles shapes defined by complex SVG paths
+ * 
+ * Supports: cloud, heart
+ * These shapes use bezier curves and arcs for organic appearances
+ */
+export class PathShapeRenderer extends ShapeRenderer {
+    private pathGenerator: (x: number, y: number, w: number, h: number) => string;
+
+    constructor(pathGenerator: (x: number, y: number, w: number, h: number) => string) {
+        super();
+        this.pathGenerator = pathGenerator;
+    }
+
+    protected renderArchitectural(context: RenderContext, options: RenderOptions): void {
+        const { ctx, element } = context;
+        const path = this.pathGenerator(element.x, element.y, element.width, element.height);
+        const path2D = new Path2D(path);
+
+        // Fill
+        if (options.fill && options.fill !== 'transparent' && options.fill !== 'none' && element.fillStyle !== 'dots') {
+            ctx.fillStyle = options.fill;
+            ctx.fill(path2D);
+        }
+
+        // Stroke
+        ctx.strokeStyle = options.strokeColor;
+        ctx.lineWidth = options.strokeWidth;
+        ctx.stroke(path2D);
+    }
+
+    protected renderSketch(context: RenderContext, options: RenderOptions): void {
+        const { rc, element } = context;
+        const path = this.pathGenerator(element.x, element.y, element.width, element.height);
+
+        rc.path(path, {
+            seed: options.seed,
+            roughness: options.roughness,
+            bowing: options.bowing,
+            stroke: options.stroke,
+            strokeWidth: options.strokeWidth,
+            fill: options.fill,
+            fillStyle: options.fillStyle,
+            fillWeight: options.fillWeight,
+            hachureGap: options.hachureGap,
+            strokeLineDash: options.strokeLineDash,
+            hachureAngle: -41 + (options.seed % 360),
+        });
+    }
+
+    /**
+     * Static factory methods for common path shapes
+     */
+    static cloud(): PathShapeRenderer {
+        return new PathShapeRenderer((x, y, w, h) => {
+            const cy = y + h / 2;
+            const r1 = w * 0.2;  // Left circle
+            const r2 = w * 0.25; // Top circle
+            const r3 = w * 0.2;  // Right circle
+            const r4 = w * 0.3;  // Bottom circle
+
+            return `
+        M ${x + r1} ${cy}
+        A ${r1} ${r1} 0 0 1 ${x + w * 0.3} ${y + r2}
+        A ${r2} ${r2} 0 0 1 ${x + w * 0.7} ${y + r2}
+        A ${r3} ${r3} 0 0 1 ${x + w - r3} ${cy}
+        A ${r4} ${r4} 0 0 1 ${x + w * 0.6} ${y + h - r4 * 0.5}
+        A ${r4} ${r4} 0 0 1 ${x + w * 0.3} ${y + h - r4 * 0.5}
+        A ${r4} ${r4} 0 0 1 ${x + r1} ${cy}
+        Z
+      `;
+        });
+    }
+
+    static heart(): PathShapeRenderer {
+        return new PathShapeRenderer((x, y, w, h) => {
+            const cx = x + w / 2;
+
+            return `
+        M ${cx} ${y + h * 0.3}
+        C ${cx} ${y + h * 0.15} ${x + w * 0.3} ${y} ${x + w * 0.5} ${y + h * 0.15}
+        C ${x + w * 0.7} ${y} ${x + w} ${y + h * 0.15} ${x + w} ${y + h * 0.35}
+        C ${x + w} ${y + h * 0.6} ${cx} ${y + h * 0.8} ${cx} ${y + h}
+        C ${cx} ${y + h * 0.8} ${x} ${y + h * 0.6} ${x} ${y + h * 0.35}
+        C ${x} ${y + h * 0.15} ${x + w * 0.3} ${y} ${x + w * 0.5} ${y + h * 0.15}
+        Z
+      `;
+        });
+    }
+}
