@@ -114,7 +114,47 @@ Implemented a modular architecture using:
 **Build Status**: ✅ Compiles successfully  
 **Commits**:
 - `0007dd4` - "docs: Add comprehensive refactoring log"
-- `[next]` - "refactor: Add SimplePolygonRenderer for fixed-pattern shapes"
+- `cad5926` - "refactor: Add SimplePolygonRenderer for fixed-pattern shapes"
+
+---
+
+### ✅ Phase 3B: Decorative Shapes (Complete)
+
+**Migrated Shapes**:
+
+#### 6. StarRenderer (86 lines)
+- **Pattern**: Parametric star with configurable points
+- **Features**: 
+  - Adjustable number of points via `starPoints` property (default: 5)
+  - Configurable sharpness via `shapeRatio` property (inner/outer radius ratio, default: 38%)
+  - Both architectural and sketch modes
+- **Methods**: `calculateStarPoints()`
+- **File**: `src/shapes/renderers/StarRenderer.ts`
+
+#### 7. PathShapeRenderer (99 lines)
+- **Pattern**: SVG path-based shapes using functional approach
+- **Features**: Factory methods for complex organic shapes
+- **Shapes Supported**:
+  - `cloud` - Overlapping circles using arcs
+  - `heart` - Bezier curve-based heart shape
+- **Methods**: Static factory methods (`cloud()`, `heart()`)
+- **File**: `src/shapes/renderers/PathShapeRenderer.ts`
+
+#### 8. LineShapeRenderer (87 lines)
+- **Pattern**: Line segment-based shapes
+- **Features**: Multi-segment line drawing
+- **Shapes Supported**:
+  - `cross` - X shape (two diagonal lines)
+  - `checkmark` - ✓ shape (angled polyline)
+- **Methods**: Static factory methods (`cross()`, `checkmark()`)
+- **File**: `src/shapes/renderers/LineShapeRenderer.ts`
+
+**Total Shapes Migrated**: 16 (4 core + 4 regular polygons + 3 simple polygons + 5 decorative)  
+**Lines Extracted**: ~940 lines  
+**Build Status**: ✅ Compiles successfully  
+**Commits**:
+- `25ca513` - "docs: Update refactor-1.md with Phase 3 progress"
+- `[next]` - "refactor: Phase 3B - Add Star, Cloud, Heart, Cross, Checkmark renderers"
 
 ---
 
