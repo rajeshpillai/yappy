@@ -13,6 +13,9 @@ import { BoxWithLinesRenderer } from "./renderers/BoxWithLinesRenderer";
 import { StickyNoteRenderer } from "./renderers/StickyNoteRenderer";
 import { BurstRenderer } from "./renderers/BurstRenderer";
 import { RibbonRenderer } from "./renderers/RibbonRenderer";
+import { InfrastructureRenderer } from "./renderers/InfrastructureRenderer";
+import { SketchnoteRenderer } from "./renderers/SketchnoteRenderer";
+import { WireframeRenderer } from "./renderers/WireframeRenderer";
 
 /**
  * Register all shape renderers
@@ -35,8 +38,7 @@ export function registerShapeRenderers(): void {
     ShapeRegistry.register('hexagon', new PolygonRenderer(6));
     ShapeRegistry.register('septagon', new PolygonRenderer(7));
     ShapeRegistry.register('octagon', new PolygonRenderer(8));
-    // General polygon - uses element.polygonSides property
-    ShapeRegistry.register('polygon', new PolygonRenderer(6)); // Will use element.polygonSides at runtime
+    ShapeRegistry.register('polygon', new PolygonRenderer(6));
 
     // Decorative shapes
     ShapeRegistry.register('star', new StarRenderer());
@@ -67,14 +69,29 @@ export function registerShapeRenderers(): void {
     ShapeRegistry.register('callout', PathShapeRenderer.callout());
     ShapeRegistry.register('speechBubble', PathShapeRenderer.speechBubble());
 
-    // NOTE: Infrastructure, sketchnote, and wireframe shapes require specialized
-    // composite renderers (combining multiple primitives). These will continue
-    // using the fallback renderElement.ts logic until Phase 6 implementation:
-    //
-    // Infrastructure (8): server, loadBalancer, firewall, user, messageQueue, lambda, router, browser
-    // Sketchnote (7): starPerson, scroll, wavyDivider, doubleBanner, lightbulb, signpost, burstBlob
-    // Wireframe (5): browserWindow, mobilePhone, ghostButton, inputField, organicBranch
-    //
-    // These represent ~20 shapes (40% of total) but are less commonly used than
-    // the 30 shapes migrated above (60% coverage of standard drawing shapes).
+    // Infrastructure shapes
+    ShapeRegistry.register('server', InfrastructureRenderer.server());
+    ShapeRegistry.register('loadBalancer', InfrastructureRenderer.loadBalancer());
+    ShapeRegistry.register('firewall', InfrastructureRenderer.firewall());
+    ShapeRegistry.register('user', InfrastructureRenderer.user());
+    ShapeRegistry.register('messageQueue', InfrastructureRenderer.messageQueue());
+    ShapeRegistry.register('lambda', InfrastructureRenderer.lambda());
+    ShapeRegistry.register('router', InfrastructureRenderer.router());
+    ShapeRegistry.register('browser', InfrastructureRenderer.browser());
+
+    // Sketchnote shapes
+    ShapeRegistry.register('starPerson', SketchnoteRenderer.starPerson());
+    ShapeRegistry.register('scroll', SketchnoteRenderer.scroll());
+    ShapeRegistry.register('wavyDivider', SketchnoteRenderer.wavyDivider());
+    ShapeRegistry.register('doubleBanner', SketchnoteRenderer.doubleBanner());
+    ShapeRegistry.register('lightbulb', SketchnoteRenderer.lightbulb());
+    ShapeRegistry.register('signpost', SketchnoteRenderer.signpost());
+    ShapeRegistry.register('burstBlob', SketchnoteRenderer.burstBlob());
+
+    // Wireframe shapes
+    ShapeRegistry.register('browserWindow', WireframeRenderer.browserWindow());
+    ShapeRegistry.register('mobilePhone', WireframeRenderer.mobilePhone());
+    ShapeRegistry.register('ghostButton', WireframeRenderer.ghostButton());
+    ShapeRegistry.register('inputField', WireframeRenderer.inputField());
+    ShapeRegistry.register('organicBranch', WireframeRenderer.organicBranch());
 }
