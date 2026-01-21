@@ -4,6 +4,7 @@ import { RectangleRenderer } from "./renderers/RectangleRenderer";
 import { CircleRenderer } from "./renderers/CircleRenderer";
 import { DiamondRenderer } from "./renderers/DiamondRenderer";
 import { TriangleRenderer } from "./renderers/TriangleRenderer";
+import { SimplePolygonRenderer } from "./renderers/SimplePolygonRenderer";
 
 /**
  * Register all shape renderers
@@ -16,7 +17,12 @@ export function registerShapeRenderers(): void {
     ShapeRegistry.register('diamond', new DiamondRenderer());
     ShapeRegistry.register('triangle', new TriangleRenderer());
 
-    // Polygon family
+    // Simple polygons (fixed point patterns)
+    ShapeRegistry.register('parallelogram', SimplePolygonRenderer.parallelogram());
+    ShapeRegistry.register('trapezoid', SimplePolygonRenderer.trapezoid());
+    ShapeRegistry.register('rightTriangle', SimplePolygonRenderer.rightTriangle());
+
+    // Regular polygons (parametric)
     ShapeRegistry.register('pentagon', new PolygonRenderer(5));
     ShapeRegistry.register('hexagon', new PolygonRenderer(6));
     ShapeRegistry.register('septagon', new PolygonRenderer(7));
