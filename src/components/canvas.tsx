@@ -2,11 +2,11 @@ import { type Component, onMount, createEffect, onCleanup, createSignal, Show, u
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
 import { isElementHiddenByHierarchy, getDescendants } from "../utils/hierarchy";
 import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit, isLayerVisible, isLayerLocked, toggleCollapse, setParent, clearParent, addChildNode, addSiblingNode } from "../store/app-store";
-import { distanceToSegment, isPointOnPolyline, isPointInEllipse, intersectElementWithLine, isPointOnBezier } from "../utils/geometry";
+import { renderElement, normalizePoints } from "../utils/render-element";
 import { getAnchorPoints, findClosestAnchor } from "../utils/anchor-points";
 import { calculateSmartElbowRoute } from "../utils/routing";
 import type { DrawingElement } from "../types";
-import { renderElement, normalizePoints } from "../utils/render-element";
+import { distanceToSegment, isPointOnPolyline, isPointInEllipse, intersectElementWithLine, isPointOnBezier } from "../utils/geometry";
 import ContextMenu, { type MenuItem } from "./context-menu";
 import { snapPoint } from "../utils/snap-helpers";
 import { setImageLoadCallback } from "../utils/image-cache";
