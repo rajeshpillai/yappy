@@ -24,6 +24,8 @@ interface ElementOptions {
     endArrowhead?: ArrowHead;
     seed?: number;
     layerId?: string;
+    // Specific to Linear (Line, Arrow, Pencil)
+    points?: { x: number, y: number }[];
     curveType?: 'straight' | 'bezier' | 'elbow';
     startBinding?: { elementId: string; focus: number; gap: number; position?: string } | null;
     endBinding?: { elementId: string; focus: number; gap: number; position?: string } | null;
@@ -175,6 +177,18 @@ export const YappyAPI = {
         return this.createElement('stickyNote', x, y, width, height, { ...options, containerText: text });
     },
 
+    // --- Sketchnote Shapes ---
+
+    createSketchnoteShape(type: 'starPerson' | 'scroll' | 'wavyDivider' | 'doubleBanner' | 'lightbulb' | 'signpost' | 'burstBlob', x: number, y: number, width: number, height: number, options?: ElementOptions) {
+        return this.createElement(type, x, y, width, height, options);
+    },
+
+    // --- Infrastructure Shapes ---
+
+    createInfrastructureShape(type: 'server' | 'loadBalancer' | 'firewall' | 'user' | 'messageQueue' | 'lambda' | 'router' | 'browser', x: number, y: number, width: number, height: number, options?: ElementOptions) {
+        return this.createElement(type, x, y, width, height, options);
+    },
+
     // --- Linear Elements ---
 
     createLine(x1: number, y1: number, x2: number, y2: number, options?: ElementOptions) {
@@ -205,7 +219,26 @@ export const YappyAPI = {
         });
     },
 
-    // --- Specialized Elements ---
+    // --- Freehand Elements ---
+
+    createPencil(points: { x: number, y: number }[], options?: ElementOptions) {
+        // Pencil is usually just a line with freehand points
+        return this.createElement('line', 0, 0, 0, 0, { ...options, points, strokeStyle: 'solid' }); // x/y/w/h usually recalculated
+    },
+
+    createFineliner(points: { x: number, y: number }[], options?: ElementOptions) {
+        return this.createElement('fineliner', 0, 0, 0, 0, { ...options, points });
+    },
+
+    createInkBrush(points: { x: number, y: number }[], options?: ElementOptions) {
+        return this.createElement('inkbrush', 0, 0, 0, 0, { ...options, points });
+    },
+
+    createMarker(points: { x: number, y: number }[], options?: ElementOptions) {
+        return this.createElement('marker', 0, 0, 0, 0, { ...options, points });
+    },
+
+    // --- specialized Elements ---
 
     createText(x: number, y: number, text: string, options?: ElementOptions) {
         const id = crypto.randomUUID();

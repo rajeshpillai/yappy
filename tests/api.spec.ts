@@ -138,6 +138,37 @@ test.describe('Yappy API', () => {
         expect(valid).toBeTruthy();
     });
 
+    test('should create sketchnote shapes', async ({ page }) => {
+        const id = await page.evaluate(() => {
+            return window.Yappy.createSketchnoteShape('lightbulb', 400, 400, 50, 80);
+        });
+        const type = await page.evaluate((id) => {
+            return window.Yappy.getElement(id)?.type;
+        }, id);
+        expect(type).toBe('lightbulb');
+    });
+
+    test('should create infrastructure shapes', async ({ page }) => {
+        const id = await page.evaluate(() => {
+            return window.Yappy.createInfrastructureShape('server', 500, 400, 60, 80);
+        });
+        const type = await page.evaluate((id) => {
+            return window.Yappy.getElement(id)?.type;
+        }, id);
+        expect(type).toBe('server');
+    });
+
+    test('should create freehand pencil lines', async ({ page }) => {
+        const id = await page.evaluate(() => {
+            return window.Yappy.createPencil([{ x: 0, y: 0 }, { x: 10, y: 10 }, { x: 20, y: 20 }]);
+        });
+        const el = await page.evaluate((id) => {
+            return window.Yappy.getElement(id);
+        }, id);
+        expect(el?.type).toBe('line');
+        expect(el?.points?.length).toBe(3);
+    });
+
     test('should clear the canvas', async ({ page }) => {
         await page.evaluate(() => {
             window.Yappy.createRectangle(10, 10, 10, 10);

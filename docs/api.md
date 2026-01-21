@@ -36,6 +36,25 @@ Creates an arrow from point 1 to point 2.
 #### `createBezier(x1, y1, x2, y2, options)`
 Creates a bezier curve (line) from point 1 to point 2.
 
+#### `createSketchnoteShape(type, x, y, width, height, options)`
+Creates a sketchnote shape.
+- **type**: 'lightbulb', 'signpost', 'starPerson', 'scroll', etc.
+
+#### `createInfrastructureShape(type, x, y, width, height, options)`
+Creates an infrastructure diagram shape.
+- **type**: 'server', 'database', 'user', 'firewall', etc.
+
+#### `createOrganicBranch(x1, y1, x2, y2, options)`
+Creates an organic mindmap branch.
+
+#### `createPencil/Fineliner/Marker(points, options)`
+Creates a freehand drawing element.
+- **points**: Array of `{x, y}` objects.
+
+#### `createPolygonalShape(type, x, y, width, height, options)`
+Creates a polygonal shape (pentagon, hexagon, star, etc).
+- **type**: 'hexagon', 'star', etc.
+
 #### `createText(x, y, text, options)`
 Creates a text element.
 - **text**: String content.
