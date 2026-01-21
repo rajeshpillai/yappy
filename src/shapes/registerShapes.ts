@@ -9,6 +9,7 @@ import { StarRenderer } from "./renderers/StarRenderer";
 import { PathShapeRenderer } from "./renderers/PathShapeRenderer";
 import { LineShapeRenderer } from "./renderers/LineShapeRenderer";
 import { DirectionalArrowRenderer } from "./renderers/DirectionalArrowRenderer";
+import { BoxWithLinesRenderer } from "./renderers/BoxWithLinesRenderer";
 
 /**
  * Register all shape renderers
@@ -45,7 +46,14 @@ export function registerShapeRenderers(): void {
     ShapeRegistry.register('arrowUp', DirectionalArrowRenderer.arrowUp());
     ShapeRegistry.register('arrowDown', DirectionalArrowRenderer.arrowDown());
 
+    // Flowchart shapes
+    ShapeRegistry.register('capsule', PathShapeRenderer.capsule());
+    ShapeRegistry.register('database', PathShapeRenderer.database());
+    ShapeRegistry.register('document', PathShapeRenderer.document());
+    ShapeRegistry.register('predefinedProcess', BoxWithLinesRenderer.predefinedProcess());
+    ShapeRegistry.register('internalStorage', BoxWithLinesRenderer.internalStorage());
+
     // TODO: Register other shape renderers as they are migrated
-    // ShapeRegistry.register('database', ...);
+    // ShapeRegistry.register('stickyNote', ...);
     // etc.
 }

@@ -4,7 +4,7 @@ import type { RenderContext, RenderOptions } from "../base/types";
 /**
  * PathShapeRenderer - Handles shapes defined by complex SVG paths
  * 
- * Supports: cloud, heart
+ * Supports: cloud, heart, capsule, database, document
  * These shapes use bezier curves and arcs for organic appearances
  */
 export class PathShapeRenderer extends ShapeRenderer {
@@ -86,6 +86,44 @@ export class PathShapeRenderer extends ShapeRenderer {
         C ${x + w} ${y + h * 0.6} ${cx} ${y + h * 0.8} ${cx} ${y + h}
         C ${cx} ${y + h * 0.8} ${x} ${y + h * 0.6} ${x} ${y + h * 0.35}
         C ${x} ${y + h * 0.15} ${x + w * 0.3} ${y} ${x + w * 0.5} ${y + h * 0.15}
+        Z
+      `;
+        });
+    }
+
+    // Flowchart shapes
+    static capsule(): PathShapeRenderer {
+        return new PathShapeRenderer((x, y, w, h) => {
+            const radius = Math.min(Math.abs(w), Math.abs(h)) / 2;
+            const rX = Math.min(Math.abs(w) / 2, radius);
+            const rY = Math.min(Math.abs(h) / 2, radius);
+            return `M ${x + rX} ${y} L ${x + w - rX} ${y} Q ${x + w} ${y} ${x + w} ${y + rY} L ${x + w} ${y + h - rY} Q ${x + w} ${y + h} ${x + w - rX} ${y + h} L ${x + rX} ${y + h} Q ${x} ${y + h} ${x} ${y + h - rY} L ${x} ${y + rY} Q ${x} ${y} ${x + rX} ${y}`;
+        });
+    }
+
+    static database(): PathShapeRenderer {
+        return new PathShapeRenderer((x, y, w, h) => {
+            const ellipseHeight = h * 0.2;
+            return `
+        M ${x} ${y + ellipseHeight / 2}
+        L ${x} ${y + h - ellipseHeight / 2}
+        A ${w / 2} ${ellipseHeight / 2} 0 0 0 ${x + w} ${y + h - ellipseHeight / 2}
+        L ${x + w} ${y + ellipseHeight / 2}
+        A ${w / 2} ${ellipseHeight / 2} 0 0 0 ${x} ${y + ellipseHeight / 2}
+        A ${w / 2} ${ellipseHeight / 2} 0 0 0 ${x + w} ${y + ellipseHeight / 2}
+      `;
+        });
+    }
+
+    static document(): PathShapeRenderer {
+        return new PathShapeRenderer((x, y, w, h) => {
+            const waveHeight = h * 0.1;
+            return `
+        M ${x} ${y}
+        L ${x + w} ${y}
+        L ${x + w} ${y + h - waveHeight}
+        Q ${x + w * 0.75} ${y + h - waveHeight * 2} ${x + w * 0.5} ${y + h - waveHeight}
+        T ${x} ${y + h - waveHeight}
         Z
       `;
         });
