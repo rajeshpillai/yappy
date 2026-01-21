@@ -4,7 +4,7 @@ import {
     addLayer, deleteLayer, setActiveLayer, mergeLayerDown, flattenLayers, isolateLayer, showAllLayers,
     toggleGrid, toggleSnapToGrid, toggleCommandPalette, togglePropertyPanel
 } from "./store/appStore";
-import type { ElementType, DrawingElement, FillStyle, StrokeStyle, FontFamily, TextAlign, ArrowHead } from "./types";
+import type { ElementType, DrawingElement, FillStyle, StrokeStyle, FontFamily, TextAlign, ArrowHead, VerticalAlign } from "./types";
 
 interface ElementOptions {
     strokeColor?: string;
@@ -19,13 +19,50 @@ interface ElementOptions {
     fontFamily?: FontFamily;
     fontSize?: number;
     textAlign?: TextAlign;
+    verticalAlign?: VerticalAlign;
     startArrowhead?: ArrowHead;
     endArrowhead?: ArrowHead;
     seed?: number;
     layerId?: string;
     curveType?: 'straight' | 'bezier' | 'elbow';
-    startBinding?: { elementId: string; focus: number; gap: number } | null;
-    endBinding?: { elementId: string; focus: number; gap: number } | null;
+    startBinding?: { elementId: string; focus: number; gap: number; position?: string } | null;
+    endBinding?: { elementId: string; focus: number; gap: number; position?: string } | null;
+
+    // New Attributes
+    containerText?: string;
+    locked?: boolean;
+    link?: string | null;
+    priority?: number; // Layer order implicitly handled by addElement but maybe useful?
+
+    // Shape Specifics
+    starPoints?: number;
+    polygonSides?: number;
+    burstPoints?: number;
+    borderRadius?: number;
+    tailPosition?: number;
+    shapeRatio?: number;
+
+    // Advanced Styling
+    fillDensity?: number;
+    shadowEnabled?: boolean;
+    shadowColor?: string;
+    shadowBlur?: number;
+    shadowOffsetX?: number;
+    shadowOffsetY?: number;
+    gradientStart?: string;
+    gradientEnd?: string;
+    gradientDirection?: number;
+
+    // Hierarchy (Mindmap)
+    parentId?: string | null;
+    isCollapsed?: boolean;
+    autoResize?: boolean;
+    constrained?: boolean;
+
+    // Image specifics
+    scale?: [number, number];
+    crop?: { x: number; y: number; width: number; height: number } | null;
+    mimeType?: string;
 }
 
 export const YappyAPI = {
@@ -64,18 +101,44 @@ export const YappyAPI = {
             fontFamily: options?.fontFamily ?? defaults.fontFamily ?? "hand-drawn",
             fontSize: options?.fontSize ?? defaults.fontSize ?? 20,
             textAlign: options?.textAlign ?? defaults.textAlign ?? 'left',
+            verticalAlign: options?.verticalAlign ?? 'middle',
             startArrowhead: options?.startArrowhead ?? defaults.startArrowhead ?? null,
             endArrowhead: options?.endArrowhead ?? defaults.endArrowhead ?? 'arrow',
-            locked: false,
-            link: null,
+            locked: options?.locked ?? false,
+            link: options?.link ?? null,
             layerId: options?.layerId ?? store.activeLayerId,
             curveType: options?.curveType ?? 'straight',
+            containerText: options?.containerText ?? '',
+
+            // New Properties Defaults
+            parentId: options?.parentId ?? null,
+            isCollapsed: options?.isCollapsed ?? false,
+            autoResize: options?.autoResize ?? false,
+            constrained: options?.constrained ?? false,
+
+            starPoints: options?.starPoints,
+            polygonSides: options?.polygonSides,
+            burstPoints: options?.burstPoints,
+            borderRadius: options?.borderRadius,
+
+            shadowEnabled: options?.shadowEnabled ?? false,
+            shadowColor: options?.shadowColor,
+            shadowBlur: options?.shadowBlur,
+            shadowOffsetX: options?.shadowOffsetX,
+            shadowOffsetY: options?.shadowOffsetY,
+
+            gradientStart: options?.gradientStart,
+            gradientEnd: options?.gradientEnd,
+            gradientDirection: options?.gradientDirection,
+
             ...options
         };
 
         addElement(element);
         return id;
     },
+
+    // --- Basic Shapes ---
 
     createRectangle(x: number, y: number, width: number, height: number, options?: ElementOptions) {
         return this.createElement('rectangle', x, y, width, height, options);
@@ -89,8 +152,32 @@ export const YappyAPI = {
         return this.createElement('diamond', x, y, width, height, options);
     },
 
+    createTriangle(x: number, y: number, width: number, height: number, options?: ElementOptions) {
+        return this.createElement('triangle', x, y, width, height, options);
+    },
+
+    createPolygonalShape(type: ElementType, x: number, y: number, width: number, height: number, options?: ElementOptions) {
+        // Wrapper for all polygon types: hexagon, octagon, star, cloud, etc.
+        return this.createElement(type, x, y, width, height, options);
+    },
+
+    createStar(x: number, y: number, width: number, height: number, points: number = 5, options?: ElementOptions) {
+        return this.createElement('star', x, y, width, height, { ...options, starPoints: points });
+    },
+
+    // --- Wireframing & Sketchnotes ---
+
+    createBrowserWindow(x: number, y: number, width: number, height: number, options?: ElementOptions) {
+        return this.createElement('browserWindow', x, y, width, height, options);
+    },
+
+    createStickyNote(x: number, y: number, width: number, height: number, text?: string, options?: ElementOptions) {
+        return this.createElement('stickyNote', x, y, width, height, { ...options, containerText: text });
+    },
+
+    // --- Linear Elements ---
+
     createLine(x1: number, y1: number, x2: number, y2: number, options?: ElementOptions) {
-        // Line width/height logic is relative
         const width = x2 - x1;
         const height = y2 - y1;
         return this.createElement('line', x1, y1, width, height, options);
@@ -108,12 +195,23 @@ export const YappyAPI = {
         return this.createElement('line', x1, y1, width, height, { ...options, curveType: 'bezier' });
     },
 
+    createOrganicBranch(x1: number, y1: number, x2: number, y2: number, options?: ElementOptions) {
+        const width = x2 - x1;
+        const height = y2 - y1;
+        return this.createElement('organicBranch', x1, y1, width, height, {
+            ...options,
+            curveType: 'bezier',
+            strokeWidth: options?.strokeWidth ?? 3, // Branches usually thicker
+        });
+    },
+
+    // --- Specialized Elements ---
+
     createText(x: number, y: number, text: string, options?: ElementOptions) {
         const id = crypto.randomUUID();
         const defaults = store.defaultElementStyles;
-
-        // Basic size estimation (can be updated later or user provides)
         const fontSize = options?.fontSize ?? defaults.fontSize ?? 20;
+        // Approximation
         const estimatedWidth = text.length * (fontSize * 0.6);
 
         const element: DrawingElement = {
@@ -138,6 +236,7 @@ export const YappyAPI = {
             fontFamily: options?.fontFamily ?? defaults.fontFamily ?? "hand-drawn",
             fontSize: fontSize,
             textAlign: options?.textAlign ?? defaults.textAlign ?? 'left',
+            verticalAlign: options?.verticalAlign ?? 'middle',
             locked: false,
             link: null,
             layerId: options?.layerId ?? store.activeLayerId,
@@ -147,6 +246,21 @@ export const YappyAPI = {
         addElement(element);
         return id;
     },
+
+    createImage(x: number, y: number, dataURL: string, width: number, height: number, options?: ElementOptions) {
+        return this.createElement('image', x, y, width, height, {
+            ...options,
+            backgroundColor: 'transparent', // Images usually transparent bg
+            fillStyle: 'solid',
+            // dataURL should be handled by the updateElement or if we want to add it to generic createElement we need to add it to ElementOptions but it is specific.
+            // We'll hack it in via the options spread which casts to DrawingElement
+            // @ts-ignore
+            dataURL: dataURL,
+            status: 'loaded'
+        });
+    },
+
+    // --- Actions & Helpers ---
 
     getElement(id: string) {
         return store.elements.find(e => e.id === id);
@@ -191,7 +305,7 @@ export const YappyAPI = {
     /**
      * Connect two elements with a line/arrow
      */
-    connect(sourceId: string, targetId: string, options?: ElementOptions & { type?: 'line' | 'arrow' }) {
+    connect(sourceId: string, targetId: string, options?: ElementOptions & { type?: 'line' | 'arrow' | 'organicBranch' }) {
         const source = this.getElement(sourceId);
         const target = this.getElement(targetId);
 
@@ -200,7 +314,6 @@ export const YappyAPI = {
             return null;
         }
 
-        // Calculate approximate center points for initial placement
         const sx = source.x + source.width / 2;
         const sy = source.y + source.height / 2;
         const tx = target.x + target.width / 2;
@@ -209,87 +322,55 @@ export const YappyAPI = {
         const type = options?.type ?? 'arrow';
         const curveType = options?.curveType ?? 'bezier';
 
-        // Helper to intersect (simple AABB center cast for now)
-        // Ideally we use proper intersection logic, but let's at least snap to edges if we can
-        // For API simplicity, we'll stick to center-to-center logic for now as 'binding' should generally snap visual anyway
-        // BUT if user says "connectors are not connecting", maybe the binding data is not enough for the renderer
-        // if the start/end point is INSIDE the shape.
-
-        // Let's try to calculate intersection with edge
+        // Simple Edge Intersection Logic
         const intersect = (x1: number, y1: number, x2: number, y2: number, rect: DrawingElement) => {
-            // Simple center-to-center intersection with AABB
             const cx = rect.x + rect.width / 2;
             const cy = rect.y + rect.height / 2;
             const w = rect.width / 2;
             const h = rect.height / 2;
-
             const dx = x2 - x1;
             const dy = y2 - y1;
-
             if (dx === 0 && dy === 0) return { x: x1, y: y1 };
 
-            // Diamond specific intersection
-            if (rect.type === 'diamond') {
-                const angle = Math.atan2(dy, dx);
-                // |dx|/w + |dy|/h = 1
-                const absTan = Math.abs(Math.tan(angle));
-                const absDx = 1 / ((1 / w) + (absTan / h));
-
-                const dX = (dx > 0 ? 1 : -1) * absDx;
-                const dY = dX * Math.tan(angle);
-
-                return { x: cx + dX, y: cy + dY };
-            }
-
-            // Find intersection with box
-            // We use Liang-Barsky or similar, or just Ratio
-            // t near 0 is source, near 1 is target
-
-            // Let's assume we want to find point on rect boundary that matches angle
-            // This is "good enough" for initial API placement
-            // angle from center
             const angle = Math.atan2(dy, dx);
 
-            // intersection with vertical edges
-            // x = cx +/- w
-            // y = cy + tan(a) * (x - cx)
+            // Diamond
+            if (rect.type === 'diamond') {
+                const absTan = Math.abs(Math.tan(angle));
+                const absDx = 1 / ((1 / w) + (absTan / h));
+                const dX = (dx > 0 ? 1 : -1) * absDx;
+                const dY = dX * Math.tan(angle);
+                return { x: cx + dX, y: cy + dY };
+            }
+            // Circle/Shape with radius roughly
+            if (['circle', 'star', 'octagon', 'hexagon'].includes(rect.type)) {
+                // Ellipse approximation
+                const cos = Math.cos(angle);
+                const sin = Math.sin(angle);
+                return { x: cx + w * cos, y: cy + h * sin };
+            }
+
+            // Box default
             const rx = dx > 0 ? cx + w : cx - w;
             const ry = cy + Math.tan(angle) * (rx - cx);
-
-            // intersection with horizontal edges
-            // y = cy +/- h
-            // x = cx + (y - cy) / tan(a)
             const by = dy > 0 ? cy + h : cy - h;
             const bx = cx + (by - cy) / Math.tan(angle);
-
-            // check which is valid (within bounds)
-            // intersection is the one closest to center? No, we check if points are on segment
-
             const onV = (ry >= cy - h - 1 && ry <= cy + h + 1);
-            const onH = (bx >= cx - w - 1 && bx <= cx + w + 1);
-
-            if (onV && onH) {
-                // Corner case, taking V
-                return { x: rx, y: ry };
-            }
             if (onV) return { x: rx, y: ry };
-            if (onH) return { x: bx, y: by };
-
-            return { x: cx, y: cy }; // Fallback
+            return { x: bx, y: by };
         };
 
         const startP = intersect(sx, sy, tx, ty, source);
-        const endP = intersect(tx, ty, sx, sy, target); // Reverse for target
+        const endP = intersect(tx, ty, sx, sy, target);
 
-        const id = this.createElement(type, startP.x, startP.y, endP.x - startP.x, endP.y - startP.y, {
+        const id = this.createElement(type as ElementType, startP.x, startP.y, endP.x - startP.x, endP.y - startP.y, {
             ...options,
             curveType,
             startBinding: { elementId: sourceId, focus: 0, gap: 5 },
             endBinding: { elementId: targetId, focus: 0, gap: 5 }
         });
 
-        // We also need to update the boundElements of source and target to know about this line
-        // This logic mimics handlePointerUp binding logic in Canvas.tsx
+        // Update boundElements
         const updateBindings = (el: DrawingElement, lineId: string) => {
             const existing = el.boundElements || [];
             if (!existing.find(b => b.id === lineId)) {
