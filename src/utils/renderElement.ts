@@ -225,9 +225,12 @@ export const renderElement = (
 
         // Add Stops
         if (hasStops && el.gradientStops) {
-            el.gradientStops.forEach(stop => {
-                grad.addColorStop(stop.offset, stop.color);
-            });
+            // Sort stops by offset to ensure correct rendering order
+            [...el.gradientStops]
+                .sort((a, b) => a.offset - b.offset)
+                .forEach(stop => {
+                    grad.addColorStop(stop.offset, stop.color);
+                });
         } else if (hasLegacyGradient && el.gradientStart && el.gradientEnd) {
             grad.addColorStop(0, el.gradientStart);
             grad.addColorStop(1, el.gradientEnd);

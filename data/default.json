@@ -1,48 +1,54 @@
 {
   "elements": [
     {
-      "id": "ec8de063-2949-4f20-b8ac-12b41ebf0bb2",
-      "type": "rectangle",
-      "x": 477.77777099609375,
-      "y": 111.11112976074219,
-      "width": 153.3333740234375,
-      "height": 119.99998474121094,
       "strokeColor": "#000000",
-      "backgroundColor": "transparent",
-      "fillStyle": "conic",
+      "backgroundColor": "#e8590c",
+      "fillStyle": "linear",
       "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 1,
+      "renderStyle": "sketch",
       "opacity": 100,
       "angle": 0,
-      "renderStyle": "sketch",
-      "seed": 263959696,
       "roundness": null,
       "locked": false,
-      "link": null,
-      "layerId": "default-layer",
-      "startArrowhead": null,
-      "endArrowhead": null,
       "fontSize": 20,
       "fontFamily": "hand-drawn",
+      "fontWeight": false,
+      "fontStyle": false,
       "textAlign": "left",
+      "startArrowhead": null,
+      "endArrowhead": null,
+      "autoResize": true,
+      "seed": 829315997,
+      "shadowEnabled": false,
+      "shadowColor": "rgba(0,0,0,0.3)",
+      "shadowBlur": 10,
+      "shadowOffsetX": 5,
+      "shadowOffsetY": 5,
+      "gradientStart": "#ffffff",
+      "gradientEnd": "#000000",
+      "gradientDirection": 45,
+      "id": "25c37d34-7410-436d-917e-4a96322474d4",
+      "type": "rectangle",
+      "x": 471.11114501953125,
+      "y": 235.55557250976562,
+      "width": 214.4444580078125,
+      "height": 151.11111450195312,
+      "layerId": "default-layer",
       "curveType": "straight",
       "gradientStops": [
         {
           "offset": 0,
-          "color": "#ea0606"
-        },
-        {
-          "offset": 0.5,
-          "color": "#a01313"
-        },
-        {
-          "offset": 0.5,
-          "color": "#888888"
+          "color": "#dd2c2c"
         },
         {
           "offset": 1,
-          "color": "#9f0404"
+          "color": "#000000"
+        },
+        {
+          "offset": 0.3030914006418799,
+          "color": "#860909"
         }
       ]
     }
@@ -50,7 +56,7 @@
   "viewState": {
     "scale": 1,
     "panX": 0,
-    "panY": 133.33333686546058
+    "panY": 0
   },
   "layers": [
     {
@@ -60,9 +66,7 @@
       "locked": false,
       "opacity": 1,
       "order": 0,
-      "backgroundColor": "transparent",
-      "isGroup": false,
-      "expanded": true
+      "backgroundColor": "transparent"
     }
   ],
   "gridSettings": {

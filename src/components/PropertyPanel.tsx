@@ -1,11 +1,11 @@
 import { type Component, Show, createMemo, For, createSignal, createEffect, Index } from "solid-js";
-import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, alignSelectedElements, distributeSelectedElements, togglePropertyPanel, minimizePropertyPanel, setMaxLayers, setCanvasTexture } from "../store/appStore";
+import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, alignSelectedElements, distributeSelectedElements, togglePropertyPanel, minimizePropertyPanel, setMaxLayers, setCanvasTexture, pushToHistory } from "../store/appStore";
 import {
     Copy, ChevronsDown, ChevronDown, ChevronUp, ChevronsUp, Trash2, Palette,
     AlignLeft, AlignCenterHorizontal, AlignRight,
     AlignStartVertical, AlignCenterVertical, AlignEndVertical,
     AlignHorizontalDistributeCenter, AlignVerticalDistributeCenter,
-    Minus, X, Plus
+    Minus, X
 } from "lucide-solid";
 import "./PropertyPanel.css";
 import { properties, type PropertyConfig } from "../config/properties";
@@ -115,7 +115,8 @@ const ColorControl: Component<{ prop: PropertyConfig, value: any, onChange: (val
     );
 };
 
-const GradientEditor: Component<{ target: any, onChange: (key: string, val: any) => void }> = (props) => {
+const GradientEditor: Component<{ target: any, onChange: (key: string, val: any, history?: boolean) => void }> = (props) => {
+
     // Helper to get current stops or defaults
     const stops = createMemo(() => {
         const targetData = props.target?.data;
@@ -137,70 +138,145 @@ const GradientEditor: Component<{ target: any, onChange: (key: string, val: any)
         ];
     });
 
-    const updateStops = (newStops: any[]) => {
-        // Sort by offset
-        const sorted = [...newStops].sort((a, b) => a.offset - b.offset);
-        props.onChange('gradientStops', sorted);
+    const [selectedIndex, setSelectedIndex] = createSignal<number | null>(null);
+    let barRef: HTMLDivElement | undefined;
+
+    const updateStops = (newStops: any[], recordHistory = true) => {
+        props.onChange('gradientStops', newStops, recordHistory);
     };
 
-    const addStop = () => {
-        const current = stops();
-        // Add at 0.5 or nice gap
-        const newStop = { offset: 0.5, color: '#888888' };
-        updateStops([...current, newStop]);
+    const handleBarMouseDown = (e: MouseEvent) => {
+        // Only if clicking the bar background, not a thumb
+        if ((e.target as HTMLElement).closest('.val-thumb')) return;
+
+        if (!barRef) return;
+        const rect = barRef.getBoundingClientRect();
+        const offsetX = e.clientX - rect.left;
+        const percent = Math.min(Math.max(offsetX / rect.width, 0), 1);
+
+        const newStop = { offset: percent, color: '#ffffff' };
+        const newStops = [...stops(), newStop];
+        // Sort explicitly when adding? No, append is fine.
+        // Canvas will handle it.
+        updateStops(newStops, true);
+        setSelectedIndex(newStops.length - 1);
     };
 
-    const removeStop = (index: number) => {
-        const current = stops();
-        if (current.length <= 2) return; // Min 2 stops
-        const newStops = current.filter((_: any, i: number) => i !== index);
-        updateStops(newStops);
+    const handleThumbMouseDown = (e: MouseEvent, index: number) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setSelectedIndex(index);
+
+        const onMove = (ev: MouseEvent) => {
+            if (!barRef) return;
+            const rect = barRef.getBoundingClientRect();
+            const offsetX = ev.clientX - rect.left;
+            const percent = Math.min(Math.max(offsetX / rect.width, 0), 1);
+
+            const current = [...stops()];
+            current[index] = { ...current[index], offset: percent };
+            updateStops(current, false);
+        };
+        const onUp = () => {
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onUp);
+            pushToHistory();
+        };
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
     };
 
-    const updateStop = (index: number, field: 'offset' | 'color', val: any) => {
-        const current = stops().map((s: any) => ({ ...s }));
-        (current[index] as any)[field] = val;
-        updateStops(current);
-    };
-
-    // Render gradient preview
-    const gradientString = createMemo(() => {
-        return `linear-gradient(90deg, ${stops().map((s: any) => `${s.color} ${s.offset * 100}%`).join(', ')})`;
+    // Render gradient preview string (sorted for display)
+    const renderGradientString = createMemo(() => {
+        const sorted = [...stops()].sort((a: any, b: any) => a.offset - b.offset);
+        return `linear-gradient(90deg, ${sorted.map((s: any) => `${s.color} ${s.offset * 100}%`).join(', ')})`;
     });
 
     return (
         <div class="gradient-editor">
-            <div class="gradient-preview" style={{ background: gradientString(), height: '20px', "border-radius": '4px', "margin-bottom": '8px', border: '1px solid #ccc' }}></div>
+            <div
+                class="gradient-bar-container"
+                ref={barRef}
+                onMouseDown={handleBarMouseDown}
+                style={{
+                    height: '24px',
+                    "border-radius": '4px',
+                    position: 'relative',
+                    cursor: 'pointer',
+                    border: '1px solid var(--border-color)',
+                    background: 'conic-gradient(#eee 0.25turn, transparent 0.25turn 0.5turn, #eee 0.5turn 0.75turn, transparent 0.75turn) top left / 10px 10px repeat'
+                }}
+            >
+                <div style={{ position: 'absolute', inset: 0, background: renderGradientString(), "border-radius": '3px' }}></div>
 
-            <Index each={stops()}>
-                {(stop, i) => (
-                    <div class="control-row stop-row" style={{ "margin-bottom": '4px', display: 'flex', "align-items": 'center', gap: '4px' }}>
-                        <input
-                            type="range"
-                            min="0" max="1" step="0.01"
-                            value={stop().offset}
-                            onInput={(e) => updateStop(i, 'offset', parseFloat(e.currentTarget.value))}
+                <Index each={stops()}>
+                    {(stop, i) => (
+                        <div
+                            class="val-thumb"
+                            onMouseDown={(e) => handleThumbMouseDown(e, i)}
+                            title={`Stop ${i + 1}: ${(stop().offset * 100).toFixed(0)}%`}
+                            style={{
+                                position: 'absolute',
+                                left: `${stop().offset * 100}%`,
+                                top: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                width: '12px',
+                                height: '12px',
+                                "border-radius": '50%',
+                                border: '2px solid white',
+                                "box-shadow": '0 0 2px rgba(0,0,0,0.5)',
+                                background: stop().color,
+                                "z-index": selectedIndex() === i ? 10 : 1,
+                                outline: selectedIndex() === i ? '2px solid var(--accent-color)' : 'none'
+                            }}
+                        />
+                    )}
+                </Index>
+            </div>
+
+            <Show when={selectedIndex() !== null && stops()[selectedIndex()!]}>
+                <div class="control-row" style={{ "margin-top": '8px', "align-items": 'center', gap: '8px', background: 'var(--bg-secondary)', padding: '4px', "border-radius": '4px' }}>
+                    <div class="color-wrapper" style={{ "width": '24px', "height": '24px', position: 'relative', overflow: 'hidden', "border-radius": '50%', border: '1px solid var(--border-color)' }}>
+                        <input type="color"
+                            value={stops()[selectedIndex()!].color}
+                            onInput={(e) => {
+                                const current = [...stops()];
+                                current[selectedIndex()!] = { ...current[selectedIndex()!], color: e.currentTarget.value };
+                                updateStops(current, false);
+                            }}
+                            onChange={() => pushToHistory()}
+                            style={{ position: 'absolute', top: '-50%', left: '-50%', width: '200%', height: '200%', padding: 0, border: 'none', cursor: 'pointer' }}
+                        />
+                    </div>
+                    <div style={{ flex: 1, display: 'flex', "align-items": 'center', gap: '4px' }}>
+                        <input type="range"
+                            min="0" max="100" step="1"
+                            value={Math.round(stops()[selectedIndex()!].offset * 100)}
+                            onInput={(e) => {
+                                const val = parseInt(e.currentTarget.value) / 100;
+                                const current = [...stops()];
+                                current[selectedIndex()!] = { ...current[selectedIndex()!], offset: val };
+                                updateStops(current, false); // Dragging slider
+                            }}
+                            onChange={() => pushToHistory()}
                             style={{ flex: 1 }}
                         />
-                        <div style={{ width: '24px', height: '24px', position: 'relative', overflow: 'hidden', "border-radius": '4px', border: '1px solid #ccc' }}>
-                            <input
-                                type="color"
-                                value={stop().color}
-                                onInput={(e) => updateStop(i, 'color', e.currentTarget.value)}
-                                style={{ position: 'absolute', top: "-4px", left: "-4px", width: '40px', height: '40px', padding: 0, border: 'none' }}
-                            />
-                        </div>
-                        <button class="icon-btn small" onClick={() => removeStop(i)} disabled={stops().length <= 2} title="Remove Stop">
-                            <Minus size={14} />
-                        </button>
+                        <span style={{ "font-size": '11px', width: '28px', "text-align": 'right' }}>{Math.round(stops()[selectedIndex()!].offset * 100)}%</span>
                     </div>
-                )}
-            </Index>
-
-            <div class="control-row" style={{ "justify-content": 'flex-end', "margin-top": '8px' }}>
-                <button class="icon-btn" onClick={addStop} title="Add Stop">
-                    <Plus size={16} /> Add Stop
-                </button>
+                    <button class="icon-btn small" onClick={() => {
+                        const current = stops();
+                        if (current.length > 2) {
+                            const newStops = current.filter((_: any, idx: number) => idx !== selectedIndex());
+                            updateStops(newStops, true);
+                            setSelectedIndex(null);
+                        }
+                    }} disabled={stops().length <= 2} title="Delete Stop">
+                        <Trash2 size={14} />
+                    </button>
+                </div>
+            </Show>
+            <div style={{ "margin-top": '4px', "font-size": '10px', color: 'var(--text-secondary)', "text-align": 'center' }}>
+                Click bar to add · Drag to move
             </div>
         </div>
     );
@@ -301,7 +377,7 @@ const PropertyPanel: Component = () => {
         });
     });
 
-    const handleChange = (key: string, value: any) => {
+    const handleChange = (key: string, value: any, recordHistory = true) => {
         const target = activeTarget();
         if (!target) return;
 
@@ -312,7 +388,7 @@ const PropertyPanel: Component = () => {
         }
 
         if (target.type === 'element') {
-            updateElement(target.data.id!, { [key]: finalValue }, true);
+            updateElement(target.data.id!, { [key]: finalValue }, recordHistory);
         } else if (target.type === 'canvas') {
             if (key === 'canvasBackgroundColor') setCanvasBackgroundColor(value);
             else if (key === 'gridEnabled') updateGridSettings({ enabled: value });
