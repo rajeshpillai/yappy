@@ -15,11 +15,13 @@ import CommandPalette from './components/command-palette';
 import { initAPI } from './api';
 import { Settings } from 'lucide-solid';
 import Toast from './components/toast';
+import { registerShapes } from './shapes/register-shapes';
 
 const App: Component = () => {
   // Removed showHelp state as it is now in Menu.tsx
 
   onMount(() => {
+    registerShapes();
     initAPI();
 
     const handleKeyDown = (e: KeyboardEvent) => {
