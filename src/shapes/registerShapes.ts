@@ -57,8 +57,10 @@ export function registerShapeRenderers(): void {
     // UI shapes
     ShapeRegistry.register('stickyNote', new StickyNoteRenderer());
     ShapeRegistry.register('callout', PathShapeRenderer.callout());
+    ShapeRegistry.register('speechBubble', PathShapeRenderer.speechBubble());
 
-    // TODO: Register other shape renderers as they are migrated  
-    // ShapeRegistry.register('speechBubble', ...);
+    // TODO: Infrastructure shapes (composite renderers needed)
+    // ShapeRegistry.register('server', ...);
+    // ShapeRegistry.register('loadBalancer', ...);
     // etc.
 }

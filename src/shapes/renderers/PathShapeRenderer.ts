@@ -4,20 +4,20 @@ import type { RenderContext, RenderOptions } from "../base/types";
 /**
  * PathShapeRenderer - Handles shapes defined by complex SVG paths
  * 
- * Supports: cloud, heart, capsule, database, document, callout
+ * Supports: cloud, heart, capsule, database, document, callout, speechBubble
  * These shapes use bezier curves and arcs for organic appearances
  */
 export class PathShapeRenderer extends ShapeRenderer {
-    private pathGenerator: (x: number, y: number, w: number, h: number) => string;
+    private pathGenerator: (x: number, y: number, w: number, h: number, element?: any) => string;
 
-    constructor(pathGenerator: (x: number, y: number, w: number, h: number) => string) {
+    constructor(pathGenerator: (x: number, y: number, w: number, h: number, element?: any) => string) {
         super();
         this.pathGenerator = pathGenerator;
     }
 
     protected renderArchitectural(context: RenderContext, options: RenderOptions): void {
         const { ctx, element } = context;
-        const path = this.pathGenerator(element.x, element.y, element.width, element.height);
+        const path = this.pathGenerator(element.x, element.y, element.width, element.height, element);
         const path2D = new Path2D(path);
 
         // Fill
@@ -29,12 +29,13 @@ export class PathShapeRenderer extends ShapeRenderer {
         // Stroke
         ctx.strokeStyle = options.strokeColor;
         ctx.lineWidth = options.strokeWidth;
+        ctx.lineJoin = 'round';
         ctx.stroke(path2D);
     }
 
     protected renderSketch(context: RenderContext, options: RenderOptions): void {
         const { rc, element } = context;
-        const path = this.pathGenerator(element.x, element.y, element.width, element.height);
+        const path = this.pathGenerator(element.x, element.y, element.width, element.height, element);
 
         rc.path(path, {
             seed: options.seed,
@@ -57,10 +58,10 @@ export class PathShapeRenderer extends ShapeRenderer {
     static cloud(): PathShapeRenderer {
         return new PathShapeRenderer((x, y, w, h) => {
             const cy = y + h / 2;
-            const r1 = w * 0.2;  // Left circle
-            const r2 = w * 0.25; // Top circle
-            const r3 = w * 0.2;  // Right circle
-            const r4 = w * 0.3;  // Bottom circle
+            const r1 = w * 0.2;
+            const r2 = w * 0.25;
+            const r3 = w * 0.2;
+            const r4 = w * 0.3;
 
             return `
         M ${x + r1} ${cy}
@@ -141,6 +142,48 @@ export class PathShapeRenderer extends ShapeRenderer {
         L ${x + w * 0.5} ${y + h} 
         L ${x + w * 0.3} ${y + rectHeight} 
         L ${x} ${y + rectHeight} 
+        Z
+      `;
+        });
+    }
+
+    static speechBubble(): PathShapeRenderer {
+        return new PathShapeRenderer((x, y, w, h, el) => {
+            // Simplified speech bubble with rounded corners and parametric tail
+            const radiusPercent = el?.borderRadius !== undefined ? el.borderRadius : 20;
+            const r = Math.min(Math.abs(w), Math.abs(h)) * (radiusPercent / 100);
+            const tailWidth = w * 0.15;
+            const tailHeight = h * 0.2;
+            const rectHeight = h - tailHeight;
+            const tailPos = (el?.tailPosition !== undefined ? el.tailPosition : 20) / 100;
+
+            const rX = Math.min(Math.abs(w) / 2, r);
+            const rY = Math.min(Math.abs(rectHeight) / 2, r);
+
+            // Calculate tail positions
+            const tipRelX = w * tailPos;
+            let baseRelX1, baseRelX2;
+            if (tailPos <= 0.5) {
+                baseRelX1 = tipRelX + (w * 0.1);
+                baseRelX2 = baseRelX1 + tailWidth;
+            } else {
+                baseRelX2 = tipRelX - (w * 0.1);
+                baseRelX1 = baseRelX2 - tailWidth;
+            }
+
+            return `
+        M ${x + rX} ${y} 
+        L ${x + w - rX} ${y} 
+        Q ${x + w} ${y} ${x + w} ${y + rY} 
+        L ${x + w} ${y + rectHeight - rY} 
+        Q ${x + w} ${y + rectHeight} ${x + w - rX} ${y + rectHeight} 
+        L ${x + baseRelX2} ${y + rectHeight}
+        L ${x + tipRelX} ${y + h}
+        L ${x + baseRelX1} ${y + rectHeight}
+        L ${x + rX} ${y + rectHeight}
+        Q ${x} ${y + rectHeight} ${x} ${y + rectHeight - rY} 
+        L ${x} ${y + rY} 
+        Q ${x} ${y} ${x + rX} ${y} 
         Z
       `;
         });
