@@ -207,12 +207,6 @@ export class InfrastructureRenderer extends ShapeRenderer {
                     ctx.moveTo(cx, cy); ctx.lineTo(cx + r * Math.cos(angle), cy + r * Math.sin(angle));
                 }
                 ctx.stroke();
-                // Missing architectural arrowheads? The original code didn't have arrows in architectural for router it seems, wait, let me check.
-                // Original code (line 2449) just draws lines outward.
-                // "ctx.moveTo(cx, cy); ctx.lineTo(cx + r * Math.cos(angle), cy + r * Math.sin(angle));"
-                // No arrowheads in architectural mode in original code for router?
-                // Let's check sketch mode: "rc.line... drawArrowhead...".
-                // Architect mode seems to match original code: just lines.
             },
             (rc, x, y, w, h, options) => {
                 const cx = x + w / 2, cy = y + h / 2;
@@ -239,18 +233,14 @@ export class InfrastructureRenderer extends ShapeRenderer {
                 ctx.beginPath(); ctx.moveTo(x, y + headerH); ctx.lineTo(x + w, y + headerH); ctx.stroke();
                 ctx.fillStyle = strokeColor;
                 const dotR = headerH * 0.2;
-                for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(x + headerH * (0.4 + i * 0.5), y + headerH / 2, dotR, 0, Math.PI * 2); ctx.fill(); }
-                const addressX = x + headerH * 2.5; const addressY = y + headerH * 0.2; const addressW = w - addressX - headerH * 0.5; const addressH = headerH * 0.6;
-                ctx.strokeRect(addressX, addressY, addressW, addressH);
+                for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(x + headerH * (0.5 + i * 0.6), y + headerH / 2, dotR, 0, Math.PI * 2); ctx.fill(); }
             },
             (rc, x, y, w, h, options) => {
                 rc.rectangle(x, y, w, h, options);
                 const headerH = h * 0.15;
                 rc.line(x, y + headerH, x + w, y + headerH, options);
-                const dotR = headerH * 0.2;
-                for (let i = 0; i < 3; i++) rc.circle(x + headerH * (0.4 + i * 0.5), y + headerH / 2, dotR * 2, { ...options, fillStyle: 'solid', fill: options.stroke });
-                const addressX = x + headerH * 2.5; const addressY = y + headerH * 0.2; const addressW = w - addressX - headerH * 0.5; const addressH = headerH * 0.6;
-                rc.rectangle(addressX, addressY, addressW, addressH, options);
+                const dotR = headerH * 0.3;
+                for (let i = 0; i < 3; i++) rc.circle(x + headerH * (0.5 + i * 0.6), y + headerH / 2, dotR, { ...options, fillStyle: 'solid', fill: options.stroke });
             }
         );
     }

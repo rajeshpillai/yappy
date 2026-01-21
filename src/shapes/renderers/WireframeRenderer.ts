@@ -35,8 +35,12 @@ export class WireframeRenderer extends ShapeRenderer {
             const { x, y, width: w, height: h } = element;
             const isArch = element.renderStyle === 'architectural';
 
-            const headerH = h * 0.15;
-            const dotR = Math.min(headerH * 0.2, 5);
+            const headerH = Math.min(h * 0.15, 30);
+            const dotR = headerH * 0.2;
+            const addressH = headerH * 0.6;
+            const addressW = w * 0.6;
+            const addressX = x + (w - addressW) / 2;
+            const addressY = y + (headerH - addressH) / 2;
 
             if (isArch) {
                 if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
@@ -49,14 +53,16 @@ export class WireframeRenderer extends ShapeRenderer {
                 ctx.beginPath(); ctx.moveTo(x, y + headerH); ctx.lineTo(x + w, y + headerH); ctx.stroke();
                 ctx.fillStyle = options.strokeColor;
                 for (let i = 0; i < 3; i++) {
-                    ctx.beginPath(); ctx.arc(x + 15 + i * 15, y + headerH / 2, dotR, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(x + headerH * (0.4 + i * 0.5), y + headerH / 2, dotR, 0, Math.PI * 2); ctx.fill();
                 }
+                ctx.strokeRect(addressX, addressY, addressW, addressH);
             } else {
                 rc.rectangle(x, y, w, h, options);
                 rc.line(x, y + headerH, x + w, y + headerH, options);
                 for (let i = 0; i < 3; i++) {
-                    rc.circle(x + 15 + i * 15, y + headerH / 2, dotR * 2, { ...options, fillStyle: 'solid', fill: options.strokeColor });
+                    rc.circle(x + headerH * (0.4 + i * 0.5), y + headerH / 2, dotR * 2, { ...options, fillStyle: 'solid', fill: options.strokeColor });
                 }
+                rc.rectangle(addressX, addressY, addressW, addressH, options);
             }
         });
     }
