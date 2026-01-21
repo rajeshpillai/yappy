@@ -178,7 +178,33 @@ Implemented a modular architecture using:
 **Build Status**: ✅ Compiles successfully  
 **Commits**:
 - `2ed1750` - "docs: Update refactor-1.md with Phase 3B completion"
-- `[next]` - "refactor: Phase 3C - Add DirectionalArrowRenderer"
+- `5399274` - "refactor: Phase 3C - Add DirectionalArrowRenderer"
+
+---
+
+### ✅ Phase 4A: Flowchart Shapes (Complete)
+
+**Migrated Shapes**:
+
+#### Extended PathShapeRenderer (3 new flowchart shapes)
+- `capsule` - Fully rounded rectangle (pill shape)
+- `database` - Cylinder shape with top/bottom ellipses
+- `document` - Rectangle with wavy bottom edge
+
+#### 10. BoxWithLinesRenderer (96 lines)
+- **Pattern**: Rectangle with internal dividing lines
+- **Shapes Supported**:
+  - `predefinedProcess` - Rectangle with 2 vertical sidebar lines (10% width)
+  - `internalStorage` - Rectangle with 1 vertical + 1 horizontal divider (15% offset)
+- **Methods**: Static factory methods
+- **File**: `src/shapes/renderers/BoxWithLinesRenderer.ts`
+
+**Total Shapes Migrated**: 25 (4 core + 4 polygons + 3 simple + 5 decorative + 4 arrows + 5 flowchart)  
+**Lines Extracted**: ~1200 lines  
+**Build Status**: ✅ Compiles successfully  
+**Commits**:
+- `a3b8ae2` - "docs: Update refactor-1.md with Phase 3C completion"
+- `[next]` - "refactor: Phase 4A - Add flowchart shape renderers"
 
 ---
 
