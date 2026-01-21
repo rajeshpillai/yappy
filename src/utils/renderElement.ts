@@ -3,6 +3,8 @@ import type { RoughCanvas } from "roughjs/bin/canvas";
 import { getShapeGeometry } from "./shapeGeometry";
 import { getImage } from "./imageCache";
 import { measureContainerText, getFontString } from "./textUtils";
+import { ShapeRegistry } from "../shapes/ShapeRegistry";
+
 
 // Helper to normalize points (supports both old Point[] and new packed number[])
 export const normalizePoints = (points: any[] | number[] | undefined): { x: number; y: number }[] => {
@@ -124,6 +126,17 @@ export const renderElement = (
     isDarkMode: boolean = false,
     layerOpacity: number = 1
 ) => {
+    // NEW: Check if this shape type has a dedicated renderer
+    // This allows incremental migration from the monolithic switch statement
+    const renderer = ShapeRegistry.getRenderer(el.type);
+
+    if (renderer) {
+        // Use new modular renderer
+        renderer.render({ ctx, rc, element: el, isDarkMode, layerOpacity });
+        return;
+    }
+
+    // FALLBACK: Old rendering logic for non-migrated shapes
     // normalizePoints is now external
 
     ctx.save();

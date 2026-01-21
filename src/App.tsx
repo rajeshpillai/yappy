@@ -13,6 +13,7 @@ import PropertyPanel from './components/PropertyPanel';
 import LayerPanel from './components/LayerPanel';
 import CommandPalette from './components/CommandPalette';
 import { initAPI } from './api';
+import { registerShapeRenderers } from './shapes/registerShapes';
 import { Settings } from 'lucide-solid';
 import Toast from './components/Toast';
 
@@ -21,6 +22,7 @@ const App: Component = () => {
 
   onMount(() => {
     initAPI();
+    registerShapeRenderers(); // Initialize new modular rendering system
 
     const handleKeyDown = (e: KeyboardEvent) => {
       // Allow Alt shortcuts (Commands) even if focused on inputs
