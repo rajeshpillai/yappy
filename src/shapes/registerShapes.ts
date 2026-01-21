@@ -8,6 +8,7 @@ import { SimplePolygonRenderer } from "./renderers/SimplePolygonRenderer";
 import { StarRenderer } from "./renderers/StarRenderer";
 import { PathShapeRenderer } from "./renderers/PathShapeRenderer";
 import { LineShapeRenderer } from "./renderers/LineShapeRenderer";
+import { DirectionalArrowRenderer } from "./renderers/DirectionalArrowRenderer";
 
 /**
  * Register all shape renderers
@@ -38,7 +39,13 @@ export function registerShapeRenderers(): void {
     ShapeRegistry.register('cross', LineShapeRenderer.cross());
     ShapeRegistry.register('checkmark', LineShapeRenderer.checkmark());
 
+    // Directional arrows
+    ShapeRegistry.register('arrowRight', DirectionalArrowRenderer.arrowRight());
+    ShapeRegistry.register('arrowLeft', DirectionalArrowRenderer.arrowLeft());
+    ShapeRegistry.register('arrowUp', DirectionalArrowRenderer.arrowUp());
+    ShapeRegistry.register('arrowDown', DirectionalArrowRenderer.arrowDown());
+
     // TODO: Register other shape renderers as they are migrated
-    // ShapeRegistry.register('arrowLeft', ...);
+    // ShapeRegistry.register('database', ...);
     // etc.
 }
