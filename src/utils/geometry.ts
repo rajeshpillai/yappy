@@ -39,7 +39,7 @@ export const distanceToSegment = (p: Point, a: Point, b: Point): number => {
     return Math.sqrt(dx * dx + dy * dy);
 };
 
-const cubicBezier = (p0: number, p1: number, p2: number, p3: number, t: number) => {
+export const cubicBezier = (p0: number, p1: number, p2: number, p3: number, t: number) => {
     const k = 1 - t;
     return k * k * k * p0 + 3 * k * k * t * p1 + 3 * k * t * t * p2 + t * t * t * p3;
 };
@@ -293,4 +293,26 @@ export const intersectElementWithLine = (
     }
 
     return null;
+};
+
+// Helper: Calculate cubic bezier tangent angle at t
+export const cubicBezierAngle = (p0: { x: number, y: number }, p1: { x: number, y: number }, p2: { x: number, y: number }, p3: { x: number, y: number }, t: number) => {
+    const dx = 3 * (1 - t) * (1 - t) * (p1.x - p0.x) + 6 * (1 - t) * t * (p2.x - p1.x) + 3 * t * t * (p3.x - p2.x);
+    const dy = 3 * (1 - t) * (1 - t) * (p1.y - p0.y) + 6 * (1 - t) * t * (p2.y - p1.y) + 3 * t * t * (p3.y - p2.y);
+    return Math.atan2(dy, dx);
+};
+
+// Helper to normalize points (supports both old Point[] and new packed number[])
+export const normalizePoints = (points: any[] | number[] | undefined): { x: number; y: number }[] => {
+    if (!points || points.length === 0) return [];
+    if (typeof points[0] === 'number') {
+        // New format: [x1, y1, x2, y2...]
+        const result: { x: number; y: number }[] = [];
+        for (let i = 0; i < points.length - 1; i += 2) {
+            result.push({ x: points[i] as number, y: points[i + 1] as number });
+        }
+        return result;
+    }
+    // Old format: Point[]
+    return points as { x: number; y: number }[];
 };

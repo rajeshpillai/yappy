@@ -37,6 +37,10 @@ export abstract class ShapeRenderer {
             this.renderSketch(context, options);
         }
 
+
+        // Render text (container text or line labels)
+        RenderPipeline.renderText(ctx, element, isDarkMode);
+
         // Restore canvas state
         RenderPipeline.restore(ctx);
     }

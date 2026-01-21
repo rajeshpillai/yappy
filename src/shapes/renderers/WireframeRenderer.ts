@@ -1,5 +1,7 @@
 import { ShapeRenderer } from "../base/ShapeRenderer";
 import type { RenderContext, RenderOptions } from "../base/types";
+import { cubicBezier, cubicBezierAngle, normalizePoints } from "../../utils/geometry";
+import { getFontString } from "../../utils/textUtils";
 
 // Helper for rounded rect path
 function getRoundedRectPath(x: number, y: number, w: number, h: number, r: number) {
@@ -155,37 +157,107 @@ export class WireframeRenderer extends ShapeRenderer {
 
     static organicBranch(): WireframeRenderer {
         return new WireframeRenderer((context, options) => {
-            // Simplified organic branch rendering matching generic fallback
-            // Since organicBranch relies on complex getOrganicLine which might not be exposed,
-            // we'll implement a reasonable approximation or delegate if possible.
-            // For now, drawing a simple S-curve with the input logic.
-
-            const { ctx, rc, element } = context;
+            const { ctx, element } = context;
             const { x, y, width: w, height: h } = element;
-            const isArch = element.renderStyle === 'architectural';
+            const strokeColor = options.strokeColor;
 
+            // Calculate Control Points (matching legacy logic)
             let start = { x, y };
             let end = { x: x + w, y: y + h };
+
             if (element.points && element.points.length >= 2) {
-                // normalization logic not strictly needed if we trust x/y/w/h bounding box relative logic
-                // providing we just want a visual represenation.
-                // But let's try to match endpoints.
-                // (Skipping complex normalization for brevity, using bounds)
+                const pts = normalizePoints(element.points);
+                if (pts.length > 0) {
+                    start = { x: x + pts[0].x, y: y + pts[0].y };
+                    end = { x: x + pts[pts.length - 1].x, y: y + pts[pts.length - 1].y };
+                }
             }
 
-            // Logic for S-Curve
-            const dx = end.x - start.x;
-            const cp1 = { x: start.x + dx * 0.5, y: start.y };
-            const cp2 = { x: end.x - dx * 0.5, y: end.y };
-
-            const path = `M ${start.x} ${start.y} C ${cp1.x} ${cp1.y} ${cp2.x} ${cp2.y} ${end.x} ${end.y}`;
-
-            if (isArch) {
-                ctx.strokeStyle = options.strokeColor;
-                ctx.lineWidth = options.strokeWidth;
-                ctx.stroke(new Path2D(path));
+            let cp1: { x: number, y: number }, cp2: { x: number, y: number };
+            if (element.controlPoints && element.controlPoints.length === 2) {
+                cp1 = { x: element.controlPoints[0].x, y: element.controlPoints[0].y };
+                cp2 = { x: element.controlPoints[1].x, y: element.controlPoints[1].y };
             } else {
-                rc.path(path, options);
+                // Fallback calculation (Simple S-curve)
+                const dx = end.x - start.x;
+                cp1 = { x: start.x + dx * 0.5, y: start.y }; // Control point 1
+                cp2 = { x: end.x - dx * 0.5, y: end.y };     // Control point 2
+            }
+
+            // Draw tapered organic branch
+            const segments = 20;
+            const pointsTop: { x: number, y: number }[] = [];
+            const pointsBottom: { x: number, y: number }[] = [];
+
+            // Tapering: Start thick, end thin
+            const widthVal = element.strokeWidth || 1;
+            const startWidth = Math.max(widthVal * 8, 4);
+            const endWidth = Math.max(widthVal * 2, 2);
+
+            for (let i = 0; i <= segments; i++) {
+                const t = i / segments;
+                const px = cubicBezier(start.x, cp1.x, cp2.x, end.x, t);
+                const py = cubicBezier(start.y, cp1.y, cp2.y, end.y, t);
+
+                const angle = cubicBezierAngle(start, cp1, cp2, end, t);
+
+                // Linear interpolation of width
+                const currentWidth = startWidth + (endWidth - startWidth) * t;
+                const halfWidth = currentWidth / 2;
+
+                // Calculate offset points (normal to curve)
+                const offsetX = Math.cos(angle + Math.PI / 2) * halfWidth;
+                const offsetY = Math.sin(angle + Math.PI / 2) * halfWidth;
+
+                pointsTop.push({ x: px + offsetX, y: py + offsetY });
+                pointsBottom.push({ x: px - offsetX, y: py - offsetY });
+            }
+
+            // Draw the tapered shape
+            ctx.beginPath();
+            if (pointsTop.length > 0) {
+                ctx.moveTo(pointsTop[0].x, pointsTop[0].y);
+                for (let i = 1; i < pointsTop.length; i++) {
+                    ctx.lineTo(pointsTop[i].x, pointsTop[i].y);
+                }
+                // Connect to bottom end
+                ctx.lineTo(pointsBottom[pointsBottom.length - 1].x, pointsBottom[pointsBottom.length - 1].y);
+                // Trace back bottom
+                for (let i = pointsBottom.length - 2; i >= 0; i--) {
+                    ctx.lineTo(pointsBottom[i].x, pointsBottom[i].y);
+                }
+            }
+            ctx.closePath();
+            ctx.fillStyle = strokeColor;
+            ctx.fill();
+
+            // Text on Path
+            const text = element.containerText || element.text || "";
+            if (text) {
+                ctx.save();
+                ctx.font = getFontString(element);
+                ctx.fillStyle = strokeColor; // Use stroke color for text
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                // Place text near center 
+                const centerX = cubicBezier(start.x, cp1.x, cp2.x, end.x, 0.5);
+                const centerY = cubicBezier(start.y, cp1.y, cp2.y, end.y, 0.5);
+                const angle = cubicBezierAngle(start, cp1, cp2, end, 0.5);
+
+                const textOffset = -15;
+
+                ctx.translate(centerX, centerY);
+
+                let rawAngle = angle;
+                if (rawAngle > Math.PI / 2 || rawAngle < -Math.PI / 2) {
+                    rawAngle += Math.PI;
+                }
+
+                ctx.rotate(rawAngle);
+                ctx.fillText(text, 0, textOffset);
+
+                ctx.restore();
             }
         });
     }

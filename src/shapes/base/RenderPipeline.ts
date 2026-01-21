@@ -1,6 +1,7 @@
 import type { DrawingElement } from "../../types";
 import type { RenderOptions, GradientInfo } from "./types";
 import { getShapeGeometry } from "../../utils/shapeGeometry";
+import { measureContainerText, getFontString } from "../../utils/textUtils";
 
 /**
  * RenderPipeline - Handles common rendering setup and transformations
@@ -267,4 +268,127 @@ export class RenderPipeline {
 
         ctx.restore();
     }
+
+    /**
+     * Render container text (text inside shapes) or line labels
+     */
+    static renderText(ctx: CanvasRenderingContext2D, el: DrawingElement, isDarkMode: boolean): void {
+        const strokeColor = this.adjustColor(el.strokeColor, isDarkMode);
+
+        // Render containerText for lines and arrows (at midpoint)
+        if (el.containerText && (el.type === 'line' || el.type === 'arrow')) {
+            const fontSize = el.fontSize || 16;
+            const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
+                el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
+                    'Handlee, cursive';
+            const fontWeight = el.fontWeight ? 'bold ' : '';
+            const fontStyle = el.fontStyle ? 'italic ' : '';
+            ctx.font = `${fontStyle}${fontWeight}${fontSize}px ${fontFamily}`;
+            ctx.fillStyle = strokeColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const startX = el.x;
+            const startY = el.y;
+            const endX = el.x + el.width;
+            const endY = el.y + el.height;
+
+            const position = el.labelPosition || 'middle';
+            let labelX: number, labelY: number;
+
+            switch (position) {
+                case 'start':
+                    labelX = startX;
+                    labelY = startY;
+                    break;
+                case 'end':
+                    labelX = endX;
+                    labelY = endY;
+                    break;
+                case 'middle':
+                default:
+                    labelX = (startX + endX) / 2;
+                    labelY = (startY + endY) / 2;
+                    break;
+            }
+
+            // Add background for better readability
+            const metrics = ctx.measureText(el.containerText);
+            const padding = 4;
+            const bgWidth = metrics.width + padding * 2;
+            const bgHeight = fontSize + padding * 2;
+
+            ctx.save();
+            ctx.fillStyle = isDarkMode ? '#1a1a1a' : '#ffffff';
+            ctx.fillRect(labelX - bgWidth / 2, labelY - bgHeight / 2, bgWidth, bgHeight);
+            ctx.restore();
+
+            // Render text
+            ctx.fillStyle = strokeColor;
+            ctx.fillText(el.containerText, labelX, labelY);
+
+            // Reset text alignment
+            ctx.textAlign = 'start';
+            ctx.textBaseline = 'alphabetic';
+            return;
+        }
+
+        // Render containerText (text inside shapes)
+        if (el.containerText && el.type !== 'organicBranch') {
+            ctx.save();
+            let maxWidth = el.width - 20;
+            let startYOffset = 0;
+
+            if (el.type === 'doubleBanner') {
+                maxWidth = el.width * 0.65;
+                startYOffset = - (el.height * 0.1);
+            } else if (el.type === 'starPerson') {
+                startYOffset = el.height * 0.15;
+            } else if (el.type === 'lightbulb') {
+                maxWidth = el.width * 0.7;
+                startYOffset = - (el.height * 0.1);
+            } else if (el.type === 'signpost') {
+                maxWidth = el.width * 0.8;
+                startYOffset = - (el.height * 0.15);
+            } else if (el.type === 'browserWindow') {
+                const headerH = Math.min(el.height * 0.15, 30);
+                startYOffset = headerH / 2;
+            } else if (el.type === 'mobilePhone') {
+                startYOffset = - (el.height * 0.05);
+            } else if (el.type === 'inputField') {
+                ctx.textAlign = 'left';
+                const centerX = el.x + 25;
+                startYOffset = 0;
+                const metrics = measureContainerText(ctx, el, el.containerText || '', el.width - 30);
+                ctx.font = getFontString(el);
+                ctx.fillStyle = this.adjustColor(el.strokeColor, isDarkMode);
+                ctx.textBaseline = 'middle';
+                const startY = el.y + (el.height - metrics.textHeight) / 2 + metrics.lineHeight / 2;
+                metrics.lines.forEach((line, index) => {
+                    const y = startY + index * metrics.lineHeight;
+                    ctx.fillText(line, centerX, y);
+                });
+                ctx.restore();
+                return;
+            }
+
+            const metrics = measureContainerText(ctx, el, el.containerText, maxWidth);
+
+            ctx.font = getFontString(el);
+            ctx.fillStyle = strokeColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const centerX = el.x + el.width / 2;
+            const startY = el.y + (el.height - metrics.textHeight) / 2 + metrics.lineHeight / 2 + startYOffset;
+
+            metrics.lines.forEach((line, index) => {
+                const y = startY + index * metrics.lineHeight;
+                ctx.fillText(line, centerX, y, el.width - 10);
+            });
+
+            ctx.restore();
+        }
+    }
 }
+

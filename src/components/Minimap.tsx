@@ -1,7 +1,9 @@
+
 import { createEffect, onCleanup, onMount } from 'solid-js';
 import { store, setViewState, toggleMinimap } from '../store/appStore';
 import { X } from 'lucide-solid';
-import { renderElement, normalizePoints } from '../utils/renderElement';
+import { renderElement } from '../utils/renderElement';
+import { normalizePoints } from "../utils/geometry";
 import rough from 'roughjs';
 import type { RoughCanvas } from 'roughjs/bin/canvas';
 

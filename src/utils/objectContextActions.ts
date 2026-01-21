@@ -2,7 +2,7 @@ import {
     store, setStore, pushToHistory,
     deleteElements, updateElement
 } from "../store/appStore";
-import { normalizePoints } from "./renderElement";
+import { normalizePoints } from "./geometry";
 
 export const copyToClipboard = async () => {
     if (store.selection.length === 0) return;

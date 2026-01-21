@@ -16,6 +16,7 @@ import { RibbonRenderer } from "./renderers/RibbonRenderer";
 import { InfrastructureRenderer } from "./renderers/InfrastructureRenderer";
 import { SketchnoteRenderer } from "./renderers/SketchnoteRenderer";
 import { WireframeRenderer } from "./renderers/WireframeRenderer";
+import { LinearElementRenderer } from "./renderers/LinearElementRenderer";
 
 /**
  * Register all shape renderers
@@ -27,6 +28,12 @@ export function registerShapeRenderers(): void {
     ShapeRegistry.register('circle', new CircleRenderer());
     ShapeRegistry.register('diamond', new DiamondRenderer());
     ShapeRegistry.register('triangle', new TriangleRenderer());
+    ShapeRegistry.register('line', new LinearElementRenderer());
+    ShapeRegistry.register('arrow', new LinearElementRenderer());
+    ShapeRegistry.register('bezier', new LinearElementRenderer());
+    ShapeRegistry.register('fineliner', new LinearElementRenderer());
+    ShapeRegistry.register('inkbrush', new LinearElementRenderer());
+    ShapeRegistry.register('marker', new LinearElementRenderer());
 
     // Simple polygons (fixed point patterns)
     ShapeRegistry.register('parallelogram', SimplePolygonRenderer.parallelogram());
