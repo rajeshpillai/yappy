@@ -183,7 +183,7 @@ export const properties: PropertyConfig[] = [
         label: 'Background',
         type: 'color',
         group: 'background',
-        applicableTo: ['rectangle', 'circle', 'text', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField'], // text bg? maybe
+        applicableTo: ['rectangle', 'circle', 'text', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'starPerson', 'lightbulb', 'signpost', 'burstBlob', 'scroll', 'wavyDivider', 'doubleBanner'], // text bg? maybe
         defaultValue: 'transparent'
     },
     {
@@ -203,7 +203,7 @@ export const properties: PropertyConfig[] = [
             { label: 'Radial Gradient', value: 'radial' },
             { label: 'Conic Gradient', value: 'conic' }
         ],
-        applicableTo: ['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField'],
+        applicableTo: ['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'starPerson', 'lightbulb', 'signpost', 'burstBlob', 'scroll', 'wavyDivider', 'doubleBanner'],
         defaultValue: 'hachure'
     },
     {
@@ -214,7 +214,7 @@ export const properties: PropertyConfig[] = [
         max: 4,
         step: 0.1,
         group: 'background',
-        applicableTo: ['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField'],
+        applicableTo: ['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'starPerson', 'lightbulb', 'signpost', 'burstBlob', 'scroll', 'wavyDivider', 'doubleBanner'],
         defaultValue: 1,
         dependsOn: { key: 'fillStyle', value: ['hachure', 'cross-hatch', 'zigzag', 'dots', 'dashed', 'zigzag-line'] }
     },

@@ -301,9 +301,167 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
             return { type: 'points', points };
         }
 
-        // Add Ribbon, Document, Database, etc. if needed.
-        // For brevity/risk, basic "Pro" shapes are covered above.
-        // Let's add 'document' as it's simple.
+        case 'starPerson': {
+            const headRadius = Math.min(w, h) * 0.15;
+            // In local coords, cx=0, cy=0
+            // original logic: cx = x + w/2 => 0
+            // y = -mh
+            const headY = y + headRadius;
+
+            // Body points
+            // Neck at y + headRadius * 2
+            const neckY = y + headRadius * 2;
+            const points: { x: number, y: number }[] = [
+                { x: 0, y: neckY },                    // Neck
+                { x: x, y: y + h * 0.4 },              // Left Arm
+                { x: 0, y: y + h * 0.5 },              // Middle
+                { x: x + w, y: y + h * 0.4 },          // Right Arm
+                { x: 0, y: neckY },                    // Back to neck
+                { x: x + w * 0.8, y: y + h },          // Right Leg
+                { x: 0, y: y + h * 0.7 },              // Crotch
+                { x: x + w * 0.2, y: y + h },          // Left Leg
+                { x: 0, y: neckY },                    // Back to neck
+            ];
+
+            return {
+                type: 'multi',
+                shapes: [
+                    { type: 'ellipse', cx: 0, cy: headY, rx: headRadius, ry: headRadius },
+                    { type: 'points', points }
+                ]
+            };
+        }
+
+        case 'lightbulb': {
+            const bulbR = Math.min(w, h / 1.5) / 2;
+            const baseW = w * 0.4;
+            const baseH = h * 0.25;
+            const baseY = y + h - baseH;
+            // Local cx = 0. x = -mw.
+            // bulbPath logic ported:
+            const bulbPath = `
+                M ${-baseW / 2} ${baseY}
+                C ${-baseW / 2} ${y + bulbR} ${x} ${y + bulbR * 1.5} ${x} ${y + bulbR}
+                A ${bulbR} ${bulbR} 0 1 1 ${x + w} ${y + bulbR}
+                C ${x + w} ${y + bulbR * 1.5} ${baseW / 2} ${y + bulbR} ${baseW / 2} ${baseY}
+                Z
+            `;
+            // Base rect
+            const baseRect = { type: 'rect', x: -baseW / 2, y: baseY, w: baseW, h: baseH };
+            return {
+                type: 'multi',
+                shapes: [
+                    { type: 'path', path: bulbPath },
+                    baseRect as ShapeGeometry
+                ]
+            };
+        }
+
+        case 'signpost': {
+            const poleW = Math.max(4, w * 0.05);
+            const boardH = h * 0.3;
+            const boardW = w * 0.9;
+            const boardY = y + h * 0.1;
+
+            return {
+                type: 'multi',
+                shapes: [
+                    { type: 'rect', x: -poleW / 2, y: y, w: poleW, h: h }, // Pole
+                    { type: 'rect', x: -boardW / 2, y: boardY, w: boardW, h: boardH } // Board
+                ]
+            };
+        }
+
+        case 'burstBlob': {
+            const rx = w / 2;
+            const ry = h / 2;
+            const spikes = 12;
+            const outerR = Math.min(rx, ry);
+            const innerR = outerR * 0.6;
+            const seed = el.seed || 1;
+
+            // Simple deterministic random for geometry
+            const randomSeeded = (s: number) => {
+                let t = s += 0x6D2B79F5;
+                t = Math.imul(t ^ t >>> 15, t | 1);
+                t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+                return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            };
+
+            const points: { x: number, y: number }[] = [];
+            for (let i = 0; i < spikes * 2; i++) {
+                const r = (i % 2 === 0) ? outerR : innerR;
+                const rnd = randomSeeded(seed + i);
+                const rVar = r + (rnd - 0.5) * (outerR * 0.1);
+                const angle = (Math.PI * i) / spikes;
+                points.push({
+                    x: Math.cos(angle) * w / h * rVar,
+                    y: Math.sin(angle) * rVar
+                });
+            }
+            return { type: 'points', points };
+        }
+
+        case 'scroll': {
+            const rollH = h * 0.15;
+            const path = `
+                M ${x} ${y + rollH}
+                L ${x + w} ${y + rollH}
+                L ${x + w} ${y + h - rollH}
+                L ${x} ${y + h - rollH}
+                Z
+                M ${x} ${y + rollH}
+                C ${x - rollH} ${y + rollH} ${x - rollH} ${y} ${x} ${y}
+                L ${x + w} ${y}
+                C ${x + w + rollH} ${y} ${x + w + rollH} ${y + rollH} ${x + w} ${y + rollH}
+                M ${x} ${y + h - rollH}
+                C ${x - rollH} ${y + h - rollH} ${x - rollH} ${y + h} ${x} ${y + h}
+                L ${x + w} ${y + h}
+                C ${x + w + rollH} ${y + h} ${x + w + rollH} ${y + h - rollH} ${x + w} ${y + h - rollH}
+            `;
+            return { type: 'path', path };
+        }
+
+        case 'doubleBanner': {
+            const earW = w * 0.15;
+            const earH = h * 0.25;
+
+            // Main front panel
+            const mainPoints = [
+                { x: x + earW, y: y },
+                { x: x + w - earW, y: y },
+                { x: x + w - earW, y: y + h - earH },
+                { x: x + earW, y: y + h - earH }
+            ];
+
+            // Left back ear
+            const leftEar = [
+                { x: x + earW, y: y + earH },
+                { x: x, y: y + earH },
+                { x: x + earW / 2, y: y + h / 2 },
+                { x: x, y: y + h },
+                { x: x + earW, y: y + h }
+            ];
+
+            // Right back ear
+            const rightEar = [
+                { x: x + w - earW, y: y + earH },
+                { x: x + w, y: y + earH },
+                { x: x + w - earW / 2, y: y + h / 2 },
+                { x: x + w, y: y + h },
+                { x: x + w - earW, y: y + h }
+            ];
+
+            return {
+                type: 'multi',
+                shapes: [
+                    { type: 'points', points: leftEar },
+                    { type: 'points', points: rightEar },
+                    { type: 'points', points: mainPoints }
+                ]
+            };
+        }
+
         case 'document': {
             const waveHeight = h * 0.1;
             const path = `

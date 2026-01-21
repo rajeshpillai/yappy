@@ -261,15 +261,38 @@ export const renderElement = (
             };
 
             ctx.beginPath();
-            if (geometry.type !== 'path' && geometry.type !== 'multi') {
+            if (geometry.type === 'multi') {
+                // For multi, we need to handle sub-shapes.
+                // If sub-shapes are just paths (rect, ellipse, points), we can accumulate them in one BeginPath/Fill cycle
+                // IF they are all additive.
+                // BUT if one is a 'path' type (SVG string), we are using ctx.fill(Path2D) immediately inside drawGeometry.
+                // This creates a conflict:
+                // 1. shape 'rect' adds to current path.
+                // 2. shape 'path' fills its own path (using current fillStyle).
+                // 3. we might finish and call ctx.fill() for the accumulated 'rect'.
+
+                // My logic in drawGeometry:
+                // - rect/ellipse/points: ADDS to current context path.
+                // - path: FILLS immediately (new Path2D).
+                // - multi: recurses.
+
+                // So if we have a multi with [rect, path], it will:
+                // 1. add rect to context path.
+                // 2. fill path.
+                // 3. return.
+                // The rect remains in the path but IS NOT FILLED yet.
+
+                // So we must call ctx.fill() after drawGeometry(geometry) IF there is anything in the context path.
+                // Ideally, drawGeometry should fill `path` types immediately (as it does), 
+                // and we fill the accumulated context path at the end.
+
+                drawGeometry(geometry);
+                ctx.fill(); // Fill any accumulated paths (rects, ellipses, points)
+            } else if (geometry.type === 'path') {
+                drawGeometry(geometry); // This does ctx.fill(new Path2D) inside.
+            } else {
                 drawGeometry(geometry);
                 ctx.fill();
-            } else {
-                if (geometry.type === 'multi') {
-                    drawGeometry(geometry);
-                } else {
-                    drawGeometry(geometry);
-                }
             }
         } else {
             const normalizedPoints = normalizePoints(el.points);
@@ -1582,9 +1605,55 @@ export const renderElement = (
         ];
 
         if (el.renderStyle === 'architectural') {
-            if (backgroundColor) {
-                rc.ellipse(headX, headY, headRadius * 2, headRadius * 2, { ...options, stroke: 'none', fill: backgroundColor });
-                rc.polygon(bodyPoints, { ...options, stroke: 'none', fill: backgroundColor });
+            if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                // Gradient logic might have already filled context via generic geometry block
+                // If so, fillStyleToUse would be 'solid' and fillToUse would be 'transparent'
+                // BUT for 'multi' shapes, generic block draws them.
+                // WE ONLY need to redraw strokes or details.
+                // However, for architectural style, we often redraw the fill to be safe or overlay?
+                // Actually, if geometry exists, renderElement top block ALREADY filled it.
+                // So we should NOT fill again if we want to avoid double drawing or overwriting gradient.
+                // But wait, the top block sets fillToUse = 'transparent' after filling.
+                // So options.fill is now 'transparent'.
+                // So this block won't run if we check options.fill !== 'transparent'
+                // Which is CORRECT. We don't want to refill with solid color if gradient was applied.
+
+                // However, if NO gradient was applied (just solid color), options.fill is the color.
+                // The generic block ONLY runs if (useGradient && ...).
+                // If it's a solid fill, generic block MIGHT run if geometry exists?
+                // Let's check line 264 logic.
+                // "if (geometry) ... ctx.fill()"
+                // Since I added geometry for these shapes, they WILL be filled by the generic block
+                // even for solid colors (because renderElement uses geometry if available).
+
+                // So, for these shapes, I should REMOVE the manual filling here 
+                // OR only fill if options.fill is valid and we suspect geometry didn't handle it?
+                // But geometry handles it.
+
+                // So I can remove the explicit fill here for the main body parts?
+                // Let's try removing explicit fill for main body and see.
+                // If I remove it, and geometry logic worked, it's filled.
+                // If I keep it, I must use options.fill.
+
+                // Safe bet: The generic block only sets ctx.fillStyle = grad; and fills.
+                // For solid colors, does generic block run?
+                // Line 244: if (geometry) { ... drawGeometry ... ctx.fill() } comes AFTER the `if (useGradient ...)` block?
+                // Wait, looking at lines 190-288 (approx) in original file.
+                // The `if (useGradient ...)` block (190) ENDS at 292.
+                // Inside it, it defines `geometry` and fills it.
+                // IF NOT useGradient, that block is skipped.
+
+                // So for SOLID fills, the generic block is SKIPPED.
+                // So I DO need to fill here for solid colors.
+                // And for gradients, the generic block ran, so options.fill is likely 'transparent'.
+
+                // So:
+                // if (options.fill ... ) { fill }
+                // This covers solid colors (options.fill = color).
+                // And ignores gradients (options.fill = transparent).
+
+                rc.ellipse(headX, headY, headRadius * 2, headRadius * 2, { ...options, stroke: 'none', fill: options.fill });
+                rc.polygon(bodyPoints, { ...options, stroke: 'none', fill: options.fill });
             }
             ctx.beginPath();
             ctx.ellipse(headX, headY, headRadius, headRadius, 0, 0, Math.PI * 2);
@@ -1619,8 +1688,8 @@ export const renderElement = (
         `;
 
         if (el.renderStyle === 'architectural') {
-            if (backgroundColor) {
-                ctx.fillStyle = backgroundColor;
+            if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                ctx.fillStyle = options.fill;
                 ctx.fillRect(x, y + rollH, w, h - 2 * rollH);
             }
             ctx.strokeStyle = strokeColor;
@@ -1696,12 +1765,12 @@ export const renderElement = (
         ];
 
         if (el.renderStyle === 'architectural') {
-            if (backgroundColor) {
-                rc.polygon(mainPts, { ...options, stroke: 'none', fill: backgroundColor });
+            if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                rc.polygon(mainPts, { ...options, stroke: 'none', fill: options.fill });
                 // Darken ears and folds by using a semi-transparent black overlay if there's a background
-                rc.polygon(leftEar, { ...options, stroke: 'none', fill: backgroundColor });
+                rc.polygon(leftEar, { ...options, stroke: 'none', fill: options.fill });
                 rc.polygon(leftEar, { ...options, stroke: 'none', fill: '#000000', fillStyle: 'solid', opacity: 0.1 });
-                rc.polygon(rightEar, { ...options, stroke: 'none', fill: backgroundColor });
+                rc.polygon(rightEar, { ...options, stroke: 'none', fill: options.fill });
                 rc.polygon(rightEar, { ...options, stroke: 'none', fill: '#000000', fillStyle: 'solid', opacity: 0.1 });
                 rc.polygon(leftFold, { ...options, stroke: 'none', fill: '#000000', fillStyle: 'solid', opacity: 0.3 });
                 rc.polygon(rightFold, { ...options, stroke: 'none', fill: '#000000', fillStyle: 'solid', opacity: 0.3 });
@@ -1746,8 +1815,8 @@ export const renderElement = (
         `;
 
         if (el.renderStyle === 'architectural') {
-            if (backgroundColor) {
-                ctx.fillStyle = backgroundColor;
+            if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                ctx.fillStyle = options.fill;
                 ctx.fill(new Path2D(bulbPath));
                 ctx.fillRect(cx - baseW / 2, baseY, baseW, baseH);
             }
@@ -1785,8 +1854,8 @@ export const renderElement = (
         const boardY = y + h * 0.1;
 
         if (el.renderStyle === 'architectural') {
-            if (backgroundColor) {
-                ctx.fillStyle = backgroundColor;
+            if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                ctx.fillStyle = options.fill;
                 ctx.fillRect(cx - poleW / 2, y, poleW, h); // Pole
                 ctx.fillRect(cx - boardW / 2, boardY, boardW, boardH); // Board
             }
@@ -1837,8 +1906,8 @@ export const renderElement = (
         path += " Z";
 
         if (el.renderStyle === 'architectural') {
-            if (backgroundColor) {
-                ctx.fillStyle = backgroundColor;
+            if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                ctx.fillStyle = options.fill;
                 ctx.fill(new Path2D(path));
             }
             ctx.strokeStyle = strokeColor;
