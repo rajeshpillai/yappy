@@ -10,6 +10,7 @@ import { PathShapeRenderer } from "./renderers/PathShapeRenderer";
 import { LineShapeRenderer } from "./renderers/LineShapeRenderer";
 import { DirectionalArrowRenderer } from "./renderers/DirectionalArrowRenderer";
 import { BoxWithLinesRenderer } from "./renderers/BoxWithLinesRenderer";
+import { StickyNoteRenderer } from "./renderers/StickyNoteRenderer";
 
 /**
  * Register all shape renderers
@@ -53,7 +54,11 @@ export function registerShapeRenderers(): void {
     ShapeRegistry.register('predefinedProcess', BoxWithLinesRenderer.predefinedProcess());
     ShapeRegistry.register('internalStorage', BoxWithLinesRenderer.internalStorage());
 
-    // TODO: Register other shape renderers as they are migrated
-    // ShapeRegistry.register('stickyNote', ...);
+    // UI shapes
+    ShapeRegistry.register('stickyNote', new StickyNoteRenderer());
+    ShapeRegistry.register('callout', PathShapeRenderer.callout());
+
+    // TODO: Register other shape renderers as they are migrated  
+    // ShapeRegistry.register('speechBubble', ...);
     // etc.
 }

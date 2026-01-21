@@ -4,7 +4,7 @@ import type { RenderContext, RenderOptions } from "../base/types";
 /**
  * PathShapeRenderer - Handles shapes defined by complex SVG paths
  * 
- * Supports: cloud, heart, capsule, database, document
+ * Supports: cloud, heart, capsule, database, document, callout
  * These shapes use bezier curves and arcs for organic appearances
  */
 export class PathShapeRenderer extends ShapeRenderer {
@@ -124,6 +124,23 @@ export class PathShapeRenderer extends ShapeRenderer {
         L ${x + w} ${y + h - waveHeight}
         Q ${x + w * 0.75} ${y + h - waveHeight * 2} ${x + w * 0.5} ${y + h - waveHeight}
         T ${x} ${y + h - waveHeight}
+        Z
+      `;
+        });
+    }
+
+    static callout(): PathShapeRenderer {
+        return new PathShapeRenderer((x, y, w, h) => {
+            const tailHeight = h * 0.2;
+            const rectHeight = h - tailHeight;
+            return `
+        M ${x} ${y} 
+        L ${x + w} ${y} 
+        L ${x + w} ${y + rectHeight} 
+        L ${x + w * 0.7} ${y + rectHeight} 
+        L ${x + w * 0.5} ${y + h} 
+        L ${x + w * 0.3} ${y + rectHeight} 
+        L ${x} ${y + rectHeight} 
         Z
       `;
         });

@@ -5,6 +5,7 @@ The project context is in the following files:
 It has all details, to create new shapes, behaviors, minimap, resize, connectors, properties etc.
 
 ## Action Items for AI Agent
+- When I start the chat converstation record the time and when I end (or 30 minutes idle record end time).  Update this in man_days.md (actual hours ection)
 - With each successfuly commit update the man_days.md
 - Create/Update docs in docs folder
 - Write/Update unit tests in tests folder

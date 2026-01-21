@@ -6,7 +6,7 @@
 
 ## Executive Summary
 **Total Estimate**: **110 - 150 Man-Days**
-**Actual Spent**: 40 Hours  
+**Actual Spent**: 50 Hours  
 To replicate the current state of Yappy (Infinite Canvas, Vector Engine, Layer System, extensive Shape Library), a single Senior Frontend Engineer with specific experience in Canvas/WebGL/SVG interaction models would require approximately **5-7 months** of dedicated work.
 
 This estimate assumes a high standard of quality (unit tests, undo/redo support for all actions, responsive UI) matching the current codebase.
