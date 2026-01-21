@@ -263,7 +263,7 @@
 - [x] Implement Font Options for Text elements
 - [x]- Phase 22: Advanced Shapes & UX (In Progress)
     - [x] Panel Refactor: Collapsible & Closable Drawers
-    - [ ] Improved Gradient Picker with presets
+    - [x] Improved Gradient Picker with visual editor
 - [x] Help dialog with keyboard shortcuts (Shift+?)
 
 ## Phase 22.5: Advanced Resizing
