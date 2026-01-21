@@ -3,7 +3,7 @@ import {
     undo, redo, groupSelected, ungroupSelected, duplicateElement, toggleTheme,
     addLayer, deleteLayer, setActiveLayer, mergeLayerDown, flattenLayers, isolateLayer, showAllLayers,
     toggleGrid, toggleSnapToGrid, toggleCommandPalette, togglePropertyPanel
-} from "./store/appStore";
+} from "./store/app-store";
 import type { ElementType, DrawingElement, FillStyle, StrokeStyle, FontFamily, TextAlign, ArrowHead, VerticalAlign } from "./types";
 
 interface ElementOptions {

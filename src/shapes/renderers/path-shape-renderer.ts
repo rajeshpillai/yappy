@@ -1,0 +1,130 @@
+import { ShapeRenderer } from "../base/shape-renderer";
+import type { RenderContext, RenderOptions } from "../base/types";
+
+/**
+ * PathShapeRenderer - Handles shapes defined by complex SVG paths
+ * 
+ * Supports: cloud, heart, capsule, database, document, callout, speechBubble,
+ *           bracketLeft, bracketRight
+ * These shapes use bezier curves and arcs for organic appearances
+ */
+export class PathShapeRenderer extends ShapeRenderer {
+    private pathGenerator: (x: number, y: number, w: number, h: number, element?: any) => string;
+
+    constructor(pathGenerator: (x: number, y: number, w: number, h: number, element?: any) => string) {
+        super();
+        this.pathGenerator = pathGenerator;
+    }
+
+    protected renderArchitectural(context: RenderContext, options: RenderOptions): void {
+        const { ctx, element } = context;
+        const path = this.pathGenerator(element.x, element.y, element.width, element.height, element);
+        const path2D = new Path2D(path);
+
+        // Fill (only if applicable)
+        if (options.fill && options.fill !== 'transparent' && options.fill !== 'none' && element.fillStyle !== 'dots') {
+            ctx.fillStyle = options.fill;
+            ctx.fill(path2D);
+        }
+
+        // Stroke
+        ctx.strokeStyle = options.strokeColor;
+        ctx.lineWidth = options.strokeWidth;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.stroke(path2D);
+    }
+
+    protected renderSketch(context: RenderContext, options: RenderOptions): void {
+        const { rc, element } = context;
+        const path = this.pathGenerator(element.x, element.y, element.width, element.height, element);
+
+        rc.path(path, {
+            seed: options.seed,
+            roughness: options.roughness,
+            bowing: options.bowing,
+            stroke: options.stroke,
+            strokeWidth: options.strokeWidth,
+            fill: options.fill || 'none',
+            fillStyle: options.fillStyle,
+            fillWeight: options.fillWeight,
+            hachureGap: options.hachureGap,
+            strokeLineDash: options.strokeLineDash,
+            hachureAngle: -41 + (options.seed % 360),
+        });
+    }
+
+    // Decorative shapes
+    static cloud(): PathShapeRenderer {
+        return new PathShapeRenderer((x, y, w, h) => {
+            const cy = y + h / 2;
+            const r1 = w * 0.2, r2 = w * 0.25, r3 = w * 0.2, r4 = w * 0.3;
+            return `M ${x + r1} ${cy} A ${r1} ${r1} 0 0 1 ${x + w * 0.3} ${y + r2} A ${r2} ${r2} 0 0 1 ${x + w * 0.7} ${y + r2} A ${r3} ${r3} 0 0 1 ${x + w - r3} ${cy} A ${r4} ${r4} 0 0 1 ${x + w * 0.6} ${y + h - r4 * 0.5} A ${r4} ${r4} 0 0 1 ${x + w * 0.3} ${y + h - r4 * 0.5} A ${r4} ${r4} 0 0 1 ${x + r1} ${cy} Z`;
+        });
+    }
+
+    static heart(): PathShapeRenderer {
+        return new PathShapeRenderer((x, y, w, h) => {
+            const cx = x + w / 2;
+            return `M ${cx} ${y + h * 0.3} C ${cx} ${y + h * 0.15} ${x + w * 0.3} ${y} ${x + w * 0.5} ${y + h * 0.15} C ${x + w * 0.7} ${y} ${x + w} ${y + h * 0.15} ${x + w} ${y + h * 0.35} C ${x + w} ${y + h * 0.6} ${cx} ${y + h * 0.8} ${cx} ${y + h} C ${cx} ${y + h * 0.8} ${x} ${y + h * 0.6} ${x} ${y + h * 0.35} C ${x} ${y + h * 0.15} ${x + w * 0.3} ${y} ${x + w * 0.5} ${y + h * 0.15} Z`;
+        });
+    }
+
+    // Flowchart shapes
+    static capsule(): PathShapeRenderer {
+        return new PathShapeRenderer((x, y, w, h) => {
+            const radius = Math.min(Math.abs(w), Math.abs(h)) / 2;
+            const rX = Math.min(Math.abs(w) / 2, radius), rY = Math.min(Math.abs(h) / 2, radius);
+            return `M ${x + rX} ${y} L ${x + w - rX} ${y} Q ${x + w} ${y} ${x + w} ${y + rY} L ${x + w} ${y + h - rY} Q ${x + w} ${y + h} ${x + w - rX} ${y + h} L ${x + rX} ${y + h} Q ${x} ${y + h} ${x} ${y + h - rY} L ${x} ${y + rY} Q ${x} ${y} ${x + rX} ${y}`;
+        });
+    }
+
+    static database(): PathShapeRenderer {
+        return new PathShapeRenderer((x, y, w, h) => {
+            const ellipseHeight = h * 0.2;
+            return `M ${x} ${y + ellipseHeight / 2} L ${x} ${y + h - ellipseHeight / 2} A ${w / 2} ${ellipseHeight / 2} 0 0 0 ${x + w} ${y + h - ellipseHeight / 2} L ${x + w} ${y + ellipseHeight / 2} A ${w / 2} ${ellipseHeight / 2} 0 0 0 ${x} ${y + ellipseHeight / 2} A ${w / 2} ${ellipseHeight / 2} 0 0 0 ${x + w} ${y + ellipseHeight / 2}`;
+        });
+    }
+
+    static document(): PathShapeRenderer {
+        return new PathShapeRenderer((x, y, w, h) => {
+            const waveHeight = h * 0.1;
+            return `M ${x} ${y} L ${x + w} ${y} L ${x + w} ${y + h - waveHeight} Q ${x + w * 0.75} ${y + h - waveHeight * 2} ${x + w * 0.5} ${y + h - waveHeight} T ${x} ${y + h - waveHeight} Z`;
+        });
+    }
+
+    static callout(): PathShapeRenderer {
+        return new PathShapeRenderer((x, y, w, h) => {
+            const tailHeight = h * 0.2, rectHeight = h - tailHeight;
+            return `M ${x} ${y} L ${x + w} ${y} L ${x + w} ${y + rectHeight} L ${x + w * 0.7} ${y + rectHeight} L ${x + w * 0.5} ${y + h} L ${x + w * 0.3} ${y + rectHeight} L ${x} ${y + rectHeight} Z`;
+        });
+    }
+
+    static speechBubble(): PathShapeRenderer {
+        return new PathShapeRenderer((x, y, w, h, el) => {
+            const radiusPercent = el?.borderRadius !== undefined ? el.borderRadius : 20;
+            const r = Math.min(Math.abs(w), Math.abs(h)) * (radiusPercent / 100);
+            const tailWidth = w * 0.15, tailHeight = h * 0.2, rectHeight = h - tailHeight;
+            const tailPos = (el?.tailPosition !== undefined ? el.tailPosition : 20) / 100;
+            const rX = Math.min(Math.abs(w) / 2, r), rY = Math.min(Math.abs(rectHeight) / 2, r);
+            const tipRelX = w * tailPos;
+            let baseRelX1, baseRelX2;
+            if (tailPos <= 0.5) { baseRelX1 = tipRelX + (w * 0.1); baseRelX2 = baseRelX1 + tailWidth; }
+            else { baseRelX2 = tipRelX - (w * 0.1); baseRelX1 = baseRelX2 - tailWidth; }
+            return `M ${x + rX} ${y} L ${x + w - rX} ${y} Q ${x + w} ${y} ${x + w} ${y + rY} L ${x + w} ${y + rectHeight - rY} Q ${x + w} ${y + rectHeight} ${x + w - rX} ${y + rectHeight} L ${x + baseRelX2} ${y + rectHeight} L ${x + tipRelX} ${y + h} L ${x + baseRelX1} ${y + rectHeight} L ${x + rX} ${y + rectHeight} Q ${x} ${y + rectHeight} ${x} ${y + rectHeight - rY} L ${x} ${y + rY} Q ${x} ${y} ${x + rX} ${y} Z`;
+        });
+    }
+
+    // Brackets
+    static bracketLeft(): PathShapeRenderer {
+        return new PathShapeRenderer((x, y, w, h) => {
+            return `M ${x + w} ${y} Q ${x} ${y} ${x} ${y + h / 2} Q ${x} ${y + h} ${x + w} ${y + h}`;
+        });
+    }
+
+    static bracketRight(): PathShapeRenderer {
+        return new PathShapeRenderer((x, y, w, h) => {
+            return `M ${x} ${y} Q ${x + w} ${y} ${x + w} ${y + h / 2} Q ${x + w} ${y + h} ${x} ${y + h}`;
+        });
+    }
+}

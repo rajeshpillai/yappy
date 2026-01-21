@@ -1,5 +1,5 @@
-import { store } from "../store/appStore";
-import { renderElement } from "./renderElement";
+import { store } from "../store/app-store";
+import { renderElement } from "./render-element";
 import rough from 'roughjs/bin/rough';
 
 

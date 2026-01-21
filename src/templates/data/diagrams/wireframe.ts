@@ -1,4 +1,4 @@
-import type { Template } from '../../../types/templateTypes';
+import type { Template } from '../../../types/template-types';
 
 export const wireframeTemplate: Template = {
     metadata: {
