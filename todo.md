@@ -700,3 +700,6 @@
   - [x] Add gradient support to `fillStyle`
   - [x] Implement linear and radial gradient renderer (local coordinates)
   - [x] Support Custom Shapes via `shapeGeometry.ts`
+
+## Phase 51: Text Styling
+- [ ] Text color property of shapes can be customized with color picker (high priority)
