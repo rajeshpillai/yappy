@@ -235,30 +235,51 @@ export class RenderPipeline {
 
         const startY = cy - metrics.textHeight / 2 + metrics.lineHeight / 2 + startYOffset;
 
+        // Fine-tune baseline shift for better visual centering (font dependent)
+        const baselineShift = el.fontFamily === 'hand-drawn' ? 2 : 0;
+        const textYAdjusted = startY + baselineShift;
+
         // Render Highlight
         if (el.textHighlightEnabled) {
             const highlightColor = el.textHighlightColor || 'rgba(255, 255, 0, 0.4)';
+            const padding = el.textHighlightPadding ?? 4;
+            const radius = el.textHighlightRadius ?? 2;
+
             ctx.fillStyle = this.adjustColor(highlightColor, isDarkMode);
 
             metrics.lines.forEach((line, index) => {
-                const y = startY + index * metrics.lineHeight;
+                const y = textYAdjusted + index * metrics.lineHeight;
                 const lineWidth = ctx.measureText(line).width;
-                const hPadding = 4;
-                const vPadding = 2;
 
-                ctx.fillRect(
-                    cx - lineWidth / 2 - hPadding,
-                    y - metrics.lineHeight / 2 + vPadding,
-                    lineWidth + hPadding * 2,
-                    metrics.lineHeight - vPadding * 2
-                );
+                // Vertical padding adjustment to make it look centered
+                const vPadding = padding / 2;
+
+                ctx.beginPath();
+                if (ctx.roundRect) {
+                    ctx.roundRect(
+                        cx - lineWidth / 2 - padding,
+                        y - metrics.lineHeight / 2 - vPadding,
+                        lineWidth + padding * 2,
+                        metrics.lineHeight + vPadding * 2,
+                        radius
+                    );
+                } else {
+                    // Fallback for older browsers
+                    ctx.rect(
+                        cx - lineWidth / 2 - padding,
+                        y - metrics.lineHeight / 2 - vPadding,
+                        lineWidth + padding * 2,
+                        metrics.lineHeight + vPadding * 2
+                    );
+                }
+                ctx.fill();
             });
         }
 
         // Render Lines
         ctx.fillStyle = textColor;
         metrics.lines.forEach((line, index) => {
-            const y = startY + index * metrics.lineHeight;
+            const y = textYAdjusted + index * metrics.lineHeight;
             ctx.fillText(line, cx, y, el.width - 10);
         });
 

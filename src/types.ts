@@ -132,6 +132,8 @@ export interface DrawingElement {
     textColor?: string;
     textHighlightEnabled?: boolean;
     textHighlightColor?: string;
+    textHighlightPadding?: number;
+    textHighlightRadius?: number;
 
     // Text inside shapes (for labels on rectangles, circles, etc.)
     containerText?: string;

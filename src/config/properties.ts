@@ -498,6 +498,30 @@ export const properties: PropertyConfig[] = [
         defaultValue: 'rgba(255, 255, 0, 0.4)',
         dependsOn: 'textHighlightEnabled'
     },
+    {
+        key: 'textHighlightPadding',
+        label: 'Highlight Padding',
+        type: 'slider',
+        min: 0,
+        max: 20,
+        step: 1,
+        group: 'text',
+        applicableTo: 'all',
+        defaultValue: 4,
+        dependsOn: 'textHighlightEnabled'
+    },
+    {
+        key: 'textHighlightRadius',
+        label: 'Highlight Radius',
+        type: 'slider',
+        min: 0,
+        max: 20,
+        step: 1,
+        group: 'text',
+        applicableTo: 'all',
+        defaultValue: 2,
+        dependsOn: 'textHighlightEnabled'
+    },
 
     // Linear
     {

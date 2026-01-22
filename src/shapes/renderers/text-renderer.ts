@@ -37,25 +37,40 @@ export class TextRenderer extends ShapeRenderer {
 
         if (el.textHighlightEnabled) {
             const highlightColor = el.textHighlightColor || 'rgba(255, 255, 0, 0.4)';
+            const padding = el.textHighlightPadding ?? 4;
+            const radius = el.textHighlightRadius ?? 2;
+
             ctx.fillStyle = RenderPipeline.adjustColor(highlightColor, isDarkMode);
 
-            // For now, Text elements are simple single-line or manually wrapped with \n?
-            // Let's split by newline if present
             const lines = el.text.split('\n');
             const lineHeight = fontSize * 1.2;
 
+            // Baseline adjustment for better visual centering
+            const baselineShift = el.fontFamily === 'hand-drawn' ? -2 : 0;
+
             lines.forEach((line, index) => {
                 const lineWidth = ctx.measureText(line).width;
-                const hPadding = 4;
-                const vPadding = 2;
-                const yOffset = el.y + index * lineHeight;
+                const yOffset = el.y + index * lineHeight + baselineShift;
+                const vPadding = padding / 2;
 
-                ctx.fillRect(
-                    el.x - hPadding,
-                    yOffset + vPadding,
-                    lineWidth + hPadding * 2,
-                    lineHeight - vPadding * 2
-                );
+                ctx.beginPath();
+                if (ctx.roundRect) {
+                    ctx.roundRect(
+                        el.x - padding,
+                        yOffset - vPadding,
+                        lineWidth + padding * 2,
+                        lineHeight + vPadding * 2,
+                        radius
+                    );
+                } else {
+                    ctx.rect(
+                        el.x - padding,
+                        yOffset - vPadding,
+                        lineWidth + padding * 2,
+                        lineHeight + vPadding * 2
+                    );
+                }
+                ctx.fill();
             });
 
             ctx.fillStyle = textColor;

@@ -702,8 +702,9 @@
   - [x] Support Custom Shapes via `shapeGeometry.ts`
 
 ## Phase 51: Text Styling
-- [ ] Text color property of shapes can be customized with color picker (high priority)
-- [ ] Implement independent text background/highlight color
+- [x] Text color property of shapes can be customized with color picker
+- [x] Implement independent text background/highlight color
+- [x] Precision highlights (padding, radius, alignment fixes)
 
 ## Phase 52: Advanced Connectivity (Recommendations)
 - [ ] **Smart Orthogonal Routing**
