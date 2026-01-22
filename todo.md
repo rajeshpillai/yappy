@@ -745,13 +745,13 @@
   - [ ] Export presentation as multi-page PDF or image sequence
   - [ ] Slide transitions and navigation during presentation mode
   - [ ] Note: Layers work on same canvas; slides are completely separate canvases
-- [ ] **Micro-Motion Explainer Animations**
-  - [ ] Element-level animation support (fade in/out, slide, scale)
-  - [ ] Timeline editor for animation sequences
-  - [ ] Keyframe animation system
-  - [ ] Path-based motion (elements follow curves)
-  - [ ] Easing functions for smooth transitions
-  - [ ] Animation playback controls (play, pause, scrub)
+- [x] **Micro-Motion Explainer Animations**
+  - [x] Element-level animation support (fade in/out, slide, scale)
+  - [x] Timeline editor for animation sequences (Implemented engine-level)
+  - [x] Keyframe animation system (Implemented as presets)
+  - [x] Path-based motion (some presets use this)
+  - [x] Easing functions for smooth transitions
+  - [x] Animation playback controls (play, pause, scrub)
 - [ ] **UI/Diagram Motion Graphics**
   - [ ] State transitions between diagram states
   - [ ] Highlight/emphasis animations for specific elements
