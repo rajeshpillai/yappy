@@ -5,6 +5,22 @@ import {
     toggleGrid, toggleSnapToGrid, toggleCommandPalette, togglePropertyPanel, togglePresentationMode
 } from "./store/app-store";
 import type { ElementType, DrawingElement, FillStyle, StrokeStyle, FontFamily, TextAlign, ArrowHead, VerticalAlign, Point } from "./types";
+import {
+    animateElement,
+    animateElements,
+    createTimeline,
+    fadeIn,
+    fadeOut,
+    scaleIn,
+    bounce,
+    pulse,
+    shake,
+    stopElementAnimation,
+    pauseElementAnimation,
+    resumeElementAnimation,
+    easings,
+    animationEngine
+} from "./utils/animation";
 
 interface ElementOptions {
     strokeColor?: string;
@@ -426,7 +442,23 @@ export const YappyAPI = {
     // Command Palette
     toggleCommandPalette(visible?: boolean) { toggleCommandPalette(visible); },
     togglePropertyPanel(visible?: boolean) { togglePropertyPanel(visible); },
-    togglePresentationMode(visible?: boolean) { togglePresentationMode(visible); }
+    togglePresentationMode(visible?: boolean) { togglePresentationMode(visible); },
+
+    // Animation
+    animateElement,
+    animateElements,
+    createTimeline,
+    fadeIn,
+    fadeOut,
+    scaleIn,
+    bounce,
+    pulse,
+    shake,
+    stopElementAnimation,
+    pauseElementAnimation,
+    resumeElementAnimation,
+    easings,
+    animationEngine
 };
 
 declare global {
