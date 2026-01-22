@@ -42,6 +42,50 @@ export type Point = {
     t?: number; // timestamp for velocity calculation
 };
 
+export type EntranceAnimation = 'none' |
+    // Attention seekers
+    'bounce' | 'flash' | 'pulse' | 'rubberBand' | 'shakeX' | 'shakeY' | 'headShake' | 'swing' | 'tada' | 'wobble' | 'jello' | 'heartBeat' |
+    // Back entrances
+    'backInDown' | 'backInLeft' | 'backInRight' | 'backInUp' |
+    // Bouncing entrances
+    'bounceIn' | 'bounceInDown' | 'bounceInLeft' | 'bounceInRight' | 'bounceInUp' |
+    // Fading entrances
+    'fadeIn' | 'fadeInDown' | 'fadeInDownBig' | 'fadeInLeft' | 'fadeInLeftBig' | 'fadeInRight' | 'fadeInRightBig' | 'fadeInUp' | 'fadeInUpBig' | 'fadeInTopLeft' | 'fadeInTopRight' | 'fadeInBottomLeft' | 'fadeInBottomRight' |
+    // Flippers
+    'flip' | 'flipInX' | 'flipInY' |
+    // Lightspeed
+    'lightSpeedInRight' | 'lightSpeedInLeft' |
+    // Rotating entrances
+    'rotateIn' | 'rotateInDownLeft' | 'rotateInDownRight' | 'rotateInUpLeft' | 'rotateInUpRight' |
+    // Specials
+    'rollIn' | 'jackInTheBox' |
+    'scaleIn' | // Added for compatibility
+    // Zooming entrances
+    'zoomIn' | 'zoomInDown' | 'zoomInLeft' | 'zoomInRight' | 'zoomInUp' |
+    // Sliding entrances
+    'slideInDown' | 'slideInLeft' | 'slideInRight' | 'slideInUp';
+
+export type ExitAnimation = 'none' |
+    // Back exits
+    'backOutDown' | 'backOutLeft' | 'backOutRight' | 'backOutUp' |
+    // Bouncing exits
+    'bounceOut' | 'bounceOutDown' | 'bounceOutLeft' | 'bounceOutRight' | 'bounceOutUp' |
+    // Fading exits
+    'fadeOut' | 'fadeOutDown' | 'fadeOutDownBig' | 'fadeOutLeft' | 'fadeOutLeftBig' | 'fadeOutRight' | 'fadeOutRightBig' | 'fadeOutUp' | 'fadeOutUpBig' | 'fadeOutTopLeft' | 'fadeOutTopRight' | 'fadeOutBottomRight' | 'fadeOutBottomLeft' |
+    // Flippers
+    'flipOutX' | 'flipOutY' |
+    // Lightspeed
+    'lightSpeedOutRight' | 'lightSpeedOutLeft' |
+    // Rotating exits
+    'rotateOut' | 'rotateOutDownLeft' | 'rotateOutDownRight' | 'rotateOutUpLeft' | 'rotateOutUpRight' |
+    // Specials
+    'rollOut' | 'hinge' |
+    'scaleOut' | // Added for compatibility
+    // Zooming exits
+    'zoomOut' | 'zoomOutDown' | 'zoomOutLeft' | 'zoomOutRight' | 'zoomOutUp' |
+    // Sliding exits
+    'slideOutDown' | 'slideOutLeft' | 'slideOutRight' | 'slideOutUp';
+
 export interface DrawingElement {
     id: string;
     type: ElementType;
@@ -141,8 +185,8 @@ export interface DrawingElement {
     isEditing?: boolean;
 
     // Animation Settings
-    entranceAnimation?: 'none' | 'fadeIn' | 'scaleIn' | 'slideInLeft' | 'slideInRight' | 'slideInUp' | 'slideInDown' | 'bounce';
-    exitAnimation?: 'none' | 'fadeOut' | 'scaleOut' | 'slideOutLeft' | 'slideOutRight' | 'slideOutUp' | 'slideOutDown';
+    entranceAnimation?: EntranceAnimation;
+    exitAnimation?: ExitAnimation;
     animationDuration?: number;  // ms, default 300
     animationDelay?: number;     // ms, default 0
 }

@@ -320,9 +320,70 @@ export function pulse(elementId: string, scale: number = 1.1, duration: number =
 }
 
 /**
- * Shake effect (emphasis/error)
+ * Flash effect (attention seeker)
  */
-export function shake(elementId: string, intensity: number = 10, duration: number = 400): string {
+export function flash(elementId: string, duration: number = 1000): string {
+    return animateElement(elementId, { opacity: 0 }, {
+        duration: duration / 4,
+        easing: 'linear',
+        loop: true,
+        loopCount: 2,
+        alternate: true
+    });
+}
+
+/**
+ * RubberBand effect (attention seeker)
+ */
+export function rubberBand(elementId: string, duration: number = 1000): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const originalWidth = element.width;
+    const originalHeight = element.height;
+    const originalX = element.x;
+    const originalY = element.y;
+
+    // Phase 1: Stretch horizontal, squash vertical
+    return animateElement(elementId, {
+        width: originalWidth * 1.25,
+        height: originalHeight * 0.75,
+        x: originalX - (originalWidth * 0.25) / 2,
+        y: originalY + (originalHeight * 0.25) / 2
+    }, {
+        duration: duration * 0.3,
+        easing: 'easeOutQuad',
+        onComplete: () => {
+            // Phase 2: Stretch vertical, squash horizontal
+            animateElement(elementId, {
+                width: originalWidth * 0.75,
+                height: originalHeight * 1.25,
+                x: originalX + (originalWidth * 0.25) / 2,
+                y: originalY - (originalHeight * 0.25) / 2
+            }, {
+                duration: duration * 0.3,
+                easing: 'easeInOutQuad',
+                onComplete: () => {
+                    // Phase 3: Return to normal
+                    animateElement(elementId, {
+                        width: originalWidth,
+                        height: originalHeight,
+                        x: originalX,
+                        y: originalY
+                    }, {
+                        duration: duration * 0.4,
+                        easing: 'easeOutElastic'
+                    });
+                }
+            });
+        }
+    });
+}
+
+/**
+ * ShakeX effect (attention seeker)
+ */
+export function shakeX(elementId: string, intensity: number = 10, duration: number = 400): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
@@ -331,13 +392,321 @@ export function shake(elementId: string, intensity: number = 10, duration: numbe
     return animateElement(elementId, {
         x: originalX + intensity
     }, {
-        duration: duration,
+        duration: duration / 4,
         easing: 'linear',
         loop: true,
         loopCount: 4,
         alternate: true,
         onComplete: () => {
             updateElement(elementId, { x: originalX }, false);
+        }
+    });
+}
+
+/**
+ * ShakeY effect (attention seeker)
+ */
+export function shakeY(elementId: string, intensity: number = 10, duration: number = 400): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const originalY = element.y;
+
+    return animateElement(elementId, {
+        y: originalY + intensity
+    }, {
+        duration: duration / 4,
+        easing: 'linear',
+        loop: true,
+        loopCount: 4,
+        alternate: true,
+        onComplete: () => {
+            updateElement(elementId, { y: originalY }, false);
+        }
+    });
+}
+
+/**
+ * HeadShake effect (attention seeker)
+ */
+export function headShake(elementId: string, duration: number = 1000): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const originalX = element.x;
+
+    return animateElement(elementId, { x: originalX - 6 }, {
+        duration: duration / 5,
+        easing: 'easeInOutQuad',
+        onComplete: () => {
+            animateElement(elementId, { x: originalX + 5 }, {
+                duration: duration / 5,
+                easing: 'easeInOutQuad',
+                onComplete: () => {
+                    animateElement(elementId, { x: originalX - 3 }, {
+                        duration: duration / 5,
+                        easing: 'easeInOutQuad',
+                        onComplete: () => {
+                            animateElement(elementId, { x: originalX + 2 }, {
+                                duration: duration / 5,
+                                easing: 'easeInOutQuad',
+                                onComplete: () => {
+                                    animateElement(elementId, { x: originalX }, {
+                                        duration: duration / 5,
+                                        easing: 'easeInOutQuad'
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    });
+}
+
+/**
+ * Swing effect (attention seeker)
+ */
+export function swing(elementId: string, duration: number = 1000): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const originalAngle = element.angle;
+
+    return animateElement(elementId, { angle: originalAngle + 0.25 }, {
+        duration: duration * 0.2,
+        easing: 'linear',
+        onComplete: () => {
+            animateElement(elementId, { angle: originalAngle - 0.17 }, {
+                duration: duration * 0.2,
+                easing: 'linear',
+                onComplete: () => {
+                    animateElement(elementId, { angle: originalAngle + 0.08 }, {
+                        duration: duration * 0.2,
+                        easing: 'linear',
+                        onComplete: () => {
+                            animateElement(elementId, { angle: originalAngle - 0.05 }, {
+                                duration: duration * 0.2,
+                                easing: 'linear',
+                                onComplete: () => {
+                                    animateElement(elementId, { angle: originalAngle }, {
+                                        duration: duration * 0.2,
+                                        easing: 'linear'
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    });
+}
+
+/**
+ * Tada effect (attention seeker)
+ */
+export function tada(elementId: string, duration: number = 1000): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const originalWidth = element.width;
+    const originalHeight = element.height;
+    const originalX = element.x;
+    const originalY = element.y;
+    const originalAngle = element.angle;
+
+    return animateElement(elementId, {
+        width: originalWidth * 0.9,
+        height: originalHeight * 0.9,
+        x: originalX + (originalWidth * 0.1) / 2,
+        y: originalY + (originalHeight * 0.1) / 2,
+        angle: originalAngle - 0.05
+    }, {
+        duration: duration * 0.1,
+        easing: 'linear',
+        onComplete: () => {
+            animateElement(elementId, {
+                width: originalWidth * 1.1,
+                height: originalHeight * 1.1,
+                x: originalX - (originalWidth * 0.1) / 2,
+                y: originalY - (originalHeight * 0.1) / 2,
+                angle: originalAngle + 0.05
+            }, {
+                duration: duration * 0.3,
+                easing: 'linear',
+                loop: true,
+                loopCount: 3,
+                alternate: true,
+                onComplete: () => {
+                    animateElement(elementId, {
+                        width: originalWidth,
+                        height: originalHeight,
+                        x: originalX,
+                        y: originalY,
+                        angle: originalAngle
+                    }, { duration: duration * 0.1, easing: 'linear' });
+                }
+            });
+        }
+    });
+}
+
+/**
+ * Wobble effect (attention seeker)
+ */
+export function wobble(elementId: string, duration: number = 1000): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const originalX = element.x;
+    const originalAngle = element.angle;
+
+    return animateElement(elementId, {
+        x: originalX - (element.width * 0.25),
+        angle: originalAngle - 0.08
+    }, {
+        duration: duration * 0.15,
+        easing: 'linear',
+        onComplete: () => {
+            animateElement(elementId, {
+                x: originalX + (element.width * 0.2),
+                angle: originalAngle + 0.05
+            }, {
+                duration: duration * 0.15,
+                easing: 'linear',
+                onComplete: () => {
+                    animateElement(elementId, {
+                        x: originalX - (element.width * 0.15),
+                        angle: originalAngle - 0.05
+                    }, {
+                        duration: duration * 0.15,
+                        easing: 'linear',
+                        onComplete: () => {
+                            animateElement(elementId, {
+                                x: originalX + (element.width * 0.1),
+                                angle: originalAngle + 0.03
+                            }, {
+                                duration: duration * 0.15,
+                                easing: 'linear',
+                                onComplete: () => {
+                                    animateElement(elementId, {
+                                        x: originalX,
+                                        angle: originalAngle
+                                    }, { duration: duration * 0.15, easing: 'linear' });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    });
+}
+
+/**
+ * Jello effect (attention seeker)
+ */
+export function jello(elementId: string, duration: number = 1000): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const originalWidth = element.width;
+    const originalHeight = element.height;
+    const originalX = element.x;
+    const originalY = element.y;
+
+    return animateElement(elementId, {
+        width: originalWidth * 1.1,
+        height: originalHeight * 0.9,
+        x: originalX - (originalWidth * 0.1) / 2,
+        y: originalY + (originalHeight * 0.1) / 2
+    }, {
+        duration: duration * 0.2,
+        easing: 'linear',
+        onComplete: () => {
+            animateElement(elementId, {
+                width: originalWidth * 0.9,
+                height: originalHeight * 1.1,
+                x: originalX + (originalWidth * 0.1) / 2,
+                y: originalY - (originalHeight * 0.1) / 2
+            }, {
+                duration: duration * 0.2,
+                easing: 'linear',
+                onComplete: () => {
+                    animateElement(elementId, {
+                        width: originalWidth * 1.05,
+                        height: originalHeight * 0.95,
+                        x: originalX - (originalWidth * 0.05) / 2,
+                        y: originalY + (originalHeight * 0.05) / 2
+                    }, {
+                        duration: duration * 0.2,
+                        easing: 'linear',
+                        onComplete: () => {
+                            animateElement(elementId, {
+                                width: originalWidth,
+                                height: originalHeight,
+                                x: originalX,
+                                y: originalY
+                            }, { duration: duration * 0.4, easing: 'easeOutQuad' });
+                        }
+                    });
+                }
+            });
+        }
+    });
+}
+
+/**
+ * HeartBeat effect (attention seeker)
+ */
+export function heartBeat(elementId: string, duration: number = 1300): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const originalWidth = element.width;
+    const originalHeight = element.height;
+    const originalX = element.x;
+    const originalY = element.y;
+
+    return animateElement(elementId, {
+        width: originalWidth * 1.3,
+        height: originalHeight * 1.3,
+        x: originalX - (originalWidth * 0.3) / 2,
+        y: originalY - (originalHeight * 0.3) / 2
+    }, {
+        duration: duration * 0.2,
+        easing: 'easeOutQuad',
+        onComplete: () => {
+            animateElement(elementId, {
+                width: originalWidth,
+                height: originalHeight,
+                x: originalX,
+                y: originalY
+            }, {
+                duration: duration * 0.2,
+                easing: 'easeInQuad',
+                onComplete: () => {
+                    animateElement(elementId, {
+                        width: originalWidth * 1.3,
+                        height: originalHeight * 1.3,
+                        x: originalX - (originalWidth * 0.3) / 2,
+                        y: originalY - (originalHeight * 0.3) / 2
+                    }, {
+                        duration: duration * 0.2,
+                        easing: 'easeOutQuad',
+                        onComplete: () => {
+                            animateElement(elementId, {
+                                width: originalWidth,
+                                height: originalHeight,
+                                x: originalX,
+                                y: originalY
+                            }, { duration: duration * 0.4, easing: 'easeInQuad' });
+                        }
+                    });
+                }
+            });
         }
     });
 }
@@ -453,6 +822,719 @@ export function slideOutDown(elementId: string, duration: number = 300): string 
     return animateElement(elementId, { y: window.innerHeight + 100, opacity: 0 }, { duration, easing: 'easeInQuad' });
 }
 
+
+/**
+ * Back entrances common logic
+ */
+function backIn(elementId: string, from: { x?: number, y?: number }, duration: number, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const targetX = element.x;
+    const targetY = element.y;
+
+    // Start from off-screen and slightly scaled down
+    updateElement(elementId, {
+        x: from.x ?? targetX,
+        y: from.y ?? targetY,
+        opacity: 70,
+        width: element.width * 0.7,
+        height: element.height * 0.7
+    }, false);
+
+    return animateElement(elementId, {
+        x: targetX,
+        y: targetY,
+        opacity: 100,
+        width: element.width,
+        height: element.height
+    }, {
+        duration,
+        easing: 'easeOutBack',
+        ...config
+    });
+}
+
+export function backInDown(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return backIn(elementId, { y: -window.innerHeight }, duration, config);
+}
+
+export function backInLeft(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return backIn(elementId, { x: -window.innerWidth }, duration, config);
+}
+
+export function backInRight(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return backIn(elementId, { x: window.innerWidth + 100 }, duration, config);
+}
+
+export function backInUp(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return backIn(elementId, { y: window.innerHeight + 100 }, duration, config);
+}
+
+/**
+ * Back exits common logic
+ */
+function backOut(elementId: string, to: { x?: number, y?: number }, duration: number, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    return animateElement(elementId, {
+        x: to.x ?? element.x,
+        y: to.y ?? element.y,
+        opacity: 0,
+        width: element.width * 0.7,
+        height: element.height * 0.7
+    }, {
+        duration,
+        easing: 'easeInBack',
+        ...config
+    });
+}
+
+export function backOutDown(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return backOut(elementId, { y: window.innerHeight + 100 }, duration, config);
+}
+
+export function backOutLeft(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return backOut(elementId, { x: -window.innerWidth }, duration, config);
+}
+
+export function backOutRight(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return backOut(elementId, { x: window.innerWidth + 100 }, duration, config);
+}
+
+export function backOutUp(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return backOut(elementId, { y: -window.innerHeight }, duration, config);
+}
+
+/**
+ * Bouncing entrances common logic
+ */
+function bounceInEffect(elementId: string, from: { x?: number, y?: number }, duration: number, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const targetX = element.x;
+    const targetY = element.y;
+
+    updateElement(elementId, {
+        x: from.x ?? targetX,
+        y: from.y ?? targetY,
+        opacity: 0,
+        width: element.width * 0.3,
+        height: element.height * 0.3
+    }, false);
+
+    return animateElement(elementId, {
+        x: targetX,
+        y: targetY,
+        opacity: 100,
+        width: element.width,
+        height: element.height
+    }, {
+        duration,
+        easing: 'easeOutBounce',
+        ...config
+    });
+}
+
+export function bounceIn(elementId: string, duration: number = 750, config: ElementAnimationConfig = {}): string {
+    return bounceInEffect(elementId, {}, duration, config);
+}
+
+export function bounceInDown(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return bounceInEffect(elementId, { y: -window.innerHeight }, duration, config);
+}
+
+export function bounceInLeft(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return bounceInEffect(elementId, { x: -window.innerWidth }, duration, config);
+}
+
+export function bounceInRight(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return bounceInEffect(elementId, { x: window.innerWidth + 100 }, duration, config);
+}
+
+export function bounceInUp(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return bounceInEffect(elementId, { y: window.innerHeight + 100 }, duration, config);
+}
+
+/**
+ * Bouncing exits common logic
+ */
+function bounceOutEffect(elementId: string, to: { x?: number, y?: number }, duration: number, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    return animateElement(elementId, {
+        x: to.x ?? element.x,
+        y: to.y ?? element.y,
+        opacity: 0,
+        width: element.width * 0.3,
+        height: element.height * 0.3
+    }, {
+        duration,
+        easing: 'easeInBounce',
+        ...config
+    });
+}
+
+export function bounceOut(elementId: string, duration: number = 750, config: ElementAnimationConfig = {}): string {
+    return bounceOutEffect(elementId, {}, duration, config);
+}
+
+export function bounceOutDown(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return bounceOutEffect(elementId, { y: window.innerHeight + 100 }, duration, config);
+}
+
+export function bounceOutLeft(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return bounceOutEffect(elementId, { x: -window.innerWidth }, duration, config);
+}
+
+export function bounceOutRight(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return bounceOutEffect(elementId, { x: window.innerWidth + 100 }, duration, config);
+}
+
+export function bounceOutUp(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return bounceOutEffect(elementId, { y: -window.innerHeight }, duration, config);
+}
+
+
+/**
+ * Fading entrances common logic
+ */
+function fadeInEffect(elementId: string, from: { x?: number, y?: number }, duration: number, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const targetX = element.x;
+    const targetY = element.y;
+
+    updateElement(elementId, {
+        x: from.x ?? targetX,
+        y: from.y ?? targetY,
+        opacity: 0
+    }, false);
+
+    return animateElement(elementId, {
+        x: targetX,
+        y: targetY,
+        opacity: 100
+    }, {
+        duration,
+        easing: 'easeOutQuad',
+        ...config
+    });
+}
+
+export function fadeInDown(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeInEffect(elementId, { y: store.selection.length > 0 ? -100 : -100 }, duration, config); // Simplified offset
+}
+
+export function fadeInDownBig(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeInEffect(elementId, { y: -window.innerHeight }, duration, config);
+}
+
+export function fadeInLeft(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeInEffect(elementId, { x: -100 }, duration, config);
+}
+
+export function fadeInLeftBig(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeInEffect(elementId, { x: -window.innerWidth }, duration, config);
+}
+
+export function fadeInRight(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeInEffect(elementId, { x: window.innerWidth + 100 }, duration, config);
+}
+
+export function fadeInRightBig(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeInEffect(elementId, { x: window.innerWidth + 2000 }, duration, config); // Use large value for "Big"
+}
+
+export function fadeInUp(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeInEffect(elementId, { y: 100 }, duration, config);
+}
+
+export function fadeInUpBig(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeInEffect(elementId, { y: window.innerHeight + 100 }, duration, config);
+}
+
+export function fadeInTopLeft(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeInEffect(elementId, { x: -100, y: -100 }, duration, config);
+}
+
+export function fadeInTopRight(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeInEffect(elementId, { x: 100, y: -100 }, duration, config);
+}
+
+export function fadeInBottomLeft(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeInEffect(elementId, { x: -100, y: 100 }, duration, config);
+}
+
+export function fadeInBottomRight(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeInEffect(elementId, { x: 100, y: 100 }, duration, config);
+}
+
+/**
+ * Fading exits common logic
+ */
+function fadeOutEffect(elementId: string, to: { x?: number, y?: number }, duration: number, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    return animateElement(elementId, {
+        x: to.x ?? element.x,
+        y: to.y ?? element.y,
+        opacity: 0
+    }, {
+        duration,
+        easing: 'easeInQuad',
+        ...config
+    });
+}
+
+export function fadeOutDown(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeOutEffect(elementId, { y: 100 }, duration, config);
+}
+
+export function fadeOutDownBig(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeOutEffect(elementId, { y: window.innerHeight + 100 }, duration, config);
+}
+
+export function fadeOutLeft(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeOutEffect(elementId, { x: -100 }, duration, config);
+}
+
+export function fadeOutLeftBig(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeOutEffect(elementId, { x: -window.innerWidth }, duration, config);
+}
+
+export function fadeOutRight(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeOutEffect(elementId, { x: 100 }, duration, config);
+}
+
+export function fadeOutRightBig(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeOutEffect(elementId, { x: window.innerWidth + 100 }, duration, config);
+}
+
+export function fadeOutUp(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeOutEffect(elementId, { y: -100 }, duration, config);
+}
+
+export function fadeOutUpBig(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeOutEffect(elementId, { y: -window.innerHeight }, duration, config);
+}
+
+export function fadeOutTopLeft(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeOutEffect(elementId, { x: -100, y: -100 }, duration, config);
+}
+
+export function fadeOutTopRight(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeOutEffect(elementId, { x: 100, y: -100 }, duration, config);
+}
+
+export function fadeOutBottomLeft(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeOutEffect(elementId, { x: -100, y: 100 }, duration, config);
+}
+
+export function fadeOutBottomRight(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return fadeOutEffect(elementId, { x: 100, y: 100 }, duration, config);
+}
+
+
+/**
+ * Flippers presets
+ */
+export function flip(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const originalAngle = element.angle;
+
+    return animateElement(elementId, { angle: originalAngle + Math.PI }, {
+        duration: duration / 2,
+        easing: 'easeInOutQuad',
+        onComplete: () => {
+            animateElement(elementId, { angle: originalAngle + Math.PI * 2 }, {
+                duration: duration / 2,
+                easing: 'easeInOutQuad',
+                onComplete: () => {
+                    updateElement(elementId, { angle: originalAngle }, false);
+                }
+            });
+        },
+        ...config
+    });
+}
+
+export function flipInX(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    // Simulating flipX with height change
+    const targetHeight = element.height;
+    updateElement(elementId, { height: 0, opacity: 0 }, false);
+
+    return animateElement(elementId, { height: targetHeight, opacity: 100 }, {
+        duration,
+        easing: 'easeOutQuad',
+        ...config
+    });
+}
+
+export function flipInY(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    // Simulating flipY with width change
+    const targetWidth = element.width;
+    updateElement(elementId, { width: 0, opacity: 0 }, false);
+
+    return animateElement(elementId, { width: targetWidth, opacity: 100 }, {
+        duration,
+        easing: 'easeOutQuad',
+        ...config
+    });
+}
+
+export function flipOutX(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return animateElement(elementId, { height: 0, opacity: 0 }, {
+        duration,
+        easing: 'easeInQuad',
+        ...config
+    });
+}
+
+export function flipOutY(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return animateElement(elementId, { width: 0, opacity: 0 }, {
+        duration,
+        easing: 'easeInQuad',
+        ...config
+    });
+}
+
+/**
+ * Lightspeed presets
+ */
+export function lightSpeedInRight(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const targetX = element.x;
+    // Approach from right, fast and slightly tilted (simulated tilt with x offset per loop if needed)
+    updateElement(elementId, { x: window.innerWidth + 100, opacity: 0 }, false);
+
+    return animateElement(elementId, { x: targetX, opacity: 100 }, {
+        duration,
+        easing: 'easeOutExpo',
+        ...config
+    });
+}
+
+export function lightSpeedInLeft(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const targetX = element.x;
+    updateElement(elementId, { x: -window.innerWidth, opacity: 0 }, false);
+
+    return animateElement(elementId, { x: targetX, opacity: 100 }, {
+        duration,
+        easing: 'easeOutExpo',
+        ...config
+    });
+}
+
+export function lightSpeedOutRight(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return animateElement(elementId, { x: window.innerWidth + 100, opacity: 0 }, {
+        duration,
+        easing: 'easeInExpo',
+        ...config
+    });
+}
+
+export function lightSpeedOutLeft(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return animateElement(elementId, { x: -window.innerWidth, opacity: 0 }, {
+        duration,
+        easing: 'easeInExpo',
+        ...config
+    });
+}
+
+/**
+ * Rotating presets
+ */
+function rotateInEffect(elementId: string, from: { x?: number, y?: number, angle?: number }, duration: number, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const targetX = element.x;
+    const targetY = element.y;
+    const targetAngle = element.angle;
+
+    updateElement(elementId, {
+        x: from.x ?? targetX,
+        y: from.y ?? targetY,
+        angle: from.angle ?? (targetAngle - Math.PI * 2),
+        opacity: 0
+    }, false);
+
+    return animateElement(elementId, {
+        x: targetX,
+        y: targetY,
+        angle: targetAngle,
+        opacity: 100
+    }, {
+        duration,
+        easing: 'easeOutQuad',
+        ...config
+    });
+}
+
+export function rotateIn(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return rotateInEffect(elementId, {}, duration, config);
+}
+
+export function rotateInDownLeft(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return rotateInEffect(elementId, { x: -100, y: -100, angle: -Math.PI / 2 }, duration, config);
+}
+
+export function rotateInDownRight(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return rotateInEffect(elementId, { x: 100, y: -100, angle: Math.PI / 2 }, duration, config);
+}
+
+export function rotateInUpLeft(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return rotateInEffect(elementId, { x: -100, y: 100, angle: Math.PI / 2 }, duration, config);
+}
+
+export function rotateInUpRight(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return rotateInEffect(elementId, { x: 100, y: 100, angle: -Math.PI / 2 }, duration, config);
+}
+
+/**
+ * Rotating exits
+ */
+function rotateOutEffect(elementId: string, to: { x?: number, y?: number, angle?: number }, duration: number, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    return animateElement(elementId, {
+        x: to.x ?? element.x,
+        y: to.y ?? element.y,
+        angle: to.angle ?? (element.angle + Math.PI * 2),
+        opacity: 0
+    }, {
+        duration,
+        easing: 'easeInQuad',
+        ...config
+    });
+}
+
+export function rotateOut(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return rotateOutEffect(elementId, {}, duration, config);
+}
+
+export function rotateOutDownLeft(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return rotateOutEffect(elementId, { x: -100, y: 100, angle: Math.PI / 2 }, duration, config);
+}
+
+export function rotateOutDownRight(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return rotateOutEffect(elementId, { x: 100, y: 100, angle: -Math.PI / 2 }, duration, config);
+}
+
+export function rotateOutUpLeft(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return rotateOutEffect(elementId, { x: -100, y: -100, angle: -Math.PI / 2 }, duration, config);
+}
+
+export function rotateOutUpRight(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return rotateOutEffect(elementId, { x: 100, y: -100, angle: Math.PI / 2 }, duration, config);
+}
+
+
+/**
+ * Specials presets
+ */
+export function hinge(elementId: string, duration: number = 2000, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const originalAngle = element.angle;
+
+    // Phase 1: Swing down
+    return animateElement(elementId, { angle: originalAngle + 1.2 }, {
+        duration: duration * 0.4,
+        easing: 'easeInOutQuad',
+        alternate: true,
+        loop: true,
+        loopCount: 2,
+        onComplete: () => {
+            // Phase 2: Drop off screen
+            animateElement(elementId, { y: window.innerHeight + 500, opacity: 0 }, {
+                duration: duration * 0.6,
+                easing: 'easeInQuad'
+            });
+        },
+        ...config
+    });
+}
+
+export function jackInTheBox(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const targetWidth = element.width;
+    const targetHeight = element.height;
+    const targetX = element.x;
+    const targetY = element.y;
+
+    updateElement(elementId, {
+        width: 0,
+        height: 0,
+        x: targetX + targetWidth / 2,
+        y: targetY + targetHeight / 2,
+        angle: -0.5,
+        opacity: 0
+    }, false);
+
+    return animateElement(elementId, {
+        width: targetWidth,
+        height: targetHeight,
+        x: targetX,
+        y: targetY,
+        angle: 0,
+        opacity: 100
+    }, {
+        duration,
+        easing: 'easeOutBack',
+        ...config
+    });
+}
+
+export function rollIn(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const targetX = element.x;
+    updateElement(elementId, { x: targetX - 400, angle: -Math.PI * 2, opacity: 0 }, false);
+
+    return animateElement(elementId, { x: targetX, angle: 0, opacity: 100 }, {
+        duration,
+        easing: 'easeOutQuad',
+        ...config
+    });
+}
+
+export function rollOut(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    return animateElement(elementId, { x: element.x + 400, angle: Math.PI * 2, opacity: 0 }, {
+        duration,
+        easing: 'easeInQuad',
+        ...config
+    });
+}
+
+/**
+ * Zooming presets
+ */
+function zoomInEffect(elementId: string, from: { x?: number, y?: number, scale?: number }, duration: number, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const targetX = element.x;
+    const targetY = element.y;
+    const targetWidth = element.width;
+    const targetHeight = element.height;
+
+    const scale = from.scale ?? 0.1;
+    const startWidth = targetWidth * scale;
+    const startHeight = targetHeight * scale;
+    const startX = (from.x ?? targetX) + (targetWidth - startWidth) / 2;
+    const startY = (from.y ?? targetY) + (targetHeight - startHeight) / 2;
+
+    updateElement(elementId, {
+        x: startX,
+        y: startY,
+        width: startWidth,
+        height: startHeight,
+        opacity: 0
+    }, false);
+
+    return animateElement(elementId, {
+        x: targetX,
+        y: targetY,
+        width: targetWidth,
+        height: targetHeight,
+        opacity: 100
+    }, {
+        duration,
+        easing: 'easeOutQuad',
+        ...config
+    });
+}
+
+export function zoomIn(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return zoomInEffect(elementId, {}, duration, config);
+}
+
+export function zoomInDown(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return zoomInEffect(elementId, { y: -window.innerHeight }, duration, config);
+}
+
+export function zoomInLeft(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return zoomInEffect(elementId, { x: -window.innerWidth }, duration, config);
+}
+
+export function zoomInRight(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return zoomInEffect(elementId, { x: window.innerWidth + 100 }, duration, config);
+}
+
+export function zoomInUp(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return zoomInEffect(elementId, { y: window.innerHeight + 100 }, duration, config);
+}
+
+/**
+ * Zooming exits
+ */
+function zoomOutEffect(elementId: string, to: { x?: number, y?: number, scale?: number }, duration: number, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const scale = to.scale ?? 0.1;
+
+    return animateElement(elementId, {
+        x: (to.x ?? element.x) + (element.width * (1 - scale)) / 2,
+        y: (to.y ?? element.y) + (element.height * (1 - scale)) / 2,
+        width: element.width * scale,
+        height: element.height * scale,
+        opacity: 0
+    }, {
+        duration,
+        easing: 'easeInQuad',
+        ...config
+    });
+}
+
+export function zoomOut(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return zoomOutEffect(elementId, {}, duration, config);
+}
+
+export function zoomOutDown(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return zoomOutEffect(elementId, { y: window.innerHeight + 100 }, duration, config);
+}
+
+export function zoomOutLeft(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return zoomOutEffect(elementId, { x: -window.innerWidth }, duration, config);
+}
+
+export function zoomOutRight(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return zoomOutEffect(elementId, { x: window.innerWidth + 100 }, duration, config);
+}
+
+export function zoomOutUp(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
+    return zoomOutEffect(elementId, { y: -window.innerHeight }, duration, config);
+}
+
 // ============================================
 // Play Element's Configured Animation
 // ============================================
@@ -484,16 +1566,63 @@ export function playEntranceAnimation(elementId: string): string {
     const config = { onComplete: restoreState };
 
     switch (animation) {
-        case 'fadeIn':
-            return fadeIn(elementId, duration); // Note: fadeIn/Out don't accept config yet, but they use animateElement
-        // Actually, fadeIn creates its own animation. I should update them or just use animateElement here.
-        // Let's use the presets but aware they might not restore if I don't pass restoreState.
-        // I'll update the switch to use animateElement directly for better control in preview.
+        // Fading
         case 'fadeIn':
             updateElement(elementId, { opacity: 0 }, false);
             return animateElement(elementId, { opacity: 100 }, { duration, easing: 'easeOutQuad', onComplete: restoreState });
-        case 'scaleIn':
-            return scaleIn(elementId, duration, config);
+        case 'fadeInDown': return fadeInDown(elementId, duration, config);
+        case 'fadeInDownBig': return fadeInDownBig(elementId, duration, config);
+        case 'fadeInLeft': return fadeInLeft(elementId, duration, config);
+        case 'fadeInLeftBig': return fadeInLeftBig(elementId, duration, config);
+        case 'fadeInRight': return fadeInRight(elementId, duration, config);
+        case 'fadeInRightBig': return fadeInRightBig(elementId, duration, config);
+        case 'fadeInUp': return fadeInUp(elementId, duration, config);
+        case 'fadeInUpBig': return fadeInUpBig(elementId, duration, config);
+        case 'fadeInTopLeft': return fadeInTopLeft(elementId, duration, config);
+        case 'fadeInTopRight': return fadeInTopRight(elementId, duration, config);
+        case 'fadeInBottomLeft': return fadeInBottomLeft(elementId, duration, config);
+        case 'fadeInBottomRight': return fadeInBottomRight(elementId, duration, config);
+
+        // Attention seekers
+        case 'bounce': return bounce(elementId);
+        case 'flash': return flash(elementId, duration);
+        case 'pulse': return pulse(elementId, 1.1, duration);
+        case 'rubberBand': return rubberBand(elementId, duration);
+        case 'shakeX': return shakeX(elementId, 10, duration);
+        case 'shakeY': return shakeY(elementId, 10, duration);
+        case 'headShake': return headShake(elementId, duration);
+        case 'swing': return swing(elementId, duration);
+        case 'tada': return tada(elementId, duration);
+        case 'wobble': return wobble(elementId, duration);
+        case 'jello': return jello(elementId, duration);
+        case 'heartBeat': return heartBeat(elementId, duration);
+
+        // Back entrances
+        case 'backInDown': return backInDown(elementId, duration, config);
+        case 'backInLeft': return backInLeft(elementId, duration, config);
+        case 'backInRight': return backInRight(elementId, duration, config);
+        case 'backInUp': return backInUp(elementId, duration, config);
+
+        // Bouncing entrances
+        case 'bounceIn': return bounceIn(elementId, duration, config);
+        case 'bounceInDown': return bounceInDown(elementId, duration, config);
+        case 'bounceInLeft': return bounceInLeft(elementId, duration, config);
+        case 'bounceInRight': return bounceInRight(elementId, duration, config);
+        case 'bounceInUp': return bounceInUp(elementId, duration, config);
+
+        // Zooming entrances
+        case 'zoomIn': return zoomIn(elementId, duration, config);
+        case 'zoomInDown': return zoomInDown(elementId, duration, config);
+        case 'zoomInLeft': return zoomInLeft(elementId, duration, config);
+        case 'zoomInRight': return zoomInRight(elementId, duration, config);
+        case 'zoomInUp': return zoomInUp(elementId, duration, config);
+
+        // Sliding entrances
+        case 'slideInDown': {
+            const targetY = element.y;
+            updateElement(elementId, { y: -element.height, opacity: 0 }, false);
+            return animateElement(elementId, { y: targetY, opacity: 100 }, { duration, easing: 'easeOutQuad', onComplete: restoreState });
+        }
         case 'slideInLeft': {
             const targetX = element.x;
             updateElement(elementId, { x: -element.width, opacity: 0 }, false);
@@ -506,18 +1635,33 @@ export function playEntranceAnimation(elementId: string): string {
         }
         case 'slideInUp': {
             const targetY = element.y;
-            updateElement(elementId, { y: -element.height, opacity: 0 }, false);
-            return animateElement(elementId, { y: targetY, opacity: 100 }, { duration, easing: 'easeOutQuad', onComplete: restoreState });
-        }
-        case 'slideInDown': {
-            const targetY = element.y;
             updateElement(elementId, { y: window.innerHeight + 100, opacity: 0 }, false);
             return animateElement(elementId, { y: targetY, opacity: 100 }, { duration, easing: 'easeOutQuad', onComplete: restoreState });
         }
-        case 'bounce':
-            // Bounce is complex (chained), let's just use it and manually restore later if possible 
-            // or just let it be for now since bounce returns to original Y anyway.
-            return bounce(elementId);
+
+        // Rotating entrances
+        case 'rotateIn': return rotateIn(elementId, duration, config);
+        case 'rotateInDownLeft': return rotateInDownLeft(elementId, duration, config);
+        case 'rotateInDownRight': return rotateInDownRight(elementId, duration, config);
+        case 'rotateInUpLeft': return rotateInUpLeft(elementId, duration, config);
+        case 'rotateInUpRight': return rotateInUpRight(elementId, duration, config);
+
+        // Flippers
+        case 'flip': return flip(elementId, duration, config);
+        case 'flipInX': return flipInX(elementId, duration, config);
+        case 'flipInY': return flipInY(elementId, duration, config);
+
+        // Lightspeed
+        case 'lightSpeedInRight': return lightSpeedInRight(elementId, duration, config);
+        case 'lightSpeedInLeft': return lightSpeedInLeft(elementId, duration, config);
+
+        // Specials
+        case 'rollIn': return rollIn(elementId, duration, config);
+        case 'jackInTheBox': return jackInTheBox(elementId, duration, config);
+
+        case 'scaleIn':
+            return scaleIn(elementId, duration, config);
+
         default:
             return '';
     }
@@ -534,7 +1678,6 @@ export function playExitAnimation(elementId: string): string {
     const animation = element.exitAnimation ?? 'none';
     const duration = element.animationDuration ?? 300;
 
-    // Capture original state to restore after animation
     const originalState = {
         x: element.x,
         y: element.y,
@@ -547,48 +1690,77 @@ export function playExitAnimation(elementId: string): string {
         updateElement(elementId, originalState, false);
     };
 
+    const config = { onComplete: restoreState };
+
     switch (animation) {
+        // Fading
         case 'fadeOut':
-            return animateElement(elementId, { opacity: 0 }, {
-                duration,
-                easing: 'easeOutQuad',
-                onComplete: restoreState
-            });
-        case 'scaleOut': {
-            const centerX = element.x + element.width / 2;
-            const centerY = element.y + element.height / 2;
-            return animateElement(elementId, {
-                width: 0,
-                height: 0,
-                x: centerX,
-                y: centerY,
-                opacity: 0
-            }, { duration, easing: 'easeInBack', onComplete: restoreState });
-        }
-        case 'slideOutLeft':
-            return animateElement(elementId, { x: -element.width, opacity: 0 }, {
-                duration,
-                easing: 'easeInQuad',
-                onComplete: restoreState
-            });
-        case 'slideOutRight':
-            return animateElement(elementId, { x: window.innerWidth + 100, opacity: 0 }, {
-                duration,
-                easing: 'easeInQuad',
-                onComplete: restoreState
-            });
-        case 'slideOutUp':
-            return animateElement(elementId, { y: -element.height, opacity: 0 }, {
-                duration,
-                easing: 'easeInQuad',
-                onComplete: restoreState
-            });
+            return animateElement(elementId, { opacity: 0 }, { duration, easing: 'easeOutQuad', onComplete: restoreState });
+        case 'fadeOutDown': return fadeOutDown(elementId, duration, config);
+        case 'fadeOutDownBig': return fadeOutDownBig(elementId, duration, config);
+        case 'fadeOutLeft': return fadeOutLeft(elementId, duration, config);
+        case 'fadeOutLeftBig': return fadeOutLeftBig(elementId, duration, config);
+        case 'fadeOutRight': return fadeOutRight(elementId, duration, config);
+        case 'fadeOutRightBig': return fadeOutRightBig(elementId, duration, config);
+        case 'fadeOutUp': return fadeOutUp(elementId, duration, config);
+        case 'fadeOutUpBig': return fadeOutUpBig(elementId, duration, config);
+        case 'fadeOutTopLeft': return fadeOutTopLeft(elementId, duration, config);
+        case 'fadeOutTopRight': return fadeOutTopRight(elementId, duration, config);
+        case 'fadeOutBottomLeft': return fadeOutBottomLeft(elementId, duration, config);
+        case 'fadeOutBottomRight': return fadeOutBottomRight(elementId, duration, config);
+
+        // Back exits
+        case 'backOutDown': return backOutDown(elementId, duration, config);
+        case 'backOutLeft': return backOutLeft(elementId, duration, config);
+        case 'backOutRight': return backOutRight(elementId, duration, config);
+        case 'backOutUp': return backOutUp(elementId, duration, config);
+
+        // Bouncing exits
+        case 'bounceOut': return bounceOut(elementId, duration, config);
+        case 'bounceOutDown': return bounceOutDown(elementId, duration, config);
+        case 'bounceOutLeft': return bounceOutLeft(elementId, duration, config);
+        case 'bounceOutRight': return bounceOutRight(elementId, duration, config);
+        case 'bounceOutUp': return bounceOutUp(elementId, duration, config);
+
+        // Zooming exits
+        case 'zoomOut': return zoomOut(elementId, duration, config);
+        case 'zoomOutDown': return zoomOutDown(elementId, duration, config);
+        case 'zoomOutLeft': return zoomOutLeft(elementId, duration, config);
+        case 'zoomOutRight': return zoomOutRight(elementId, duration, config);
+        case 'zoomOutUp': return zoomOutUp(elementId, duration, config);
+
+        // Sliding exits
         case 'slideOutDown':
-            return animateElement(elementId, { y: window.innerHeight + 100, opacity: 0 }, {
-                duration,
-                easing: 'easeInQuad',
-                onComplete: restoreState
-            });
+            return animateElement(elementId, { y: window.innerHeight + 100, opacity: 0 }, { duration, easing: 'easeInQuad', onComplete: restoreState });
+        case 'slideOutLeft':
+            return animateElement(elementId, { x: -element.width, opacity: 0 }, { duration, easing: 'easeInQuad', onComplete: restoreState });
+        case 'slideOutRight':
+            return animateElement(elementId, { x: window.innerWidth + 100, opacity: 0 }, { duration, easing: 'easeInQuad', onComplete: restoreState });
+        case 'slideOutUp':
+            return animateElement(elementId, { y: -element.height, opacity: 0 }, { duration, easing: 'easeInQuad', onComplete: restoreState });
+
+        // Rotating exits
+        case 'rotateOut': return rotateOut(elementId, duration, config);
+        case 'rotateOutDownLeft': return rotateOutDownLeft(elementId, duration, config);
+        case 'rotateOutDownRight': return rotateOutDownRight(elementId, duration, config);
+        case 'rotateOutUpLeft': return rotateOutUpLeft(elementId, duration, config);
+        case 'rotateOutUpRight': return rotateOutUpRight(elementId, duration, config);
+
+        // Flippers
+        case 'flipOutX': return flipOutX(elementId, duration, config);
+        case 'flipOutY': return flipOutY(elementId, duration, config);
+
+        // Lightspeed
+        case 'lightSpeedOutRight': return lightSpeedOutRight(elementId, duration, config);
+        case 'lightSpeedOutLeft': return lightSpeedOutLeft(elementId, duration, config);
+
+        // Specials
+        case 'rollOut': return rollOut(elementId, duration, config);
+        case 'hinge': return hinge(elementId, duration, config);
+
+        case 'scaleOut':
+            return scaleOut(elementId, duration, config);
+
         default:
             return '';
     }

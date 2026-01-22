@@ -240,7 +240,6 @@ export class Timeline {
         }
 
         this.activeAnimationIds.push(...animIds);
-        let completed = 0;
 
         const checkComplete = () => {
             let allDone = true;
