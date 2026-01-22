@@ -83,14 +83,6 @@ export const normalizeElement = (el: Partial<DrawingElement> & { id: string; typ
         ...(el.strokeLineJoin !== undefined && { strokeLineJoin: el.strokeLineJoin }),
         ...(el.fillDensity !== undefined && { fillDensity: el.fillDensity }),
 
-        ...(el.fontWeight !== undefined && { fontWeight: el.fontWeight }),
-        ...(el.fontStyle !== undefined && { fontStyle: el.fontStyle }),
-        ...(el.textColor !== undefined && { textColor: el.textColor }),
-        ...(el.textHighlightEnabled !== undefined && { textHighlightEnabled: el.textHighlightEnabled }),
-        ...(el.textHighlightColor !== undefined && { textHighlightColor: el.textHighlightColor }),
-        ...(el.textHighlightPadding !== undefined && { textHighlightPadding: el.textHighlightPadding }),
-        ...(el.textHighlightRadius !== undefined && { textHighlightRadius: el.textHighlightRadius }),
-
         // Shadows
         ...(el.shadowEnabled !== undefined && { shadowEnabled: el.shadowEnabled }),
         ...(el.shadowColor !== undefined && { shadowColor: el.shadowColor }),
