@@ -56,6 +56,10 @@ interface ElementOptions {
     // Hierarchy (Mindmap)
     parentId?: string | null;
     isCollapsed?: boolean;
+    // Generic/Specific
+    points?: Point[] | number[];
+    status?: 'pending' | 'loaded' | 'error';
+    dataURL?: string;
     autoResize?: boolean;
     constrained?: boolean;
 
