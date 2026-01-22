@@ -141,6 +141,9 @@ export class MindmapLayoutEngine {
 
         if (node.children.length === 0) return;
 
+        const centerX = x + node.width / 2;
+        const centerY = y + node.height / 2;
+
         const totalAngle = endAngle - startAngle;
         const anglePerChild = totalAngle / node.children.length;
 
@@ -148,12 +151,16 @@ export class MindmapLayoutEngine {
             const child = node.children[i];
             const angle = startAngle + (i + 0.5) * anglePerChild;
 
-            const childX = x + Math.cos(angle) * radius - (child.width / 2);
-            const childY = y + Math.sin(angle) * radius - (child.height / 2);
+            // Calculate child center relative to parent center
+            const childCenterX = centerX + Math.cos(angle) * (radius + node.width / 2);
+            const childCenterY = centerY + Math.sin(angle) * (radius + node.height / 2);
+
+            const childX = childCenterX - child.width / 2;
+            const childY = childCenterY - child.height / 2;
 
             // Sub-children get a smaller wedge of the parent's angle to prevent overlap
-            const wedge = Math.min(Math.PI / 3, anglePerChild * 0.8);
-            this.assignRadialPositions(child, childX, childY, angle - wedge / 2, angle + wedge / 2, 200);
+            const wedge = Math.min(Math.PI / 2, anglePerChild * 0.9);
+            this.assignRadialPositions(child, childX, childY, angle - wedge / 2, angle + wedge / 2, radius * 0.8);
         }
     }
 
