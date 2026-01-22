@@ -725,3 +725,13 @@
   - [x] "Tidy Up" button to balance tree structure (Context Menu integration)
   - [x] Configurable horizontal/vertical spacing (Hardcoded defaults with subtree balancing)
   - [x] Support for multiple root nodes (Radial support)
+
+## Phase 55: Advanced Mindmap UX & Aesthetics (Recommendations)
+- [ ] **Semantic Branch Styling**
+  - [ ] Auto-coloring: unique colors for primary branches and descendants
+  - [ ] Tapered connections: line thickness decreases with hierarchy depth
+  - [ ] Depth-based fading for distant nodes
+- [ ] **Navigation-First UX**
+  - [ ] Arrow Key Navigation through hierarchy (Up/Down for siblings, Left/Right for parent/child)
+  - [ ] Focus Mode (`F`): isolate and highlight the selected branch
+  - [ ] Markdown to Mindmap: paste bulleted lists to generate trees
