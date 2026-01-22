@@ -47,6 +47,113 @@ const isMindmapNode = createMemo(() => {
 
 This ensures the computation is cached and only re-runs when dependencies change.
 
+### Critical: Destructuring Breaks Reactivity
+
+**Problem**: Destructuring reactive values captures them at that moment, breaking reactivity.
+
+```typescript
+// ❌ WRONG - Captures stale values
+const { scale, panX, panY } = store.viewState;
+const x = elementX * scale + panX;  // Won't update when viewState changes
+```
+
+**Solution**: Access reactive values directly when you need them:
+
+```typescript
+// ✅ CORRECT - Stays reactive
+const x = () => elementX * store.viewState.scale + store.viewState.panX;
+// Then use: x() to get current value
+```
+
+**Why**: Destructuring creates local constants with the values at that moment. SolidJS can't track these as dependencies.
+
+### TypeScript vs SolidJS Show Component
+
+**Problem**: TypeScript doesn't like Show component callbacks in strict mode.
+
+```typescript
+// ❌ TypeScript error TS2769
+<Show when={condition()}>
+    {() => <Component />}
+</Show>
+```
+
+**Solutions** (in order of preference):
+
+1. **Split into separate component** (Best for complex logic):
+```typescript
+<Show when={condition()}>
+    <ChildComponent />
+</Show>
+```
+
+2. **Use Show with accessor callback** (For reactive element access):
+```typescript
+<Show when={element()}>
+    {(el) => {
+        // el() gives you the reactive element
+        return <div>{el().name}</div>;
+    }}
+</Show>
+```
+
+3. **Avoid early returns** - they break reactivity anyway
+
+### The Complete Reactivity Solution Pattern
+
+For a component that needs to:
+1. Conditionally render based on store state  
+2. Track a specific element
+3. Calculate position reactively
+
+```typescript
+export const FloatingComponent = () => {
+    // Use createMemo for condition check
+    const shouldShow = createMemo(() => {
+        const el = getElement();
+        return el && meetsCondition(el);
+    });
+
+    return (
+        <Show when={shouldShow()}>
+            <ContentComponent />
+        </Show>
+    );
+};
+
+const ContentComponent = () => {
+    // Track element reactively
+    const element = createMemo(() => getElement());
+    
+    return (
+        <Show when={element()}>
+            {(el) => {
+                // Calculate position reactively - don't destructure!
+                const x = () => el().x * store.viewState.scale + store.viewState.panX;
+                const y = () => el().y * store.viewState.scale + store.viewState.panY;
+                
+                return (
+                    <div style={{
+                        left: `${x()}px`,
+                        top: `${y()}px`
+                    }}>
+                        {/* Content */}
+                    </div>
+                );
+            }}
+        </Show>
+    );
+};
+```
+
+**Key Points**:
+- `createMemo` for derived/computed state
+- `Show` component for conditional rendering 
+- Separate component to avoid TypeScript issues
+- Accessor callback `{(el) => ...}` to get reactive value
+- Function calls `x()` and direct property access `store.viewState.scale` for reactivity
+
+
 ## Floating UI Positioning
 
 ### The `fixed` Position Challenge  
@@ -113,13 +220,99 @@ return (
 
 ### The Toolbar Implementation Journey
 
-1. **Attempt 1**: Bottom sheet - visibility issues
-2. **Attempt 2**: Floating toolbar in Canvas.tsx - rendering problems
-3. **Attempt 3**: Moved to App.tsx with transforms - disappeared due to positioning
-4. **Attempt 4**: Early returns - broke SolidJS reactivity
-5. **Final Solution**: `Show` component with `createMemo` - ✅ success
+**The Goal**: Create a floating toolbar that appears above selected mindmap nodes, providing quick access to actions.
+
+**Iteration 1: Bottom Sheet** ❌
+- Tried mobile-only bottom sheet with screen width detection
+- **Failure**: Visibility issues, not appearing at all
+- **Learning**: Mobile-specific detection (`window.innerWidth < 1024`) is unreliable
+
+**Iteration 2: Floating Toolbar in Canvas.tsx** ❌  
+- Added toolbar as child of Canvas component
+- **Failure**: Z-index conflicts, positioning issues with canvas transforms
+- **Learning**: Floating UI should NOT be child of transformed containers
+
+**Iteration 3: App.tsx with Transform** ❌
+- Moved to App.tsx root level
+- Used `transform: translate(-50%, -100%)` to center/position
+- **Failure**: Toolbar completely disappeared
+- **Learning**: Transforms can cause unexpected visibility issues - debug without them first
+
+**Iteration 4: Simple Fixed Position** ✅ (Partially)
+- Removed transform, used simple `position: fixed`
+- Initially positioned at `100px, 100px` for debugging
+- **Success**: Toolbar finally visible!
+- **Problem**: Didn't move with selected element
+
+**Iteration 5: Calculated Position with Early Return** ❌
+- Added position calculation: `(el.x + el.width/2) * scale + panX`  
+- Used early return: `if (!condition) return null`
+- **Failure**: Toolbar stopped appearing completely
+- **Learning**: Early returns break SolidJS reactivity
+
+**Iteration 6: Show Component with Callback** ❌
+- Replaced early return with `<Show when={...}>{() => {...}}</Show>`
+- **Failure**: TypeScript error TS2769 on build
+- **Learning**: TypeScript doesn't like Show component callback syntax in strict mode
+
+**Iteration 7: Separate Component** ✅ (Partially)
+- Split into `MindmapActionToolbar` and `ToolbarContent`
+- `<Show>` renders `<ToolbarContent />` as child component
+- **Success**: Builds and appears!
+- **Problem**: Operations worked on selected element, but toolbar stayed at first selected position
+
+**Iteration 8: createMemo for Element** ✅ (Partially)
+- Used `createMemo(() => getElement())` to track selection
+- **Success**: Operations now update to current selection
+- **Problem**: Position still didn't move
+
+**Iteration 9: Reactive Position Calculation** ✅ **SUCCESS!**
+- **Key Insight**: Destructuring `store.viewState` captured stale values
+- Changed from:
+  ```typescript
+  const { scale, panX } = store.viewState;  // ❌ Stale
+  const x = el.x * scale + panX;
+  ```
+- To:
+  ```typescript
+  const x = () => el().x * store.viewState.scale + store.viewState.panX;  // ✅ Reactive
+  ```
+- **Success**: Everything works! Toolbar:
+  - Appears when selecting mindmap node
+  - Moves to currently selected element
+  - Operations apply to correct element  
+  - Updates on every selection change
+
+**Total Time**: ~3 hours of debugging and iterations
 
 **Key Insight**: Sometimes you need to try multiple approaches to find what works. Don't be afraid to pivot when something isn't working.
+
+### Critical Lessons from Toolbar Struggle
+
+1. **Debug visibility first, features second**
+   - Get something showing with fixed position before making it smart
+   - Use bright colors and borders for debugging
+
+2. **Never destructure reactive state**
+   - Always access store properties directly: `store.viewState.scale`
+   - Not: `const { scale } = store.viewState`
+
+3. **Avoid early returns in SolidJS**
+   - Use `Show` component instead
+   - For complex conditions, use `createMemo` + `Show`
+
+4. **TypeScript strict mode requires component splitting**
+   - Don't fight TypeScript with Show callbacks
+   - Split into parent (condition check) + child (rendering) components
+
+5. **Root-level rendering for floating UI**
+   - Render at App.tsx level, not inside transformed containers
+   - Prevents z-index and transform issues
+
+6. **Test incrementally**
+   - Each change should be testable
+   - Don't combine multiple fixes at once
+
 
 ### Debugging Strategy
 
@@ -235,10 +428,13 @@ const isMindmapNode = createMemo(() => /* ... */);
 ### ❌ Things That Didn't Work
 
 1. **Complex transforms on first try**: Start simple, add complexity later
-2. **Platform-specific detection**: `window.innerWidth < 1024` caused issues
-3. **Early returns in SolidJS**: Breaks reactivity
-4. **Calculating position before element exists**: Always check existence first
-5. **Canvas-level rendering for floating UI**: Root-level is more reliable
+2. **Platform-specific detection**: `window.innerWidth < 1024` caused issues  
+3. **Early returns in SolidJS**: Breaks reactivity - ALWAYS use Show component
+4. **Destructuring reactive state**: `const { x } = store.state` captures stale values
+5. **Show component callbacks**: TypeScript strict mode errors - use separate components
+6. **Calculating position before element exists**: Always check existence first
+7. **Canvas-level rendering for floating UI**: Root-level is more reliable
+8. **Assuming position will update automatically**: Must access store properties directly for reactivity
 
 ### ✅ Things That Worked Well
 
@@ -296,13 +492,33 @@ As features grow:
 
 ### Fixed Position Calculation
 ```typescript
-const x = (elementX + width/2) * scale + panX - (toolbarWidth/2);
-const y = (elementY - offset) * scale + panY;
+// ❌ WRONG - Destructuring breaks reactivity
+const { scale, panX } = store.viewState;
+const x = elementX * scale + panX;
+
+// ✅ CORRECT - Access directly for reactivity  
+const x = () => elementX * store.viewState.scale + store.viewState.panX;
+const y = () => elementY * store.viewState.scale + store.viewState.panY;
+
+// Use with: <div style={{left: `${x()}px`, top: `${y()}px`}} />
 ```
 
 ### Reactive Computed Values
 ```typescript
 const value = createMemo(() => computeFromStore());
+```
+
+### Reactive Element Tracking
+```typescript
+const element = createMemo(() => {
+    if (store.selection.length !== 1) return null;
+    return store.elements.find(e => e.id === store.selection[0]);
+});
+
+// Use in Show with accessor
+<Show when={element()}>
+    {(el) => <div>{el().name}</div>}
+</Show>
 ```
 
 ### Debug First, Optimize Later
@@ -315,3 +531,16 @@ background: white;
 backdrop-filter: blur(8px);
 box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 ```
+
+---
+
+## Summary: The Most Important Lessons
+
+1. **Never use early returns in SolidJS** - Use `Show` component
+2. **Never destructure reactive state** - Access properties directly
+3. **Use createMemo for derived state** - Cache computed values
+4. **Debug with fixed positioning first** - Get it visible before making it smart
+5. **Split components for TypeScript** - Avoid Show callback errors
+6. **Render floating UI at app root** - Avoid transform/z-index issues
+7. **Test incrementally** - Small changes, frequent testing
+8. **User feedback is invaluable** - What works in code may not work in practice
