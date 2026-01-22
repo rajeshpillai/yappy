@@ -727,10 +727,10 @@
   - [x] Support for multiple root nodes (Radial support)
 
 ## Phase 55: Advanced Mindmap UX & Aesthetics (Recommendations)
-- [ ] **Semantic Branch Styling**
-  - [ ] Auto-coloring: unique colors for primary branches and descendants
-  - [ ] Tapered connections: line thickness decreases with hierarchy depth
-  - [ ] Depth-based fading for distant nodes
+- [x] **Semantic Branch Styling**
+  - [x] Auto-coloring: unique colors for primary branches and descendants
+  - [x] Tapered connections: line thickness decreases with hierarchy depth
+  - [x] Depth-based fading for distant nodes
 - [ ] **Navigation-First UX**
   - [ ] Arrow Key Navigation through hierarchy (Up/Down for siblings, Left/Right for parent/child)
   - [ ] Focus Mode (`F`): isolate and highlight the selected branch
