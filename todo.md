@@ -721,7 +721,7 @@
   - [ ] Optimize viewport culling with R-Tree
 
 ## Phase 54: Mindmap Intelligence (Recommendations)
-- [ ] **Auto-Layout Engine**
-  - [ ] "Tidy Up" button to balance tree structure
-  - [ ] Configurable horizontal/vertical spacing
-  - [ ] Support for multiple root nodes
+- [x] **Auto-Layout Engine**
+  - [x] "Tidy Up" button to balance tree structure (Context Menu integration)
+  - [x] Configurable horizontal/vertical spacing (Hardcoded defaults with subtree balancing)
+  - [x] Support for multiple root nodes (Radial support)
