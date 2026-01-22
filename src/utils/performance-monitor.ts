@@ -46,4 +46,4 @@ export class PerformanceMonitor {
 }
 
 // Singleton instance
-export const perfMonitor = new PerformanceMonitor(true); // Enable by default to track performance
+export const perfMonitor = new PerformanceMonitor(false); // Enable by default to track performance

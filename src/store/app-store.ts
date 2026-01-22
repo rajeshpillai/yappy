@@ -37,6 +37,7 @@ interface AppState {
     layerGroupingModeEnabled: boolean;
     maxLayers: number;
     canvasTexture: 'none' | 'dots' | 'grid' | 'graph' | 'paper';
+    isRecording: boolean;
 }
 
 const initialState: AppState = {
@@ -46,6 +47,7 @@ const initialState: AppState = {
     selectedTool: 'selection',
     selection: [],
     flowTick: 0,
+    isRecording: false,
     defaultElementStyles: {
         strokeColor: '#000000',
         backgroundColor: 'transparent',

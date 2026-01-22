@@ -2,6 +2,7 @@ import { type Component, createSignal, Show, createEffect } from "solid-js";
 import { X } from "lucide-solid";
 import { store } from "../store/app-store";
 import { exportToPng, exportToSvg } from "../utils/export";
+import { setRequestRecording } from "./canvas";
 import "./export-dialog.css";
 
 interface ExportDialogProps {
@@ -10,25 +11,28 @@ interface ExportDialogProps {
 }
 
 const ExportDialog: Component<ExportDialogProps> = (props) => {
-    const [format, setFormat] = createSignal<'png' | 'svg'>('png');
+    const [format, setFormat] = createSignal<'png' | 'svg' | 'webm' | 'mp4'>('png');
     const [scale, setScale] = createSignal<number>(2);
     const [hasBackground, setHasBackground] = createSignal(true);
     const [onlySelected, setOnlySelected] = createSignal(store.selection.length > 0);
 
     // Auto-update onlySelected when dialog opens or selection changes
     createEffect(() => {
-        if (props.isOpen && store.selection.length > 0) {
-            setOnlySelected(true);
-        } else if (props.isOpen && store.selection.length === 0) {
-            setOnlySelected(false);
+        if (props.isOpen) {
+            if (store.selection.length > 0) {
+                setOnlySelected(true);
+            }
         }
     });
 
     const handleExport = () => {
         if (format() === 'png') {
             exportToPng(scale(), hasBackground(), onlySelected());
-        } else {
+        } else if (format() === 'svg') {
             exportToSvg(onlySelected());
+        } else if (format() === 'webm' || format() === 'mp4') {
+            const videoFormat = format() as 'webm' | 'mp4';
+            setRequestRecording({ start: true, format: videoFormat });
         }
         props.onClose();
     };
@@ -47,7 +51,7 @@ const ExportDialog: Component<ExportDialogProps> = (props) => {
                     <div class="export-options">
                         <div class="option-group">
                             <label>Format</label>
-                            <div class="radio-group">
+                            <div class="radio-group" style={{ "flex-wrap": "wrap", "gap": "12px" }}>
                                 <label class="radio-label">
                                     <input type="radio" name="format" checked={format() === 'png'} onChange={() => setFormat('png')} />
                                     PNG
@@ -55,6 +59,14 @@ const ExportDialog: Component<ExportDialogProps> = (props) => {
                                 <label class="radio-label">
                                     <input type="radio" name="format" checked={format() === 'svg'} onChange={() => setFormat('svg')} />
                                     SVG
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="format" checked={format() === 'webm'} onChange={() => setFormat('webm')} />
+                                    WebM Monitor
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="format" checked={format() === 'mp4'} onChange={() => setFormat('mp4')} />
+                                    MP4 Video
                                 </label>
                             </div>
                         </div>

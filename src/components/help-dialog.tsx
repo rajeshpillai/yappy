@@ -198,7 +198,7 @@ const HelpDialog: Component<Props> = (props) => {
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
-                                            <span class="shortcut-label">Export Image</span>
+                                            <span class="shortcut-label">Export Image/Video</span>
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Ctrl</span>
                                                 <span class="keycap">Shift</span>

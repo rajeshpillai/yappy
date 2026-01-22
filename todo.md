@@ -764,5 +764,5 @@
   - [ ] Process animation (step-by-step workflow visualization)
   - [ ] Data visualization animations (charts, graphs updating)
   - [ ] Interaction simulations (showing user interactions)
-  - [ ] Export as MP4/WebM/GIF for social media sharing
+  - [x] Export as MP4/WebM/GIF for social media sharing
   - [ ] Use cases: LinkedIn posts, Twitter threads, portfolio pieces

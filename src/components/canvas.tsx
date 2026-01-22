@@ -27,7 +27,12 @@ import { getGroupsSortedByPriority, isPointInGroupBounds } from "../utils/group-
 import { exportToPng, exportToSvg } from "../utils/export";
 import { getElementPreviewBaseState, playEntranceAnimation } from "../utils/animation/element-animator";
 import { globalTime } from "../utils/animation/animation-engine";
+import { VideoRecorder } from "../utils/video-recorder";
+import RecordingOverlay from "./recording-overlay";
 
+
+// Export controls for Menu/Dialog access
+export const [requestRecording, setRequestRecording] = createSignal<{ start: boolean, format?: 'webm' | 'mp4' } | null>(null);
 
 const Canvas: Component = () => {
 
@@ -85,6 +90,47 @@ const Canvas: Component = () => {
     });
 
     let canvasRef: HTMLCanvasElement | undefined;
+    let videoRecorder: VideoRecorder | null = null;
+
+    createEffect(() => {
+        const req = requestRecording();
+        if (req && req.start) {
+            handleStartRecording(req.format || 'webm');
+            setRequestRecording(null);
+        }
+    });
+
+    const handleStartRecording = (format: 'webm' | 'mp4') => {
+        if (!canvasRef) {
+            console.error('[DEBUG] Canvas: No canvasRef available');
+            return;
+        }
+
+        if (!videoRecorder) {
+            console.log('[DEBUG] Canvas: Initializing VideoRecorder');
+            videoRecorder = new VideoRecorder(canvasRef);
+        }
+
+        console.log('[DEBUG] Canvas: Starting recorder...');
+        const started = videoRecorder.start(format);
+        console.log('[DEBUG] Canvas: Recorder start returned:', started);
+
+        if (started) {
+            setStore("isRecording", true);
+            showToast("Recording started...", "info");
+        } else {
+            showToast("Failed to start recording", "error");
+        }
+    };
+
+    const handleStopRecording = () => {
+        if (videoRecorder) {
+            videoRecorder.stop(() => {
+                setStore("isRecording", false);
+                showToast("Recording saved!", "success");
+            });
+        }
+    };
 
 
     let isDrawing = false;
@@ -3400,6 +3446,11 @@ const Canvas: Component = () => {
                     items={getContextMenuItems()}
                     onClose={() => setContextMenuOpen(false)}
                 />
+            </Show>
+
+            {/* Recording Overlay */}
+            <Show when={store.isRecording}>
+                <RecordingOverlay onStop={handleStopRecording} />
             </Show>
 
             {/* Minimap */}
