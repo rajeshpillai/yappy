@@ -42,6 +42,12 @@ Distributes nodes in a $360^\circ$ circular pattern around a central hub.
 - **Logic**: Uses polar coordinates to place children. Sub-children are constrained to narrow angular "wedges" to prevent branch overlap.
 - **Visuals**: Creates a "burst" or "neuron" structure from any selected node.
 
+### Semantic Branch Styling
+Automatically applies visual hierarchy to a subtree.
+- **Auto-Coloring**: Primary branches (Level 1) are assigned a unique color from a harmonious palette. All descendants inherit their branch color.
+- **Tapering**: Line thickness decreases as nodes get deeper in the hierarchy (starting from ~4px down to 1px).
+- **Fading**: Opacity subtly decreases at deeper levels to maintain focus on the root and primary nodes.
+
 ## 3. Integration & Usage
 
 ### Context Menu
