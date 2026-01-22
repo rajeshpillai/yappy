@@ -3,7 +3,7 @@ import {
   undo, redo, store, deleteElements, togglePropertyPanel, toggleLayerPanel,
   toggleMinimap, toggleZenMode, toggleCommandPalette, moveSelectedElements,
   switchLayerByIndex, cycleStrokeStyle, cycleFillStyle,
-  addChildNode, addSiblingNode, toggleCollapseSelection
+  addChildNode, addSiblingNode, toggleCollapseSelection, togglePresentationMode
 } from './store/app-store';
 import Canvas from './components/canvas';
 import Toolbar from './components/toolbar';
@@ -26,6 +26,18 @@ const App: Component = () => {
     initAPI();
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Presentation Mode shortcuts (highest priority)
+      if (e.key === 'F5') {
+        e.preventDefault();
+        togglePresentationMode(true);
+        return;
+      }
+      if (e.key === 'Escape' && store.presentationMode) {
+        e.preventDefault();
+        togglePresentationMode(false);
+        return;
+      }
+
       // Allow Alt shortcuts (Commands) even if focused on inputs
       if (e.altKey) {
         // Use e.code for layout-independent checking where possible, fall back to key
@@ -130,44 +142,48 @@ const App: Component = () => {
 
   return (
     <div>
-      <Toolbar />
-      <Show when={!store.zenMode}>
-        <PropertyPanel />
-        <LayerPanel />
-        <ZoomControls />
+      <Show when={!store.presentationMode}>
+        <Toolbar />
+        <Show when={!store.zenMode}>
+          <PropertyPanel />
+          <LayerPanel />
+          <ZoomControls />
+        </Show>
+        <Menu />
       </Show>
-      <Menu />
       <Canvas />
       <CommandPalette />
 
       {/* Floating Property Panel Toggle (bottom-right corner) */}
-      <button
-        class="floating-settings-btn"
-        classList={{ 'active': store.showPropertyPanel }}
-        onClick={() => togglePropertyPanel()}
-        title="Toggle Properties (Alt+Enter)"
-        style={{
-          position: 'fixed',
-          bottom: '20px',
-          right: '20px',
-          width: '48px',
-          height: '48px',
-          'border-radius': '50%',
-          border: 'none',
-          background: '#ffffff',
-          color: '#4b5563',
-          'box-shadow': '0 4px 12px rgba(0, 0, 0, 0.15)',
-          cursor: 'pointer',
-          display: 'flex',
-          'align-items': 'center',
-          'justify-content': 'center',
-          'z-index': '1000',
-          transition: 'all 0.2s ease'
-        }}
-      >
-        <Settings size={24} />
-      </button>
-      <MindmapActionToolbar />
+      <Show when={!store.presentationMode}>
+        <button
+          class="floating-settings-btn"
+          classList={{ 'active': store.showPropertyPanel }}
+          onClick={() => togglePropertyPanel()}
+          title="Toggle Properties (Alt+Enter)"
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            width: '48px',
+            height: '48px',
+            'border-radius': '50%',
+            border: 'none',
+            background: '#ffffff',
+            color: '#4b5563',
+            'box-shadow': '0 4px 12px rgba(0, 0, 0, 0.15)',
+            cursor: 'pointer',
+            display: 'flex',
+            'align-items': 'center',
+            'justify-content': 'center',
+            'z-index': '1000',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <Settings size={24} />
+        </button>
+        <MindmapActionToolbar />
+      </Show>
       <Toast />
     </div>
   );
