@@ -2,6 +2,7 @@ import { ShapeRenderer } from "../base/shape-renderer";
 import { RenderPipeline } from "../base/render-pipeline";
 import type { RenderContext } from "../base/types";
 import { normalizePoints } from "../../utils/render-element";
+import { globalTime } from "../../utils/animation/animation-engine";
 
 export class ConnectorRenderer extends ShapeRenderer {
     protected renderArchitectural(context: RenderContext, _cx: number, _cy: number): void {
@@ -129,6 +130,56 @@ export class ConnectorRenderer extends ShapeRenderer {
             const barX2 = x + Math.cos(angle - Math.PI / 2) * headLen;
             const barY2 = y + Math.sin(angle - Math.PI / 2) * headLen;
             rc.line(barX1, barY1, barX2, barY2, options);
+        }
+    }
+
+    protected definePath(ctx: CanvasRenderingContext2D, el: any): void {
+        const pts = normalizePoints(el.points);
+        let start, end;
+        if (pts.length >= 2) {
+            start = { x: el.x + pts[0].x, y: el.y + pts[0].y };
+            end = { x: el.x + pts[pts.length - 1].x, y: el.y + pts[pts.length - 1].y };
+        } else {
+            start = { x: el.x, y: el.y };
+            end = { x: el.x + el.width, y: el.y + el.height };
+        }
+
+        if (el.curveType === 'bezier') {
+            const w = el.width, h = el.height;
+            let cp1, cp2;
+            if (el.controlPoints && el.controlPoints.length > 0) {
+                cp1 = el.controlPoints[0];
+                if (el.controlPoints.length > 1) {
+                    cp2 = el.controlPoints[1];
+                    ctx.moveTo(start.x, start.y);
+                    ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
+                } else {
+                    ctx.moveTo(start.x, start.y);
+                    ctx.quadraticCurveTo(cp1.x, cp1.y, end.x, end.y);
+                }
+            } else {
+                if (Math.abs(w) > Math.abs(h)) {
+                    cp1 = { x: start.x + w / 2, y: start.y };
+                    cp2 = { x: end.x - w / 2, y: end.y };
+                } else {
+                    cp1 = { x: start.x, y: start.y + h / 2 };
+                    cp2 = { x: end.x, y: end.y - h / 2 };
+                }
+                ctx.moveTo(start.x, start.y);
+                ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
+            }
+        } else if (el.curveType === 'elbow') {
+            const drawPoints = (pts && pts.length > 0)
+                ? pts.map(p => ({ x: el.x + p.x, y: el.y + p.y }))
+                : [start, end];
+
+            ctx.moveTo(drawPoints[0].x, drawPoints[0].y);
+            for (let i = 1; i < drawPoints.length; i++) {
+                ctx.lineTo(drawPoints[i].x, drawPoints[i].y);
+            }
+        } else {
+            ctx.moveTo(start.x, start.y);
+            ctx.lineTo(end.x, end.y);
         }
     }
 }

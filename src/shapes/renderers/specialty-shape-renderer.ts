@@ -85,4 +85,13 @@ export class SpecialtyShapeRenderer extends ShapeRenderer {
         // Let's try wrapping rc calls in ctx.save/translate/restore.
         return path; // Fallback - might be slightly off if not translated
     }
+
+    protected definePath(ctx: CanvasRenderingContext2D, el: any): void {
+        const geometry = getShapeGeometry(el);
+        if (!geometry) return;
+
+        // Translate to center as geometry is relative to center
+        ctx.translate(el.x + el.width / 2, el.y + el.height / 2);
+        RenderPipeline.renderGeometry(ctx, geometry);
+    }
 }

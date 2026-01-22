@@ -62,4 +62,21 @@ export class StickyNoteRenderer extends ShapeRenderer {
 
         return { mainPoints, foldPoints };
     }
+
+    protected definePath(ctx: CanvasRenderingContext2D, el: any): void {
+        const { mainPoints, foldPoints } = this.getPoints(el);
+
+        // Define path for main body
+        ctx.moveTo(mainPoints[0][0], mainPoints[0][1]);
+        for (let i = 1; i < mainPoints.length; i++) ctx.lineTo(mainPoints[i][0], mainPoints[i][1]);
+        ctx.closePath();
+
+        // Should we stroke the fold as part of the flow? Yes.
+        // But definePath creates a single path. If we closePath, the next moveTo starts a subpath.
+        ctx.moveTo(foldPoints[0][0], foldPoints[0][1]);
+        ctx.lineTo(foldPoints[1][0], foldPoints[1][1]);
+        ctx.lineTo(foldPoints[2][0], foldPoints[2][1]);
+        // Don't close fold triangle, usually it's open on diagonal? No, it's a triangle.
+        // But renderArchitectural strokes 3 lines.
+    }
 }

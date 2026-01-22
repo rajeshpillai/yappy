@@ -90,4 +90,8 @@ export class TextRenderer extends ShapeRenderer {
         }
         ctx.restore();
     }
+
+    protected definePath(ctx: CanvasRenderingContext2D, el: any): void {
+        ctx.rect(el.x, el.y, el.width, el.height);
+    }
 }

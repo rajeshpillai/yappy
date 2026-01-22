@@ -164,7 +164,11 @@ export const copyStyle = () => {
             fontFamily: el.fontFamily,
             fontSize: el.fontSize,
             textAlign: el.textAlign,
-            roundness: el.roundness
+            roundness: el.roundness,
+            // Motion
+            flowAnimation: el.flowAnimation,
+            flowSpeed: el.flowSpeed,
+            flowStyle: el.flowStyle
         };
     }
 };

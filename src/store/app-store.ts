@@ -2,6 +2,7 @@ import { createStore } from "solid-js/store";
 import type { DrawingElement, ViewState, ElementType, Layer, GridSettings } from "../types";
 import { showToast } from "../components/toast";
 import { MindmapLayoutEngine, type LayoutDirection } from "../utils/mindmap-layout";
+import { animationEngine } from "../utils/animation/animation-engine";
 
 interface AppState {
     elements: DrawingElement[];
@@ -17,6 +18,7 @@ interface AppState {
     canvasBackgroundColor: string;
     undoStackLength: number;
     redoStackLength: number;
+    flowTick: number; // For forcing redraws on flow animations
     // Panel Visibility
     showPropertyPanel: boolean;
     showLayerPanel: boolean;
@@ -43,6 +45,7 @@ const initialState: AppState = {
     canvasTexture: 'none',
     selectedTool: 'selection',
     selection: [],
+    flowTick: 0,
     defaultElementStyles: {
         strokeColor: '#000000',
         backgroundColor: 'transparent',
@@ -397,9 +400,17 @@ export const sendToBack = (ids: string[]) => {
     });
 };
 
+export const updateGlobalTickerState = () => {
+    const hasFlow = store.elements.some(el => el.flowAnimation);
+    animationEngine.setForceTicker(hasFlow);
+};
+
 export const updateElement = (id: string, updates: Partial<DrawingElement>, recordHistory = false) => {
     if (recordHistory) pushToHistory();
     setStore("elements", (el) => el.id === id, updates);
+    if ('flowAnimation' in updates) {
+        updateGlobalTickerState();
+    }
 };
 
 export const moveSelectedElements = (dx: number, dy: number, recordHistory = false) => {

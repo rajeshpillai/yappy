@@ -6,10 +6,11 @@ import {
     AlignStartVertical, AlignCenterVertical, AlignEndVertical,
     AlignHorizontalDistributeCenter, AlignVerticalDistributeCenter,
     Plus, ArrowDown, Wand2, LayoutGrid, LayoutList, Target,
-    Minus, X
+    Minus, X, Play
 } from "lucide-solid";
 import "./property-panel.css";
 import { properties, type PropertyConfig } from "../config/properties";
+import { playSequence } from "../utils/animation/orchestrator";
 
 const MindmapActions: Component<{ elementId: string }> = (props) => {
     const el = () => store.elements.find(e => e.id === props.elementId);
@@ -25,6 +26,62 @@ const MindmapActions: Component<{ elementId: string }> = (props) => {
         return !!e.parentId || hasChildren() || startTypes.includes(e.type);
     });
 
+    const handlePresent = async () => {
+        const rootId = props.elementId;
+        const rootEl = el();
+        if (!rootEl) return;
+
+        const children = store.elements.filter(e => e.parentId === rootId);
+        const childIds = children.map(c => c.id);
+
+        // Robust connector discovery for mindmaps
+        const connectors = store.elements.filter(e => {
+            const isConnector = e.type === 'line' || e.type === 'arrow' || e.type === 'organicBranch';
+            if (!isConnector) return false;
+
+            // Connectors between root and its children
+            const connectsToRoot = e.startBinding?.elementId === rootId || e.endBinding?.elementId === rootId;
+            const connectsToChild = (e.startBinding?.elementId && childIds.includes(e.startBinding.elementId)) ||
+                (e.endBinding?.elementId && childIds.includes(e.endBinding.elementId));
+
+            return connectsToRoot && connectsToChild;
+        });
+
+        const allToReveal = [...children, ...connectors];
+
+        // Hide all first and enable flow
+        allToReveal.forEach(c => {
+            updateElement(c!.id, { opacity: 0 });
+        });
+
+        const steps: any[] = [];
+        children.forEach((child, i) => {
+            // Find connector to this specific child
+            const conn = connectors.find(c =>
+                c.startBinding?.elementId === child.id ||
+                c.endBinding?.elementId === child.id
+            );
+
+            if (conn) {
+                steps.push({
+                    elementId: conn.id,
+                    target: { opacity: 100, flowAnimation: true },
+                    config: { duration: 400, easing: 'easeOutQuad' },
+                    delay: i === 0 ? 0 : 150
+                });
+            }
+
+            steps.push({
+                elementId: child.id,
+                target: { opacity: 100 },
+                config: { duration: 500, easing: 'easeOutBack' },
+                delay: conn ? 0 : 0 // Sequential for now
+            });
+        });
+
+        playSequence(steps);
+    };
+
     return (
         <Show when={isMindmapNode()}>
             <div class="property-group">
@@ -35,6 +92,7 @@ const MindmapActions: Component<{ elementId: string }> = (props) => {
                         <button class="icon-btn" onClick={() => addSiblingNode(props.elementId)} title="Add Sibling (Enter)"><ArrowDown size={18} /></button>
                     </Show>
                     <button class="icon-btn" onClick={() => applyMindmapStyling(props.elementId)} title="Auto Style Branch"><Palette size={18} /></button>
+                    <button class="icon-btn" onClick={handlePresent} title="Present Branch"><Play size={18} /></button>
                     <Show when={hasChildren()}>
                         <button class="icon-btn" onClick={() => toggleCollapse(props.elementId)} title={el()?.isCollapsed ? 'Expand' : 'Collapse'}>
                             {el()?.isCollapsed ? <ChevronDown size={18} /> : <ChevronUp size={18} />}

@@ -193,7 +193,12 @@ export interface DrawingElement {
     entranceAnimation?: EntranceAnimation;
     exitAnimation?: ExitAnimation;
     animationDuration?: number;  // ms, default 300
-    animationDelay?: number;     // ms, default 0
+    animationDelay?: number;     // ms, default 0;
+
+    // Motion Graphics
+    flowAnimation?: boolean;
+    flowSpeed?: number;          // 0 to 10
+    flowStyle?: 'dashes' | 'dots' | 'pulse';
 }
 
 

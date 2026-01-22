@@ -10,11 +10,45 @@ export interface PropertyConfig {
     step?: number;
     applicableTo: (ElementType | 'canvas')[] | 'all';
     defaultValue?: any;
-    group: 'style' | 'stroke' | 'background' | 'text' | 'dimensions' | 'advanced' | 'canvas' | 'shadow' | 'gradient';
+    group: 'style' | 'stroke' | 'background' | 'text' | 'dimensions' | 'advanced' | 'canvas' | 'shadow' | 'gradient' | 'motion';
     dependsOn?: string | { key: string; value: any | any[] }; // Key of property that must be truthy for this to show
 }
 
 export const properties: PropertyConfig[] = [
+    {
+        key: 'flowAnimation',
+        label: 'Flow Animation',
+        type: 'toggle',
+        group: 'motion',
+        applicableTo: 'all',
+        defaultValue: false
+    },
+    {
+        key: 'flowSpeed',
+        label: 'Flow Speed',
+        type: 'slider',
+        min: 0.1,
+        max: 10,
+        step: 0.1,
+        group: 'motion',
+        applicableTo: 'all',
+        defaultValue: 1,
+        dependsOn: 'flowAnimation'
+    },
+    {
+        key: 'flowStyle',
+        label: 'Flow Style',
+        type: 'select',
+        options: [
+            { label: 'Dashes', value: 'dashes' },
+            { label: 'Dots', value: 'dots' },
+            { label: 'Pulse', value: 'pulse' }
+        ],
+        group: 'motion',
+        applicableTo: 'all',
+        defaultValue: 'dashes',
+        dependsOn: 'flowAnimation'
+    },
     // ... (lines 18-271 same) ...
     // Canvas Properties
     {

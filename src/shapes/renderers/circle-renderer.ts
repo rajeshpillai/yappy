@@ -55,4 +55,12 @@ export class CircleRenderer extends ShapeRenderer {
         ctx.lineWidth = strokeWidth;
         ctx.stroke();
     }
+
+    protected definePath(ctx: CanvasRenderingContext2D, el: any): void {
+        const cx = el.x + el.width / 2;
+        const cy = el.y + el.height / 2;
+        const rx = Math.abs(el.width) / 2;
+        const ry = Math.abs(el.height) / 2;
+        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    }
 }

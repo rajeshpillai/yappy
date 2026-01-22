@@ -104,4 +104,20 @@ export class PathRenderer extends ShapeRenderer {
             ctx.restore();
         }
     }
+
+    protected definePath(ctx: CanvasRenderingContext2D, el: any): void {
+        if (el.type === 'organicBranch') {
+            const pts = normalizePoints(el.points);
+            const controls = el.controlPoints || [];
+            if (pts.length < 2 || controls.length < 2) return;
+
+            const start = { x: el.x + pts[0].x, y: el.y + pts[0].y };
+            const end = { x: el.x + pts[pts.length - 1].x, y: el.y + pts[pts.length - 1].y };
+            const cp1 = controls[0];
+            const cp2 = controls[1];
+
+            ctx.moveTo(start.x, start.y);
+            ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
+        }
+    }
 }

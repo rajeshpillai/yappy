@@ -90,4 +90,15 @@ export class ContainerRenderer extends ShapeRenderer {
         const rY = Math.min(Math.abs(h) / 2, r);
         return `M ${x + rX} ${y} L ${x + w - rX} ${y} Q ${x + w} ${y} ${x + w} ${y + rY} L ${x + w} ${y + h - rY} Q ${x + w} ${y + h} ${x + w - rX} ${y + h} L ${x + rX} ${y + h} Q ${x} ${y + h} ${x} ${y + h - rY} L ${x} ${y + rY} Q ${x} ${y} ${x + rX} ${y}`;
     }
+
+    protected definePath(ctx: CanvasRenderingContext2D, el: any): void {
+        const x = el.x, y = el.y, w = el.width, h = el.height;
+        if (el.type === 'mobilePhone') {
+            const radius = 20;
+            ctx.roundRect(x, y, w, h, radius);
+        } else {
+            // browserWindow
+            ctx.rect(x, y, w, h);
+        }
+    }
 }

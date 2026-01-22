@@ -138,4 +138,8 @@ export class FlowchartRenderer extends ShapeRenderer {
             Z
         `;
     }
+
+    protected definePath(ctx: CanvasRenderingContext2D, el: any): void {
+        ctx.rect(el.x, el.y, el.width, el.height);
+    }
 }

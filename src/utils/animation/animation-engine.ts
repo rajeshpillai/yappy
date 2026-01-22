@@ -5,6 +5,10 @@
 
 import type { Animation, AnimationConfig, AnimationState } from './animation-types';
 import { getEasing } from './animation-types';
+import { createSignal } from 'solid-js';
+
+const [globalTime, setGlobalTime] = createSignal(0);
+export { globalTime };
 
 /**
  * AnimationEngine manages the animation loop and all registered animations
@@ -13,6 +17,17 @@ class AnimationEngine {
     private animations: Map<string, Animation> = new Map();
     private rafId: number | null = null;
     private isRunning: boolean = false;
+    private forceTicker: boolean = false;
+
+    /**
+     * Start/Stop the global ticker even when no animations are running
+     */
+    public setForceTicker(enabled: boolean): void {
+        this.forceTicker = enabled;
+        if (enabled) {
+            this.ensureLoopRunning();
+        }
+    }
 
     /**
      * Create a new animation with the given update function and config
@@ -90,8 +105,8 @@ class AnimationEngine {
         animation.state = 'completed';
         this.animations.delete(id);
 
-        // Stop loop if no more animations
-        if (this.animations.size === 0) {
+        // Stop loop if no more animations and ticker not forced
+        if (this.animations.size === 0 && !this.forceTicker) {
             this.stopLoop();
         }
     }
@@ -167,6 +182,7 @@ class AnimationEngine {
     private tick = (timestamp: number): void => {
         if (!this.isRunning) return;
 
+        setGlobalTime(timestamp);
         let hasRunningAnimations = false;
 
         for (const animation of this.animations.values()) {
@@ -213,7 +229,7 @@ class AnimationEngine {
             }
         }
 
-        if (hasRunningAnimations || this.animations.size > 0) {
+        if (hasRunningAnimations || this.animations.size > 0 || this.forceTicker) {
             this.rafId = requestAnimationFrame(this.tick);
         } else {
             this.stopLoop();

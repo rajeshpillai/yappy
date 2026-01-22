@@ -116,4 +116,13 @@ export class WireframeRenderer extends ShapeRenderer {
         const rY = Math.min(Math.abs(h) / 2, r);
         return `M ${x + rX} ${y} L ${x + w - rX} ${y} Q ${x + w} ${y} ${x + w} ${y + rY} L ${x + w} ${y + h - rY} Q ${x + w} ${y + h} ${x + w - rX} ${y + h} L ${x + rX} ${y + h} Q ${x} ${y + h} ${x} ${y + h - rY} L ${x} ${y + rY} Q ${x} ${y} ${x + rX} ${y}`;
     }
+
+    protected definePath(ctx: CanvasRenderingContext2D, el: any): void {
+        if (el.type === 'ghostButton') {
+            const r = Math.min(el.width, el.height) * 0.2;
+            ctx.roundRect(el.x, el.y, el.width, el.height, r);
+        } else {
+            ctx.rect(el.x, el.y, el.width, el.height);
+        }
+    }
 }

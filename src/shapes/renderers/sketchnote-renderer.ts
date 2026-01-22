@@ -169,4 +169,8 @@ export class SketchnoteRenderer extends ShapeRenderer {
         }
         return path + " Z";
     }
+
+    protected definePath(ctx: CanvasRenderingContext2D, el: any): void {
+        ctx.rect(el.x, el.y, el.width, el.height);
+    }
 }

@@ -246,4 +246,12 @@ export class InfraRenderer extends ShapeRenderer {
         rc.line(x, y, p1.x, p1.y, options);
         rc.line(x, y, p2.x, p2.y, options);
     }
+
+    protected definePath(ctx: CanvasRenderingContext2D, el: any): void {
+        if (el.type === 'loadBalancer' || el.type === 'router' || el.type === 'lambda') {
+            ctx.ellipse(el.x + el.width / 2, el.y + el.height / 2, el.width / 2, el.height / 2, 0, 0, Math.PI * 2);
+        } else {
+            ctx.rect(el.x, el.y, el.width, el.height);
+        }
+    }
 }

@@ -75,4 +75,24 @@ export class FreehandRenderer extends ShapeRenderer {
         ctx.globalCompositeOperation = 'multiply';
         this.renderFineliner(ctx, pts, width * 4);
     }
+
+    protected definePath(ctx: CanvasRenderingContext2D, el: any): void {
+        const pts = normalizePoints(el.points).map(p => ({ x: el.x + p.x, y: el.y + p.y }));
+        if (pts.length < 2) return;
+
+        // Use similar logic to fineliner for smooth path
+        if (pts.length < 6) {
+            ctx.moveTo(pts[0].x, pts[0].y);
+            for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+            return;
+        }
+
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length - 2; i++) {
+            const midX = (pts[i].x + pts[i + 1].x) / 2, midY = (pts[i].y + pts[i + 1].y) / 2;
+            ctx.quadraticCurveTo(pts[i].x, pts[i].y, midX, midY);
+        }
+        const last = pts.length - 1;
+        ctx.quadraticCurveTo(pts[last - 1].x, pts[last - 1].y, pts[last].x, pts[last].y);
+    }
 }

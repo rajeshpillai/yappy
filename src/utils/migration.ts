@@ -110,6 +110,11 @@ export const normalizeElement = (el: Partial<DrawingElement> & { id: string; typ
 
         // Control Points
         ...(el.controlPoints !== undefined && { controlPoints: el.controlPoints }),
+
+        // Motion Graphics
+        ...(el.flowAnimation !== undefined && { flowAnimation: el.flowAnimation }),
+        ...(el.flowSpeed !== undefined && { flowSpeed: el.flowSpeed }),
+        ...(el.flowStyle !== undefined && { flowStyle: el.flowStyle }),
     } as DrawingElement;
 };
 

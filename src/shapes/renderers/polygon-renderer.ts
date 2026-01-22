@@ -99,4 +99,15 @@ export class PolygonRenderer extends ShapeRenderer {
         }
         return points;
     }
+
+    protected definePath(ctx: CanvasRenderingContext2D, el: any): void {
+        const points = this.getPoints(el, el.x, el.y, el.width, el.height);
+        if (points.length < 2) return;
+
+        ctx.moveTo(points[0][0], points[0][1]);
+        for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i][0], points[i][1]);
+        }
+        ctx.closePath();
+    }
 }

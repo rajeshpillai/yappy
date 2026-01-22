@@ -52,6 +52,10 @@ export interface ElementAnimationTarget {
     // Color properties
     strokeColor?: string;
     backgroundColor?: string;
+    // Motion properties (Applied immediately)
+    flowAnimation?: boolean;
+    flowSpeed?: number;
+    flowStyle?: string;
 }
 
 export interface ElementAnimationConfig extends Omit<AnimationConfig, 'onUpdate'> {
@@ -112,6 +116,7 @@ export function animateElement(
     const startValues: Record<string, number | string> = {};
     const numericProps: AnimatableProperty[] = [];
     const colorProps: AnimatableColorProperty[] = [];
+    const immediateProps: Partial<DrawingElement> = {};
 
     for (const key of Object.keys(target) as (keyof ElementAnimationTarget)[]) {
         const startVal = getElementProperty(element, key);
@@ -122,7 +127,16 @@ export function animateElement(
             } else if (typeof startVal === 'string') {
                 colorProps.push(key as AnimatableColorProperty);
             }
+        } else {
+            // For properties not currently on the element (like booleans/toggles),
+            // we apply them immediately at the start of the animation
+            (immediateProps as any)[key] = (target as any)[key];
         }
+    }
+
+    // Apply immediate properties
+    if (Object.keys(immediateProps).length > 0) {
+        updateElement(elementId, immediateProps, false);
     }
 
     // Create the animation
