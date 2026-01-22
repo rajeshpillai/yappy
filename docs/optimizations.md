@@ -71,7 +71,7 @@ layerElements.forEach(el => {
 // GOOD: Create once per layer, reuse
 const rc = rough.canvas(canvasRef);  // ✅ Created ONCE
 layerElements.forEach(el => {
-    renderElement(rc, ctx, el, isDarkMode, layerOpacity);
+    renderElement(rc, ctx, el, isDarkMode, layerOpacity); // Delegates to ShapeRegistry
 });
 ```
 
@@ -79,7 +79,7 @@ layerElements.forEach(el => {
 - **Before:** 1000 object allocations per frame
 - **After:** 1 object allocation per layer
 - **Gain:** 10-20% faster rendering across the board
-- **Impact:** Reduced garbage collection pressure
+- **Impact**: Reduced garbage collection pressure. The modular `ShapeRenderer` architecture maintains this optimization by sharing the single `rc` instance.
 
 ---
 

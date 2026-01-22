@@ -34,7 +34,7 @@ The rendering process in `Canvas.tsx` follows a strict "Painter's Algorithm" app
 2.  **Layer Iteration**: The canvas iterates through each sorted layer.
 3.  **Visibility Check**: If a layer is marked `visible: false`, it and all its elements are skipped completely.
 4.  **Background Rendering**: If a layer has a `backgroundColor`, a full-canvas rectangle is drawn first.
-5.  **Multiplicative Opacity**: The layer's `opacity` (0-1) is passed to the `renderElement` utility. The final element opacity is `element.opacity * layer.opacity`.
+5.  **Multiplicative Opacity**: The layer's `opacity` (0-1) is passed to the `renderElement` utility (which delegates to the specific `ShapeRenderer`). The final element opacity is `element.opacity * layer.opacity`.
 6.  **Element Filtering**: The loop filters `store.elements` for those where `el.layerId === layer.id`.
 7.  **Z-Order within Layer**: Elements within the same layer are rendered in the order they were added to the `store.elements` array.
 

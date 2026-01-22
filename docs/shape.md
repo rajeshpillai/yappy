@@ -45,21 +45,21 @@ This document describes the supported properties, attributes, and implementation
 
 # Developer Guide: Creating New Elements
 
-## 1. Creating a Standard Shape (Box-based)
+## 1. Creating a Standard Shape (Strategy Pattern)
 
-Standard shapes defined by a bounding box (x, y, width, height) follow these steps:
+Yappy uses a modular rendering system based on the Strategy pattern. To add a new shape:
 
 1.  **Define Type**: Add value to `ElementType` in `src/types.ts`.
-2.  **UI Integration**:
+2.  **Create Renderer**: Create a new class in `src/shapes/renderers/` extending `ShapeRenderer`.
+    - Implement `renderSketch` (RoughJS) and `renderArchitectural` (Native Canvas).
+3.  **Register Renderer**: Add the new renderer to `ShapeRegistry` in `src/shapes/register-shapes.ts`.
+4.  **UI Integration**:
     - Add to `tools` in `src/components/ShapeToolGroup.tsx`.
     - Add icon to `src/components/Toolbar.tsx`.
-3.  **Properties**: Update `src/config/properties.ts`. Add your type to the `applicableTo` array for relevant sliders/pickers.
-4.  **Rendering**: Add a block in `src/utils/renderElement.ts`.
-    - Use `rc.path(...)` or `rc.rectangle(...)` for RoughJS style.
-5.  **Hit Testing**: Add to `hitTestElement` in `src/components/Canvas.tsx`. Usually `isPointInPolygon` or AABB check.
-6.  **Intersections (Crucial)**: Update `intersectElementWithLine` in `src/utils/geometry.ts`. This enables connector snapping.
-7.  **Normalization**: Add type to `handlePointerUp` in `Canvas.tsx` to handle negative drag widths (flip).
-8.  **Minimap Support**: Since the Minimap uses `renderElement`, your shape will render automatically. Ensure properties are tracked in the reactivity loop in `src/components/Minimap.tsx` for real-time updates.
+5.  **Properties**: Update `src/config/properties.ts` and `src/utils/element-transforms.ts`.
+6.  **Hit Testing**: Add to `hitTestElement` in `src/components/Canvas.tsx`.
+7.  **Intersections**: Update `intersectElementWithLine` in `src/utils/geometry.ts`.
+8.  **Normalization**: Add type to `handlePointerUp` in `Canvas.tsx`.
 
 ## 2. Creating a Drawing Tool (Pen/Marker)
 

@@ -34,7 +34,8 @@ Creates a linear line from point 1 to point 2.
 Creates an arrow from point 1 to point 2.
 
 #### `createBezier(x1, y1, x2, y2, options)`
-Creates a bezier curve (line) from point 1 to point 2.
+Creates a bezier curve element from point 1 to point 2.
+- **Returns**: `id` (string) of created element (type: `'bezier'`).
 
 #### `createText(x, y, text, options)`
 Creates a text element.
@@ -48,7 +49,7 @@ Connects two existing elements with an arrow or line.
 - **sourceId**: ID of start element.
 - **targetId**: ID of end element.
 - **options**:
-  - `type`: 'arrow' (default) or 'line'.
+  - `type`: 'arrow' (default), 'line', or 'bezier'.
   - `curveType`: 'bezier' (default), 'straight', or 'elbow'.
   - Style options (color, etc).
 
@@ -56,7 +57,7 @@ Example:
 ```javascript
 const id1 = Yappy.createRectangle(100, 100, 100, 50);
 const id2 = Yappy.createRectangle(300, 100, 100, 50);
-Yappy.connect(id1, id2, { curveType: 'elbow' });
+Yappy.connect(id1, id2, { type: 'bezier' });
 ```
 
 ### Manipulation Methods
@@ -91,17 +92,21 @@ Optional object passed to creation methods.
 {
     strokeColor?: string;       // e.g. "#000000"
     backgroundColor?: string;   // e.g. "transparent", "#ff0000"
-    fillStyle?: 'hachure' | 'solid' | 'cross-hatch';
+    fillStyle?: 'hachure' | 'solid' | 'dots' | 'zigzag';
     strokeWidth?: number;       // default 1
     strokeStyle?: 'solid' | 'dashed' | 'dotted';
     opacity?: number;           // 0-100
     roughness?: number;         // 0 (clean) - 2 (sketchy)
     angle?: number;             // radians
-    fontFamily?: 1 | 2 | 3;     // 1: Hand, 2: Sans, 3: Mono
+    fontFamily?: 'hand-drawn' | 'sans-serif' | 'monospace';
     fontSize?: number;
     textAlign?: 'left' | 'center' | 'right';
+    containerText?: string;     // Text inside shape
     startArrowhead?: 'arrow' | 'dot' | 'circle' | 'bar' | null;
     endArrowhead?: 'arrow' | 'triangle' | 'dot' | 'circle' | 'bar' | null;
+    points?: Point[] | number[];// Absolute/Relative coordinates
+    status?: 'pending' | 'loaded' | 'error'; // For images
+    dataURL?: string;           // Base64 image data
 }
 ```
 
