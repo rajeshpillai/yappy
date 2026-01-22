@@ -4,7 +4,7 @@ import {
     addLayer, deleteLayer, setActiveLayer, mergeLayerDown, flattenLayers, isolateLayer, showAllLayers,
     toggleGrid, toggleSnapToGrid, toggleCommandPalette, togglePropertyPanel
 } from "./store/app-store";
-import type { ElementType, DrawingElement, FillStyle, StrokeStyle, FontFamily, TextAlign, ArrowHead, VerticalAlign } from "./types";
+import type { ElementType, DrawingElement, FillStyle, StrokeStyle, FontFamily, TextAlign, ArrowHead, VerticalAlign, Point } from "./types";
 
 interface ElementOptions {
     strokeColor?: string;
