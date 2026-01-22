@@ -221,7 +221,7 @@ const LayerPanel: Component = () => {
                             <button class="icon-button" onClick={() => createLayerGroup()} title="New Group" disabled={store.layers.length >= store.maxLayers}>
                                 <Folder size={16} />
                             </button>
-                            <button class="icon-button" onClick={() => addLayer()} title="New Layer" disabled={store.layers.length >= store.maxLayers}>
+                            <button class="icon-button" onClick={() => addLayer()} title="Add new layer" disabled={store.layers.length >= store.maxLayers}>
                                 <Plus size={16} />
                             </button>
                             <button class="icon-button" onClick={() => minimizeLayerPanel(true)} title="Minimize">

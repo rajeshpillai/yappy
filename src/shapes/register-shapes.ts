@@ -2,9 +2,73 @@ import { shapeRegistry } from "./shape-registry";
 import { RectangleRenderer } from "./renderers/rectangle-renderer";
 import { CircleRenderer } from "./renderers/circle-renderer";
 import { DiamondRenderer } from "./renderers/diamond-renderer";
+import { TextRenderer } from "./renderers/text-renderer";
+import { ImageRenderer } from "./renderers/image-renderer";
+import { StickyNoteRenderer } from "./renderers/sticky-note-renderer";
+import { PolygonRenderer } from "./renderers/polygon-renderer";
+import { FlowchartRenderer } from "./renderers/flowchart-renderer";
+import { SketchnoteRenderer } from "./renderers/sketchnote-renderer";
+import { InfraRenderer } from "./renderers/infra-renderer";
+import { ContainerRenderer } from "./renderers/container-renderer";
+import { PathRenderer } from "./renderers/path-renderer";
+import { WireframeRenderer } from "./renderers/wireframe-renderer";
+import { ConnectorRenderer } from "./renderers/connector-renderer";
+import { FreehandRenderer } from "./renderers/freehand-renderer";
+import { SpecialtyShapeRenderer } from "./renderers/specialty-shape-renderer";
 
 export function registerShapes() {
     shapeRegistry.register('rectangle', new RectangleRenderer());
     shapeRegistry.register('circle', new CircleRenderer());
     shapeRegistry.register('diamond', new DiamondRenderer());
+    shapeRegistry.register('text', new TextRenderer());
+    shapeRegistry.register('image', new ImageRenderer());
+    shapeRegistry.register('stickyNote', new StickyNoteRenderer());
+
+    const polygonRenderer = new PolygonRenderer();
+    const polygonTypes = [
+        'triangle', 'hexagon', 'octagon', 'parallelogram',
+        'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'polygon'
+    ] as const;
+    polygonTypes.forEach(type => shapeRegistry.register(type, polygonRenderer));
+
+    const flowchartRenderer = new FlowchartRenderer();
+    const flowchartTypes = ['database', 'document', 'predefinedProcess', 'internalStorage'] as const;
+    flowchartTypes.forEach(type => shapeRegistry.register(type, flowchartRenderer));
+
+    const sketchnoteRenderer = new SketchnoteRenderer();
+    const sketchnoteTypes = ['starPerson', 'lightbulb', 'signpost', 'burstBlob'] as const;
+    sketchnoteTypes.forEach(type => shapeRegistry.register(type, sketchnoteRenderer));
+
+    const infraRenderer = new InfraRenderer();
+    const infraTypes = ['server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router'] as const;
+    infraTypes.forEach(type => shapeRegistry.register(type, infraRenderer));
+
+    const containerRenderer = new ContainerRenderer();
+    const containerTypes = ['browserWindow', 'mobilePhone'] as const;
+    containerTypes.forEach(type => shapeRegistry.register(type, containerRenderer));
+
+    const pathRenderer = new PathRenderer();
+    const pathTypes = ['organicBranch'] as const;
+    pathTypes.forEach(type => shapeRegistry.register(type, pathRenderer));
+
+    const wireframeRenderer = new WireframeRenderer();
+    const wireframeTypes = ['browser', 'ghostButton', 'inputField'] as const;
+    wireframeTypes.forEach(type => shapeRegistry.register(type, wireframeRenderer));
+
+    const connectorRenderer = new ConnectorRenderer();
+    shapeRegistry.register('line', connectorRenderer);
+    shapeRegistry.register('arrow', connectorRenderer);
+    shapeRegistry.register('bezier', connectorRenderer);
+
+    const freehandRenderer = new FreehandRenderer();
+    const freehandTypes = ['fineliner', 'inkbrush', 'marker'] as const;
+    freehandTypes.forEach(type => shapeRegistry.register(type, freehandRenderer));
+
+    const specialtyRenderer = new SpecialtyShapeRenderer();
+    const specialtyTypes = [
+        'cloud', 'heart', 'star', 'burst', 'callout', 'speechBubble',
+        'ribbon', 'bracketLeft', 'bracketRight', 'scroll', 'doubleBanner',
+        'cross', 'checkmark'
+    ] as const;
+    specialtyTypes.forEach(type => shapeRegistry.register(type, specialtyRenderer));
 }

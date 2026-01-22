@@ -1,49 +1,31 @@
-# Modular Rendering Refactor - Phase 1 Status Report
+# Modular Rendering Refactor - Final Status Report
 
-**Date:** 2026-01-21
+**Date:** 2026-01-22
 **Branch:** `feat-modular-refactoring`
 
 ## Overview
-The goal of this refactor is to move away from the monolithic `src/utils/render-element.ts` (currently ~2700 lines) toward a modular, Strategy-pattern based architecture. This improves maintainability, allows for easier unit testing of individual shapes, and simplifies the addition of new features.
+The modular refactor is complete. The monolithic `src/utils/render-element.ts` has been replaced by a Strategy-pattern based architecture centered around the `ShapeRegistry`. This improved architecture makes the rendering system easier to maintain, test, and extend.
 
 ## Architecture Implemented
-We have established the core infrastructure in `src/shapes/`:
+1.  **Base Layer (`src/shapes/base/`)**: Unified `RenderContext`, `ShapeRenderer` base class, and `RenderPipeline` for common styling logic.
+2.  **Registry System**: `ShapeRegistry` and `registerShapes` for dynamic renderer lookup.
+3.  **Complete Renderer Suite**:
+    *   **Basic**: `RectangleRenderer`, `CircleRenderer`, `DiamondRenderer`.
+    *   **Advanced**: `TextRenderer`, `StickyNoteRenderer`, `ImageRenderer`.
+    *   **Specialty**: `FlowchartRenderer`, `SketchnoteRenderer`, `SpecialtyShapeRenderer` (Cloud, Star, etc.).
+    *   **Connectors**: `ConnectorRenderer` (Straight, Elbow, and fixed Bezier connectivity).
+    *   **Freehand**: `FreehandRenderer` (Pencil, Brush, Marker).
+    *   **Modular**: `PathRenderer`, `WireframeRenderer`, `InfraRenderer`, `PolygonRenderer`.
 
-1.  **Base Layer (`src/shapes/base/`)**:
-    *   `types.ts`: Defines `RenderContext` (ctx, rc, element, states).
-    *   `shape-renderer.ts`: Abstract base class handling universal transforms (rotation, opacity, shadow) and delegating to style-specific methods (`renderArchitectural` vs `renderSketch`).
-    *   `render-pipeline.ts`: Centralized logic for property mapping, complex fills (gradients, dots), and unified text rendering.
-
-2.  **Registry System**:
-    *   `shape-registry.ts`: A singleton registry for mapping `ElementType` to its renderer.
-    *   `register-shapes.ts`: Initialization logic to register all available renderers.
-
-3.  **Core Renderers**:
-    *   `RectangleRenderer`: Support for rounded corners, inner borders, and text.
-    *   `CircleRenderer`: Support for ellipses, inner borders, and text.
-    *   `DiamondRenderer`: Support for rounded diamonds and text.
-
-## Current Status
+## Final Status
 - [x] Infrastructure setup (Base classes, types, registry).
-- [x] Migration of Rectangles, Circles, and Diamonds.
-- [x] Integration with the main rendering loop in `render-element.ts`.
-- [x] Verification of basic shapes, colors, and gradients.
-- [x] Fixed Critical Bug: Text visibility and multi-line wrapping in modular renderers.
-
-## Next Steps (Tomorrow)
-1.  **Phase 3: Advanced Shapes**:
-    *   Migrate `TextRenderer` (standalone text elements).
-    *   Migrate `StickyNoteRenderer`.
-    *   Migrate `ImageRenderer`.
-2.  **Phase 4: Specialty Shapes**:
-    *   Migrate Flowchart shapes (Database, Document, etc.).
-    *   Migrate Sketchnote shapes (StarPerson, Lightbulb, etc.).
-    *   Migrate Complex paths (Organic Branch, Mindmap Nodes).
-3.  **Phase 5: Final Cleanup**:
-    *   Once all shapes are migrated, `render-element.ts` will be reduced to ~20 lines of delegation logic.
-    *   Full regression testing of all interactions (resize, rotate, drag).
+- [x] Migration of ALL shapes (Rectangles, Circles, Diamonds, Text, Images, Connectors, etc.).
+- [x] Redundant code removed from `render-element.ts`.
+- [x] Fixed Critical Bug: Bezier connectors now correctly transform and stay connected during interactions.
+- [x] Fixed UI Bug: Layer panel and Bezier icons updated for better UX.
 
 ## Verification Results
-- **Build**: `npm run build` succeeds (2028 modules transformed).
-- **Runtime**: Text is now correctly wrapped and centered inside shapes, respecting theme colors.
-- **Performance**: Retains viewport culling and efficient RoughJS instance reuse.
+- **Automated Tests**: All 12 Playwright E2E tests pass (`npx playwright test tests/comprehensive-features.spec.ts`).
+- **Build**: `npm run build` succeeds.
+- **Runtime**: All element types render correctly in both Sketch and Architectural styles, respecting all properties.
+- **UI/UX**: Improved icon set and consistent state initialization for complex connectors.

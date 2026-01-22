@@ -350,7 +350,7 @@ const Canvas: Component = () => {
                 if (isElementHiddenByHierarchy(el, store.elements)) return false;
 
                 // Hide connectors if their bound elements are hidden
-                if (el.type === 'line' || el.type === 'arrow') {
+                if (el.type === 'line' || el.type === 'arrow' || el.type === 'bezier') {
                     if (el.startBinding) {
                         const startEl = store.elements.find(e => e.id === el.startBinding?.elementId);
                         if (startEl && isElementHiddenByHierarchy(startEl, store.elements)) return false;
@@ -1439,7 +1439,7 @@ const Canvas: Component = () => {
 
     const refreshBoundLine = (lineId: string) => {
         const line = store.elements.find(l => l.id === lineId);
-        if (!line || (line.type !== 'line' && line.type !== 'arrow' && line.type !== 'organicBranch')) return;
+        if (!line || (line.type !== 'line' && line.type !== 'arrow' && line.type !== 'organicBranch' && line.type !== 'bezier')) return;
 
         let sX = line.x;
         let sY = line.y;
@@ -2330,7 +2330,7 @@ const Canvas: Component = () => {
                                 }
                             }
 
-                            if (el.type === 'line' || el.type === 'arrow') {
+                            if (el.type === 'line' || el.type === 'arrow' || el.type === 'bezier') {
                                 updates.points = refreshLinePoints(el, newX, newY, newX + newWidth, newY + newHeight);
                             }
 

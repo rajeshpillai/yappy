@@ -1,7 +1,7 @@
 import { type Component, For } from "solid-js";
 import { store, setSelectedTool, addElement, setStore } from "../store/app-store";
 import type { ElementType } from "../types";
-import { MousePointer2, Square, Circle, Minus, Type, MoveUpRight, Eraser, Hand, Image as ImageIcon, Spline, Diamond, CaseUpper } from "lucide-solid";
+import { MousePointer2, Square, Circle, Minus, Type, MoveUpRight, Eraser, Hand, Image as ImageIcon, Activity, Diamond, CaseUpper } from "lucide-solid";
 import { generateBlockText } from "../utils/block-alphabet";
 import PenToolGroup from "./pen-tool-group";
 import ShapeToolGroup from "./shape-tool-group";
@@ -21,7 +21,7 @@ const tools: { type: ElementType | 'selection' | 'block-text'; icon: Component<{
     { type: 'diamond', icon: Diamond, label: 'Diamond' },
     { type: 'arrow', icon: MoveUpRight, label: 'Arrow' },
     { type: 'line', icon: Minus, label: 'Line' },
-    { type: 'bezier', icon: Spline, label: 'Bezier Curve' },
+    { type: 'bezier', icon: Activity, label: 'Bezier Curve' },
     // Pens are grouped in PenToolGroup
     // New shapes are grouped in ShapeToolGroup
     { type: 'text', icon: Type, label: 'Text' },

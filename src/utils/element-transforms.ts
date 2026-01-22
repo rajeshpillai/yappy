@@ -88,7 +88,7 @@ export const getShapeIcon = (type: ElementType): string => {
         // Connectors
         'line': '─',
         'arrow': '→',
-        'bezier': '⤴',
+        'bezier': '∿',
         'organicBranch': '🌿',
 
         // Curve types (for submenu)
@@ -157,7 +157,7 @@ export const getCurveTypeOptions = (currentType: string): string[] => {
 export const getCurveTypeIcon = (curveType: string): string => {
     const iconMap: Record<string, string> = {
         'straight': '─',
-        'bezier': '⤴',
+        'bezier': '∿',
         'elbow': '└─'
     };
     return iconMap[curveType] || '─';

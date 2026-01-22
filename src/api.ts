@@ -134,6 +134,13 @@ export const YappyAPI = {
             ...options
         };
 
+        // Initialize points for elbow/bezier if not provided
+        if ((element.type === 'line' || element.type === 'arrow') &&
+            (element.curveType === 'elbow' || element.curveType === 'bezier') &&
+            (!element.points || element.points.length === 0)) {
+            element.points = [0, 0, element.width, element.height];
+        }
+
         addElement(element);
         return id;
     },

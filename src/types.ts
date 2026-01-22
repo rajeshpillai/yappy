@@ -138,6 +138,7 @@ export interface DrawingElement {
     // Effects
     blendMode?: BlendMode;
     filter?: string; // CSS filter string (e.g. "blur(5px)")
+    isEditing?: boolean;
 }
 
 
