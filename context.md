@@ -7,3 +7,5 @@ It has all details, to create new shapes, behaviors, minimap, resize, connectors
 Additional Action items :
 - Defensive coding: Ensure everything works
 - Record all learnings with each commits in docs/learnings.md
+- Update help docs (for hotkeys)
+
