@@ -107,6 +107,12 @@ Optional object passed to creation methods.
     points?: Point[] | number[];// Absolute/Relative coordinates
     status?: 'pending' | 'loaded' | 'error'; // For images
     dataURL?: string;           // Base64 image data
+    // Text Styling
+    textColor?: string;
+    textHighlightEnabled?: boolean;
+    textHighlightColor?: string;
+    textHighlightPadding?: number;
+    textHighlightRadius?: number;
 }
 ```
 

@@ -69,6 +69,13 @@ interface ElementOptions {
     gradientEnd?: string;
     gradientDirection?: number;
 
+    // Text Styling
+    textColor?: string;
+    textHighlightEnabled?: boolean;
+    textHighlightColor?: string;
+    textHighlightPadding?: number;
+    textHighlightRadius?: number;
+
     // Hierarchy (Mindmap)
     parentId?: string | null;
     isCollapsed?: boolean;
@@ -150,6 +157,13 @@ export const YappyAPI = {
             gradientStart: options?.gradientStart,
             gradientEnd: options?.gradientEnd,
             gradientDirection: options?.gradientDirection,
+
+            // Text Styling
+            textColor: options?.textColor,
+            textHighlightEnabled: options?.textHighlightEnabled ?? false,
+            textHighlightColor: options?.textHighlightColor,
+            textHighlightPadding: options?.textHighlightPadding,
+            textHighlightRadius: options?.textHighlightRadius,
 
             ...options
         };
