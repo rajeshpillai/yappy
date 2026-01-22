@@ -25,7 +25,7 @@ import { fitShapeToText } from "../utils/text-utils";
 import { changeElementType, getTransformOptions, getShapeIcon, getShapeTooltip, getCurveTypeOptions, getCurveTypeIcon, getCurveTypeTooltip } from "../utils/element-transforms";
 import { getGroupsSortedByPriority, isPointInGroupBounds } from "../utils/group-utils";
 import { exportToPng, exportToSvg } from "../utils/export";
-import { getElementPreviewBaseState, playEntranceAnimation } from "../utils/animation/element-animator";
+import { getElementPreviewBaseState } from "../utils/animation/element-animator";
 import { globalTime } from "../utils/animation/animation-engine";
 import { VideoRecorder } from "../utils/video-recorder";
 import RecordingOverlay from "./recording-overlay";

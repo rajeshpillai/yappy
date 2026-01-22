@@ -5,7 +5,7 @@ import {
     AlignLeft, AlignCenterHorizontal, AlignRight,
     AlignStartVertical, AlignCenterVertical, AlignEndVertical,
     AlignHorizontalDistributeCenter, AlignVerticalDistributeCenter,
-    Plus, ArrowDown, Wand2, LayoutGrid, LayoutList, Target,
+    Plus, ArrowDown, LayoutGrid, LayoutList, Target,
     Minus, X, Play
 } from "lucide-solid";
 import "./property-panel.css";

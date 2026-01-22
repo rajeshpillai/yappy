@@ -106,8 +106,8 @@ export class DiamondRenderer extends ShapeRenderer {
     protected definePath(ctx: CanvasRenderingContext2D, el: any): void {
         const radius = this.getRadius(el);
         if (radius > 0) {
-            const path = this.getRoundedDiamondPath(el.x, el.y, el.width, el.height, radius);
-            const p2d = new Path2D(path);
+            // const path = this.getRoundedDiamondPath(el.x, el.y, el.width, el.height, radius);
+            // const p2d = new Path2D(path);
             // ctx.addPath(p2d) is not what we want if we want to build a path step by step,
             // but for Path2D we can just use it in the sequencer if we refactor it.
             // Actually, ctx.beginPath() and then executing the draw commands is better.

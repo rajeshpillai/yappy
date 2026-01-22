@@ -2,7 +2,6 @@ import { ShapeRenderer } from "../base/shape-renderer";
 import { RenderPipeline } from "../base/render-pipeline";
 import type { RenderContext } from "../base/types";
 import { normalizePoints } from "../../utils/render-element";
-import { globalTime } from "../../utils/animation/animation-engine";
 
 export class ConnectorRenderer extends ShapeRenderer {
     protected renderArchitectural(context: RenderContext, _cx: number, _cy: number): void {
