@@ -225,13 +225,38 @@ export class RenderPipeline {
         const metrics = measureContainerText(ctx, el, textStr, maxWidth);
 
         ctx.font = getFontString(el);
-        const strokeColor = this.adjustColor(el.strokeColor, isDarkMode);
-        ctx.fillStyle = strokeColor;
+
+        // Resolve Text Color
+        const textColorRaw = el.textColor || el.strokeColor;
+        const textColor = this.adjustColor(textColorRaw, isDarkMode);
+
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
         const startY = cy - metrics.textHeight / 2 + metrics.lineHeight / 2 + startYOffset;
 
+        // Render Highlight
+        if (el.textHighlightEnabled) {
+            const highlightColor = el.textHighlightColor || 'rgba(255, 255, 0, 0.4)';
+            ctx.fillStyle = this.adjustColor(highlightColor, isDarkMode);
+
+            metrics.lines.forEach((line, index) => {
+                const y = startY + index * metrics.lineHeight;
+                const lineWidth = ctx.measureText(line).width;
+                const hPadding = 4;
+                const vPadding = 2;
+
+                ctx.fillRect(
+                    cx - lineWidth / 2 - hPadding,
+                    y - metrics.lineHeight / 2 + vPadding,
+                    lineWidth + hPadding * 2,
+                    metrics.lineHeight - vPadding * 2
+                );
+            });
+        }
+
+        // Render Lines
+        ctx.fillStyle = textColor;
         metrics.lines.forEach((line, index) => {
             const y = startY + index * metrics.lineHeight;
             ctx.fillText(line, cx, y, el.width - 10);

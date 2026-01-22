@@ -129,6 +129,9 @@ export interface DrawingElement {
     textAlign?: TextAlign;
     verticalAlign?: VerticalAlign;
     containerId?: string | null;
+    textColor?: string;
+    textHighlightEnabled?: boolean;
+    textHighlightColor?: string;
 
     // Text inside shapes (for labels on rectangles, circles, etc.)
     containerText?: string;

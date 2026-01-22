@@ -886,6 +886,7 @@ const Canvas: Component = () => {
             e.roughness; e.roundness;
             e.text; e.fontSize; e.fontFamily; e.textAlign;
             e.fontWeight; e.fontStyle;
+            e.textColor; e.textHighlightEnabled; e.textHighlightColor;
             e.startArrowhead; e.endArrowhead;
             e.containerText; e.labelPosition; // Track label properties for immediate updates
             e.isCollapsed; e.parentId; // Track hierarchy state for immediate updates

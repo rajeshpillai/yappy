@@ -473,6 +473,31 @@ export const properties: PropertyConfig[] = [
         applicableTo: ['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon'],
         defaultValue: true
     },
+    {
+        key: 'textColor',
+        label: 'Text Color',
+        type: 'color',
+        group: 'text',
+        applicableTo: 'all',
+        defaultValue: undefined // defaults to stroke color in renderer
+    },
+    {
+        key: 'textHighlightEnabled',
+        label: 'Text Highlight',
+        type: 'toggle',
+        group: 'text',
+        applicableTo: 'all',
+        defaultValue: false
+    },
+    {
+        key: 'textHighlightColor',
+        label: 'Highlight Color',
+        type: 'color',
+        group: 'text',
+        applicableTo: 'all',
+        defaultValue: 'rgba(255, 255, 0, 0.4)',
+        dependsOn: 'textHighlightEnabled'
+    },
 
     // Linear
     {
