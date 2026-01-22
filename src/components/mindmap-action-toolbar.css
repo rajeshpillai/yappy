@@ -1,0 +1,145 @@
+/* Floating Toolbar Container */
+.mindmap-action-toolbar {
+    position: fixed;
+    z-index: 10000;
+    pointer-events: auto;
+}
+
+/* Toolbar Content */
+.toolbar-content {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px;
+    background: #ffffff;
+    border: 2px solid #3b82f6;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] .toolbar-content {
+    background: #1f2937;
+    border-color: #60a5fa;
+}
+
+/* Toolbar Buttons */
+.toolbar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+[data-theme="dark"] .toolbar-btn {
+    color: #e5e7eb;
+}
+
+.toolbar-btn:hover {
+    background: #f3f4f6;
+}
+
+[data-theme="dark"] .toolbar-btn:hover {
+    background: #374151;
+}
+
+.toolbar-btn.active {
+    background: #3b82f6;
+    color: white;
+}
+
+[data-theme="dark"] .toolbar-btn.active {
+    background: #60a5fa;
+    color: #1f2937;
+}
+
+/* Divider */
+.toolbar-divider {
+    width: 1px;
+    height: 24px;
+    background: #e5e7eb;
+    margin: 0 4px;
+}
+
+[data-theme="dark"] .toolbar-divider {
+    background: #4b5563;
+}
+
+/* Layout Dropdown */
+.layout-dropdown {
+    position: absolute;
+    top: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+    padding: 6px;
+    background: #ffffff;
+    border: 2px solid #3b82f6;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10001;
+}
+
+[data-theme="dark"] .layout-dropdown {
+    background: #1f2937;
+    border-color: #60a5fa;
+}
+
+.layout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+[data-theme="dark"] .layout-btn {
+    color: #e5e7eb;
+}
+
+.layout-btn:hover {
+    background: #f3f4f6;
+}
+
+[data-theme="dark"] .layout-btn:hover {
+    background: #374151;
+}
+
+/* Backdrop for dropdown */
+.dropdown-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: transparent;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .toolbar-content {
+        padding: 8px;
+        gap: 6px;
+    }
+
+    .toolbar-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .layout-btn {
+        width: 44px;
+        height: 44px;
+    }
+}

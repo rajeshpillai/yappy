@@ -15,6 +15,7 @@ import CommandPalette from './components/command-palette';
 import { initAPI } from './api';
 import { Settings } from 'lucide-solid';
 import Toast from './components/toast';
+import { MindmapActionToolbar } from './components/mindmap-action-toolbar';
 import { registerShapes } from './shapes/register-shapes';
 
 const App: Component = () => {
@@ -166,6 +167,7 @@ const App: Component = () => {
       >
         <Settings size={24} />
       </button>
+      <MindmapActionToolbar />
       <Toast />
     </div>
   );
