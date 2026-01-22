@@ -57,7 +57,12 @@ export class RenderPipeline {
      */
     static buildRenderOptions(el: DrawingElement, isDarkMode: boolean): Options {
         const stroke = this.adjustColor(el.strokeColor, isDarkMode);
-        const fill = el.backgroundColor === 'transparent' ? undefined : this.adjustColor(el.backgroundColor, isDarkMode);
+        let fill = el.backgroundColor === 'transparent' ? undefined : this.adjustColor(el.backgroundColor, isDarkMode);
+
+        // Suppress RoughJS fill if complex fill (gradient/dots) is active
+        if (['linear', 'radial', 'conic', 'dots'].includes(el.fillStyle as string)) {
+            fill = undefined;
+        }
 
         const density = el.fillDensity || 1;
         const baseGap = 5;
