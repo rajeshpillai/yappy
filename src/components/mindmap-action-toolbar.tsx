@@ -52,18 +52,16 @@ const ToolbarContent: Component<{
     return (
         <Show when={element()}>
             {(el) => {
-                const { scale, panX, panY } = store.viewState;
-
-                // Position above the element, centered horizontally
-                const x = (el().x + el().width / 2) * scale + panX - 90;
-                const y = (el().y - 60) * scale + panY;
+                // Calculate position reactively - don't destructure viewState
+                const x = () => (el().x + el().width / 2) * store.viewState.scale + store.viewState.panX - 90;
+                const y = () => (el().y - 60) * store.viewState.scale + store.viewState.panY;
 
                 return (
                     <div
                         class="mindmap-action-toolbar"
                         style={{
-                            top: `${Math.round(y)}px`,
-                            left: `${Math.round(x)}px`,
+                            top: `${Math.round(y())}px`,
+                            left: `${Math.round(x())}px`,
                         }}
                     >
                         <div class="toolbar-content">
