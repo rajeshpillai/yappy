@@ -17,7 +17,7 @@ import LoadExportDialog from "./load-export-dialog";
 import FileOpenDialog from "./file-open-dialog";
 import ExportDialog from "./export-dialog";
 import SaveDialog from "./save-dialog";
-import { migrateDrawingData } from "../utils/migration";
+import { migrateDrawingData, migrateToSlideFormat, extractSlideAsLegacy, isSlideDocument } from "../utils/migration";
 import TemplateBrowser from "./template-browser";
 import type { Template } from "../types/template-types";
 import "./menu.css";
@@ -62,14 +62,16 @@ const Menu: Component = () => {
                 showToast('Failed to save to workspace', 'error');
             }
         } else {
-            const data = JSON.stringify({
+            // Convert to v3 slide format for disk save
+            const slideDoc = migrateToSlideFormat({
                 elements: store.elements,
                 viewState: store.viewState,
                 layers: store.layers,
                 gridSettings: store.gridSettings,
                 canvasBackgroundColor: store.canvasBackgroundColor,
-                version: 1
-            }, null, 2);
+                version: 2
+            });
+            const data = JSON.stringify(slideDoc, null, 2);
 
             const blob = new Blob([data], { type: 'application/json' });
             const fileNameWithExt = `${filename}.json`;
@@ -106,10 +108,18 @@ const Menu: Component = () => {
         try {
             const data = await storage.loadDrawing(targetId);
             if (data) {
-                const migrated = migrateDrawingData(data);
+                // Handle both v2 and v3 formats
+                let migrated;
+                if (isSlideDocument(data)) {
+                    // v3 format - extract first slide for now
+                    migrated = extractSlideAsLegacy(data, 0);
+                } else {
+                    // v2 or older - use existing migration
+                    migrated = migrateDrawingData(data);
+                }
                 setStore({
                     elements: migrated.elements,
-                    viewState: data.viewState || { scale: 1, panX: 0, panY: 0 },
+                    viewState: migrated.viewState || { scale: 1, panX: 0, panY: 0 },
                     layers: migrated.layers,
                     activeLayerId: migrated.layers[0]?.id || 'default-layer',
                     gridSettings: migrated.gridSettings || { enabled: false, snapToGrid: false, objectSnapping: false, gridSize: 20, gridColor: '#e0e0e0', gridOpacity: 0.5, style: 'lines' },
@@ -178,22 +188,29 @@ const Menu: Component = () => {
         reader.onload = (event) => {
             try {
                 const json = JSON.parse(event.target?.result as string);
-                if (json.elements) {
-                    const migrated = migrateDrawingData(json);
-                    setStore({
-                        elements: migrated.elements,
-                        viewState: json.viewState || { scale: 1, panX: 0, panY: 0 },
-                        layers: migrated.layers,
-                        activeLayerId: migrated.layers[0]?.id || 'default-layer',
-                        gridSettings: migrated.gridSettings || { enabled: false, snapToGrid: false, objectSnapping: false, gridSize: 20, gridColor: '#e0e0e0', gridOpacity: 0.5, style: 'lines' },
-                        canvasBackgroundColor: migrated.canvasBackgroundColor || '#fafafa'
-                    });
-                    const name = file.name.replace(/\.json$/i, '');
-                    setDrawingId(name);
-                    showToast('File loaded successfully', 'success');
+                // Handle both v2 (elements) and v3 (slides) formats
+                let migrated;
+                if (isSlideDocument(json)) {
+                    // v3 format - extract first slide
+                    migrated = extractSlideAsLegacy(json, 0);
+                } else if (json.elements) {
+                    // v2 or older format
+                    migrated = migrateDrawingData(json);
                 } else {
                     showToast('Invalid file format', 'error');
+                    return;
                 }
+                setStore({
+                    elements: migrated.elements,
+                    viewState: migrated.viewState || { scale: 1, panX: 0, panY: 0 },
+                    layers: migrated.layers,
+                    activeLayerId: migrated.layers[0]?.id || 'default-layer',
+                    gridSettings: migrated.gridSettings || { enabled: false, snapToGrid: false, objectSnapping: false, gridSize: 20, gridColor: '#e0e0e0', gridOpacity: 0.5, style: 'lines' },
+                    canvasBackgroundColor: migrated.canvasBackgroundColor || '#fafafa'
+                });
+                const name = file.name.replace(/\.json$/i, '');
+                setDrawingId(name);
+                showToast('File loaded successfully', 'success');
             } catch (err) {
                 console.error(err);
                 showToast('Failed to parse JSON', 'error');

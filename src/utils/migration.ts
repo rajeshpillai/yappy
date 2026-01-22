@@ -106,6 +106,7 @@ export const migrateElements = (elements: any[]): DrawingElement[] => {
 export const migrateDrawingData = (data: any): {
     elements: DrawingElement[];
     layers: Layer[];
+    viewState: { scale: number; panX: number; panY: number };
     gridSettings?: GridSettings;
     canvasBackgroundColor?: string;
 } => {
@@ -140,8 +141,89 @@ export const migrateDrawingData = (data: any): {
     return {
         elements,
         layers: migratedLayers,
+        viewState: data.viewState || { scale: 1, panX: 0, panY: 0 },
         gridSettings: data.gridSettings,
         canvasBackgroundColor: data.canvasBackgroundColor
     };
 };
 
+import type { SlideDocument, Slide } from '../types/slide-types';
+
+/**
+ * Check if data is already in the new v3 slide format
+ */
+export const isSlideDocument = (data: any): data is SlideDocument => {
+    return data && data.version === 3 && Array.isArray(data.slides);
+};
+
+/**
+ * Migrate legacy v2 format to new v3 slide format
+ */
+export const migrateToSlideFormat = (data: any): SlideDocument => {
+    // If already v3, return as-is
+    if (isSlideDocument(data)) {
+        return data;
+    }
+
+    // Migrate the drawing data first (handles element/layer normalization)
+    const migrated = migrateDrawingData(data);
+
+    // Create a single slide from the legacy data
+    const slide: Slide = {
+        id: crypto.randomUUID(),
+        name: 'Slide 1',
+        elements: migrated.elements,
+        layers: migrated.layers,
+        viewState: data.viewState || { scale: 1, panX: 0, panY: 0 },
+        gridSettings: migrated.gridSettings,
+        backgroundColor: migrated.canvasBackgroundColor || '#ffffff',
+        order: 0
+    };
+
+    return {
+        version: 3,
+        metadata: {
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        },
+        slides: [slide],
+        globalSettings: {}
+    };
+};
+
+/**
+ * Extract the current slide data in legacy format (for backward compatibility)
+ * Useful when app still works with single canvas internally
+ */
+export const extractSlideAsLegacy = (doc: SlideDocument, slideIndex: number = 0): {
+    elements: DrawingElement[];
+    layers: Layer[];
+    viewState: { scale: number; panX: number; panY: number };
+    gridSettings?: GridSettings;
+    canvasBackgroundColor?: string;
+} => {
+    const slide = doc.slides[slideIndex];
+    if (!slide) {
+        return {
+            elements: [],
+            layers: [{
+                id: DEFAULT_LAYER_ID,
+                name: 'Layer 1',
+                visible: true,
+                locked: false,
+                opacity: 1,
+                order: 0,
+                backgroundColor: 'transparent'
+            }],
+            viewState: { scale: 1, panX: 0, panY: 0 }
+        };
+    }
+
+    return {
+        elements: slide.elements,
+        layers: slide.layers,
+        viewState: slide.viewState,
+        gridSettings: slide.gridSettings,
+        canvasBackgroundColor: slide.backgroundColor
+    };
+};
