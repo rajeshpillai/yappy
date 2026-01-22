@@ -9,6 +9,20 @@ import { lerp, lerpColor } from './animation-types';
 import { store, updateElement } from '../../store/app-store';
 import type { DrawingElement } from '../../types';
 
+// Track active animations per element to prevent drift and handle interruptions
+const activeAnimations = new Map<string, Set<string>>();
+
+/**
+ * Stop all active animations for a specific element
+ */
+export function stopAllElementAnimations(elementId: string): void {
+    const animIds = activeAnimations.get(elementId);
+    if (animIds) {
+        animIds.forEach(id => animationEngine.stop(id));
+        activeAnimations.delete(elementId);
+    }
+}
+
 // Properties that can be animated
 export type AnimatableProperty =
     | 'x'
@@ -84,6 +98,16 @@ export function animateElement(
 
     const animId = generateAnimationId('el');
 
+    // Stop existing animations for this element before starting a new one
+    // to prevent property drift and interference
+    stopAllElementAnimations(elementId);
+
+    // Register this animation
+    if (!activeAnimations.has(elementId)) {
+        activeAnimations.set(elementId, new Set());
+    }
+    activeAnimations.get(elementId)!.add(animId);
+
     // Capture starting values
     const startValues: Record<string, number | string> = {};
     const numericProps: AnimatableProperty[] = [];
@@ -139,7 +163,15 @@ export function animateElement(
             easing: config.easing,
             delay: config.delay,
             onStart: config.onStart,
-            onComplete: config.onComplete,
+            onComplete: () => {
+                // Unregister
+                const animIds = activeAnimations.get(elementId);
+                if (animIds) {
+                    animIds.delete(animId);
+                    if (animIds.size === 0) activeAnimations.delete(elementId);
+                }
+                config.onComplete?.();
+            },
             loop: config.loop,
             loopCount: config.loopCount,
             alternate: config.alternate
@@ -260,7 +292,7 @@ export function scaleIn(elementId: string, duration: number = 300, config: Eleme
 /**
  * Bounce effect (emphasis)
  */
-export function bounce(elementId: string, intensity: number = 20): string {
+export function bounce(elementId: string, intensity: number = 20, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
@@ -271,10 +303,13 @@ export function bounce(elementId: string, intensity: number = 20): string {
     }, {
         duration: 150,
         easing: 'easeOutQuad',
+        delay: config.delay,
+        onStart: config.onStart,
         onComplete: () => {
             animateElement(elementId, { y: originalY }, {
                 duration: 300,
-                easing: 'easeOutBounce'
+                easing: 'easeOutBounce',
+                onComplete: config.onComplete
             });
         }
     });
@@ -283,7 +318,7 @@ export function bounce(elementId: string, intensity: number = 20): string {
 /**
  * Pulse effect (emphasis)
  */
-export function pulse(elementId: string, scale: number = 1.1, duration: number = 300): string {
+export function pulse(elementId: string, scale: number = 1.1, duration: number = 300, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
@@ -305,6 +340,8 @@ export function pulse(elementId: string, scale: number = 1.1, duration: number =
     }, {
         duration: duration / 2,
         easing: 'easeOutQuad',
+        delay: config.delay,
+        onStart: config.onStart,
         onComplete: () => {
             animateElement(elementId, {
                 width: originalWidth,
@@ -313,7 +350,8 @@ export function pulse(elementId: string, scale: number = 1.1, duration: number =
                 y: originalY
             }, {
                 duration: duration / 2,
-                easing: 'easeOutQuad'
+                easing: 'easeOutQuad',
+                onComplete: config.onComplete
             });
         }
     });
@@ -322,20 +360,23 @@ export function pulse(elementId: string, scale: number = 1.1, duration: number =
 /**
  * Flash effect (attention seeker)
  */
-export function flash(elementId: string, duration: number = 1000): string {
+export function flash(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
     return animateElement(elementId, { opacity: 0 }, {
         duration: duration / 4,
         easing: 'linear',
         loop: true,
         loopCount: 2,
-        alternate: true
+        alternate: true,
+        delay: config.delay,
+        onStart: config.onStart,
+        onComplete: config.onComplete
     });
 }
 
 /**
  * RubberBand effect (attention seeker)
  */
-export function rubberBand(elementId: string, duration: number = 1000): string {
+export function rubberBand(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
@@ -353,6 +394,8 @@ export function rubberBand(elementId: string, duration: number = 1000): string {
     }, {
         duration: duration * 0.3,
         easing: 'easeOutQuad',
+        delay: config.delay,
+        onStart: config.onStart,
         onComplete: () => {
             // Phase 2: Stretch vertical, squash horizontal
             animateElement(elementId, {
@@ -372,7 +415,8 @@ export function rubberBand(elementId: string, duration: number = 1000): string {
                         y: originalY
                     }, {
                         duration: duration * 0.4,
-                        easing: 'easeOutElastic'
+                        easing: 'easeOutElastic',
+                        onComplete: config.onComplete
                     });
                 }
             });
@@ -383,7 +427,7 @@ export function rubberBand(elementId: string, duration: number = 1000): string {
 /**
  * ShakeX effect (attention seeker)
  */
-export function shakeX(elementId: string, intensity: number = 10, duration: number = 400): string {
+export function shakeX(elementId: string, intensity: number = 10, duration: number = 400, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
@@ -397,8 +441,11 @@ export function shakeX(elementId: string, intensity: number = 10, duration: numb
         loop: true,
         loopCount: 4,
         alternate: true,
+        delay: config.delay,
+        onStart: config.onStart,
         onComplete: () => {
             updateElement(elementId, { x: originalX }, false);
+            config.onComplete?.();
         }
     });
 }
@@ -406,7 +453,7 @@ export function shakeX(elementId: string, intensity: number = 10, duration: numb
 /**
  * ShakeY effect (attention seeker)
  */
-export function shakeY(elementId: string, intensity: number = 10, duration: number = 400): string {
+export function shakeY(elementId: string, intensity: number = 10, duration: number = 400, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
@@ -420,8 +467,11 @@ export function shakeY(elementId: string, intensity: number = 10, duration: numb
         loop: true,
         loopCount: 4,
         alternate: true,
+        delay: config.delay,
+        onStart: config.onStart,
         onComplete: () => {
             updateElement(elementId, { y: originalY }, false);
+            config.onComplete?.();
         }
     });
 }
@@ -429,7 +479,7 @@ export function shakeY(elementId: string, intensity: number = 10, duration: numb
 /**
  * HeadShake effect (attention seeker)
  */
-export function headShake(elementId: string, duration: number = 1000): string {
+export function headShake(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
@@ -438,6 +488,8 @@ export function headShake(elementId: string, duration: number = 1000): string {
     return animateElement(elementId, { x: originalX - 6 }, {
         duration: duration / 5,
         easing: 'easeInOutQuad',
+        delay: config.delay,
+        onStart: config.onStart,
         onComplete: () => {
             animateElement(elementId, { x: originalX + 5 }, {
                 duration: duration / 5,
@@ -453,7 +505,8 @@ export function headShake(elementId: string, duration: number = 1000): string {
                                 onComplete: () => {
                                     animateElement(elementId, { x: originalX }, {
                                         duration: duration / 5,
-                                        easing: 'easeInOutQuad'
+                                        easing: 'easeInOutQuad',
+                                        onComplete: config.onComplete
                                     });
                                 }
                             });
@@ -468,7 +521,7 @@ export function headShake(elementId: string, duration: number = 1000): string {
 /**
  * Swing effect (attention seeker)
  */
-export function swing(elementId: string, duration: number = 1000): string {
+export function swing(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
@@ -477,6 +530,8 @@ export function swing(elementId: string, duration: number = 1000): string {
     return animateElement(elementId, { angle: originalAngle + 0.25 }, {
         duration: duration * 0.2,
         easing: 'linear',
+        delay: config.delay,
+        onStart: config.onStart,
         onComplete: () => {
             animateElement(elementId, { angle: originalAngle - 0.17 }, {
                 duration: duration * 0.2,
@@ -492,7 +547,8 @@ export function swing(elementId: string, duration: number = 1000): string {
                                 onComplete: () => {
                                     animateElement(elementId, { angle: originalAngle }, {
                                         duration: duration * 0.2,
-                                        easing: 'linear'
+                                        easing: 'linear',
+                                        onComplete: config.onComplete
                                     });
                                 }
                             });
@@ -507,7 +563,7 @@ export function swing(elementId: string, duration: number = 1000): string {
 /**
  * Tada effect (attention seeker)
  */
-export function tada(elementId: string, duration: number = 1000): string {
+export function tada(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
@@ -526,6 +582,8 @@ export function tada(elementId: string, duration: number = 1000): string {
     }, {
         duration: duration * 0.1,
         easing: 'linear',
+        delay: config.delay,
+        onStart: config.onStart,
         onComplete: () => {
             animateElement(elementId, {
                 width: originalWidth * 1.1,
@@ -546,7 +604,11 @@ export function tada(elementId: string, duration: number = 1000): string {
                         x: originalX,
                         y: originalY,
                         angle: originalAngle
-                    }, { duration: duration * 0.1, easing: 'linear' });
+                    }, {
+                        duration: duration * 0.1,
+                        easing: 'linear',
+                        onComplete: config.onComplete
+                    });
                 }
             });
         }
@@ -556,7 +618,7 @@ export function tada(elementId: string, duration: number = 1000): string {
 /**
  * Wobble effect (attention seeker)
  */
-export function wobble(elementId: string, duration: number = 1000): string {
+export function wobble(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
@@ -569,6 +631,8 @@ export function wobble(elementId: string, duration: number = 1000): string {
     }, {
         duration: duration * 0.15,
         easing: 'linear',
+        delay: config.delay,
+        onStart: config.onStart,
         onComplete: () => {
             animateElement(elementId, {
                 x: originalX + (element.width * 0.2),
@@ -594,7 +658,11 @@ export function wobble(elementId: string, duration: number = 1000): string {
                                     animateElement(elementId, {
                                         x: originalX,
                                         angle: originalAngle
-                                    }, { duration: duration * 0.15, easing: 'linear' });
+                                    }, {
+                                        duration: duration * 0.15,
+                                        easing: 'linear',
+                                        onComplete: config.onComplete
+                                    });
                                 }
                             });
                         }
@@ -608,7 +676,7 @@ export function wobble(elementId: string, duration: number = 1000): string {
 /**
  * Jello effect (attention seeker)
  */
-export function jello(elementId: string, duration: number = 1000): string {
+export function jello(elementId: string, duration: number = 1000, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
@@ -625,6 +693,8 @@ export function jello(elementId: string, duration: number = 1000): string {
     }, {
         duration: duration * 0.2,
         easing: 'linear',
+        delay: config.delay,
+        onStart: config.onStart,
         onComplete: () => {
             animateElement(elementId, {
                 width: originalWidth * 0.9,
@@ -649,7 +719,11 @@ export function jello(elementId: string, duration: number = 1000): string {
                                 height: originalHeight,
                                 x: originalX,
                                 y: originalY
-                            }, { duration: duration * 0.4, easing: 'easeOutQuad' });
+                            }, {
+                                duration: duration * 0.4,
+                                easing: 'easeOutQuad',
+                                onComplete: config.onComplete
+                            });
                         }
                     });
                 }
@@ -661,7 +735,7 @@ export function jello(elementId: string, duration: number = 1000): string {
 /**
  * HeartBeat effect (attention seeker)
  */
-export function heartBeat(elementId: string, duration: number = 1300): string {
+export function heartBeat(elementId: string, duration: number = 1300, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
@@ -678,6 +752,8 @@ export function heartBeat(elementId: string, duration: number = 1300): string {
     }, {
         duration: duration * 0.2,
         easing: 'easeOutQuad',
+        delay: config.delay,
+        onStart: config.onStart,
         onComplete: () => {
             animateElement(elementId, {
                 width: originalWidth,
@@ -702,7 +778,11 @@ export function heartBeat(elementId: string, duration: number = 1300): string {
                                 height: originalHeight,
                                 x: originalX,
                                 y: originalY
-                            }, { duration: duration * 0.4, easing: 'easeInQuad' });
+                            }, {
+                                duration: duration * 0.4,
+                                easing: 'easeInQuad',
+                                onComplete: config.onComplete
+                            });
                         }
                     });
                 }
@@ -1153,16 +1233,18 @@ export function flip(elementId: string, duration: number = 1000, config: Element
     return animateElement(elementId, { angle: originalAngle + Math.PI }, {
         duration: duration / 2,
         easing: 'easeInOutQuad',
+        delay: config.delay,
+        onStart: config.onStart,
         onComplete: () => {
             animateElement(elementId, { angle: originalAngle + Math.PI * 2 }, {
                 duration: duration / 2,
                 easing: 'easeInOutQuad',
                 onComplete: () => {
                     updateElement(elementId, { angle: originalAngle }, false);
+                    config.onComplete?.();
                 }
             });
-        },
-        ...config
+        }
     });
 }
 
@@ -1366,14 +1448,16 @@ export function hinge(elementId: string, duration: number = 2000, config: Elemen
         alternate: true,
         loop: true,
         loopCount: 2,
+        delay: config.delay,
+        onStart: config.onStart,
         onComplete: () => {
             // Phase 2: Drop off screen
             animateElement(elementId, { y: window.innerHeight + 500, opacity: 0 }, {
                 duration: duration * 0.6,
-                easing: 'easeInQuad'
+                easing: 'easeInQuad',
+                onComplete: config.onComplete
             });
-        },
-        ...config
+        }
     });
 }
 
@@ -1539,6 +1623,10 @@ export function zoomOutUp(elementId: string, duration: number = 1000, config: El
 // Play Element's Configured Animation
 // ============================================
 
+// Store original states for elements currently being animated for preview
+// This prevents "drift" when animations are interrupted or rapid-fired
+const previewBaseStates = new Map<string, any>();
+
 /**
  * Play the entrance animation configured on an element
  * NOTE: Restores element to original state after animation completes (for preview purposes)
@@ -1550,17 +1638,24 @@ export function playEntranceAnimation(elementId: string): string {
     const animation = element.entranceAnimation ?? 'none';
     const duration = element.animationDuration ?? 300;
 
-    // Capture original state to restore after animation
-    const originalState = {
-        x: element.x,
-        y: element.y,
-        width: element.width,
-        height: element.height,
-        opacity: element.opacity
-    };
+    // Capture or retrieve original state to restore after animation
+    // If an animation is already running, we MUST use the already captured base state
+    // to prevent capturing an intermediate "in-flight" state.
+    if (!previewBaseStates.has(elementId)) {
+        previewBaseStates.set(elementId, {
+            x: element.x,
+            y: element.y,
+            width: element.width,
+            height: element.height,
+            opacity: element.opacity,
+            angle: element.angle
+        });
+    }
+    const originalState = previewBaseStates.get(elementId);
 
     const restoreState = () => {
         updateElement(elementId, originalState, false);
+        previewBaseStates.delete(elementId);
     };
 
     const config = { onComplete: restoreState };
@@ -1678,16 +1773,22 @@ export function playExitAnimation(elementId: string): string {
     const animation = element.exitAnimation ?? 'none';
     const duration = element.animationDuration ?? 300;
 
-    const originalState = {
-        x: element.x,
-        y: element.y,
-        width: element.width,
-        height: element.height,
-        opacity: element.opacity
-    };
+    // Capture or retrieve original state to restore after animation
+    if (!previewBaseStates.has(elementId)) {
+        previewBaseStates.set(elementId, {
+            x: element.x,
+            y: element.y,
+            width: element.width,
+            height: element.height,
+            opacity: element.opacity,
+            angle: element.angle
+        });
+    }
+    const originalState = previewBaseStates.get(elementId);
 
     const restoreState = () => {
         updateElement(elementId, originalState, false);
+        previewBaseStates.delete(elementId);
     };
 
     const config = { onComplete: restoreState };
