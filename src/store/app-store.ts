@@ -1110,8 +1110,10 @@ export const reorderMindmap = (rootId: string, direction: LayoutDirection) => {
 
     if (direction.startsWith('horizontal')) {
         engine.layoutHorizontal(tree, direction === 'horizontal-right' ? 'right' : 'left');
-    } else {
+    } else if (direction.startsWith('vertical')) {
         engine.layoutVertical(tree, direction === 'vertical-down' ? 'down' : 'up');
+    } else if (direction === 'radial') {
+        engine.layoutRadial(tree);
     }
 
     const updates = engine.getUpdates(tree);

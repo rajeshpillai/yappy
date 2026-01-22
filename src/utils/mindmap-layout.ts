@@ -12,7 +12,7 @@ export interface MindmapNode {
     totalWidth?: number;  // Used for horizontal layout
 }
 
-export type LayoutDirection = 'horizontal-right' | 'horizontal-left' | 'vertical-down' | 'vertical-up';
+export type LayoutDirection = 'horizontal-right' | 'horizontal-left' | 'vertical-down' | 'vertical-up' | 'radial';
 
 export class MindmapLayoutEngine {
     private hSpacing = 100;
@@ -125,6 +125,35 @@ export class MindmapLayoutEngine {
             const childX = currentX + (child.totalWidth! / 2) - (child.width / 2);
             this.assignVerticalPositions(child, childX, childY, direction);
             currentX += child.totalWidth! + this.hSpacing;
+        }
+    }
+
+    /**
+     * Calculates positions for a radial (neuron) layout.
+     */
+    layoutRadial(root: MindmapNode) {
+        this.assignRadialPositions(root, root.x, root.y, 0, Math.PI * 2, 250);
+    }
+
+    private assignRadialPositions(node: MindmapNode, x: number, y: number, startAngle: number, endAngle: number, radius: number) {
+        node.x = x;
+        node.y = y;
+
+        if (node.children.length === 0) return;
+
+        const totalAngle = endAngle - startAngle;
+        const anglePerChild = totalAngle / node.children.length;
+
+        for (let i = 0; i < node.children.length; i++) {
+            const child = node.children[i];
+            const angle = startAngle + (i + 0.5) * anglePerChild;
+
+            const childX = x + Math.cos(angle) * radius - (child.width / 2);
+            const childY = y + Math.sin(angle) * radius - (child.height / 2);
+
+            // Sub-children get a smaller wedge of the parent's angle to prevent overlap
+            const wedge = Math.min(Math.PI / 3, anglePerChild * 0.8);
+            this.assignRadialPositions(child, childX, childY, angle - wedge / 2, angle + wedge / 2, 200);
         }
     }
 
