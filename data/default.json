@@ -1,12 +1,12 @@
 {
   "version": 3,
   "metadata": {
-    "createdAt": "2026-01-22T14:40:03.203Z",
-    "updatedAt": "2026-01-22T14:40:03.203Z"
+    "createdAt": "2026-01-22T15:09:56.965Z",
+    "updatedAt": "2026-01-22T15:09:56.965Z"
   },
   "slides": [
     {
-      "id": "4b2e93a6-f317-4041-b35c-abe7c2a0bdf3",
+      "id": "c27c3939-2d25-4e60-9ceb-1e73c22452c2",
       "name": "Slide 1",
       "elements": [
         {
@@ -23,7 +23,7 @@
           "strokeStyle": "solid",
           "roughness": 1,
           "opacity": 100,
-          "angle": -1.5707963267948966,
+          "angle": 0,
           "renderStyle": "sketch",
           "seed": 307137176,
           "roundness": null,
