@@ -36,14 +36,22 @@ export const normalizeElement = (el: Partial<DrawingElement> & { id: string; typ
 
         // Optional properties (passed through if present)
         ...(el.points && { points: el.points }),
+        ...(el.pointsEncoding !== undefined && { pointsEncoding: el.pointsEncoding }),
         ...(el.startArrowhead !== undefined && { startArrowhead: el.startArrowhead }),
         ...(el.endArrowhead !== undefined && { endArrowhead: el.endArrowhead }),
         ...(el.text !== undefined && { text: el.text }),
         ...(el.rawText !== undefined && { rawText: el.rawText }),
         ...(el.fontSize !== undefined && { fontSize: el.fontSize }),
         ...(el.fontFamily !== undefined && { fontFamily: el.fontFamily }),
+        ...(el.fontWeight !== undefined && { fontWeight: el.fontWeight }),
+        ...(el.fontStyle !== undefined && { fontStyle: el.fontStyle }),
         ...(el.textAlign !== undefined && { textAlign: el.textAlign }),
         ...(el.verticalAlign !== undefined && { verticalAlign: el.verticalAlign }),
+        ...(el.textColor !== undefined && { textColor: el.textColor }),
+        ...(el.textHighlightEnabled !== undefined && { textHighlightEnabled: el.textHighlightEnabled }),
+        ...(el.textHighlightColor !== undefined && { textHighlightColor: el.textHighlightColor }),
+        ...(el.textHighlightPadding !== undefined && { textHighlightPadding: el.textHighlightPadding }),
+        ...(el.textHighlightRadius !== undefined && { textHighlightRadius: el.textHighlightRadius }),
         ...(el.containerId !== undefined && { containerId: el.containerId }),
         ...(el.containerText !== undefined && { containerText: el.containerText }),
         ...(el.labelPosition !== undefined && { labelPosition: el.labelPosition }),
@@ -93,6 +101,12 @@ export const normalizeElement = (el: Partial<DrawingElement> & { id: string; typ
         // Effects
         ...(el.blendMode !== undefined && { blendMode: el.blendMode }),
         ...(el.filter !== undefined && { filter: el.filter }),
+
+        // Animation Settings
+        ...(el.entranceAnimation !== undefined && { entranceAnimation: el.entranceAnimation }),
+        ...(el.exitAnimation !== undefined && { exitAnimation: el.exitAnimation }),
+        ...(el.animationDuration !== undefined && { animationDuration: el.animationDuration }),
+        ...(el.animationDelay !== undefined && { animationDelay: el.animationDelay }),
 
         // Control Points
         ...(el.controlPoints !== undefined && { controlPoints: el.controlPoints }),
