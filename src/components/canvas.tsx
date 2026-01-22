@@ -25,6 +25,7 @@ import { fitShapeToText } from "../utils/text-utils";
 import { changeElementType, getTransformOptions, getShapeIcon, getShapeTooltip, getCurveTypeOptions, getCurveTypeIcon, getCurveTypeTooltip } from "../utils/element-transforms";
 import { getGroupsSortedByPriority, isPointInGroupBounds } from "../utils/group-utils";
 import { exportToPng, exportToSvg } from "../utils/export";
+import { getElementPreviewBaseState } from "../utils/animation/element-animator";
 
 
 const Canvas: Component = () => {
@@ -390,21 +391,29 @@ const Canvas: Component = () => {
 
                 // Selection highlight & Handles
                 if (store.selection.includes(el.id)) {
+                    const baseState = getElementPreviewBaseState(el.id);
+                    const hX = baseState ? baseState.x : el.x;
+                    const hY = baseState ? baseState.y : el.y;
+                    const hW = baseState ? baseState.width : el.width;
+                    const hH = baseState ? baseState.height : el.height;
+                    const hAngle = baseState ? baseState.angle : el.angle;
+                    const hcx = hX + hW / 2;
+                    const hcy = hY + hH / 2;
+
                     ctx.save();
                     // Re-apply rotation for handles
-                    if (el.angle) {
-                        ctx.translate(cx, cy);
-                        ctx.rotate(el.angle);
-                        ctx.translate(-cx, -cy);
+                    if (hAngle) {
+                        ctx.translate(hcx, hcy);
+                        ctx.rotate(hAngle);
+                        ctx.translate(-hcx, -hcy);
                     }
-
                     ctx.strokeStyle = '#3b82f6';
                     ctx.lineWidth = 1 / scale;
                     const padding = 2 / scale;
 
                     // Only draw bounding box for non-linear elements
                     if (el.type !== 'line' && el.type !== 'arrow' && el.type !== 'organicBranch') {
-                        ctx.strokeRect(el.x - padding, el.y - padding, el.width + padding * 2, el.height + padding * 2);
+                        ctx.strokeRect(hX - padding, hY - padding, hW + padding * 2, hH + padding * 2);
                     }
 
                     // Handles (Only if single selection)
@@ -416,10 +425,10 @@ const Canvas: Component = () => {
 
                         if (el.type === 'line' || el.type === 'arrow' || el.type === 'organicBranch') {
                             // Line/Arrow/OrganicBranch Specific Handles (Start and End only)
-                            const startX = el.x;
-                            const startY = el.y;
-                            const endX = el.x + el.width;
-                            const endY = el.y + el.height;
+                            const startX = hX;
+                            const startY = hY;
+                            const endX = hX + hW;
+                            const endY = hY + hH;
 
                             const handles = [
                                 { x: startX, y: startY }, // Start (TL)
@@ -436,15 +445,15 @@ const Canvas: Component = () => {
                         } else {
                             // Standard Box Handles
                             const handles = [
-                                { x: el.x - padding, y: el.y - padding }, // TL
-                                { x: el.x + el.width + padding, y: el.y - padding }, // TR
-                                { x: el.x + el.width + padding, y: el.y + el.height + padding }, // BR
-                                { x: el.x - padding, y: el.y + el.height + padding }, // BL
+                                { x: hX - padding, y: hY - padding }, // TL
+                                { x: hX + hW + padding, y: hY - padding }, // TR
+                                { x: hX + hW + padding, y: hY + hH + padding }, // BR
+                                { x: hX - padding, y: hY + hH + padding }, // BL
                                 // Side Handles
-                                { x: el.x + el.width / 2, y: el.y - padding }, // TM
-                                { x: el.x + el.width + padding, y: el.y + el.height / 2 }, // RM
-                                { x: el.x + el.width / 2, y: el.y + el.height + padding }, // BM
-                                { x: el.x - padding, y: el.y + el.height / 2 } // LM
+                                { x: hX + hW / 2, y: hY - padding }, // TM
+                                { x: hX + hW + padding, y: hY + hH / 2 }, // RM
+                                { x: hX + hW / 2, y: hY + hH + padding }, // BM
+                                { x: hX - padding, y: hY + hH / 2 } // LM
                             ];
 
                             handles.forEach(h => {
@@ -3331,11 +3340,16 @@ const Canvas: Component = () => {
             <Show when={editingId() && activeTextElement()}>
                 {(_) => {
                     const el = activeTextElement()!;
+                    const baseState = getElementPreviewBaseState(el.id);
+                    const elX = baseState ? baseState.x : el.x;
+                    const elY = baseState ? baseState.y : el.y;
+                    const elW = baseState ? baseState.width : el.width;
+                    const elH = baseState ? baseState.height : el.height;
                     const { scale, panX, panY } = store.viewState;
 
                     // Center the textarea in the shape
-                    const centerX = (el.x + el.width / 2) * scale + panX;
-                    const centerY = (el.y + el.height / 2) * scale + panY;
+                    const centerX = (elX + elW / 2) * scale + panX;
+                    const centerY = (elY + elH / 2) * scale + panY;
 
                     return (
                         <textarea

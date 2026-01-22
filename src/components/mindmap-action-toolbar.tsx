@@ -1,5 +1,6 @@
 import { type Component, Show, createSignal, createMemo } from "solid-js";
 import { store, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, toggleCollapse } from "../store/app-store";
+import { getElementPreviewBaseState } from "../utils/animation/element-animator";
 import { Plus, ArrowDown, Wand2, Palette, ChevronUp, ChevronDown, LayoutGrid, LayoutList, Target } from "lucide-solid";
 import "./mindmap-action-toolbar.css";
 
@@ -54,7 +55,11 @@ const ToolbarContent: Component<{
             {(el) => {
                 // Calculate position reactively - don't destructure viewState
                 const x = () => {
-                    const base = (el().x + el().width / 2) * store.viewState.scale + store.viewState.panX - 90;
+                    const baseState = getElementPreviewBaseState(el().id);
+                    const elX = baseState ? baseState.x : el().x;
+                    const elW = baseState ? baseState.width : el().width;
+
+                    const base = (elX + elW / 2) * store.viewState.scale + store.viewState.panX - 90;
                     // Collision avoidance with Property Panel
                     if (store.showPropertyPanel && !store.isPropertyPanelMinimized) {
                         const panelStart = window.innerWidth - 280; // Property panel width
@@ -66,7 +71,11 @@ const ToolbarContent: Component<{
                     }
                     return base;
                 };
-                const y = () => (el().y - 60) * store.viewState.scale + store.viewState.panY;
+                const y = () => {
+                    const baseState = getElementPreviewBaseState(el().id);
+                    const elY = baseState ? baseState.y : el().y;
+                    return (elY - 60) * store.viewState.scale + store.viewState.panY;
+                };
 
                 return (
                     <div

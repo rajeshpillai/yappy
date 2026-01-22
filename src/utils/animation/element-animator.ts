@@ -1628,6 +1628,13 @@ export function zoomOutUp(elementId: string, duration: number = 1000, config: El
 const previewBaseStates = new Map<string, any>();
 
 /**
+ * Get the original state of an element before preview animation started
+ */
+export function getElementPreviewBaseState(elementId: string): any | undefined {
+    return previewBaseStates.get(elementId);
+}
+
+/**
  * Play the entrance animation configured on an element
  * NOTE: Restores element to original state after animation completes (for preview purposes)
  */
