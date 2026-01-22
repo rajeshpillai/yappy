@@ -574,6 +574,70 @@ sortedLayers.forEach(layer => {
 
 ---
 
+## SVG Icon Rendering Issues
+
+### Critical: Explicit SVG Styling for Icon Visibility
+
+**Problem**: SVG icons from libraries like lucide-solid may not render properly in certain contexts (dropdowns, overlays, absolute positioned elements) without explicit styling.
+
+```css
+/* ❌ WRONG - Icons may not appear */
+.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #374151;
+}
+/* No explicit SVG styling */
+```
+
+**Solution**: Always add explicit SVG styling to ensure icons inherit proper display and color properties:
+
+```css
+/* ✅ CORRECT - Ensures icons are visible */
+.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #374151;
+}
+
+.button svg {
+    display: block;          /* Prevent inline spacing issues */
+    stroke: currentColor;    /* Inherit parent color */
+    fill: none;             /* For stroke-based icons */
+    pointer-events: none;   /* Prevent SVG from blocking clicks */
+}
+```
+
+**Why This Happens**:
+- SVG elements have default `display: inline` which can cause alignment issues
+- `currentColor` may not inherit properly without explicit `stroke` declaration
+- Pointer events on SVG can interfere with button click handlers
+- Absolutely positioned containers may not inherit styles correctly
+
+**Common Symptoms**:
+- Icons visible in main UI but invisible in dropdowns
+- Icons show in light mode but not dark mode (or vice versa)
+- Icon hitbox blocking button clicks
+- Inconsistent icon sizes across similar components
+
+**Best Practice**: Add SVG styling to all button/icon container classes:
+```css
+.toolbar-btn svg,
+.layout-btn svg,
+.menu-item svg {
+    display: block;
+    stroke: currentColor;
+    fill: none;
+    pointer-events: none;
+}
+```
+
+**Location**: [mindmap-action-toolbar.css:63-68, 130-137](src/components/mindmap-action-toolbar.css)
+
+---
+
 ## Summary: The Most Important Lessons
 
 1. **Never use early returns in SolidJS** - Use `Show` component
