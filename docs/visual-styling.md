@@ -50,3 +50,19 @@ To reduce the digital "sterility" of plain backgrounds, a global texture overlay
 ### Architecture
 *   The texture is rendered on a separate `<div>` layer or Canvas pass to avoid re-rendering complex textures on every frame.
 *   Grid/Dots are drawn in the main `draw()` loop for precise alignment with pan/zoom.
+
+## 4. Text Styling
+Independent text styling was introduced in Phase 51, decoupling text attributes from shape stroke properties.
+
+### Properties
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `textColor` | `string` | `strokeColor` | Independent color for text content. |
+| `textHighlightEnabled` | `boolean` | `false` | Toggles a background highlight for text. |
+| `textHighlightColor` | `string` | `rgba(255,255,0,0.4)` | Color of the highlight box. |
+| `textHighlightPadding` | `number` | `4` | Spacing around the text inside the highlight. |
+| `textHighlightRadius` | `number` | `2` | Corner radius for the highlight box. |
+
+### Precision Alignment
+*   **Baseline Correction**: Hand-drawn fonts often have shifting baselines. The system applies a standard vertical correction (e.g., +2px for Handlee) to ensure visual centering within the highlight box.
+*   **Multi-line Support**: Highlights are measured per-line, creating a clean "wrapped" look for multi-line labels and text elements.
