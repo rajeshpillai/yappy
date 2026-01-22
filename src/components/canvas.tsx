@@ -319,6 +319,9 @@ const Canvas: Component = () => {
         const sortedLayers = [...store.layers].sort((a, b) => a.order - b.order);
         let totalRendered = 0;
 
+        // OPTIMIZATION: Create RoughJS instance ONCE per render frame, reuse across all layers
+        const rc = rough.canvas(canvasRef);
+
         sortedLayers.forEach(layer => {
             if (!isLayerVisible(layer.id)) return;
 
@@ -329,7 +332,7 @@ const Canvas: Component = () => {
                 ctx.fillStyle = layer.backgroundColor;
 
                 // Fill the whole world (or at least a very large area)
-                // Since we are in world coordinates (translated/scaled), 
+                // Since we are in world coordinates (translated/scaled),
                 // we should fill a massive area to cover the infinite canvas.
                 const BIG_VALUE = 1000000;
                 ctx.fillRect(-BIG_VALUE, -BIG_VALUE, BIG_VALUE * 2, BIG_VALUE * 2);
@@ -337,8 +340,6 @@ const Canvas: Component = () => {
             }
 
             // 2. Draw Elements on this layer with viewport culling
-            // OPTIMIZATION: Create RoughJS instance ONCE per layer, not per element
-            const rc = rough.canvas(canvasRef);
 
             const layerElements = store.elements.filter(el => {
                 if (el.layerId !== layer.id) return false;

@@ -534,6 +534,46 @@ box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 
 ---
 
+## Performance Optimization: RoughJS Instance Management
+
+### Critical: Reuse RoughJS Canvas Instances
+
+**Problem**: Creating a new `rough.canvas()` instance for every layer on every render frame causes severe garbage collection pressure and memory leaks.
+
+```typescript
+// ❌ WRONG - Creates 300 instances/second with 5 layers at 60 FPS
+sortedLayers.forEach(layer => {
+    const rc = rough.canvas(canvasRef);  // NEW INSTANCE EVERY ITERATION!
+    layerElements.forEach(el => {
+        renderElement(rc, ctx, el, isDarkMode, layerOpacity);
+    });
+});
+```
+
+**Solution**: Create the RoughJS instance once per render frame and reuse it across all layers:
+
+```typescript
+// ✅ CORRECT - Creates 60 instances/second at 60 FPS
+const rc = rough.canvas(canvasRef);  // ONCE per render frame
+
+sortedLayers.forEach(layer => {
+    layerElements.forEach(el => {
+        renderElement(rc, ctx, el, isDarkMode, layerOpacity);
+    });
+});
+```
+
+**Impact**:
+- **Before**: 5 layers × 60 FPS = 300 new instances/second
+- **After**: 1 × 60 FPS = 60 new instances/second
+- **Reduction**: 80% fewer object allocations, significantly reduced GC pressure
+
+**Why**: RoughJS canvas instances are expensive to create. Creating them in tight loops causes unnecessary memory allocation and forces frequent garbage collection, leading to frame drops and stuttering. Reusing a single instance per frame eliminates this overhead while maintaining the same visual output.
+
+**Location**: [canvas.tsx:322-323](src/components/canvas.tsx#L322-L323)
+
+---
+
 ## Summary: The Most Important Lessons
 
 1. **Never use early returns in SolidJS** - Use `Show` component
