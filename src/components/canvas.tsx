@@ -1,7 +1,7 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show, untrack } from "solid-js";
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
 import { isElementHiddenByHierarchy, getDescendants } from "../utils/hierarchy";
-import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit, isLayerVisible, isLayerLocked, toggleCollapse, setParent, clearParent, addChildNode, addSiblingNode, reorderMindmap } from "../store/app-store";
+import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit, isLayerVisible, isLayerLocked, toggleCollapse, setParent, clearParent, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling } from "../store/app-store";
 import { renderElement, normalizePoints } from "../utils/render-element";
 import { getAnchorPoints, findClosestAnchor } from "../utils/anchor-points";
 import { calculateSmartElbowRoute } from "../utils/routing";
@@ -3052,6 +3052,7 @@ const Canvas: Component = () => {
                 ];
                 hierarchyItems.push({ separator: true });
                 hierarchyItems.push({ label: 'Auto Layout', submenu: autoLayoutItems, icon: '🪄' });
+                hierarchyItems.push({ label: 'Auto Style Branch', icon: '🎨', onClick: () => applyMindmapStyling(firstId) });
 
                 if (hierarchyItems.length > 0) {
                     items.push({ label: 'Hierarchy', submenu: hierarchyItems });

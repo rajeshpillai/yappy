@@ -1116,17 +1116,41 @@ export const reorderMindmap = (rootId: string, direction: LayoutDirection) => {
         engine.layoutRadial(tree);
     }
 
-    const updates = engine.getUpdates(tree);
+    const updates = engine.getUpdates(tree, store.elements);
 
     // Batch update elements
     const newElements = store.elements.map(el => {
         const update = updates.get(el.id);
         if (update) {
-            return { ...el, x: update.x, y: update.y };
+            return { ...el, ...update };
         }
         return el;
     });
 
     setStore("elements", newElements);
     showToast(`Mindmap layout updated (${direction})`, 'success');
+};
+
+export const applyMindmapStyling = (rootId: string) => {
+    const engine = new MindmapLayoutEngine();
+    const tree = engine.buildTree(rootId, store.elements);
+    if (!tree) return;
+
+    pushToHistory();
+
+    engine.applySemanticStyling(tree, store.elements);
+
+    const updates = engine.getUpdates(tree, store.elements);
+
+    // Batch update elements
+    const newElements = store.elements.map(el => {
+        const update = updates.get(el.id);
+        if (update) {
+            return { ...el, ...update };
+        }
+        return el;
+    });
+
+    setStore("elements", newElements);
+    showToast(`Semantic styling applied to branch`, 'success');
 };

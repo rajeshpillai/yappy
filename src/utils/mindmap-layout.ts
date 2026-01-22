@@ -10,9 +10,22 @@ export interface MindmapNode {
     y: number;
     totalHeight?: number; // Used for vertical layout
     totalWidth?: number;  // Used for horizontal layout
+    styleUpdates?: Partial<DrawingElement>; // Style properties to update
 }
 
 export type LayoutDirection = 'horizontal-right' | 'horizontal-left' | 'vertical-down' | 'vertical-up' | 'radial';
+
+const PALETTE = [
+    '#e03131', // Red
+    '#1971c2', // Blue
+    '#2f9e44', // Green
+    '#f08c00', // Orange
+    '#9c36b5', // Purple
+    '#0b7285', // Teal
+    '#748ffc', // Indigo
+    '#f76707', // Deep Orange
+    '#099268', // Green-Teal
+];
 
 export class MindmapLayoutEngine {
     private hSpacing = 100;
@@ -167,10 +180,73 @@ export class MindmapLayoutEngine {
     /**
      * Collects all updated positions into a flat map.
      */
-    getUpdates(node: MindmapNode, updates: Map<string, { x: number, y: number }> = new Map()) {
-        updates.set(node.id, { x: node.x, y: node.y });
+    /**
+     * Applies semantic styling (colors, thickness, opacity) based on depth.
+     */
+    applySemanticStyling(root: MindmapNode, elements: readonly DrawingElement[]) {
+        // Root remains neutral or user-defined, but let's ensure it has styleUpdates initialized
+        root.styleUpdates = {};
+
+        root.children.forEach((branchRoot, index) => {
+            const branchColor = PALETTE[index % PALETTE.length];
+            this.styleSubtree(branchRoot, branchColor, 1, elements);
+        });
+    }
+
+    private styleSubtree(node: MindmapNode, color: string, depth: number, elements: readonly DrawingElement[]) {
+        const strokeWidth = Math.max(1, 4 - depth * 0.5);
+        const opacity = Math.max(40, 100 - depth * 10);
+
+        node.styleUpdates = {
+            strokeColor: color,
+            strokeWidth,
+            opacity
+        };
+
+        // Also style the connector leading TO this node
+        const connector = elements.find(e =>
+            (e.type === 'arrow' || e.type === 'line' || e.type === 'bezier') &&
+            e.endBinding?.elementId === node.id
+        );
+
+        if (connector) {
+            // Store connector update in a separate map if we don't want to add connectors to nodes
+            // But for simplicity, we can let node.styleUpdates track its incoming connector too?
+            // Actually, better to have a generic updates map.
+        }
+
         for (const child of node.children) {
-            this.getUpdates(child, updates);
+            this.styleSubtree(child, color, depth + 1, elements);
+        }
+    }
+
+    /**
+     * Collects all updated properties (position and style) into a flat map.
+     */
+    getUpdates(node: MindmapNode, elements: readonly DrawingElement[], updates: Map<string, Partial<DrawingElement>> = new Map()) {
+        const currentUpdates: Partial<DrawingElement> = {
+            x: node.x,
+            y: node.y,
+            ...node.styleUpdates
+        };
+        updates.set(node.id, currentUpdates);
+
+        // Styling the incoming connector
+        const connector = elements.find(e =>
+            (e.type === 'arrow' || e.type === 'line' || e.type === 'bezier') &&
+            e.endBinding?.elementId === node.id
+        );
+
+        if (connector && node.styleUpdates) {
+            updates.set(connector.id, {
+                strokeColor: node.styleUpdates.strokeColor,
+                strokeWidth: node.styleUpdates.strokeWidth,
+                opacity: node.styleUpdates.opacity
+            });
+        }
+
+        for (const child of node.children) {
+            this.getUpdates(child, elements, updates);
         }
         return updates;
     }
