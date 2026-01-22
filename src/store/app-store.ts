@@ -1,6 +1,7 @@
 import { createStore } from "solid-js/store";
 import type { DrawingElement, ViewState, ElementType, Layer, GridSettings } from "../types";
 import { showToast } from "../components/toast";
+import { MindmapLayoutEngine, type LayoutDirection } from "../utils/mindmap-layout";
 
 interface AppState {
     elements: DrawingElement[];
@@ -1099,4 +1100,31 @@ export const setParent = (childId: string, parentId: string | null) => {
 
 export const clearParent = (id: string) => {
     updateElement(id, { parentId: null }, true);
+};
+export const reorderMindmap = (rootId: string, direction: LayoutDirection) => {
+    const engine = new MindmapLayoutEngine();
+    const tree = engine.buildTree(rootId, store.elements);
+    if (!tree) return;
+
+    pushToHistory();
+
+    if (direction.startsWith('horizontal')) {
+        engine.layoutHorizontal(tree, direction === 'horizontal-right' ? 'right' : 'left');
+    } else {
+        engine.layoutVertical(tree, direction === 'vertical-down' ? 'down' : 'up');
+    }
+
+    const updates = engine.getUpdates(tree);
+
+    // Batch update elements
+    const newElements = store.elements.map(el => {
+        const update = updates.get(el.id);
+        if (update) {
+            return { ...el, x: update.x, y: update.y };
+        }
+        return el;
+    });
+
+    setStore("elements", newElements);
+    showToast(`Mindmap layout updated (${direction})`, 'success');
 };
