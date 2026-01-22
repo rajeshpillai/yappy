@@ -1,0 +1,415 @@
+{
+  "elements": [
+    {
+      "id": "6f741de5-d572-4c72-ad67-420a502bcbdb",
+      "type": "star",
+      "x": 356.6666564941406,
+      "y": 280.1111373901367,
+      "width": 88.88888549804688,
+      "height": 84.4444580078125,
+      "strokeColor": "#000000",
+      "backgroundColor": "transparent",
+      "fillStyle": "hachure",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 1929710476,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "default-layer",
+      "startArrowhead": null,
+      "endArrowhead": null,
+      "fontSize": 20,
+      "fontFamily": "hand-drawn",
+      "textAlign": "left",
+      "boundElements": [
+        {
+          "id": "bfa3f0fe-1962-42b2-adab-7204754c3a16",
+          "type": "arrow"
+        }
+      ],
+      "curveType": "straight",
+      "autoResize": true,
+      "shadowEnabled": false,
+      "shadowColor": "rgba(0,0,0,0.3)",
+      "shadowBlur": 10,
+      "shadowOffsetX": 5,
+      "shadowOffsetY": 5,
+      "gradientStart": "#ffffff",
+      "gradientEnd": "#000000",
+      "gradientDirection": 45
+    },
+    {
+      "id": "08ed5d39-cca4-4803-a337-66cdbe1caa08",
+      "type": "star",
+      "x": 594.4443969726562,
+      "y": 273.44446563720703,
+      "width": 129.66664123535156,
+      "height": 131.55557250976562,
+      "strokeColor": "#e03131",
+      "backgroundColor": "#fcc419",
+      "fillStyle": "linear",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 1926275190,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "default-layer",
+      "startArrowhead": null,
+      "endArrowhead": null,
+      "text": "",
+      "fontSize": 20,
+      "fontFamily": "hand-drawn",
+      "textAlign": "left",
+      "containerText": "Hmm",
+      "boundElements": [
+        {
+          "id": "bfa3f0fe-1962-42b2-adab-7204754c3a16",
+          "type": "arrow"
+        },
+        {
+          "id": "7b22365c-7599-45e4-b384-cada8f8d69a3",
+          "type": "arrow"
+        },
+        {
+          "id": "513b3c10-defb-4463-90c1-670a70e6efc9",
+          "type": "arrow"
+        }
+      ],
+      "parentId": "6f741de5-d572-4c72-ad67-420a502bcbdb",
+      "isCollapsed": false,
+      "autoResize": true,
+      "fillDensity": 0.7,
+      "shadowEnabled": false,
+      "shadowColor": "rgba(0,0,0,0.3)",
+      "shadowBlur": 10,
+      "shadowOffsetX": 5,
+      "shadowOffsetY": 5,
+      "gradientStart": "#ffffff",
+      "gradientEnd": "#000000",
+      "gradientDirection": 45
+    },
+    {
+      "id": "bfa3f0fe-1962-42b2-adab-7204754c3a16",
+      "type": "bezier",
+      "x": 445.5555419921875,
+      "y": 322.33336639404297,
+      "width": 148.88885498046875,
+      "height": 16.888885498046875,
+      "strokeColor": "#000000",
+      "backgroundColor": "transparent",
+      "fillStyle": "hachure",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 1688570314,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "default-layer",
+      "points": [
+        0,
+        0,
+        148.88885498046875,
+        16.888885498046875
+      ],
+      "startArrowhead": null,
+      "endArrowhead": null,
+      "fontSize": 20,
+      "fontFamily": "hand-drawn",
+      "textAlign": "left",
+      "startBinding": {
+        "elementId": "6f741de5-d572-4c72-ad67-420a502bcbdb",
+        "gap": 5,
+        "position": "right",
+        "focus": 0
+      },
+      "endBinding": {
+        "elementId": "08ed5d39-cca4-4803-a337-66cdbe1caa08",
+        "gap": 5,
+        "position": "left",
+        "focus": 0
+      },
+      "curveType": "bezier",
+      "autoResize": true,
+      "shadowEnabled": false,
+      "shadowColor": "rgba(0,0,0,0.3)",
+      "shadowBlur": 10,
+      "shadowOffsetX": 5,
+      "shadowOffsetY": 5,
+      "gradientStart": "#ffffff",
+      "gradientEnd": "#000000",
+      "gradientDirection": 45,
+      "controlPoints": [
+        {
+          "x": 493.61109924316406,
+          "y": 320.22225494384764
+        },
+        {
+          "x": 546.3888397216797,
+          "y": 341.33336334228517
+        }
+      ]
+    },
+    {
+      "id": "744484cf-0fc2-42d8-a444-6824c787e05e",
+      "type": "star",
+      "x": 807.7777404785156,
+      "y": 403.44446563720703,
+      "width": 88.88888549804688,
+      "height": 84.4444580078125,
+      "strokeColor": "#000000",
+      "backgroundColor": "transparent",
+      "fillStyle": "hachure",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 512189497,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "default-layer",
+      "startArrowhead": null,
+      "endArrowhead": null,
+      "text": "",
+      "fontSize": 20,
+      "fontFamily": "hand-drawn",
+      "textAlign": "left",
+      "boundElements": [
+        {
+          "id": "7b22365c-7599-45e4-b384-cada8f8d69a3",
+          "type": "arrow"
+        }
+      ],
+      "parentId": "08ed5d39-cca4-4803-a337-66cdbe1caa08",
+      "isCollapsed": false,
+      "autoResize": true,
+      "shadowEnabled": false,
+      "shadowColor": "rgba(0,0,0,0.3)",
+      "shadowBlur": 10,
+      "shadowOffsetX": 5,
+      "shadowOffsetY": 5,
+      "gradientStart": "#ffffff",
+      "gradientEnd": "#000000",
+      "gradientDirection": 45
+    },
+    {
+      "id": "7b22365c-7599-45e4-b384-cada8f8d69a3",
+      "type": "bezier",
+      "x": 724.1110382080078,
+      "y": 339.22225189208984,
+      "width": 83.66670227050781,
+      "height": 106.44444274902344,
+      "strokeColor": "#000000",
+      "backgroundColor": "transparent",
+      "fillStyle": "hachure",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 508292624,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "default-layer",
+      "points": [
+        0,
+        0,
+        83.66670227050781,
+        106.44444274902344
+      ],
+      "startArrowhead": null,
+      "endArrowhead": null,
+      "fontSize": 20,
+      "fontFamily": "hand-drawn",
+      "textAlign": "left",
+      "startBinding": {
+        "elementId": "08ed5d39-cca4-4803-a337-66cdbe1caa08",
+        "gap": 5,
+        "position": "right",
+        "focus": 0
+      },
+      "endBinding": {
+        "elementId": "744484cf-0fc2-42d8-a444-6824c787e05e",
+        "gap": 5,
+        "position": "left",
+        "focus": 0
+      },
+      "curveType": "bezier",
+      "autoResize": true,
+      "shadowEnabled": false,
+      "shadowColor": "rgba(0,0,0,0.3)",
+      "shadowBlur": 10,
+      "shadowOffsetX": 5,
+      "shadowOffsetY": 5,
+      "gradientStart": "#ffffff",
+      "gradientEnd": "#000000",
+      "gradientDirection": 45,
+      "controlPoints": [
+        {
+          "x": 752.9999237060547,
+          "y": 353.33336334228517
+        },
+        {
+          "x": 778.8888549804688,
+          "y": 431.55558319091796
+        }
+      ]
+    },
+    {
+      "id": "aa491616-fb39-4252-a27b-5a04dc8a645f",
+      "type": "star",
+      "x": 514.4443359375,
+      "y": 521.2222671508789,
+      "width": 88.88888549804688,
+      "height": 84.4444580078125,
+      "strokeColor": "#000000",
+      "backgroundColor": "transparent",
+      "fillStyle": "hachure",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 2006236398,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "default-layer",
+      "startArrowhead": null,
+      "endArrowhead": null,
+      "text": "",
+      "fontSize": 20,
+      "fontFamily": "hand-drawn",
+      "textAlign": "left",
+      "boundElements": [
+        {
+          "id": "513b3c10-defb-4463-90c1-670a70e6efc9",
+          "type": "arrow"
+        }
+      ],
+      "parentId": "08ed5d39-cca4-4803-a337-66cdbe1caa08",
+      "isCollapsed": false,
+      "autoResize": true,
+      "shadowEnabled": false,
+      "shadowColor": "rgba(0,0,0,0.3)",
+      "shadowBlur": 10,
+      "shadowOffsetX": 5,
+      "shadowOffsetY": 5,
+      "gradientStart": "#ffffff",
+      "gradientEnd": "#000000",
+      "gradientDirection": 45
+    },
+    {
+      "id": "513b3c10-defb-4463-90c1-670a70e6efc9",
+      "type": "bezier",
+      "x": 659.277717590332,
+      "y": 405.00003814697266,
+      "width": -100.3889389038086,
+      "height": 116.22222900390625,
+      "strokeColor": "#000000",
+      "backgroundColor": "transparent",
+      "fillStyle": "hachure",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "renderStyle": "sketch",
+      "seed": 4699603,
+      "roundness": null,
+      "locked": false,
+      "link": null,
+      "layerId": "default-layer",
+      "points": [
+        0,
+        0,
+        -100.3889389038086,
+        116.22222900390625
+      ],
+      "startArrowhead": null,
+      "endArrowhead": null,
+      "fontSize": 20,
+      "fontFamily": "hand-drawn",
+      "textAlign": "left",
+      "startBinding": {
+        "elementId": "08ed5d39-cca4-4803-a337-66cdbe1caa08",
+        "gap": 5,
+        "position": "bottom",
+        "focus": 0
+      },
+      "endBinding": {
+        "elementId": "aa491616-fb39-4252-a27b-5a04dc8a645f",
+        "gap": 5,
+        "position": "top",
+        "focus": 0
+      },
+      "curveType": "bezier",
+      "autoResize": true,
+      "shadowEnabled": false,
+      "shadowColor": "rgba(0,0,0,0.3)",
+      "shadowBlur": 10,
+      "shadowOffsetX": 5,
+      "shadowOffsetY": 5,
+      "gradientStart": "#ffffff",
+      "gradientEnd": "#000000",
+      "gradientDirection": 45,
+      "controlPoints": [
+        {
+          "x": 613.9999313354492,
+          "y": 417.33337249755857
+        },
+        {
+          "x": 604.1665649414062,
+          "y": 508.888932800293
+        }
+      ]
+    }
+  ],
+  "viewState": {
+    "scale": 1,
+    "panX": 0,
+    "panY": -98.88889150854989
+  },
+  "layers": [
+    {
+      "id": "default-layer",
+      "name": "Layer 1",
+      "visible": true,
+      "locked": false,
+      "opacity": 1,
+      "order": 0,
+      "isGroup": false,
+      "expanded": true
+    }
+  ],
+  "gridSettings": {
+    "enabled": false,
+    "snapToGrid": false,
+    "objectSnapping": true,
+    "gridSize": 20,
+    "gridColor": "#cccccc",
+    "gridOpacity": 0.5,
+    "style": "lines"
+  },
+  "canvasBackgroundColor": "#ffffff",
+  "version": 2
+}

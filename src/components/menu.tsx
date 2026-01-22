@@ -336,6 +336,9 @@ const Menu: Component = () => {
                     const anyVisible = store.showPropertyPanel || store.showLayerPanel;
                     togglePropertyPanel(!anyVisible);
                     toggleLayerPanel(!anyVisible);
+                } else if (e.key.toLowerCase() === 'n') {
+                    e.preventDefault();
+                    handleNew();
                 }
             } else if (e.key === '?' && e.shiftKey) {
                 if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {

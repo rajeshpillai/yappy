@@ -262,6 +262,13 @@ const HelpDialog: Component<Props> = (props) => {
                                                 <span class="keycap">G</span>
                                             </div>
                                         </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">New Sketch</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Alt</span>
+                                                <span class="keycap">N</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 

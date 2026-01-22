@@ -60,7 +60,8 @@ export const getCommands = (): Command[] => {
                     setStore("activeLayerId", 'default-layer');
                     clearHistory();
                 }
-            }
+            },
+            shortcut: 'Alt+N'
         },
         { id: 'action-add-layer', label: 'Add Layer', category: 'Layers', action: () => addLayer(), shortcut: 'Ctrl+Shift+N' },
     ];

@@ -23,6 +23,7 @@ The modular refactor is complete. The monolithic `src/utils/render-element.ts` h
 - [x] Redundant code removed from `render-element.ts`.
 - [x] Fixed Critical Bug: Bezier connectors now correctly transform and stay connected during interactions.
 - [x] Fixed UI Bug: Layer panel and Bezier icons updated for better UX.
+- [x] Added Feature: `Alt+N` keyboard shortcut for creating a new sketch.
 
 ## Verification Results
 - **Automated Tests**: All 12 Playwright E2E tests pass (`npx playwright test tests/comprehensive-features.spec.ts`).
