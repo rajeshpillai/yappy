@@ -134,9 +134,10 @@ export const YappyAPI = {
             ...options
         };
 
-        // Initialize points for elbow/bezier if not provided
-        if ((element.type === 'line' || element.type === 'arrow') &&
-            (element.curveType === 'elbow' || element.curveType === 'bezier') &&
+        // Initialize points for connectors (line, arrow, bezier) if not provided
+        const isConnectorType = element.type === 'line' || element.type === 'arrow' || element.type === 'bezier';
+        if (isConnectorType &&
+            (element.curveType === 'elbow' || element.curveType === 'bezier' || element.type === 'bezier') &&
             (!element.points || element.points.length === 0)) {
             element.points = [0, 0, element.width, element.height];
         }
@@ -199,7 +200,7 @@ export const YappyAPI = {
     createBezier(x1: number, y1: number, x2: number, y2: number, options?: ElementOptions) {
         const width = x2 - x1;
         const height = y2 - y1;
-        return this.createElement('line', x1, y1, width, height, { ...options, curveType: 'bezier' });
+        return this.createElement('bezier', x1, y1, width, height, { ...options, curveType: 'bezier' });
     },
 
     createOrganicBranch(x1: number, y1: number, x2: number, y2: number, options?: ElementOptions) {
@@ -374,7 +375,9 @@ export const YappyAPI = {
             ...options,
             curveType,
             startBinding: { elementId: sourceId, focus: 0, gap: 5 },
-            endBinding: { elementId: targetId, focus: 0, gap: 5 }
+            endBinding: { elementId: targetId, focus: 0, gap: 5 },
+            // Ensure points are reset when connecting to follow new path
+            points: [0, 0, endP.x - startP.x, endP.y - startP.y]
         });
 
         // Update boundElements
