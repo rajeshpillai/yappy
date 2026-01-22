@@ -26,105 +26,103 @@ export const MindmapActionToolbar: Component = () => {
         return !!el.parentId || hasChildren() || startTypes.includes(el.type);
     });
 
+    const shouldShow = isMindmapNode();
+
+    if (!shouldShow) return null;
+
+    const el = selectedElement()!;
+    const { scale, panX, panY } = store.viewState;
+
+    // Position above the element, centered horizontally
+    const x = (el.x + el.width / 2) * scale + panX - 90;
+    const y = (el.y - 60) * scale + panY;
+
     return (
-        <Show when={isMindmapNode()}>
-            {() => {
-                const el = selectedElement()!;
-                const { scale, panX, panY } = store.viewState;
-
-                // Position above the element, centered horizontally
-                const x = (el.x + el.width / 2) * scale + panX - 90;
-                const y = (el.y - 60) * scale + panY;
-
-                return (
-                    <div
-                        class="mindmap-action-toolbar"
-                        style={{
-                            top: `${Math.round(y)}px`,
-                            left: `${Math.round(x)}px`,
-                        }}
-                    >
-                        <div class="toolbar-content">
-                            <button
-                                class="toolbar-btn"
-                                onClick={() => addChildNode(el.id)}
-                                title="Add Child (Tab)"
-                            >
-                                <Plus size={18} />
-                            </button>
-
-                            <Show when={el.parentId}>
-                                <button
-                                    class="toolbar-btn"
-                                    onClick={() => addSiblingNode(el.id)}
-                                    title="Add Sibling (Enter)"
-                                >
-                                    <ArrowDown size={18} />
-                                </button>
-                            </Show>
-
-                            <div class="toolbar-divider" />
-
-                            <button
-                                class={`toolbar-btn ${isLayoutOpen() ? 'active' : ''}`}
-                                onClick={() => setIsLayoutOpen(!isLayoutOpen())}
-                                title="Auto Layout"
-                            >
-                                <Wand2 size={18} />
-                            </button>
-
-                            <Show when={isLayoutOpen()}>
-                                <div class="layout-dropdown">
-                                    <button
-                                        class="layout-btn"
-                                        onClick={() => { reorderMindmap(el.id, 'horizontal-right'); setIsLayoutOpen(false); }}
-                                        title="Horizontal Right"
-                                    >
-                                        <LayoutList size={16} />
-                                    </button>
-                                    <button
-                                        class="layout-btn"
-                                        onClick={() => { reorderMindmap(el.id, 'vertical-down'); setIsLayoutOpen(false); }}
-                                        title="Vertical Down"
-                                    >
-                                        <LayoutGrid size={16} />
-                                    </button>
-                                    <button
-                                        class="layout-btn"
-                                        onClick={() => { reorderMindmap(el.id, 'radial'); setIsLayoutOpen(false); }}
-                                        title="Radial"
-                                    >
-                                        <Target size={16} />
-                                    </button>
-                                </div>
-                            </Show>
-
-                            <button
-                                class="toolbar-btn"
-                                onClick={() => applyMindmapStyling(el.id)}
-                                title="Auto Style Branch"
-                            >
-                                <Palette size={18} />
-                            </button>
-
-                            <Show when={hasChildren()}>
-                                <div class="toolbar-divider" />
-                                <button
-                                    class="toolbar-btn"
-                                    onClick={() => toggleCollapse(el.id)}
-                                    title={el.isCollapsed ? 'Expand' : 'Collapse'}
-                                >
-                                    {el.isCollapsed ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
-                                </button>
-                            </Show>
-                        </div>
-
-                        <Show when={isLayoutOpen()}>
-                            <div class="dropdown-backdrop" onClick={() => setIsLayoutOpen(false)} />
-                        </Show>
-                    </div>
-                );
+        <div
+            class="mindmap-action-toolbar"
+            style={{
+                top: `${Math.round(y)}px`,
+                left: `${Math.round(x)}px`,
             }}
-        </Show>
+        >
+            <div class="toolbar-content">
+                <button
+                    class="toolbar-btn"
+                    onClick={() => addChildNode(el.id)}
+                    title="Add Child (Tab)"
+                >
+                    <Plus size={18} />
+                </button>
+
+                <Show when={el.parentId}>
+                    <button
+                        class="toolbar-btn"
+                        onClick={() => addSiblingNode(el.id)}
+                        title="Add Sibling (Enter)"
+                    >
+                        <ArrowDown size={18} />
+                    </button>
+                </Show>
+
+                <div class="toolbar-divider" />
+
+                <button
+                    class={`toolbar-btn ${isLayoutOpen() ? 'active' : ''}`}
+                    onClick={() => setIsLayoutOpen(!isLayoutOpen())}
+                    title="Auto Layout"
+                >
+                    <Wand2 size={18} />
+                </button>
+
+                <Show when={isLayoutOpen()}>
+                    <div class="layout-dropdown">
+                        <button
+                            class="layout-btn"
+                            onClick={() => { reorderMindmap(el.id, 'horizontal-right'); setIsLayoutOpen(false); }}
+                            title="Horizontal Right"
+                        >
+                            <LayoutList size={16} />
+                        </button>
+                        <button
+                            class="layout-btn"
+                            onClick={() => { reorderMindmap(el.id, 'vertical-down'); setIsLayoutOpen(false); }}
+                            title="Vertical Down"
+                        >
+                            <LayoutGrid size={16} />
+                        </button>
+                        <button
+                            class="layout-btn"
+                            onClick={() => { reorderMindmap(el.id, 'radial'); setIsLayoutOpen(false); }}
+                            title="Radial"
+                        >
+                            <Target size={16} />
+                        </button>
+                    </div>
+                </Show>
+
+                <button
+                    class="toolbar-btn"
+                    onClick={() => applyMindmapStyling(el.id)}
+                    title="Auto Style Branch"
+                >
+                    <Palette size={18} />
+                </button>
+
+                <Show when={hasChildren()}>
+                    <div class="toolbar-divider" />
+                    <button
+                        class="toolbar-btn"
+                        onClick={() => toggleCollapse(el.id)}
+                        title={el.isCollapsed ? 'Expand' : 'Collapse'}
+                    >
+                        {el.isCollapsed ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
+                    </button>
+                </Show>
+            </div>
+
+            <Show when={isLayoutOpen()}>
+                <div class="dropdown-backdrop" onClick={() => setIsLayoutOpen(false)} />
+            </Show>
+        </div>
     );
 };
