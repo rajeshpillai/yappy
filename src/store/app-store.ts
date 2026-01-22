@@ -62,7 +62,7 @@ const initialState: AppState = {
         textAlign: 'left',
         startArrowhead: null,
         endArrowhead: null,
-        autoResize: true,
+        autoResize: false,
         seed: 0,
         shadowEnabled: false,
         shadowColor: 'rgba(0,0,0,0.3)',
@@ -434,7 +434,7 @@ export const setSelectedTool = (tool: ElementType | 'selection') => {
         tool === 'browserWindow' || tool === 'mobilePhone' || tool === 'ghostButton' || tool === 'inputField') {
         updateDefaultStyles({ autoResize: false });
     } else {
-        updateDefaultStyles({ autoResize: true });
+        updateDefaultStyles({ autoResize: false });
     }
 };
 

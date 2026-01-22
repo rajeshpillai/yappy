@@ -28,7 +28,7 @@ export const MindmapActionToolbar: Component = () => {
 
 
     return (
-        <Show when={isMindmapNode()}>
+        <Show when={isMindmapNode() && !store.showPropertyPanel}>
             <ToolbarContent
                 hasChildren={hasChildren}
                 isLayoutOpen={isLayoutOpen}

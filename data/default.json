@@ -1,19 +1,19 @@
 {
   "version": 3,
   "metadata": {
-    "createdAt": "2026-01-22T15:09:56.965Z",
-    "updatedAt": "2026-01-22T15:09:56.965Z"
+    "createdAt": "2026-01-22T15:16:40.814Z",
+    "updatedAt": "2026-01-22T15:16:40.815Z"
   },
   "slides": [
     {
-      "id": "c27c3939-2d25-4e60-9ceb-1e73c22452c2",
+      "id": "6b04ce82-63db-409d-a36c-49dfac59e048",
       "name": "Slide 1",
       "elements": [
         {
           "id": "109f90ae-d629-4d6e-9861-d4f70c81181c",
           "type": "rectangle",
-          "x": 413.33334014445177,
-          "y": 195.5555561913384,
+          "x": 268.88885161906114,
+          "y": 166.6666401757134,
           "width": 160.49549865722656,
           "height": 122.6666564941406,
           "strokeColor": "#000000",
@@ -37,9 +37,9 @@
           "fontWeight": false,
           "fontStyle": false,
           "textAlign": "left",
-          "textColor": "#e03131",
+          "textColor": "#f3f0ff",
           "textHighlightEnabled": true,
-          "textHighlightColor": "#fcc419",
+          "textHighlightColor": "#e8590c",
           "containerText": "Hello",
           "curveType": "straight",
           "autoResize": false,
