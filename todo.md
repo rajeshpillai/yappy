@@ -735,3 +735,33 @@
   - [ ] Arrow Key Navigation through hierarchy (Up/Down for siblings, Left/Right for parent/child)
   - [ ] Focus Mode (`F`): isolate and highlight the selected branch
   - [ ] Markdown to Mindmap: paste bulleted lists to generate trees
+
+## Phase 56: Multi-Slide Presentations & Animations
+- [ ] **Multi-Slide Support** (Different from layers - each slide is a new canvas)
+  - [ ] Implement slide data structure (array of canvases with metadata)
+  - [ ] Add slide navigation UI (sidebar with thumbnails)
+  - [ ] Add/delete/reorder slides functionality
+  - [ ] Slide-specific settings (background, grid, etc.)
+  - [ ] Export presentation as multi-page PDF or image sequence
+  - [ ] Slide transitions and navigation during presentation mode
+  - [ ] Note: Layers work on same canvas; slides are completely separate canvases
+- [ ] **Micro-Motion Explainer Animations**
+  - [ ] Element-level animation support (fade in/out, slide, scale)
+  - [ ] Timeline editor for animation sequences
+  - [ ] Keyframe animation system
+  - [ ] Path-based motion (elements follow curves)
+  - [ ] Easing functions for smooth transitions
+  - [ ] Animation playback controls (play, pause, scrub)
+- [ ] **UI/Diagram Motion Graphics**
+  - [ ] State transitions between diagram states
+  - [ ] Highlight/emphasis animations for specific elements
+  - [ ] Progressive reveal animations (build diagrams step-by-step)
+  - [ ] Connector animation (drawing lines with animation)
+  - [ ] Group choreography (coordinate multiple element animations)
+- [ ] **Product/System Design Animations**
+  - [ ] Flow animations (show data/user flow through system)
+  - [ ] Process animation (step-by-step workflow visualization)
+  - [ ] Data visualization animations (charts, graphs updating)
+  - [ ] Interaction simulations (showing user interactions)
+  - [ ] Export as MP4/WebM/GIF for social media sharing
+  - [ ] Use cases: LinkedIn posts, Twitter threads, portfolio pieces
