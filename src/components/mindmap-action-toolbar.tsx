@@ -28,7 +28,7 @@ export const MindmapActionToolbar: Component = () => {
 
 
     return (
-        <Show when={isMindmapNode() && !store.showPropertyPanel}>
+        <Show when={isMindmapNode()}>
             <ToolbarContent
                 hasChildren={hasChildren}
                 isLayoutOpen={isLayoutOpen}
@@ -53,7 +53,19 @@ const ToolbarContent: Component<{
         <Show when={element()}>
             {(el) => {
                 // Calculate position reactively - don't destructure viewState
-                const x = () => (el().x + el().width / 2) * store.viewState.scale + store.viewState.panX - 90;
+                const x = () => {
+                    const base = (el().x + el().width / 2) * store.viewState.scale + store.viewState.panX - 90;
+                    // Collision avoidance with Property Panel
+                    if (store.showPropertyPanel && !store.isPropertyPanelMinimized) {
+                        const panelStart = window.innerWidth - 280; // Property panel width
+                        const toolbarWidth = 200; // conservative estimate
+                        const padding = 20;
+                        if (base + toolbarWidth > panelStart - padding) {
+                            return panelStart - toolbarWidth - padding;
+                        }
+                    }
+                    return base;
+                };
                 const y = () => (el().y - 60) * store.viewState.scale + store.viewState.panY;
 
                 return (

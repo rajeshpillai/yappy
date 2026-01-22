@@ -1,14 +1,56 @@
 import { type Component, Show, createMemo, For, createSignal, createEffect, Index } from "solid-js";
-import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, alignSelectedElements, distributeSelectedElements, togglePropertyPanel, minimizePropertyPanel, setMaxLayers, setCanvasTexture, pushToHistory } from "../store/app-store";
+import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, alignSelectedElements, distributeSelectedElements, togglePropertyPanel, minimizePropertyPanel, setMaxLayers, setCanvasTexture, pushToHistory, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, toggleCollapse } from "../store/app-store";
 import {
     Copy, ChevronsDown, ChevronDown, ChevronUp, ChevronsUp, Trash2, Palette,
     AlignLeft, AlignCenterHorizontal, AlignRight,
     AlignStartVertical, AlignCenterVertical, AlignEndVertical,
     AlignHorizontalDistributeCenter, AlignVerticalDistributeCenter,
+    Plus, ArrowDown, Wand2, LayoutGrid, LayoutList, Target,
     Minus, X
 } from "lucide-solid";
 import "./property-panel.css";
 import { properties, type PropertyConfig } from "../config/properties";
+
+const MindmapActions: Component<{ elementId: string }> = (props) => {
+    const el = () => store.elements.find(e => e.id === props.elementId);
+
+    const hasChildren = createMemo(() => {
+        return store.elements.some(e => e.parentId === props.elementId);
+    });
+
+    const isMindmapNode = createMemo(() => {
+        const e = el();
+        if (!e) return false;
+        const startTypes: string[] = ['text', 'cloud', 'circle', 'rectangle', 'stickyNote', 'diamond'];
+        return !!e.parentId || hasChildren() || startTypes.includes(e.type);
+    });
+
+    return (
+        <Show when={isMindmapNode()}>
+            <div class="property-group">
+                <div class="group-title">MINDMAP ACTIONS</div>
+                <div class="alignment-row">
+                    <button class="icon-btn" onClick={() => addChildNode(props.elementId)} title="Add Child (Tab)"><Plus size={18} /></button>
+                    <Show when={el()?.parentId}>
+                        <button class="icon-btn" onClick={() => addSiblingNode(props.elementId)} title="Add Sibling (Enter)"><ArrowDown size={18} /></button>
+                    </Show>
+                    <button class="icon-btn" onClick={() => applyMindmapStyling(props.elementId)} title="Auto Style Branch"><Palette size={18} /></button>
+                    <Show when={hasChildren()}>
+                        <button class="icon-btn" onClick={() => toggleCollapse(props.elementId)} title={el()?.isCollapsed ? 'Expand' : 'Collapse'}>
+                            {el()?.isCollapsed ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
+                        </button>
+                    </Show>
+                </div>
+                <div class="group-title" style={{ "margin-top": "12px", "margin-bottom": "8px" }}>AUTO LAYOUT</div>
+                <div class="alignment-row">
+                    <button class="icon-btn" onClick={() => reorderMindmap(props.elementId, 'horizontal-right')} title="Horizontal Right"><LayoutList size={18} /></button>
+                    <button class="icon-btn" onClick={() => reorderMindmap(props.elementId, 'vertical-down')} title="Vertical Down"><LayoutGrid size={18} /></button>
+                    <button class="icon-btn" onClick={() => reorderMindmap(props.elementId, 'radial')} title="Radial"><Target size={18} /></button>
+                </div>
+            </div>
+        </Show>
+    );
+};
 
 const AlignmentControls: Component = () => (
     <div class="property-group">
@@ -589,6 +631,9 @@ const PropertyPanel: Component = () => {
                             <div class="property-content">
                                 <Show when={activeTarget()?.type === 'multi'}>
                                     <AlignmentControls />
+                                </Show>
+                                <Show when={activeTarget()?.type === 'element'}>
+                                    <MindmapActions elementId={activeTarget()!.data!.id} />
                                 </Show>
                                 <For each={Object.keys(groupedProperties())}>
                                     {(group) => (
