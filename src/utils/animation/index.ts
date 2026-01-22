@@ -30,9 +30,21 @@ export {
     fadeIn,
     fadeOut,
     scaleIn,
+    scaleOut,
     bounce,
     pulse,
-    shake
+    shake,
+    slideInLeft,
+    slideInRight,
+    slideInUp,
+    slideInDown,
+    slideOutLeft,
+    slideOutRight,
+    slideOutUp,
+    slideOutDown,
+    // Play configured animation
+    playEntranceAnimation,
+    playExitAnimation
 } from './element-animator';
 
 export type {

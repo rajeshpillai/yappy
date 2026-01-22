@@ -27,7 +27,7 @@ class AnimationEngine {
             state: 'idle',
             startTime: 0,
             pauseTime: null,
-            duration: config.duration,
+            duration: config.duration ?? 0,
             delay: config.delay ?? 0,
             easing: getEasing(config.easing),
             onUpdate,

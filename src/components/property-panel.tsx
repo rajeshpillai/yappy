@@ -679,6 +679,100 @@ const PropertyPanel: Component = () => {
                                         </Show>
                                     </div>
                                 </Show>
+
+                                {/* Animation Section - Only for single element */}
+                                <Show when={activeTarget()?.type === 'element'}>
+                                    <div class="property-group">
+                                        <div class="group-title">ANIMATION</div>
+
+                                        {/* Entrance Animation */}
+                                        <div class="control-row">
+                                            <label>Entrance</label>
+                                            <select
+                                                value={(activeTarget()?.data as any)?.entranceAnimation ?? 'none'}
+                                                onChange={(e) => handleChange('entranceAnimation', e.currentTarget.value)}
+                                            >
+                                                <option value="none">None</option>
+                                                <option value="fadeIn">Fade In</option>
+                                                <option value="scaleIn">Scale In</option>
+                                                <option value="slideInLeft">Slide Left</option>
+                                                <option value="slideInRight">Slide Right</option>
+                                                <option value="slideInUp">Slide Up</option>
+                                                <option value="slideInDown">Slide Down</option>
+                                                <option value="bounce">Bounce</option>
+                                            </select>
+                                        </div>
+
+                                        {/* Exit Animation */}
+                                        <div class="control-row">
+                                            <label>Exit</label>
+                                            <select
+                                                value={(activeTarget()?.data as any)?.exitAnimation ?? 'none'}
+                                                onChange={(e) => handleChange('exitAnimation', e.currentTarget.value)}
+                                            >
+                                                <option value="none">None</option>
+                                                <option value="fadeOut">Fade Out</option>
+                                                <option value="scaleOut">Scale Out</option>
+                                                <option value="slideOutLeft">Slide Left</option>
+                                                <option value="slideOutRight">Slide Right</option>
+                                                <option value="slideOutUp">Slide Up</option>
+                                                <option value="slideOutDown">Slide Down</option>
+                                            </select>
+                                        </div>
+
+                                        {/* Duration */}
+                                        <div class="control-row">
+                                            <label>Duration</label>
+                                            <div style={{ display: 'flex', 'align-items': 'center', gap: '8px', flex: 1 }}>
+                                                <input
+                                                    type="range"
+                                                    min="100"
+                                                    max="2000"
+                                                    step="50"
+                                                    value={(activeTarget()?.data as any)?.animationDuration ?? 300}
+                                                    onInput={(e) => handleChange('animationDuration', parseInt(e.currentTarget.value), false)}
+                                                    onChange={(e) => handleChange('animationDuration', parseInt(e.currentTarget.value))}
+                                                    style={{ flex: 1 }}
+                                                />
+                                                <span style={{ 'font-size': '12px', 'min-width': '45px' }}>
+                                                    {(activeTarget()?.data as any)?.animationDuration ?? 300}ms
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Preview Buttons */}
+                                        <div class="layer-controls" style={{ 'margin-top': '8px' }}>
+                                            <button
+                                                onClick={() => {
+                                                    const elementId = (activeTarget()?.data as any)?.id;
+                                                    if (elementId) {
+                                                        import('../utils/animation').then(({ playEntranceAnimation }) => {
+                                                            playEntranceAnimation(elementId);
+                                                        });
+                                                    }
+                                                }}
+                                                title="Preview Entrance"
+                                                disabled={(activeTarget()?.data as any)?.entranceAnimation === 'none' || !(activeTarget()?.data as any)?.entranceAnimation}
+                                            >
+                                                ▶ Entrance
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const elementId = (activeTarget()?.data as any)?.id;
+                                                    if (elementId) {
+                                                        import('../utils/animation').then(({ playExitAnimation }) => {
+                                                            playExitAnimation(elementId);
+                                                        });
+                                                    }
+                                                }}
+                                                title="Preview Exit"
+                                                disabled={(activeTarget()?.data as any)?.exitAnimation === 'none' || !(activeTarget()?.data as any)?.exitAnimation}
+                                            >
+                                                ▶ Exit
+                                            </button>
+                                        </div>
+                                    </div>
+                                </Show>
                             </div>
                         </Show>
                     </div>

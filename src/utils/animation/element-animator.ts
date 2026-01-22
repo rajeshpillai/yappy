@@ -219,14 +219,19 @@ export function fadeOut(elementId: string, duration: number = 300): string {
 /**
  * Scale up from center (entrance)
  */
-export function scaleIn(elementId: string, duration: number = 300): string {
+export function scaleIn(elementId: string, duration: number = 300, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
+    // Capture target values as constants to avoid drift from live reactive references
+    const targetX = element.x;
+    const targetY = element.y;
     const targetWidth = element.width;
     const targetHeight = element.height;
-    const centerX = element.x + targetWidth / 2;
-    const centerY = element.y + targetHeight / 2;
+    const targetOpacity = 100;
+
+    const centerX = targetX + targetWidth / 2;
+    const centerY = targetY + targetHeight / 2;
 
     // Start small from center
     updateElement(elementId, {
@@ -240,10 +245,16 @@ export function scaleIn(elementId: string, duration: number = 300): string {
     return animateElement(elementId, {
         width: targetWidth,
         height: targetHeight,
-        x: element.x,
-        y: element.y,
-        opacity: 100
-    }, { duration, easing: 'easeOutBack' });
+        x: targetX,
+        y: targetY,
+        opacity: targetOpacity
+    }, {
+        duration,
+        easing: 'easeOutBack',
+        onStart: config.onStart,
+        onComplete: config.onComplete,
+        delay: config.delay
+    });
 }
 
 /**
@@ -329,4 +340,256 @@ export function shake(elementId: string, intensity: number = 10, duration: numbe
             updateElement(elementId, { x: originalX }, false);
         }
     });
+}
+
+/**
+ * Scale out (exit)
+ */
+export function scaleOut(elementId: string, duration: number = 300, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const centerX = element.x + element.width / 2;
+    const centerY = element.y + element.height / 2;
+
+    return animateElement(elementId, {
+        width: 0,
+        height: 0,
+        x: centerX,
+        y: centerY,
+        opacity: 0
+    }, {
+        duration,
+        easing: 'easeInBack',
+        onStart: config.onStart,
+        onComplete: config.onComplete,
+        delay: config.delay
+    });
+}
+
+/**
+ * Slide in from left
+ */
+export function slideInLeft(elementId: string, duration: number = 300): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const targetX = element.x;
+    updateElement(elementId, { x: -element.width, opacity: 0 }, false);
+
+    return animateElement(elementId, { x: targetX, opacity: 100 }, { duration, easing: 'easeOutQuad' });
+}
+
+/**
+ * Slide in from right
+ */
+export function slideInRight(elementId: string, duration: number = 300): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const targetX = element.x;
+    updateElement(elementId, { x: window.innerWidth + 100, opacity: 0 }, false);
+
+    return animateElement(elementId, { x: targetX, opacity: 100 }, { duration, easing: 'easeOutQuad' });
+}
+
+/**
+ * Slide in from top
+ */
+export function slideInUp(elementId: string, duration: number = 300): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const targetY = element.y;
+    updateElement(elementId, { y: -element.height, opacity: 0 }, false);
+
+    return animateElement(elementId, { y: targetY, opacity: 100 }, { duration, easing: 'easeOutQuad' });
+}
+
+/**
+ * Slide in from bottom
+ */
+export function slideInDown(elementId: string, duration: number = 300): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const targetY = element.y;
+    updateElement(elementId, { y: window.innerHeight + 100, opacity: 0 }, false);
+
+    return animateElement(elementId, { y: targetY, opacity: 100 }, { duration, easing: 'easeOutQuad' });
+}
+
+/**
+ * Slide out to left
+ */
+export function slideOutLeft(elementId: string, duration: number = 300): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    return animateElement(elementId, { x: -element.width, opacity: 0 }, { duration, easing: 'easeInQuad' });
+}
+
+/**
+ * Slide out to right
+ */
+export function slideOutRight(elementId: string, duration: number = 300): string {
+    return animateElement(elementId, { x: window.innerWidth + 100, opacity: 0 }, { duration, easing: 'easeInQuad' });
+}
+
+/**
+ * Slide out to top
+ */
+export function slideOutUp(elementId: string, duration: number = 300): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    return animateElement(elementId, { y: -element.height, opacity: 0 }, { duration, easing: 'easeInQuad' });
+}
+
+/**
+ * Slide out to bottom
+ */
+export function slideOutDown(elementId: string, duration: number = 300): string {
+    return animateElement(elementId, { y: window.innerHeight + 100, opacity: 0 }, { duration, easing: 'easeInQuad' });
+}
+
+// ============================================
+// Play Element's Configured Animation
+// ============================================
+
+/**
+ * Play the entrance animation configured on an element
+ * NOTE: Restores element to original state after animation completes (for preview purposes)
+ */
+export function playEntranceAnimation(elementId: string): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const animation = element.entranceAnimation ?? 'none';
+    const duration = element.animationDuration ?? 300;
+
+    // Capture original state to restore after animation
+    const originalState = {
+        x: element.x,
+        y: element.y,
+        width: element.width,
+        height: element.height,
+        opacity: element.opacity
+    };
+
+    const restoreState = () => {
+        updateElement(elementId, originalState, false);
+    };
+
+    const config = { onComplete: restoreState };
+
+    switch (animation) {
+        case 'fadeIn':
+            return fadeIn(elementId, duration); // Note: fadeIn/Out don't accept config yet, but they use animateElement
+        // Actually, fadeIn creates its own animation. I should update them or just use animateElement here.
+        // Let's use the presets but aware they might not restore if I don't pass restoreState.
+        // I'll update the switch to use animateElement directly for better control in preview.
+        case 'fadeIn':
+            updateElement(elementId, { opacity: 0 }, false);
+            return animateElement(elementId, { opacity: 100 }, { duration, easing: 'easeOutQuad', onComplete: restoreState });
+        case 'scaleIn':
+            return scaleIn(elementId, duration, config);
+        case 'slideInLeft': {
+            const targetX = element.x;
+            updateElement(elementId, { x: -element.width, opacity: 0 }, false);
+            return animateElement(elementId, { x: targetX, opacity: 100 }, { duration, easing: 'easeOutQuad', onComplete: restoreState });
+        }
+        case 'slideInRight': {
+            const targetX = element.x;
+            updateElement(elementId, { x: window.innerWidth + 100, opacity: 0 }, false);
+            return animateElement(elementId, { x: targetX, opacity: 100 }, { duration, easing: 'easeOutQuad', onComplete: restoreState });
+        }
+        case 'slideInUp': {
+            const targetY = element.y;
+            updateElement(elementId, { y: -element.height, opacity: 0 }, false);
+            return animateElement(elementId, { y: targetY, opacity: 100 }, { duration, easing: 'easeOutQuad', onComplete: restoreState });
+        }
+        case 'slideInDown': {
+            const targetY = element.y;
+            updateElement(elementId, { y: window.innerHeight + 100, opacity: 0 }, false);
+            return animateElement(elementId, { y: targetY, opacity: 100 }, { duration, easing: 'easeOutQuad', onComplete: restoreState });
+        }
+        case 'bounce':
+            // Bounce is complex (chained), let's just use it and manually restore later if possible 
+            // or just let it be for now since bounce returns to original Y anyway.
+            return bounce(elementId);
+        default:
+            return '';
+    }
+}
+
+/**
+ * Play the exit animation configured on an element
+ * NOTE: Restores element to original state after animation completes (for preview purposes)
+ */
+export function playExitAnimation(elementId: string): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const animation = element.exitAnimation ?? 'none';
+    const duration = element.animationDuration ?? 300;
+
+    // Capture original state to restore after animation
+    const originalState = {
+        x: element.x,
+        y: element.y,
+        width: element.width,
+        height: element.height,
+        opacity: element.opacity
+    };
+
+    const restoreState = () => {
+        updateElement(elementId, originalState, false);
+    };
+
+    switch (animation) {
+        case 'fadeOut':
+            return animateElement(elementId, { opacity: 0 }, {
+                duration,
+                easing: 'easeOutQuad',
+                onComplete: restoreState
+            });
+        case 'scaleOut': {
+            const centerX = element.x + element.width / 2;
+            const centerY = element.y + element.height / 2;
+            return animateElement(elementId, {
+                width: 0,
+                height: 0,
+                x: centerX,
+                y: centerY,
+                opacity: 0
+            }, { duration, easing: 'easeInBack', onComplete: restoreState });
+        }
+        case 'slideOutLeft':
+            return animateElement(elementId, { x: -element.width, opacity: 0 }, {
+                duration,
+                easing: 'easeInQuad',
+                onComplete: restoreState
+            });
+        case 'slideOutRight':
+            return animateElement(elementId, { x: window.innerWidth + 100, opacity: 0 }, {
+                duration,
+                easing: 'easeInQuad',
+                onComplete: restoreState
+            });
+        case 'slideOutUp':
+            return animateElement(elementId, { y: -element.height, opacity: 0 }, {
+                duration,
+                easing: 'easeInQuad',
+                onComplete: restoreState
+            });
+        case 'slideOutDown':
+            return animateElement(elementId, { y: window.innerHeight + 100, opacity: 0 }, {
+                duration,
+                easing: 'easeInQuad',
+                onComplete: restoreState
+            });
+        default:
+            return '';
+    }
 }

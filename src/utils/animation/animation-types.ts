@@ -101,7 +101,7 @@ export type AnimationState = 'idle' | 'running' | 'paused' | 'completed';
 
 export interface AnimationConfig {
     /** Duration in milliseconds */
-    duration: number;
+    duration?: number;
     /** Easing function name or custom function */
     easing?: EasingName | EasingFunction;
     /** Delay before starting in milliseconds */

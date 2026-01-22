@@ -139,6 +139,12 @@ export interface DrawingElement {
     blendMode?: BlendMode;
     filter?: string; // CSS filter string (e.g. "blur(5px)")
     isEditing?: boolean;
+
+    // Animation Settings
+    entranceAnimation?: 'none' | 'fadeIn' | 'scaleIn' | 'slideInLeft' | 'slideInRight' | 'slideInUp' | 'slideInDown' | 'bounce';
+    exitAnimation?: 'none' | 'fadeOut' | 'scaleOut' | 'slideOutLeft' | 'slideOutRight' | 'slideOutUp' | 'slideOutDown';
+    animationDuration?: number;  // ms, default 300
+    animationDelay?: number;     // ms, default 0
 }
 
 
