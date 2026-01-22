@@ -703,3 +703,25 @@
 
 ## Phase 51: Text Styling
 - [ ] Text color property of shapes can be customized with color picker (high priority)
+- [ ] Implement independent text background/highlight color
+
+## Phase 52: Advanced Connectivity (Recommendations)
+- [ ] **Smart Orthogonal Routing**
+  - [ ] Implement A* pathfinding for "Elbow" connectors
+  - [ ] Auto-route around obstacles (shapes)
+  - [ ] Minimize line crossings and bends
+- [ ] **Connector Styling**
+  - [ ] Customizable arrowheads (start/middle/end)
+  - [ ] Dashed/Dotted style toggle in quick-action menu
+
+## Phase 53: Structural Performance (Recommendations)
+- [ ] **Spatial Indexing**
+  - [ ] Integrate `rbush` for R-Tree spatial lookups
+  - [ ] Optimize hit-testing for 1000+ elements
+  - [ ] Optimize viewport culling with R-Tree
+
+## Phase 54: Mindmap Intelligence (Recommendations)
+- [ ] **Auto-Layout Engine**
+  - [ ] "Tidy Up" button to balance tree structure
+  - [ ] Configurable horizontal/vertical spacing
+  - [ ] Support for multiple root nodes
