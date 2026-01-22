@@ -765,3 +765,14 @@
   - [ ] Interaction simulations (showing user interactions)
   - [ ] Export as MP4/WebM/GIF for social media sharing
   - [ ] Use cases: LinkedIn posts, Twitter threads, portfolio pieces
+- [ ] **Preview & Presentation Mode**
+  - [ ] Full-screen presentation mode (hide all editing UI)
+  - [ ] Slide navigation controls (arrow keys, mouse click)
+  - [ ] Animation playback in preview mode
+  - [ ] Presenter notes panel (optional)
+  - [ ] Slide thumbnails sidebar for quick navigation
+  - [ ] Laser pointer/annotation mode during presentation
+  - [ ] Auto-advance slides (timed presentations)
+  - [ ] Presentation URL sharing (view-only mode)
+  - [ ] Export presentation as HTML5 for web embedding
+  - [ ] Keyboard shortcuts (Space/Enter for next, Backspace for previous, Esc to exit)
