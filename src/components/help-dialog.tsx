@@ -358,6 +358,18 @@ const HelpDialog: Component<Props> = (props) => {
                                                 <span class="keycap">?</span>
                                             </div>
                                         </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Preview Mode</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">F5</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Exit Preview</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Esc</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

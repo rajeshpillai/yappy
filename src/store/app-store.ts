@@ -24,6 +24,7 @@ interface AppState {
     isLayerPanelMinimized: boolean;
     minimapVisible: boolean;
     zenMode: boolean;
+    presentationMode: boolean;
     showCommandPalette: boolean;
     selectedPenType: 'fineliner' | 'inkbrush' | 'marker';
     selectedShapeType: 'triangle' | 'hexagon' | 'octagon' | 'parallelogram' | 'star' | 'cloud' | 'heart' | 'cross' | 'checkmark' | 'arrowLeft' | 'arrowRight' | 'arrowUp' | 'arrowDown' | 'capsule' | 'stickyNote' | 'callout' | 'burst' | 'speechBubble' | 'ribbon' | 'bracketLeft' | 'bracketRight' | 'database' | 'document' | 'predefinedProcess' | 'internalStorage';
@@ -105,6 +106,7 @@ const initialState: AppState = {
     isLayerPanelMinimized: false,
     minimapVisible: false,
     zenMode: false,
+    presentationMode: false,
     showCommandPalette: false,
     selectedPenType: 'fineliner',
     selectedShapeType: 'triangle',
@@ -981,6 +983,10 @@ export const toggleMinimap = (visible?: boolean) => {
 
 export const toggleZenMode = (visible?: boolean) => {
     setStore('zenMode', (v) => visible ?? !v);
+};
+
+export const togglePresentationMode = (visible?: boolean) => {
+    setStore('presentationMode', (v) => visible ?? !v);
 };
 
 export const toggleCommandPalette = (visible?: boolean) => {

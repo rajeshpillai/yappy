@@ -2,7 +2,7 @@ import {
     store, addElement, updateElement, deleteElements, setViewState, pushToHistory, setStore, zoomToFit,
     undo, redo, groupSelected, ungroupSelected, duplicateElement, toggleTheme,
     addLayer, deleteLayer, setActiveLayer, mergeLayerDown, flattenLayers, isolateLayer, showAllLayers,
-    toggleGrid, toggleSnapToGrid, toggleCommandPalette, togglePropertyPanel
+    toggleGrid, toggleSnapToGrid, toggleCommandPalette, togglePropertyPanel, togglePresentationMode
 } from "./store/app-store";
 import type { ElementType, DrawingElement, FillStyle, StrokeStyle, FontFamily, TextAlign, ArrowHead, VerticalAlign, Point } from "./types";
 
@@ -425,7 +425,8 @@ export const YappyAPI = {
 
     // Command Palette
     toggleCommandPalette(visible?: boolean) { toggleCommandPalette(visible); },
-    togglePropertyPanel(visible?: boolean) { togglePropertyPanel(visible); }
+    togglePropertyPanel(visible?: boolean) { togglePropertyPanel(visible); },
+    togglePresentationMode(visible?: boolean) { togglePresentationMode(visible); }
 };
 
 declare global {
