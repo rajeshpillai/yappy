@@ -27,6 +27,16 @@ export const AnimationPanel: Component = () => {
     });
 
     const [isAdding, setIsAdding] = createSignal(false);
+    const [expandedIds, setExpandedIds] = createSignal<Set<string>>(new Set());
+
+    const toggleExpanded = (id: string) => {
+        setExpandedIds(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
 
     const addPreset = (name: string) => {
         const el = element();
@@ -92,6 +102,8 @@ export const AnimationPanel: Component = () => {
                         <AnimationItem
                             animation={anim}
                             index={index()}
+                            expanded={expandedIds().has(anim.id)}
+                            onToggle={() => toggleExpanded(anim.id)}
                             onUpdate={(u) => updateAnimProperty(anim.id, u)}
                             onRemove={() => removeAnimation(anim.id)}
                         />
@@ -165,10 +177,11 @@ export const AnimationPanel: Component = () => {
 const AnimationItem: Component<{
     animation: ElementAnimation;
     index: number;
+    expanded: boolean;
+    onToggle: () => void;
     onUpdate: (updates: Partial<ElementAnimation>) => void;
     onRemove: () => void;
 }> = (props) => {
-    const [expanded, setExpanded] = createSignal(false);
 
     return (
         <div style={{
@@ -183,12 +196,12 @@ const AnimationItem: Component<{
                     'align-items': 'center',
                     'padding': '8px',
                     'cursor': 'pointer',
-                    'background': expanded() ? 'rgba(0,0,0,0.03)' : 'transparent'
+                    'background': props.expanded ? 'rgba(0,0,0,0.03)' : 'transparent'
                 }}
-                onClick={() => setExpanded(!expanded())}
+                onClick={() => props.onToggle()}
             >
                 <div style={{ 'margin-right': '6px', 'display': 'flex' }}>
-                    {expanded() ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                    {props.expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                 </div>
                 <div style={{ 'flex': 1, 'font-size': '12px', 'font-weight': 500 }}>
                     {props.animation.type === 'preset' ? (props.animation as PresetAnimation).name : 'Property'}
@@ -204,7 +217,7 @@ const AnimationItem: Component<{
                 </button>
             </div>
 
-            <Show when={expanded()}>
+            <Show when={props.expanded}>
                 <div style={{ 'padding': '8px', 'border-top': '1px solid var(--border-color)', 'display': 'flex', 'flex-direction': 'column', 'gap': '8px' }}>
 
                     {/* Trigger */}
