@@ -270,14 +270,14 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
             const tW = w * 0.4; // tail width
             const tX = x + (w - tW) / 2;
             const hH = h * 0.4; // head height
-            return { type: 'points', points: [{ x: x + w / 2, y: y }, { x: x + w, y: y + hH }, { x: x + tX + tW, y: y + hH }, { x: x + tX + tW, y: y + h }, { x: x + tX, y: y + h }, { x: x + tX, y: y + hH }, { x: x, y: y + hH }] };
+            return { type: 'points', points: [{ x: x + w / 2, y: y }, { x: x + w, y: y + hH }, { x: tX + tW, y: y + hH }, { x: tX + tW, y: y + h }, { x: tX, y: y + h }, { x: tX, y: y + hH }, { x: x, y: y + hH }] };
         }
 
         case 'arrowDown': {
             const tW = w * 0.4;
             const tX = x + (w - tW) / 2;
             const hH = h * 0.4;
-            return { type: 'points', points: [{ x: x + tX, y: y }, { x: x + tX + tW, y: y }, { x: x + tX + tW, y: y + h - hH }, { x: x + w, y: y + h - hH }, { x: x + w / 2, y: y + h }, { x: x, y: y + h - hH }, { x: x + tX, y: y + h - hH }] };
+            return { type: 'points', points: [{ x: tX, y: y }, { x: tX + tW, y: y }, { x: tX + tW, y: y + h - hH }, { x: x + w, y: y + h - hH }, { x: x + w / 2, y: y + h }, { x: x, y: y + h - hH }, { x: tX, y: y + h - hH }] };
         }
     }
 
