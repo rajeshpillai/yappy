@@ -22,6 +22,7 @@ const App: Component = () => {
   // Removed showHelp state as it is now in Menu.tsx
 
   onMount(() => {
+    console.log('App: Registering shapes...');
     registerShapes();
     initAPI();
 

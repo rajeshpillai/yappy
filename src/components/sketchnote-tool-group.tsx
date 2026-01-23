@@ -1,9 +1,10 @@
-import { type Component, createSignal, Show } from "solid-js";
+import { type Component, createSignal, Show, createEffect } from "solid-js";
 import { store, setSelectedTool, setSelectedSketchnoteType } from "../store/app-store";
 import type { ElementType } from "../types";
 import {
     ChevronDown
 } from "lucide-solid";
+import { clickOutside } from "../utils/click-outside";
 import "./pen-tool-group.css"; // Reuse the same CSS
 
 // Custom Icons for specialized sketchnote shapes
@@ -74,6 +75,7 @@ const sketchnoteTools: { type: ElementType; icon: Component<{ size?: number; col
 
 const SketchnoteToolGroup: Component = () => {
     const [isOpen, setIsOpen] = createSignal(false);
+    let containerRef: HTMLDivElement | undefined;
 
     const getActiveTool = () => {
         const found = sketchnoteTools.find(t => t.type === store.selectedSketchnoteType);
@@ -93,8 +95,15 @@ const SketchnoteToolGroup: Component = () => {
     const activeTool = () => getActiveTool();
     const isActive = () => sketchnoteTools.some(t => t.type === store.selectedTool);
 
+    // Register click outside
+    createEffect(() => {
+        if (isOpen() && containerRef) {
+            clickOutside(containerRef, () => () => setIsOpen(false));
+        }
+    });
+
     return (
-        <div class="pen-tool-group">
+        <div class="pen-tool-group" ref={containerRef}>
             <button
                 class={`toolbar-btn ${isActive() ? 'active' : ''}`}
                 onClick={toggleMenu}
@@ -124,10 +133,6 @@ const SketchnoteToolGroup: Component = () => {
                         </button>
                     ))}
                 </div>
-            </Show>
-
-            <Show when={isOpen()}>
-                <div class="dropdown-backdrop" onClick={() => setIsOpen(false)} />
             </Show>
         </div>
     );

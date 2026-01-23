@@ -36,55 +36,38 @@ export class SpecialtyShapeRenderer extends ShapeRenderer {
     }
 
     protected renderSketch(context: RenderContext, cx: number, cy: number): void {
-        const { rc, element: el, isDarkMode } = context;
+        const { rc, ctx, element: el, isDarkMode } = context;
         const options = RenderPipeline.buildRenderOptions(el, isDarkMode);
 
         const geometry = getShapeGeometry(el);
         if (!geometry) return;
 
-        // Note: RoughJS expects coordinates relative to top-left usually, 
-        // but our getShapeGeometry returns coordinates relative to center (cx, cy).
-        // However, rc.path/rc.polygon etc don't have a translate function.
-        // We need to shift the geometry back to absolute coordinates or use a different approach.
-        // For now, I'll translate the context before calling rc? No, RoughJS draws to the canvas directly.
+        ctx.save();
+        ctx.translate(cx, cy);
 
-        // Actually, RoughJS's 'rc' methods like rc.path(path, options) use absolute coords.
-        // So we should NOT use the center-relative geometry for rc directly.
-        // I'll implement a helper to draw the geometry in absolute space for Sketch style.
+        this.renderSketchGeometry(rc, geometry, options);
 
-        this.renderSketchGeometry(rc, el, geometry, options);
-
+        ctx.restore();
         RenderPipeline.renderText(context, cx, cy);
     }
 
-    private renderSketchGeometry(rc: any, el: any, geo: any, options: any) {
-        const cx = el.x + el.width / 2;
-        const cy = el.y + el.height / 2;
-
+    private renderSketchGeometry(rc: any, geo: any, options: any) {
         if (geo.type === 'rect') {
-            rc.rectangle(cx + geo.x, cy + geo.y, geo.w, geo.h, options);
+            rc.rectangle(geo.x, geo.y, geo.w, geo.h, options);
         } else if (geo.type === 'ellipse') {
-            rc.ellipse(cx + geo.cx, cy + geo.cy, geo.rx * 2, geo.ry * 2, options);
+            rc.ellipse(geo.cx, geo.cy, geo.rx * 2, geo.ry * 2, options);
         } else if (geo.type === 'points') {
-            const absPoints: [number, number][] = geo.points.map((p: any) => [cx + p.x, cy + p.y]);
-            rc.polygon(absPoints, options);
+            // Points are already relative to center in geometry
+            const points: [number, number][] = geo.points.map((p: any) => [p.x, p.y]);
+            rc.polygon(points, options);
         } else if (geo.type === 'path') {
-            // Path strings in getShapeGeometry are already center-relative if they use local x/y
-            // We need to translate them.
-            const absPath = this.translatePath(geo.path, cx, cy);
-            rc.path(absPath, options);
+            rc.path(geo.path, options);
         } else if (geo.type === 'multi') {
-            geo.shapes.forEach((s: any) => this.renderSketchGeometry(rc, el, s, options));
+            geo.shapes.forEach((s: any) => this.renderSketchGeometry(rc, s, options));
         }
     }
 
-    private translatePath(path: string, _dx: number, _dy: number): string {
-        // Very primitive path translation. 
-        // Better: use ctx.translate if we use rc.path internally? 
-        // RoughJS rc.path doesn't respect ctx.translate? It usually does!
-        // Let's try wrapping rc calls in ctx.save/translate/restore.
-        return path; // Fallback - might be slightly off if not translated
-    }
+
 
     protected definePath(ctx: CanvasRenderingContext2D, el: any): void {
         const geometry = getShapeGeometry(el);

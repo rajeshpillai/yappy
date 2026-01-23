@@ -251,6 +251,34 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
             const bW = w * 0.3;
             return { type: 'points', points: [{ x: x + w - bW, y: y }, { x: x + w, y: y }, { x: x + w, y: y + h }, { x: x + w - bW, y: y + h }] };
         }
+
+        case 'arrowLeft': {
+            const tH = h * 0.4; // tail height
+            const tY = y + (h - tH) / 2;
+            const hW = w * 0.4; // head width
+            return { type: 'points', points: [{ x: x + hW, y: y }, { x: x + hW, y: tY }, { x: x + w, y: tY }, { x: x + w, y: tY + tH }, { x: x + hW, y: tY + tH }, { x: x + hW, y: y + h }, { x: x, y: y + h / 2 }] };
+        }
+
+        case 'arrowRight': {
+            const tH = h * 0.4;
+            const tY = y + (h - tH) / 2;
+            const hW = w * 0.4; // head width
+            return { type: 'points', points: [{ x: x + w - hW, y: y }, { x: x + w, y: y + h / 2 }, { x: x + w - hW, y: y + h }, { x: x + w - hW, y: tY + tH }, { x: x, y: tY + tH }, { x: x, y: tY }, { x: x + w - hW, y: tY }] };
+        }
+
+        case 'arrowUp': {
+            const tW = w * 0.4; // tail width
+            const tX = x + (w - tW) / 2;
+            const hH = h * 0.4; // head height
+            return { type: 'points', points: [{ x: x + w / 2, y: y }, { x: x + w, y: y + hH }, { x: x + tX + tW, y: y + hH }, { x: x + tX + tW, y: y + h }, { x: x + tX, y: y + h }, { x: x + tX, y: y + hH }, { x: x, y: y + hH }] };
+        }
+
+        case 'arrowDown': {
+            const tW = w * 0.4;
+            const tX = x + (w - tW) / 2;
+            const hH = h * 0.4;
+            return { type: 'points', points: [{ x: x + tX, y: y }, { x: x + tX + tW, y: y }, { x: x + tX + tW, y: y + h - hH }, { x: x + w, y: y + h - hH }, { x: x + w / 2, y: y + h }, { x: x, y: y + h - hH }, { x: x + tX, y: y + h - hH }] };
+        }
     }
 
     return null;

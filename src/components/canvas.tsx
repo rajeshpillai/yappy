@@ -2069,6 +2069,13 @@ const Canvas: Component = () => {
             startBinding: startBindingData,
         } as DrawingElement;
 
+        // Apply specific defaults for Sticky Note
+        if (actualType === 'stickyNote') {
+            newElement.backgroundColor = '#fef08a'; // Pastel Yellow
+            newElement.fillStyle = 'solid';
+            newElement.strokeColor = '#000000'; // Ensure black text/outline
+        }
+
         addElement(newElement);
 
         // Update target's boundElements if we have a start binding

@@ -1,9 +1,10 @@
-import { type Component, createSignal, Show } from "solid-js";
+import { type Component, createSignal, Show, createEffect } from "solid-js";
 import { store, setSelectedTool } from "../store/app-store";
 import type { ElementType } from "../types";
 import {
     Brain, Leaf, Share2, ChevronDown
 } from "lucide-solid";
+import { clickOutside } from "../utils/click-outside";
 import "./pen-tool-group.css"; // Reuse styling
 
 // Mindmap-specific tools
@@ -16,6 +17,7 @@ const mindmapTools: { type: ElementType | 'organicBranch' | 'mindmapNode'; icon:
 
 const MindmapToolGroup: Component = () => {
     const [isOpen, setIsOpen] = createSignal(false);
+    let containerRef: HTMLDivElement | undefined;
 
     // Determines which icon to show on the main button
     const getActiveMindmapTool = () => {
@@ -43,8 +45,15 @@ const MindmapToolGroup: Component = () => {
     const activeTool = () => getActiveMindmapTool();
     const isActive = () => mindmapTools.some(t => t.type === store.selectedTool);
 
+    // Register click outside
+    createEffect(() => {
+        if (isOpen() && containerRef) {
+            clickOutside(containerRef, () => () => setIsOpen(false));
+        }
+    });
+
     return (
-        <div class="pen-tool-group">
+        <div class="pen-tool-group" ref={containerRef}>
             <button
                 class={`toolbar-btn ${isActive() ? 'active' : ''}`}
                 onClick={toggleMenu}
@@ -74,10 +83,6 @@ const MindmapToolGroup: Component = () => {
                         </button>
                     ))}
                 </div>
-            </Show>
-
-            <Show when={isOpen()}>
-                <div class="dropdown-backdrop" onClick={() => setIsOpen(false)} />
             </Show>
         </div>
     );

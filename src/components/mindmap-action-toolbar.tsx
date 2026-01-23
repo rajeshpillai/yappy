@@ -1,7 +1,8 @@
-import { type Component, Show, createSignal, createMemo } from "solid-js";
+import { type Component, Show, createSignal, createMemo, createEffect } from "solid-js";
 import { store, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, toggleCollapse } from "../store/app-store";
 import { getElementPreviewBaseState } from "../utils/animation/element-animator";
 import { Plus, ArrowDown, Wand2, Palette, ChevronUp, ChevronDown, LayoutGrid, LayoutList, Target } from "lucide-solid";
+import { clickOutside } from "../utils/click-outside";
 import "./mindmap-action-toolbar.css";
 
 export const MindmapActionToolbar: Component = () => {
@@ -50,6 +51,15 @@ const ToolbarContent: Component<{
         return store.elements.find(e => e.id === store.selection[0]);
     });
 
+    let containerRef: HTMLDivElement | undefined;
+
+    // Register click outside for layout dropdown
+    createEffect(() => {
+        if (props.isLayoutOpen() && containerRef) {
+            clickOutside(containerRef, () => () => props.setIsLayoutOpen(false));
+        }
+    });
+
     return (
         <Show when={element()}>
             {(el) => {
@@ -80,6 +90,7 @@ const ToolbarContent: Component<{
                 return (
                     <div
                         class="mindmap-action-toolbar"
+                        ref={containerRef}
                         style={{
                             top: `${Math.round(y())}px`,
                             left: `${Math.round(x())}px`,
@@ -159,10 +170,6 @@ const ToolbarContent: Component<{
                                 </button>
                             </Show>
                         </div>
-
-                        <Show when={props.isLayoutOpen()}>
-                            <div class="dropdown-backdrop" onClick={() => props.setIsLayoutOpen(false)} />
-                        </Show>
                     </div>
                 );
             }}

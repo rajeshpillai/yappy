@@ -75,6 +75,14 @@ export class SketchnoteRenderer extends ShapeRenderer {
                 ctx.strokeStyle = strokeColor;
                 ctx.lineWidth = el.strokeWidth;
                 ctx.stroke(new Path2D(path));
+                ctx.stroke(new Path2D(path));
+                break;
+            }
+            case 'wavyDivider': {
+                const path = this.getWavyDividerPath(x, y, w, h);
+                ctx.strokeStyle = strokeColor;
+                ctx.lineWidth = el.strokeWidth;
+                ctx.stroke(new Path2D(path));
                 break;
             }
         }
@@ -116,6 +124,11 @@ export class SketchnoteRenderer extends ShapeRenderer {
                 rc.path(this.getBurstBlobPath(el), options);
                 break;
             }
+            case 'wavyDivider': {
+                rc.path(this.getWavyDividerPath(x, y, w, h), options);
+                break;
+            }
+
         }
 
         RenderPipeline.renderText(context, cx, cy);
@@ -139,6 +152,19 @@ export class SketchnoteRenderer extends ShapeRenderer {
             C ${x + w} ${y + bulbR * 1.5} ${cx + baseW / 2} ${y + bulbR} ${cx + baseW / 2} ${baseY}
             Z
         `;
+    }
+
+    private getWavyDividerPath(x: number, y: number, w: number, h: number) {
+        const cy = y + h / 2;
+        const waves = 4;
+        const waveW = w / waves;
+        let d = `M ${x} ${cy}`;
+        for (let i = 0; i < waves; i++) {
+            const wx = x + i * waveW;
+            d += ` Q ${wx + waveW / 4} ${cy - h / 2}, ${wx + waveW / 2} ${cy}`;
+            d += ` Q ${wx + waveW * 0.75} ${cy + h / 2}, ${wx + waveW} ${cy}`;
+        }
+        return d;
     }
 
     private getBurstBlobPath(el: any) {

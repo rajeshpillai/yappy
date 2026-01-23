@@ -1,4 +1,4 @@
-import { type Component, createSignal, Show } from "solid-js";
+import { type Component, createSignal, Show, createEffect } from "solid-js";
 import { store, setSelectedTool, setSelectedShapeType } from "../store/app-store";
 import type { ElementType } from "../types";
 import {
@@ -7,6 +7,7 @@ import {
     Pill, StickyNote, MessageSquare, MessageCircle, Zap, Bookmark, ChevronLeft, ChevronRight,
     Database, FileText, Columns, Layers, Pentagon
 } from "lucide-solid";
+import { clickOutside } from "../utils/click-outside";
 import "./pen-tool-group.css"; // Reuse the same CSS
 
 // Shape tools to group
@@ -41,6 +42,7 @@ const shapeTools: { type: ElementType; icon: Component<{ size?: number; color?: 
 
 const ShapeToolGroup: Component = () => {
     const [isOpen, setIsOpen] = createSignal(false);
+    let containerRef: HTMLDivElement | undefined;
 
     // Use selectedShapeType from store instead of checking selectedTool
     const getActiveShapeTool = () => {
@@ -61,8 +63,15 @@ const ShapeToolGroup: Component = () => {
     const activeTool = () => getActiveShapeTool();
     const isActive = () => shapeTools.some(t => t.type === store.selectedTool);
 
+    // Register click outside
+    createEffect(() => {
+        if (isOpen() && containerRef) {
+            clickOutside(containerRef, () => () => setIsOpen(false));
+        }
+    });
+
     return (
-        <div class="pen-tool-group">
+        <div class="pen-tool-group" ref={containerRef}>
             <button
                 class={`toolbar-btn ${isActive() ? 'active' : ''}`}
                 onClick={toggleMenu}
@@ -92,10 +101,6 @@ const ShapeToolGroup: Component = () => {
                         </button>
                     ))}
                 </div>
-            </Show>
-
-            <Show when={isOpen()}>
-                <div class="dropdown-backdrop" onClick={() => setIsOpen(false)} />
             </Show>
         </div>
     );

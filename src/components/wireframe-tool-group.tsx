@@ -1,9 +1,10 @@
-import { type Component, createSignal, Show } from "solid-js";
+import { type Component, createSignal, Show, createEffect } from "solid-js";
 import { store, setSelectedTool, setSelectedWireframeType } from "../store/app-store";
 import type { ElementType } from "../types";
 import {
     ChevronDown
 } from "lucide-solid";
+import { clickOutside } from "../utils/click-outside";
 import "./pen-tool-group.css"; // Reuse the same CSS
 
 // Custom Icons for specialized wireframe shapes
@@ -47,6 +48,7 @@ const wireframeTools: { type: ElementType; icon: Component<{ size?: number; colo
 
 const WireframeToolGroup: Component = () => {
     const [isOpen, setIsOpen] = createSignal(false);
+    let containerRef: HTMLDivElement | undefined;
 
     const getActiveTool = () => {
         const found = wireframeTools.find(t => t.type === store.selectedWireframeType);
@@ -66,8 +68,15 @@ const WireframeToolGroup: Component = () => {
     const activeTool = () => getActiveTool();
     const isActive = () => wireframeTools.some(t => t.type === store.selectedTool);
 
+    // Register click outside
+    createEffect(() => {
+        if (isOpen() && containerRef) {
+            clickOutside(containerRef, () => () => setIsOpen(false));
+        }
+    });
+
     return (
-        <div class="pen-tool-group">
+        <div class="pen-tool-group" ref={containerRef}>
             <button
                 class={`toolbar-btn ${isActive() ? 'active' : ''}`}
                 onClick={toggleMenu}
@@ -97,10 +106,6 @@ const WireframeToolGroup: Component = () => {
                         </button>
                     ))}
                 </div>
-            </Show>
-
-            <Show when={isOpen()}>
-                <div class="dropdown-backdrop" onClick={() => setIsOpen(false)} />
             </Show>
         </div>
     );

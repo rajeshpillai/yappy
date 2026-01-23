@@ -1,9 +1,10 @@
-import { type Component, createSignal, Show } from "solid-js";
+import { type Component, createSignal, Show, createEffect } from "solid-js";
 import { store, setSelectedTool, setSelectedInfraType } from "../store/app-store";
 import type { ElementType } from "../types";
 import {
     Server, Shield, User, Zap, Router, Globe, Shuffle, Rows, ChevronDown, Database
 } from "lucide-solid";
+import { clickOutside } from "../utils/click-outside";
 import "./pen-tool-group.css"; // Reuse the same CSS
 
 const infraTools: { type: ElementType; icon: Component<{ size?: number; color?: string }>; label: string }[] = [
@@ -20,6 +21,7 @@ const infraTools: { type: ElementType; icon: Component<{ size?: number; color?: 
 
 const InfraToolGroup: Component = () => {
     const [isOpen, setIsOpen] = createSignal(false);
+    let containerRef: HTMLDivElement | undefined;
 
     const getActiveTool = () => {
         const found = infraTools.find(t => t.type === store.selectedInfraType);
@@ -39,8 +41,15 @@ const InfraToolGroup: Component = () => {
     const activeTool = () => getActiveTool();
     const isActive = () => infraTools.some(t => t.type === store.selectedTool);
 
+    // Register click outside
+    createEffect(() => {
+        if (isOpen() && containerRef) {
+            clickOutside(containerRef, () => () => setIsOpen(false));
+        }
+    });
+
     return (
-        <div class="pen-tool-group">
+        <div class="pen-tool-group" ref={containerRef}>
             <button
                 class={`toolbar-btn ${isActive() ? 'active' : ''}`}
                 onClick={toggleMenu}
@@ -70,10 +79,6 @@ const InfraToolGroup: Component = () => {
                         </button>
                     ))}
                 </div>
-            </Show>
-
-            <Show when={isOpen()}>
-                <div class="dropdown-backdrop" onClick={() => setIsOpen(false)} />
             </Show>
         </div>
     );

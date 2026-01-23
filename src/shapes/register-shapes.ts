@@ -17,6 +17,7 @@ import { FreehandRenderer } from "./renderers/freehand-renderer";
 import { SpecialtyShapeRenderer } from "./renderers/specialty-shape-renderer";
 
 export function registerShapes() {
+    console.log('Registering all shapes including specialty...');
     shapeRegistry.register('rectangle', new RectangleRenderer());
     shapeRegistry.register('circle', new CircleRenderer());
     shapeRegistry.register('diamond', new DiamondRenderer());
@@ -36,7 +37,7 @@ export function registerShapes() {
     flowchartTypes.forEach(type => shapeRegistry.register(type, flowchartRenderer));
 
     const sketchnoteRenderer = new SketchnoteRenderer();
-    const sketchnoteTypes = ['starPerson', 'lightbulb', 'signpost', 'burstBlob'] as const;
+    const sketchnoteTypes = ['starPerson', 'lightbulb', 'signpost', 'burstBlob', 'scroll', 'wavyDivider', 'doubleBanner'] as const;
     sketchnoteTypes.forEach(type => shapeRegistry.register(type, sketchnoteRenderer));
 
     const infraRenderer = new InfraRenderer();
@@ -67,8 +68,9 @@ export function registerShapes() {
     const specialtyRenderer = new SpecialtyShapeRenderer();
     const specialtyTypes = [
         'cloud', 'heart', 'star', 'burst', 'callout', 'speechBubble',
-        'ribbon', 'bracketLeft', 'bracketRight', 'scroll', 'doubleBanner',
-        'cross', 'checkmark'
+        'ribbon', 'bracketLeft', 'bracketRight',
+        'cross', 'checkmark', 'capsule',
+        'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown'
     ] as const;
     specialtyTypes.forEach(type => shapeRegistry.register(type, specialtyRenderer));
 }
