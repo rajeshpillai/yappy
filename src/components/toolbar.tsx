@@ -10,6 +10,7 @@ import InfraToolGroup from "./infra-tool-group";
 import MathToolGroup from "./math-tool-group";
 import WireframeToolGroup from "./wireframe-tool-group";
 import MindmapToolGroup from "./mindmap-tool-group";
+import TechnicalToolGroup from "./technical-tool-group";
 import "./toolbar.css";
 
 // Tools that are NOT pens or grouped shapes
@@ -206,6 +207,9 @@ const Toolbar: Component = () => {
 
             {/* Geometric & Math Tool Group (Trapezoid, Pentagon, etc.) */}
             <MathToolGroup />
+
+            {/* Technical Diagramming Group (DFD, Isometric Cube, Cylinder) */}
+            <TechnicalToolGroup />
 
             {/* Arrow, Line, Bezier */}
             <For each={tools.slice(diamondIndex + 1, bezierIndex + 1)}>

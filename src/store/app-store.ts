@@ -41,6 +41,7 @@ interface AppState {
     maxLayers: number;
     canvasTexture: 'none' | 'dots' | 'grid' | 'graph' | 'paper';
     isRecording: boolean;
+    selectedTechnicalType: 'dfdProcess' | 'dfdDataStore' | 'isometricCube' | 'cylinder';
 }
 
 const initialState: AppState = {
@@ -129,6 +130,7 @@ const initialState: AppState = {
     selectedWireframeType: 'browserWindow',
     layerGroupingModeEnabled: false,
     maxLayers: 20,
+    selectedTechnicalType: 'dfdProcess',
 }; // Default light background
 
 export const [store, setStore] = createStore<AppState>(initialState);
@@ -1046,6 +1048,10 @@ export const toggleZenMode = (visible?: boolean) => {
 
 export const togglePresentationMode = (visible?: boolean) => {
     setStore('presentationMode', (v) => visible ?? !v);
+};
+
+export const setSelectedTechnicalType = (type: AppState['selectedTechnicalType']) => {
+    setStore('selectedTechnicalType', type);
 };
 
 export const toggleCommandPalette = (visible?: boolean) => {

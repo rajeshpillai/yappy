@@ -70,7 +70,8 @@ export function registerShapes() {
         'cloud', 'heart', 'star', 'burst', 'callout', 'speechBubble',
         'ribbon', 'bracketLeft', 'bracketRight',
         'cross', 'checkmark', 'capsule',
-        'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown'
+        'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown',
+        'dfdProcess', 'dfdDataStore', 'isometricCube', 'cylinder'
     ] as const;
     specialtyTypes.forEach(type => shapeRegistry.register(type, specialtyRenderer));
 }

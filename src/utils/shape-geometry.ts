@@ -293,6 +293,61 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
             const hH = h * 0.4;
             return { type: 'points', points: [{ x: tX, y: y }, { x: tX + tW, y: y }, { x: tX + tW, y: y + h - hH }, { x: x + w, y: y + h - hH }, { x: x + w / 2, y: y + h }, { x: x, y: y + h - hH }, { x: tX, y: y + h - hH }] };
         }
+
+        case 'dfdProcess': {
+            const headerH = h * 0.25;
+            const r = 10;
+            return {
+                type: 'multi', shapes: [
+                    { type: 'rect', x: x, y: y, w: w, h: h, r: r },
+                    { type: 'points', points: [{ x: x, y: y + headerH }, { x: x + w, y: y + headerH }], isClosed: false }
+                ]
+            };
+        }
+
+        case 'dfdDataStore': {
+            const labelW = w * 0.2;
+            return {
+                type: 'points', isClosed: false, points: [
+                    { x: x + w, y: y },
+                    { x: x, y: y },
+                    { x: x, y: y + h },
+                    { x: x + w, y: y + h },
+                    // Vertical divider
+                    { x: x + labelW, y: y },
+                    { x: x + labelW, y: y + h }
+                ]
+            };
+        }
+
+        case 'isometricCube': {
+            const dy = h * 0.25;
+            const midX = 0;
+            const midY = 0;
+            return {
+                type: 'multi', shapes: [
+                    // Top face
+                    { type: 'points', points: [{ x: midX, y: y }, { x: x + w, y: y + dy }, { x: midX, y: midY }, { x: x, y: y + dy }] },
+                    // Left face
+                    { type: 'points', points: [{ x: x, y: y + dy }, { x: midX, y: midY }, { x: midX, y: y + h }, { x: x, y: y + h - dy }] },
+                    // Right face
+                    { type: 'points', points: [{ x: midX, y: midY }, { x: x + w, y: y + dy }, { x: x + w, y: y + h - dy }, { x: midX, y: y + h }] }
+                ]
+            };
+        }
+
+        case 'cylinder': {
+            const rx = w / 2;
+            const ry = h * 0.15;
+            return {
+                type: 'multi', shapes: [
+                    { type: 'ellipse', cx: 0, cy: y + ry, rx: rx, ry: ry },
+                    { type: 'ellipse', cx: 0, cy: y + h - ry, rx: rx, ry: ry },
+                    { type: 'points', points: [{ x: x, y: y + ry }, { x: x, y: y + h - ry }], isClosed: false },
+                    { type: 'points', points: [{ x: x + w, y: y + ry }, { x: x + w, y: y + h - ry }], isClosed: false }
+                ]
+            };
+        }
     }
 
     return null;
