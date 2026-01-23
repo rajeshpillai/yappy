@@ -163,7 +163,6 @@
   - Snap elements to guides
   - Guide color customization
 
-## Phase 22: System Design & Cloud Infra
 - [x] Implement Cloud Infrastructure Elements
   - [x] Add new `ElementType`s: `server`, `loadBalancer`, `firewall`, `user`, `messageQueue`, `lambda`, `router`, `browser`
   - [x] Create `InfraToolGroup` UI component
@@ -173,6 +172,15 @@
   - [x] Enable Text-Inside-Shape (containerText) for all new elements
   - [x] Verify selection, hit testing, and connector binding
   - [x] Fix: Switch to selection tool after drawing an infra element
+
+## Phase 57: Technical & DFD Shapes
+- [x] Implement DFD & State Machine shapes <!-- id: 101 -->
+  - [x] `dfdProcess`, `dfdDataStore`, `isometricCube`, `cylinder`
+  - [x] `stateStart`, `stateEnd`, `stateSync`, `activationBar`, `externalEntity`
+- [x] Enable double-click text editing for all technical shapes
+- [x] Fix hit detection for technical shapes
+- [x] Update developer documentation (`docs/creating-shapes.md`)
+
 
 ## Phase 15: New Shapes & Documentation
 - [x] Implement Diamond Shape (Decision Box)
@@ -504,7 +512,10 @@
 - [ ] Support text on paths (e.g., curved or custom paths)
 - [ ] Add advanced text effects (shadows, gradients, outlines)
 - [ ] Implement snapping to midpoints, intersections, and custom anchor points
-- [ ] Add advanced connectors with customizable styles (e.g., curved lines, arrowheads)
+- [x] Add advanced connectors with customizable styles (e.g., curved lines, arrowheads)
+  - [x] Implement relationship markers: Triangle (Inheritance), Diamond (Aggregation), Filled Diamond (Composition), Crow's Foot (ER)
+  - [x] Support dashed/dotted line styles for all connectors
+  - [x] Architectural and Sketch mode support for all markers
   - Note: Connectors already support line types such as dashed and dotted.
 - [ ] Introduce smart routing for connectors (e.g., orthogonal routing, A* pathfinding)
 - [ ] Add animation support for elements (e.g., transitions, blinking, movement)
@@ -769,7 +780,8 @@
 
 
   ## IMP
-  - [ ] Check reactivity of property panel
-  - [ ] Right properties for shapes (i.e not all properties will be applicable 
-        for all shapes, for e.g. for cicular shapes, roundness etc doesn't matter)
+  - [x] Check reactivity of property panel (Fixed: added `renderStyle` tracking)
+  - [x] Right properties for shapes (Implemented: removed Roundness/Corner Style from circles)
+  - [ ] Implement UML Class/Structured shapes (Planned: Template-based vs Structured)
+  - [ ] Orthogonal/Elbow routing refinements
  
