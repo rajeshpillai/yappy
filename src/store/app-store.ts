@@ -1,5 +1,6 @@
 import { createStore } from "solid-js/store";
 import type { DrawingElement, ViewState, ElementType, Layer, GridSettings } from "../types";
+import type { GlobalSettings } from '../types/slide-types';
 import { showToast } from "../components/toast";
 import { MindmapLayoutEngine, type LayoutDirection } from "../utils/mindmap-layout";
 import { animationEngine } from "../utils/animation/animation-engine";
@@ -14,6 +15,7 @@ interface AppState {
     layers: Layer[];
     activeLayerId: string;
     gridSettings: GridSettings;
+    globalSettings: GlobalSettings;
     showCanvasProperties: boolean;
     canvasBackgroundColor: string;
     undoStackLength: number;
@@ -100,6 +102,10 @@ const initialState: AppState = {
         gridColor: '#cccccc',
         gridOpacity: 0.5,
         style: 'lines'
+    },
+    globalSettings: {
+        animationEnabled: true,
+        reducedMotion: false
     },
     showCanvasProperties: false,
     canvasBackgroundColor: '#ffffff',

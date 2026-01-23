@@ -6,6 +6,7 @@
 import type { Animation, AnimationConfig, AnimationState } from './animation-types';
 import { getEasing } from './animation-types';
 import { createSignal } from 'solid-js';
+import { store } from '../../store/app-store';
 
 const [globalTime, setGlobalTime] = createSignal(0);
 export { globalTime };
@@ -182,6 +183,9 @@ class AnimationEngine {
     private tick = (timestamp: number): void => {
         if (!this.isRunning) return;
 
+        // Check global animation setting
+        const animationsEnabled = store.globalSettings?.animationEnabled ?? true;
+
         setGlobalTime(timestamp);
         let hasRunningAnimations = false;
 
@@ -189,6 +193,18 @@ class AnimationEngine {
             if (animation.state !== 'running') continue;
 
             hasRunningAnimations = true;
+
+            // If animations are globally disabled, force complete immediately
+            if (!animationsEnabled) {
+                // Determine final value (progress = 1)
+                animation.onUpdate(1);
+
+                // Complete and cleanup
+                animation.state = 'completed';
+                animation.onComplete?.();
+                this.animations.delete(animation.id);
+                continue;
+            }
 
             const elapsed = timestamp - animation.startTime - animation.delay;
 
