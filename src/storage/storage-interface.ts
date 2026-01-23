@@ -1,5 +1,6 @@
 import type { DrawingElement, ViewState, Layer, GridSettings } from "../types";
 import type { Slide, SlideDocument, SlideDocumentMetadata, GlobalSettings } from "../types/slide-types";
+import type { DisplayState } from "../types/motion-types";
 
 /**
  * Legacy drawing data format (v2 and earlier)
@@ -14,6 +15,8 @@ export interface DrawingData {
     gridSettings?: GridSettings;
     globalSettings?: GlobalSettings;
     canvasBackgroundColor?: string;
+    states?: DisplayState[];
+    initialStateId?: string;
 }
 
 /**

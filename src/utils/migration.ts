@@ -1,4 +1,5 @@
 import type { DrawingElement, Layer, GridSettings } from '../types';
+import type { DisplayState } from '../types/motion-types';
 
 const DEFAULT_LAYER_ID = 'default-layer';
 
@@ -130,6 +131,8 @@ export const migrateDrawingData = (data: any): {
     gridSettings?: GridSettings;
     globalSettings?: GlobalSettings;
     canvasBackgroundColor?: string;
+    states?: DisplayState[];
+    initialStateId?: string;
 } => {
     // Use existing layers or create default
     const layers: Layer[] = data.layers || [
@@ -165,7 +168,9 @@ export const migrateDrawingData = (data: any): {
         viewState: data.viewState || { scale: 1, panX: 0, panY: 0 },
         gridSettings: data.gridSettings,
         globalSettings: data.globalSettings,
-        canvasBackgroundColor: data.canvasBackgroundColor
+        canvasBackgroundColor: data.canvasBackgroundColor,
+        states: data.states || [],
+        initialStateId: data.initialStateId
     };
 };
 
@@ -199,6 +204,8 @@ export const migrateToSlideFormat = (data: any): SlideDocument => {
         viewState: data.viewState || { scale: 1, panX: 0, panY: 0 },
         gridSettings: migrated.gridSettings,
         backgroundColor: migrated.canvasBackgroundColor || '#ffffff',
+        states: migrated.states,
+        initialStateId: migrated.initialStateId,
         order: 0
     };
 
@@ -224,6 +231,8 @@ export const extractSlideAsLegacy = (doc: SlideDocument, slideIndex: number = 0)
     gridSettings?: GridSettings;
     globalSettings?: GlobalSettings;
     canvasBackgroundColor?: string;
+    states?: DisplayState[];
+    initialStateId?: string;
 } => {
     const slide = doc.slides[slideIndex];
     if (!slide) {
@@ -248,6 +257,8 @@ export const extractSlideAsLegacy = (doc: SlideDocument, slideIndex: number = 0)
         viewState: slide.viewState,
         gridSettings: slide.gridSettings,
         globalSettings: doc.globalSettings,
-        canvasBackgroundColor: slide.backgroundColor
+        canvasBackgroundColor: slide.backgroundColor,
+        states: slide.states,
+        initialStateId: slide.initialStateId
     };
 };

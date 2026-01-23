@@ -1,7 +1,8 @@
+import { batch } from "solid-js";
 import { createStore } from "solid-js/store";
 import type { DrawingElement, ViewState, ElementType, Layer, GridSettings } from "../types";
 import type { GlobalSettings } from '../types/slide-types';
-import type { ElementAnimation } from "../types/motion-types";
+import type { ElementAnimation, DisplayState } from "../types/motion-types";
 import { showToast } from "../components/toast";
 import { MindmapLayoutEngine, type LayoutDirection } from "../utils/mindmap-layout";
 import { animationEngine } from "../utils/animation/animation-engine";
@@ -42,6 +43,10 @@ interface AppState {
     canvasTexture: 'none' | 'dots' | 'grid' | 'graph' | 'paper';
     isRecording: boolean;
     selectedTechnicalType: 'dfdProcess' | 'dfdDataStore' | 'isometricCube' | 'cylinder' | 'stateStart' | 'stateEnd' | 'stateSync' | 'activationBar' | 'externalEntity';
+    // State Morphing
+    states: DisplayState[];
+    activeStateId?: string;
+    showStatePanel: boolean;
 }
 
 const initialState: AppState = {
@@ -132,6 +137,8 @@ const initialState: AppState = {
     layerGroupingModeEnabled: false,
     maxLayers: 20,
     selectedTechnicalType: 'dfdProcess',
+    states: [],
+    showStatePanel: false,
 }; // Default light background
 
 export const [store, setStore] = createStore<AppState>(initialState);
@@ -501,6 +508,87 @@ export const updateGlobalSettings = (updates: Partial<GlobalSettings>) => {
     // Sync renderStyle to default styles if it was updated
     if (updates.renderStyle) {
         updateDefaultStyles({ renderStyle: updates.renderStyle });
+    }
+};
+
+// --- State Morphing Actions ---
+
+export const toggleStatePanel = (visible?: boolean) => {
+    setStore("showStatePanel", visible ?? !store.showStatePanel);
+};
+
+export const addDisplayState = (name: string) => {
+    const id = crypto.randomUUID();
+    const overrides: Record<string, Partial<any>> = {};
+
+    // Capture current values for all elements
+    store.elements.forEach(el => {
+        overrides[el.id] = {
+            x: el.x,
+            y: el.y,
+            width: el.width,
+            height: el.height,
+            opacity: el.opacity,
+            angle: el.angle,
+            backgroundColor: el.backgroundColor,
+            strokeColor: el.strokeColor,
+            text: el.text
+        };
+    });
+
+    const newState: DisplayState = { id, name, overrides: overrides as any };
+    setStore("states", (prev) => [...prev, newState]);
+    setStore("activeStateId", id);
+    showToast(`State "${name}" captured`, 'success');
+};
+
+export const updateDisplayState = (id: string) => {
+    const stateIndex = store.states.findIndex(s => s.id === id);
+    if (stateIndex === -1) return;
+
+    const overrides: Record<string, Partial<any>> = {};
+    store.elements.forEach(el => {
+        overrides[el.id] = {
+            x: el.x,
+            y: el.y,
+            width: el.width,
+            height: el.height,
+            opacity: el.opacity,
+            angle: el.angle,
+            backgroundColor: el.backgroundColor,
+            strokeColor: el.strokeColor,
+            text: el.text
+        };
+    });
+
+    setStore("states", stateIndex, "overrides", overrides as any);
+    showToast(`State updated`, 'success');
+};
+
+export const deleteDisplayState = (id: string) => {
+    setStore("states", (prev) => prev.filter(s => s.id !== id));
+    if (store.activeStateId === id) {
+        setStore("activeStateId", undefined);
+    }
+    showToast(`State deleted`, 'info');
+};
+
+export const applyDisplayState = async (id: string, animate: boolean = true) => {
+    const targetState = store.states.find(s => s.id === id);
+    if (!targetState) return;
+
+    setStore("activeStateId", id);
+
+    if (animate) {
+        const { MorphAnimator } = await import("../utils/animation/morph-animator");
+        MorphAnimator.morphTo(targetState);
+    } else {
+        // Immediate apply
+        batch(() => {
+            Object.entries(targetState.overrides).forEach(([elId, targetProps]) => {
+                updateElement(elId, targetProps, false);
+            });
+        });
     }
 };
 

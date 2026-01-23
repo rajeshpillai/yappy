@@ -12,6 +12,7 @@ import ZoomControls from './components/zoom-controls';
 import PropertyPanel from './components/property-panel';
 import LayerPanel from './components/layer-panel';
 import CommandPalette from './components/command-palette';
+import { StatePanel } from './components/state-panel';
 import { initAPI } from './api';
 import { Settings } from 'lucide-solid';
 import Toast from './components/toast';
@@ -154,6 +155,7 @@ const App: Component = () => {
       </Show>
       <Canvas />
       <CommandPalette />
+      <StatePanel />
 
       {/* Floating Property Panel Toggle (bottom-right corner) */}
       <Show when={!store.presentationMode}>

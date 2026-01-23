@@ -4,13 +4,13 @@ import { storage } from "../storage/file-system-storage";
 import {
     store, setStore, deleteElements, clearHistory, toggleTheme, zoomToFit,
     addLayer, reorderLayers, bringToFront, sendToBack, groupSelected, ungroupSelected,
-    togglePropertyPanel, toggleLayerPanel, toggleMinimap, loadTemplate, setSelectedTool,
+    togglePropertyPanel, toggleLayerPanel, toggleMinimap, toggleStatePanel, loadTemplate, setSelectedTool,
     toggleGrid, toggleSnapToGrid
 } from "../store/app-store";
 import {
     Menu as MenuIcon, FolderOpen, Share2, FilePlus, Trash2, Maximize,
     Moon, Sun, Download, Layout,
-    Layers, Check, Play, Square
+    Layers, Check, Play, Square, Camera
 } from "lucide-solid";
 import { sequenceAnimator } from "../utils/animation/sequence-animator";
 import HelpDialog from "./help-dialog";
@@ -56,6 +56,8 @@ const Menu: Component = () => {
                     gridSettings: store.gridSettings,
                     globalSettings: store.globalSettings,
                     canvasBackgroundColor: store.canvasBackgroundColor,
+                    states: store.states,
+                    initialStateId: store.activeStateId,
                     version: 2
                 });
                 showToast(`Drawing saved as "${filename}"!`, 'success');
@@ -72,6 +74,8 @@ const Menu: Component = () => {
                 gridSettings: store.gridSettings,
                 globalSettings: store.globalSettings,
                 canvasBackgroundColor: store.canvasBackgroundColor,
+                states: store.states,
+                initialStateId: store.activeStateId,
                 version: 2
             });
             const data = JSON.stringify(slideDoc, null, 2);
@@ -127,7 +131,9 @@ const Menu: Component = () => {
                     activeLayerId: migrated.layers[0]?.id || 'default-layer',
                     gridSettings: migrated.gridSettings || { enabled: false, snapToGrid: false, objectSnapping: false, gridSize: 20, gridColor: '#e0e0e0', gridOpacity: 0.5, style: 'lines' },
                     globalSettings: migrated.globalSettings || { animationEnabled: true, reducedMotion: false },
-                    canvasBackgroundColor: migrated.canvasBackgroundColor || '#fafafa'
+                    canvasBackgroundColor: migrated.canvasBackgroundColor || '#fafafa',
+                    states: migrated.states || [],
+                    activeStateId: migrated.initialStateId
                 });
                 setDrawingId(targetId);
                 showToast('Drawing loaded successfully', 'success');
@@ -211,7 +217,9 @@ const Menu: Component = () => {
                     activeLayerId: migrated.layers[0]?.id || 'default-layer',
                     gridSettings: migrated.gridSettings || { enabled: false, snapToGrid: false, objectSnapping: false, gridSize: 20, gridColor: '#e0e0e0', gridOpacity: 0.5, style: 'lines' },
                     globalSettings: migrated.globalSettings || { animationEnabled: true, reducedMotion: false },
-                    canvasBackgroundColor: migrated.canvasBackgroundColor || '#fafafa'
+                    canvasBackgroundColor: migrated.canvasBackgroundColor || '#fafafa',
+                    states: migrated.states || [],
+                    activeStateId: migrated.initialStateId
                 });
                 const name = file.name.replace(/\.json$/i, '');
                 setDrawingId(name);
@@ -506,6 +514,13 @@ const Menu: Component = () => {
                                         <div class="menu-item-right">
                                             <Show when={store.showLayerPanel}><Check size={14} class="check-icon" /></Show>
                                             <span class="shortcut">Alt+L</span>
+                                        </div>
+                                    </div>
+                                    <div class="menu-item" onClick={() => { toggleStatePanel(); setIsMenuOpen(false); }}>
+                                        <Camera size={16} />
+                                        <span class="label">Display States</span>
+                                        <div class="menu-item-right">
+                                            <Show when={store.showStatePanel}><Check size={14} class="check-icon" /></Show>
                                         </div>
                                     </div>
                                     <div class="menu-item" onClick={() => { toggleMinimap(); setIsMenuOpen(false); }}>

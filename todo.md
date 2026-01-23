@@ -767,7 +767,7 @@
   - [x] Easing functions for smooth transitions
   - [x] Animation playback controls (play, pause, scrub)
 - [ ] **UI/Diagram Motion Graphics**
-  - [ ] State transitions between diagram states
+  - [x] State transitions between diagram states (Auto-Animate / State Morphing) <!-- id: 102 -->
   - [ ] Highlight/emphasis animations for specific elements
   - [ ] Progressive reveal animations (build diagrams step-by-step)
   - [ ] Connector animation (drawing lines with animation)
