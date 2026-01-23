@@ -28,6 +28,18 @@ export const properties: PropertyConfig[] = [
         defaultValue: 'sketch'
     },
     {
+        key: 'renderStyle',
+        label: 'Style',
+        type: 'select',
+        group: 'style',
+        options: [
+            { label: 'Sketch', value: 'sketch' },
+            { label: 'Architectural', value: 'architectural' }
+        ],
+        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField'],
+        defaultValue: 'sketch'
+    },
+    {
         key: 'flowAnimation',
         label: 'Flow Animation',
         type: 'toggle',
@@ -161,18 +173,7 @@ export const properties: PropertyConfig[] = [
     },
 
     // Style
-    {
-        key: 'renderStyle',
-        label: 'Style',
-        type: 'select',
-        group: 'style',
-        options: [
-            { label: 'Sketch', value: 'sketch' },
-            { label: 'Architectural', value: 'architectural' }
-        ],
-        applicableTo: ['rectangle', 'circle', 'line', 'arrow', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField'],
-        defaultValue: 'sketch'
-    },
+
     {
         key: 'borderRadius',
         label: 'Roundness',

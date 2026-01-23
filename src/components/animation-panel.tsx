@@ -1,8 +1,7 @@
-
 import { type Component, For, Show, createSignal, createMemo } from 'solid-js';
-import { store, updateElement, updateAnimation } from '../store/app-store';
+import { store, updateElement, updateAnimation, reorderAnimation } from '../store/app-store';
 import { sequenceAnimator } from '../utils/animation/sequence-animator';
-import { Play, Plus, Trash2, ChevronDown, ChevronRight } from 'lucide-solid';
+import { Play, Plus, Trash2, ChevronDown, ChevronRight, ChevronUp } from 'lucide-solid';
 import type { ElementAnimation, PresetAnimation } from '../types/motion-types';
 
 const PRESETS = [
@@ -72,6 +71,13 @@ export const AnimationPanel: Component = () => {
         updateAnimation(el.id, animId, updates, true);
     };
 
+    const handleReorder = (animId: string, direction: 'up' | 'down') => {
+        const id = selectedId();
+        if (id) {
+            reorderAnimation(id, animId, direction);
+        }
+    };
+
     const handlePlay = () => {
         const id = selectedId();
         if (id) {
@@ -99,10 +105,12 @@ export const AnimationPanel: Component = () => {
                         <AnimationItem
                             animation={anim}
                             index={index()}
+                            total={element()?.animations?.length || 0}
                             expanded={expandedIds().has(anim.id)}
                             onToggle={() => toggleExpanded(anim.id)}
                             onUpdate={(u) => updateAnimProperty(anim.id, u)}
                             onRemove={() => removeAnimation(anim.id)}
+                            onReorder={(d) => handleReorder(anim.id, d)}
                         />
                     )}
                 </For>
@@ -174,10 +182,12 @@ export const AnimationPanel: Component = () => {
 const AnimationItem: Component<{
     animation: ElementAnimation;
     index: number;
+    total: number;
     expanded: boolean;
     onToggle: () => void;
     onUpdate: (updates: Partial<ElementAnimation>) => void;
     onRemove: () => void;
+    onReorder: (direction: 'up' | 'down') => void;
 }> = (props) => {
 
     return (
@@ -205,6 +215,26 @@ const AnimationItem: Component<{
                     <span style={{ 'margin-left': '6px', 'opacity': 0.5, 'font-size': '10px' }}>
                         {props.animation.duration}ms
                     </span>
+                </div>
+                <div style={{ 'display': 'flex', 'gap': '4px', 'margin-right': '4px' }}>
+                    <Show when={props.index > 0}>
+                        <button
+                            onClick={(e) => { e.stopPropagation(); props.onReorder('up'); }}
+                            style={{ 'border': 'none', 'background': 'none', 'cursor': 'pointer', 'opacity': 0.6, 'padding': '2px' }}
+                            title="Move Up"
+                        >
+                            <ChevronUp size={14} />
+                        </button>
+                    </Show>
+                    <Show when={props.index < props.total - 1}>
+                        <button
+                            onClick={(e) => { e.stopPropagation(); props.onReorder('down'); }}
+                            style={{ 'border': 'none', 'background': 'none', 'cursor': 'pointer', 'opacity': 0.6, 'padding': '2px' }}
+                            title="Move Down"
+                        >
+                            <ChevronDown size={14} />
+                        </button>
+                    </Show>
                 </div>
                 <button
                     onClick={(e) => { e.stopPropagation(); props.onRemove(); }}

@@ -287,12 +287,23 @@ select:focus {
     border-color: #3b82f6;
 }
 
-input[type="text"] {
-    width: 100%;
+input[type="text"],
+input[type="number"] {
     padding: 6px 10px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 13px;
+    background: var(--bg-panel);
+    color: var(--text-primary);
+}
+
+input[type="number"] {
+    max-width: 80px;
+    text-align: right;
+}
+
+input[type="text"] {
+    width: 100%;
 }
 
 .layer-controls {

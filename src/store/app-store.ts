@@ -433,6 +433,25 @@ export const updateAnimation = (elementId: string, animationId: string, updates:
     );
 };
 
+export const reorderAnimation = (elementId: string, animationId: string, direction: 'up' | 'down', recordHistory = true) => {
+    const el = store.elements.find(e => e.id === elementId);
+    if (!el || !el.animations) return;
+
+    const animations = [...el.animations];
+    const index = animations.findIndex(a => a.id === animationId);
+    if (index === -1) return;
+
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= animations.length) return;
+
+    if (recordHistory) pushToHistory();
+
+    const [removed] = animations.splice(index, 1);
+    animations.splice(newIndex, 0, removed);
+
+    setStore("elements", (e) => e.id === elementId, "animations", animations);
+};
+
 export const moveSelectedElements = (dx: number, dy: number, recordHistory = false) => {
     if (store.selection.length === 0) return;
     if (recordHistory) pushToHistory();
