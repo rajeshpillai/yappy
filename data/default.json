@@ -1,21 +1,21 @@
 {
   "version": 3,
   "metadata": {
-    "createdAt": "2026-01-23T10:02:24.367Z",
-    "updatedAt": "2026-01-23T10:02:24.368Z"
+    "createdAt": "2026-01-23T17:41:27.820Z",
+    "updatedAt": "2026-01-23T17:41:27.820Z"
   },
   "slides": [
     {
-      "id": "9e9773a6-e188-42c5-af26-421e96529eea",
+      "id": "efab6cc0-c080-42ba-991f-691c22cd374e",
       "name": "Slide 1",
       "elements": [
         {
-          "id": "aa44e4b5-97ab-4f7f-b43e-f7a9a0eb53ef",
+          "id": "9d7224e5-960c-4ac8-893e-3119f51759ca",
           "type": "circle",
-          "x": 582.2222290039062,
-          "y": 230.00001525878906,
-          "width": 95.55560302734375,
-          "height": 90.00001525878906,
+          "x": 610.9767554102539,
+          "y": 474.37240211065074,
+          "width": 58.582926342552646,
+          "height": 57.74602476781696,
           "strokeColor": "#000000",
           "backgroundColor": "transparent",
           "fillStyle": "hachure",
@@ -25,7 +25,7 @@
           "opacity": 100,
           "angle": 0,
           "renderStyle": "sketch",
-          "seed": 142586499,
+          "seed": 536605898,
           "roundness": null,
           "locked": false,
           "link": null,
@@ -37,6 +37,12 @@
           "fontWeight": false,
           "fontStyle": false,
           "textAlign": "left",
+          "boundElements": [
+            {
+              "id": "a8cdad36-415c-483c-9c81-16fa131b54d8",
+              "type": "arrow"
+            }
+          ],
           "curveType": "straight",
           "autoResize": false,
           "shadowEnabled": false,
@@ -49,32 +55,88 @@
           "gradientDirection": 45,
           "animations": [
             {
-              "id": "77255368-1290-4130-ac4f-d0b279581823",
+              "id": "a0babb08-fb49-461b-b8f8-87d363d2f51e",
               "type": "preset",
-              "name": "slideInLeft",
+              "name": "revolve",
+              "duration": 1000,
+              "delay": 0,
+              "easing": "easeOutCubic",
+              "trigger": "on-load",
+              "params": {
+                "radius": 210
+              },
+              "repeat": 0,
+              "yoyo": false
+            }
+          ],
+          "flowAnimation": true
+        },
+        {
+          "id": "8ca20cdf-f90f-474f-b048-b22c1b16b05f",
+          "type": "circle",
+          "x": 561.111083984375,
+          "y": 308.888916015625,
+          "width": 80,
+          "height": 78.85713926977009,
+          "strokeColor": "#000000",
+          "backgroundColor": "transparent",
+          "fillStyle": "hachure",
+          "strokeWidth": 2,
+          "strokeStyle": "solid",
+          "roughness": 1,
+          "opacity": 100,
+          "angle": 0,
+          "renderStyle": "sketch",
+          "seed": 536605898,
+          "roundness": null,
+          "locked": false,
+          "link": null,
+          "layerId": "default-layer",
+          "startArrowhead": null,
+          "endArrowhead": null,
+          "fontSize": 20,
+          "fontFamily": "hand-drawn",
+          "fontWeight": false,
+          "fontStyle": false,
+          "textAlign": "left",
+          "boundElements": [
+            {
+              "id": "a8cdad36-415c-483c-9c81-16fa131b54d8",
+              "type": "arrow"
+            }
+          ],
+          "curveType": "straight",
+          "autoResize": false,
+          "shadowEnabled": false,
+          "shadowColor": "rgba(0,0,0,0.3)",
+          "shadowBlur": 10,
+          "shadowOffsetX": 5,
+          "shadowOffsetY": 5,
+          "gradientStart": "#ffffff",
+          "gradientEnd": "#000000",
+          "gradientDirection": 45,
+          "animations": [
+            {
+              "id": "9d64e381-7189-4c73-b112-13fb26faf24a",
+              "type": "preset",
+              "name": "revolve",
               "duration": 1000,
               "delay": 0,
               "easing": "easeOutQuad",
-              "trigger": "on-load"
-            },
-            {
-              "id": "62f1f15c-bd0a-4495-968a-42772e17d73e",
-              "type": "preset",
-              "name": "pulse",
-              "duration": 1000,
-              "delay": 23,
-              "easing": "easeOutQuad",
-              "trigger": "after-prev"
+              "trigger": "on-load",
+              "params": {
+                "radius": 180
+              }
             }
           ]
         },
         {
-          "id": "4f1e0ecf-093b-4de5-8111-619c40c59ca5",
-          "type": "rectangle",
-          "x": 784.4445190429688,
-          "y": 217.77774047851562,
-          "width": 95.5555419921875,
-          "height": 100,
+          "id": "a8cdad36-415c-483c-9c81-16fa131b54d8",
+          "type": "arrow",
+          "x": 640.2682185815302,
+          "y": 474.37240211065074,
+          "width": -39.157134597155164,
+          "height": -86.62634682525567,
           "strokeColor": "#000000",
           "backgroundColor": "transparent",
           "fillStyle": "hachure",
@@ -84,7 +146,7 @@
           "opacity": 100,
           "angle": 0,
           "renderStyle": "sketch",
-          "seed": 660408024,
+          "seed": 884908174,
           "roundness": null,
           "locked": false,
           "link": null,
@@ -96,6 +158,18 @@
           "fontWeight": false,
           "fontStyle": false,
           "textAlign": "left",
+          "startBinding": {
+            "elementId": "9d7224e5-960c-4ac8-893e-3119f51759ca",
+            "focus": 0,
+            "gap": 5,
+            "position": "top"
+          },
+          "endBinding": {
+            "elementId": "8ca20cdf-f90f-474f-b048-b22c1b16b05f",
+            "focus": 0,
+            "gap": 5,
+            "position": "bottom"
+          },
           "curveType": "straight",
           "autoResize": false,
           "shadowEnabled": false,
@@ -105,27 +179,7 @@
           "shadowOffsetY": 5,
           "gradientStart": "#ffffff",
           "gradientEnd": "#000000",
-          "gradientDirection": 45,
-          "animations": [
-            {
-              "id": "46331b43-62db-4826-a7d4-7ed8bc76c7f7",
-              "type": "preset",
-              "name": "shakeY",
-              "duration": 1000,
-              "delay": 0,
-              "easing": "easeOutQuad",
-              "trigger": "after-prev"
-            },
-            {
-              "id": "36f86e4e-f3b9-4fc4-83bb-7e0169c9602d",
-              "type": "preset",
-              "name": "zoomOut",
-              "duration": 1000,
-              "delay": 0,
-              "easing": "easeOutQuad",
-              "trigger": "after-prev"
-            }
-          ]
+          "gradientDirection": 45
         }
       ],
       "layers": [
@@ -143,8 +197,8 @@
       ],
       "viewState": {
         "scale": 1,
-        "panX": 66.66666843273049,
-        "panY": 75.55555755709395
+        "panX": 0,
+        "panY": 0
       },
       "gridSettings": {
         "enabled": false,
@@ -161,6 +215,7 @@
   ],
   "globalSettings": {
     "animationEnabled": true,
-    "reducedMotion": false
+    "reducedMotion": false,
+    "renderStyle": "sketch"
   }
 }
