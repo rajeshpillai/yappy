@@ -16,6 +16,18 @@ export interface PropertyConfig {
 
 export const properties: PropertyConfig[] = [
     {
+        key: 'renderStyle',
+        label: 'Default Drawing Style',
+        type: 'select',
+        options: [
+            { label: 'Sketch', value: 'sketch' },
+            { label: 'Architectural', value: 'architectural' }
+        ],
+        group: 'canvas',
+        applicableTo: ['canvas'],
+        defaultValue: 'sketch'
+    },
+    {
         key: 'flowAnimation',
         label: 'Flow Animation',
         type: 'toggle',
@@ -51,18 +63,7 @@ export const properties: PropertyConfig[] = [
     },
     // ... (lines 18-271 same) ...
     // Canvas Properties
-    {
-        key: 'renderStyle',
-        label: 'Default Drawing Style',
-        type: 'select',
-        options: [
-            { label: 'Sketch', value: 'sketch' },
-            { label: 'Architectural', value: 'architectural' }
-        ],
-        group: 'canvas',
-        applicableTo: ['canvas'],
-        defaultValue: 'sketch'
-    },
+
     {
         key: 'canvasBackgroundColor',
         label: 'Background',
