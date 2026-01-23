@@ -355,6 +355,37 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
                 ]
             };
         }
+
+        case 'stateStart': {
+            return { type: 'ellipse', cx: 0, cy: 0, rx: w / 2, ry: h / 2 };
+        }
+
+        case 'stateEnd': {
+            return {
+                type: 'multi', shapes: [
+                    { type: 'ellipse', cx: 0, cy: 0, rx: w / 2, ry: h / 2 },
+                    { type: 'ellipse', cx: 0, cy: 0, rx: w / 3, ry: h / 3 }
+                ]
+            };
+        }
+
+        case 'stateSync': {
+            return { type: 'rect', x: x, y: y, w: w, h: h, r: 2 };
+        }
+
+        case 'activationBar': {
+            return { type: 'rect', x: x, y: y, w: w, h: h, r: 0 };
+        }
+
+        case 'externalEntity': {
+            const shadowOffset = 4;
+            return {
+                type: 'multi', shapes: [
+                    { type: 'rect', x: x + shadowOffset, y: y + shadowOffset, w: w, h: h, r: 0 }, // Shadow
+                    { type: 'rect', x: x, y: y, w: w, h: h, r: 0 } // Main box
+                ]
+            };
+        }
     }
 
     return null;
