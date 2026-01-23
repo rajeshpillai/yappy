@@ -1531,6 +1531,9 @@ export function revolve(elementId: string, duration: number = 2000, config: Elem
             duration,
             easing: config.easing || 'linear',
             delay: config.delay,
+            loop: config.loop,
+            loopCount: config.loopCount,
+            alternate: config.alternate,
             onComplete: () => {
                 const animIds = activeAnimations.get(elementId);
                 if (animIds) {
