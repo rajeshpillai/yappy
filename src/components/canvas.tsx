@@ -956,6 +956,7 @@ const Canvas: Component = () => {
             e.drawInnerBorder; // Track double border toggle
             e.innerBorderDistance; // Track double border distance
             e.strokeLineJoin; // Track corner style
+            e.renderStyle; // Track drawing style (Sketch/Architectural)
             e.fillDensity; // Track fill density
             // Track gradient properties
             e.gradientStart; e.gradientEnd; e.gradientDirection;
