@@ -41,14 +41,15 @@ export const AnimationPanel: Component = () => {
         const el = element();
         if (!el) return;
 
-        const newAnim: PresetAnimation = {
+        const newAnim: any = {
             id: crypto.randomUUID(),
             type: 'preset',
             name: name,
             duration: 1000,
             delay: 0,
             easing: 'easeOutQuad',
-            trigger: el.animations?.length ? 'after-prev' : 'on-load'
+            trigger: el.animations?.length ? 'after-prev' : 'on-load',
+            params: name === 'revolve' ? { radius: 50 } : undefined
         };
 
         const currentAnims = el.animations || [];
@@ -363,6 +364,23 @@ const AnimationItem: Component<{
                             <label for={`rel-${props.animation.id}`} style={{ 'font-size': '11px', 'opacity': 0.7, 'cursor': 'pointer' }}>
                                 Relative to current
                             </label>
+                        </div>
+                    </Show>
+
+                    {/* Specialized Preset Settings (e.g. Revolve Radius) */}
+                    <Show when={props.animation.type === 'preset' && (props.animation as PresetAnimation).name === 'revolve'}>
+                        <div style={{ 'display': 'flex', 'align-items': 'center', 'justify-content': 'space-between' }}>
+                            <label style={{ 'font-size': '11px', 'opacity': 0.7 }}>Radius (px)</label>
+                            <input
+                                type="number"
+                                step="10"
+                                value={(props.animation as any).params?.radius ?? 50}
+                                onInput={(e) => {
+                                    const params = { ...(props.animation as any).params, radius: Number(e.currentTarget.value) };
+                                    props.onUpdate({ params });
+                                }}
+                                style={{ 'width': '60px', 'font-size': '11px', 'padding': '2px 4px' }}
+                            />
                         </div>
                     </Show>
 

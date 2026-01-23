@@ -125,7 +125,8 @@ export class SequenceAnimator {
             duration: anim.duration,
             delay: anim.delay,
             easing: anim.easing,
-            onComplete
+            onComplete,
+            params: (anim as any).params
         };
 
         if (anim.type === 'preset') {

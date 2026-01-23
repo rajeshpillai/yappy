@@ -65,6 +65,8 @@ export interface ElementAnimationConfig extends Omit<AnimationConfig, 'onUpdate'
     intensity?: number;
     /** For pulse / scale presets */
     scale?: number;
+    /** For custom preset parameters */
+    params?: Record<string, any>;
 }
 
 /**
@@ -1501,9 +1503,11 @@ export function revolve(elementId: string, duration: number = 2000, config: Elem
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
+    const params = (config as any).params || {};
+    const radius = params.radius ?? 50;
+
     const startX = element.x;
     const startY = element.y;
-    const radius = 50; // Default revolve radius
     const centerX = startX + radius;
     const centerY = startY;
 

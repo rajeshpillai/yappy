@@ -33,6 +33,7 @@ export interface BaseAnimation {
 export interface PresetAnimation extends BaseAnimation {
     type: 'preset';
     name: string; // 'fadeIn', 'bounceIn', 'shake', etc.
+    params?: Record<string, any>;
 }
 
 // 2. Property Animation (Tweening)
