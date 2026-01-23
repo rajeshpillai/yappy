@@ -1,6 +1,6 @@
 
 import { type Component, For, Show, createSignal, createMemo } from 'solid-js';
-import { store, updateElement } from '../store/app-store';
+import { store, updateElement, updateAnimation } from '../store/app-store';
 import { sequenceAnimator } from '../utils/animation/sequence-animator';
 import { Play, Plus, Trash2, ChevronDown, ChevronRight } from 'lucide-solid';
 import type { ElementAnimation, PresetAnimation } from '../types/motion-types';
@@ -67,12 +67,9 @@ export const AnimationPanel: Component = () => {
 
     const updateAnimProperty = (animId: string, updates: Partial<ElementAnimation>) => {
         const el = element();
-        if (!el || !el.animations) return;
+        if (!el) return;
 
-        const newAnims = el.animations.map(a =>
-            a.id === animId ? { ...a, ...updates } : a
-        );
-        updateElement(el.id, { animations: newAnims as ElementAnimation[] }, true); // Cast to fix index signature mismatch if any
+        updateAnimation(el.id, animId, updates, true);
     };
 
     const handlePlay = () => {

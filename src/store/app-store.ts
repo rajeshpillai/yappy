@@ -1,6 +1,7 @@
 import { createStore } from "solid-js/store";
 import type { DrawingElement, ViewState, ElementType, Layer, GridSettings } from "../types";
 import type { GlobalSettings } from '../types/slide-types';
+import type { ElementAnimation } from "../types/motion-types";
 import { showToast } from "../components/toast";
 import { MindmapLayoutEngine, type LayoutDirection } from "../utils/mindmap-layout";
 import { animationEngine } from "../utils/animation/animation-engine";
@@ -419,6 +420,16 @@ export const updateElement = (id: string, updates: Partial<DrawingElement>, reco
     if ('flowAnimation' in updates) {
         updateGlobalTickerState();
     }
+};
+
+export const updateAnimation = (elementId: string, animationId: string, updates: Partial<ElementAnimation>, recordHistory = false) => {
+    if (recordHistory) pushToHistory();
+    setStore("elements",
+        (el) => el.id === elementId,
+        "animations",
+        (anim: ElementAnimation) => anim.id === animationId,
+        updates
+    );
 };
 
 export const moveSelectedElements = (dx: number, dy: number, recordHistory = false) => {
