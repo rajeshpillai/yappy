@@ -766,3 +766,10 @@
   - [ ] Interaction simulations (showing user interactions)
   - [x] Export as MP4/WebM/GIF for social media sharing
   - [ ] Use cases: LinkedIn posts, Twitter threads, portfolio pieces
+
+
+  ## IMP
+  - [ ] Check reactivity of property panel
+  - [ ] Right properties for shapes (i.e not all properties will be applicable 
+        for all shapes, for e.g. for cicular shapes, roundness etc doesn't matter)
+ 
