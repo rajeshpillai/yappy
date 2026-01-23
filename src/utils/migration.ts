@@ -104,9 +104,7 @@ export const normalizeElement = (el: Partial<DrawingElement> & { id: string; typ
 
         // Animation Settings
         ...(el.entranceAnimation !== undefined && { entranceAnimation: el.entranceAnimation }),
-        ...(el.exitAnimation !== undefined && { exitAnimation: el.exitAnimation }),
-        ...(el.animationDuration !== undefined && { animationDuration: el.animationDuration }),
-        ...(el.animationDelay !== undefined && { animationDelay: el.animationDelay }),
+
 
         // Control Points
         ...(el.controlPoints !== undefined && { controlPoints: el.controlPoints }),

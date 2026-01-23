@@ -1657,7 +1657,7 @@ export function playEntranceAnimation(elementId: string): string {
     if (!element) return '';
 
     const animation = element.entranceAnimation ?? 'none';
-    const duration = element.animationDuration ?? 300;
+    const duration = (element as any).animationDuration ?? 300;
 
     // Capture or retrieve original state to restore after animation
     // If an animation is already running, we MUST use the already captured base state
@@ -1791,8 +1791,8 @@ export function playExitAnimation(elementId: string): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
-    const animation = element.exitAnimation ?? 'none';
-    const duration = element.animationDuration ?? 300;
+    const animation = (element as any).exitAnimation ?? 'none';
+    const duration = (element as any).animationDuration ?? 300;
 
     // Capture or retrieve original state to restore after animation
     if (!previewBaseStates.has(elementId)) {

@@ -1,14 +1,11 @@
 import { animateElement, type ElementAnimationTarget, type ElementAnimationConfig } from './element-animator';
-import { generateAnimationId } from './animation-engine';
 import type { ElementAnimation, PropertyAnimation } from '../../types/motion-types';
 import { store } from '../../store/app-store';
-import type { DrawingElement } from '../../types';
 
 /**
  * Manages the execution of animation sequences for elements
  */
 export class SequenceAnimator {
-    private activeSequences = new Map<string, string>(); // elementId -> currentStepId
 
     /**
      * Play the animation sequence for a specific element
