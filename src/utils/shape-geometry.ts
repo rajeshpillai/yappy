@@ -243,30 +243,24 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
         }
 
         case 'bracketLeft': {
-            const peak = w * 0.1;
             return {
                 type: 'points',
                 isClosed: false,
                 points: [
                     { x: x + w, y: y },
-                    { x: x + peak, y: y },
                     { x: x, y: y + h / 2 },
-                    { x: x + peak, y: y + h },
                     { x: x + w, y: y + h }
                 ]
             };
         }
 
         case 'bracketRight': {
-            const peak = w * 0.1;
             return {
                 type: 'points',
                 isClosed: false,
                 points: [
                     { x: x, y: y },
-                    { x: x + w - peak, y: y },
                     { x: x + w, y: y + h / 2 },
-                    { x: x + w - peak, y: y + h },
                     { x: x, y: y + h }
                 ]
             };
