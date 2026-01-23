@@ -1,6 +1,6 @@
 import { store } from "../../store/app-store";
 import { animateElement, fadeIn, fadeOut } from "./element-animator";
-import type { DisplayState, DrawingElementState } from "../../types/motion-types";
+import type { DisplayState } from "../../types/motion-types";
 
 /**
  * MorphAnimator
