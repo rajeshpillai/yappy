@@ -308,14 +308,21 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
         case 'dfdDataStore': {
             const labelW = w * 0.2;
             return {
-                type: 'points', isClosed: false, points: [
-                    { x: x + w, y: y },
-                    { x: x, y: y },
-                    { x: x, y: y + h },
-                    { x: x + w, y: y + h },
-                    // Vertical divider
-                    { x: x + labelW, y: y },
-                    { x: x + labelW, y: y + h }
+                type: 'multi', shapes: [
+                    {
+                        type: 'points', isClosed: false, points: [
+                            { x: x + w, y: y },
+                            { x: x, y: y },
+                            { x: x, y: y + h },
+                            { x: x + w, y: y + h }
+                        ]
+                    },
+                    {
+                        type: 'points', isClosed: false, points: [
+                            { x: x + labelW, y: y },
+                            { x: x + labelW, y: y + h }
+                        ]
+                    }
                 ]
             };
         }
