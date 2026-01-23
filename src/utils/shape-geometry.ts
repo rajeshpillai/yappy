@@ -4,7 +4,7 @@ export type ShapeGeometry =
     | { type: 'rect', x: number, y: number, w: number, h: number, r?: number }
     | { type: 'ellipse', cx: number, cy: number, rx: number, ry: number }
     | { type: 'path', path: string }
-    | { type: 'points', points: { x: number, y: number }[] }
+    | { type: 'points', points: { x: number, y: number }[], isClosed?: boolean }
     | { type: 'multi', shapes: ShapeGeometry[] };
 
 const getRoundedRectPath = (x: number, y: number, w: number, h: number, r: number) => {
@@ -244,12 +244,12 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
 
         case 'bracketLeft': {
             const bW = w * 0.3;
-            return { type: 'points', points: [{ x: x + bW, y: y }, { x: x, y: y }, { x: x, y: y + h }, { x: x + bW, y: y + h }] };
+            return { type: 'points', isClosed: false, points: [{ x: x + bW, y: y }, { x: x, y: y }, { x: x, y: y + h }, { x: x + bW, y: y + h }] };
         }
 
         case 'bracketRight': {
             const bW = w * 0.3;
-            return { type: 'points', points: [{ x: x + w - bW, y: y }, { x: x + w, y: y }, { x: x + w, y: y + h }, { x: x + w - bW, y: y + h }] };
+            return { type: 'points', isClosed: false, points: [{ x: x + w - bW, y: y }, { x: x + w, y: y }, { x: x + w, y: y + h }, { x: x + w - bW, y: y + h }] };
         }
 
         case 'arrowLeft': {

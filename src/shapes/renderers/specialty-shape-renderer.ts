@@ -59,7 +59,11 @@ export class SpecialtyShapeRenderer extends ShapeRenderer {
         } else if (geo.type === 'points') {
             // Points are already relative to center in geometry
             const points: [number, number][] = geo.points.map((p: any) => [p.x, p.y]);
-            rc.polygon(points, options);
+            if (geo.isClosed === false) {
+                rc.linearPath(points, options);
+            } else {
+                rc.polygon(points, options);
+            }
         } else if (geo.type === 'path') {
             rc.path(geo.path, options);
         } else if (geo.type === 'multi') {

@@ -182,7 +182,7 @@ export class RenderPipeline {
             if (geo.points.length > 0) {
                 ctx.moveTo(geo.points[0].x, geo.points[0].y);
                 for (let i = 1; i < geo.points.length; i++) ctx.lineTo(geo.points[i].x, geo.points[i].y);
-                ctx.closePath();
+                if (geo.isClosed !== false) ctx.closePath();
             }
         } else if (geo.type === 'path') {
             ctx.fill(new Path2D(geo.path));
