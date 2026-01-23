@@ -146,6 +146,18 @@ export const properties: PropertyConfig[] = [
         applicableTo: ['canvas'],
         defaultValue: 0.5
     },
+    {
+        key: 'renderStyle',
+        label: 'Default Drawing Style',
+        type: 'select',
+        options: [
+            { label: 'Sketch', value: 'sketch' },
+            { label: 'Architectural', value: 'architectural' }
+        ],
+        group: 'canvas',
+        applicableTo: ['canvas'],
+        defaultValue: 'sketch'
+    },
     // Style
     {
         key: 'renderStyle',

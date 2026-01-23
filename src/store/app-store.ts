@@ -106,7 +106,8 @@ const initialState: AppState = {
     },
     globalSettings: {
         animationEnabled: true,
-        reducedMotion: false
+        reducedMotion: false,
+        renderStyle: 'sketch'
     },
     showCanvasProperties: false,
     canvasBackgroundColor: '#ffffff',
@@ -470,6 +471,15 @@ export const setSelectedTool = (tool: ElementType | 'selection') => {
 
 export const updateDefaultStyles = (updates: Partial<DrawingElement>) => {
     setStore("defaultElementStyles", (s) => ({ ...s, ...updates }));
+};
+
+export const updateGlobalSettings = (updates: Partial<GlobalSettings>) => {
+    setStore("globalSettings", (s) => ({ ...s, ...updates }));
+
+    // Sync renderStyle to default styles if it was updated
+    if (updates.renderStyle) {
+        updateDefaultStyles({ renderStyle: updates.renderStyle });
+    }
 };
 
 // Helper to clear history (e.g. on new file)

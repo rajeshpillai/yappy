@@ -34,6 +34,7 @@ export interface GlobalSettings {
     defaultStyles?: Partial<DrawingElement>;
     animationEnabled?: boolean; // Global toggle
     reducedMotion?: boolean;    // Accessibility preference
+    renderStyle?: 'sketch' | 'architectural'; // Default style for new elements
 }
 
 /**

@@ -1,5 +1,5 @@
 import { type Component, Show, createMemo, For, createSignal, createEffect, Index } from "solid-js";
-import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, alignSelectedElements, distributeSelectedElements, togglePropertyPanel, minimizePropertyPanel, setMaxLayers, setCanvasTexture, pushToHistory, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, toggleCollapse } from "../store/app-store";
+import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, updateGlobalSettings, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, alignSelectedElements, distributeSelectedElements, togglePropertyPanel, minimizePropertyPanel, setMaxLayers, setCanvasTexture, pushToHistory, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, toggleCollapse } from "../store/app-store";
 import {
     Copy, ChevronsDown, ChevronDown, ChevronUp, ChevronsUp, Trash2, Palette,
     AlignLeft, AlignCenterHorizontal, AlignRight,
@@ -500,6 +500,7 @@ const PropertyPanel: Component = () => {
             else if (key === 'objectSnapping') updateGridSettings({ objectSnapping: value });
             else if (key === 'maxLayers') setMaxLayers(parseInt(value));
             else if (key === 'canvasTexture') setCanvasTexture(value);
+            else if (key === 'renderStyle') updateGlobalSettings({ renderStyle: value });
         } else {
             updateDefaultStyles({ [key]: finalValue });
         }
@@ -517,6 +518,7 @@ const PropertyPanel: Component = () => {
                 return (store.gridSettings as any)[prop.key];
             }
             if (prop.key === 'maxLayers') return store.maxLayers;
+            if (prop.key === 'renderStyle') return store.globalSettings.renderStyle;
             return (store as any)[prop.key];
         }
         if (target.type === 'element') {
