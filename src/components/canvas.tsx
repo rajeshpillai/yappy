@@ -1388,7 +1388,9 @@ const Canvas: Component = () => {
             el.type === 'trapezoid' || el.type === 'rightTriangle' || el.type === 'pentagon' || el.type === 'septagon' ||
             el.type === 'starPerson' || el.type === 'scroll' || el.type === 'wavyDivider' || el.type === 'doubleBanner' ||
             el.type === 'lightbulb' || el.type === 'signpost' || el.type === 'burstBlob' ||
-            el.type === 'browserWindow' || el.type === 'mobilePhone' || el.type === 'ghostButton' || el.type === 'inputField') {
+            el.type === 'browserWindow' || el.type === 'mobilePhone' || el.type === 'ghostButton' || el.type === 'inputField' ||
+            el.type === 'dfdProcess' || el.type === 'dfdDataStore' || el.type === 'isometricCube' || el.type === 'cylinder' ||
+            el.type === 'stateStart' || el.type === 'stateEnd' || el.type === 'stateSync' || el.type === 'activationBar' || el.type === 'externalEntity') {
             // For new shapes, use bounding box hit test (simple and effective)
             return true; // Box check already passed above
         }
