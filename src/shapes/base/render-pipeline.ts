@@ -3,6 +3,7 @@ import type { DrawingElement } from "../../types";
 import { getShapeGeometry } from "../../utils/shape-geometry";
 import { getFontString, measureContainerText } from "../../utils/text-utils";
 import type { RenderContext } from "./types";
+import { store } from "../../store/app-store";
 
 export class RenderPipeline {
     static adjustColor(color: string, isDarkMode: boolean) {
@@ -36,12 +37,42 @@ export class RenderPipeline {
             ctx.shadowColor = 'transparent';
         }
 
-        const cx = el.x + el.width / 2;
-        const cy = el.y + el.height / 2;
+        const angle = el.angle || 0;
+        let finalAngle = angle;
+        let finalX = el.x;
+        let finalY = el.y;
 
-        if (el.angle) {
+        // Apply Spin (Self-rotation)
+        if (el.spinEnabled) {
+            const speed = el.spinSpeed || 5;
+            const time = (window as any).yappyGlobalTime || performance.now();
+            finalAngle += (time / 1000) * (speed * (Math.PI / 180)) * 60; // Approx 60fps normalization
+        }
+
+        // Apply Orbit
+        if (el.orbitEnabled && el.orbitCenterId) {
+            const centerElement = (store.elements as any[]).find(e => e.id === el.orbitCenterId);
+            if (centerElement) {
+                const speed = el.orbitSpeed || 1;
+                const radius = el.orbitRadius || 150;
+                const direction = el.orbitDirection === 'ccw' ? -1 : 1;
+                const time = (window as any).yappyGlobalTime || performance.now();
+
+                const centerX = centerElement.x + centerElement.width / 2;
+                const centerY = centerElement.y + centerElement.height / 2;
+
+                const orbitAngle = (time / 1000) * speed * direction;
+                finalX = centerX + Math.cos(orbitAngle) * radius - el.width / 2;
+                finalY = centerY + Math.sin(orbitAngle) * radius - el.height / 2;
+            }
+        }
+
+        const cx = finalX + el.width / 2;
+        const cy = finalY + el.height / 2;
+
+        if (finalAngle) {
             ctx.translate(cx, cy);
-            ctx.rotate(el.angle);
+            ctx.rotate(finalAngle);
             ctx.translate(-cx, -cy);
         }
 

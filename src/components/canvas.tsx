@@ -189,6 +189,9 @@ const Canvas: Component = () => {
         const ctx = canvasRef.getContext("2d");
         if (!ctx) return;
 
+        // Expose globalTime to window for renderers to access without signal overhead in deep loops
+        (window as any).yappyGlobalTime = globalTime();
+
         const startTime = performance.now();
 
         // Reset Transform Matrix to Identity so we don't accumulate translations!
@@ -965,6 +968,9 @@ const Canvas: Component = () => {
             e.shadowEnabled; e.shadowColor; e.shadowBlur; e.shadowOffsetX; e.shadowOffsetY;
             // Effects
             e.blendMode;
+            // Animations
+            e.spinEnabled; e.spinSpeed;
+            e.orbitEnabled; e.orbitCenterId; e.orbitRadius; e.orbitSpeed; e.orbitDirection;
         });
         store.viewState.scale;
         store.viewState.panX;

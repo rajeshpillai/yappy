@@ -201,6 +201,16 @@ export interface DrawingElement {
     flowAnimation?: boolean;
     flowSpeed?: number;          // 0 to 10
     flowStyle?: 'dashes' | 'dots' | 'pulse';
+
+    // NEW: Persistent Animations
+    spinEnabled?: boolean;
+    spinSpeed?: number;          // Degrees per frame or similar
+
+    orbitEnabled?: boolean;
+    orbitCenterId?: string;      // ID of element to orbit
+    orbitRadius?: number;
+    orbitSpeed?: number;
+    orbitDirection?: 'cw' | 'ccw';
 }
 
 

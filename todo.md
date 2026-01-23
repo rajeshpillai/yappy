@@ -518,7 +518,9 @@
   - [x] Architectural and Sketch mode support for all markers
   - Note: Connectors already support line types such as dashed and dotted.
 - [ ] Introduce smart routing for connectors (e.g., orthogonal routing, A* pathfinding)
-- [ ] Add animation support for elements (e.g., transitions, blinking, movement)
+- [x] Add animation support for elements (e.g., transitions, blinking, movement)
+  - [x] Persistent animations: Spin (self-rotation) and Orbit (revolution around center)
+  - [x] Synchronized global animation clock for smooth rendering
 - [ ] Implement layer blend modes (e.g., multiply, screen, overlay)
 - [ ] Add layer thumbnails/previews for better navigation
 - [ ] Enable rulers and draggable guides for precise alignment

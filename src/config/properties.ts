@@ -73,6 +73,80 @@ export const properties: PropertyConfig[] = [
         defaultValue: 'dashes',
         dependsOn: 'flowAnimation'
     },
+    {
+        key: 'spinEnabled',
+        label: 'Auto Spin',
+        type: 'toggle',
+        group: 'motion',
+        applicableTo: 'all',
+        defaultValue: false
+    },
+    {
+        key: 'spinSpeed',
+        label: 'Spin Speed',
+        type: 'slider',
+        min: -20,
+        max: 20,
+        step: 0.5,
+        group: 'motion',
+        applicableTo: 'all',
+        defaultValue: 5,
+        dependsOn: 'spinEnabled'
+    },
+    {
+        key: 'orbitEnabled',
+        label: 'Auto Orbit',
+        type: 'toggle',
+        group: 'motion',
+        applicableTo: 'all',
+        defaultValue: false
+    },
+    {
+        key: 'orbitCenterId',
+        label: 'Orbit Center ID',
+        type: 'input',
+        group: 'motion',
+        applicableTo: 'all',
+        defaultValue: '',
+        dependsOn: 'orbitEnabled'
+    },
+    {
+        key: 'orbitRadius',
+        label: 'Orbit Radius',
+        type: 'slider',
+        min: 0,
+        max: 1000,
+        step: 10,
+        group: 'motion',
+        applicableTo: 'all',
+        defaultValue: 150,
+        dependsOn: 'orbitEnabled'
+    },
+    {
+        key: 'orbitSpeed',
+        label: 'Orbit Speed',
+        type: 'slider',
+        min: 0.1,
+        max: 10,
+        step: 0.1,
+        group: 'motion',
+        applicableTo: 'all',
+        defaultValue: 1,
+        dependsOn: 'orbitEnabled'
+    },
+    {
+        key: 'orbitDirection',
+        label: 'Direction',
+        type: 'select',
+        options: [
+            { label: 'Clockwise', value: 'cw' },
+            { label: 'Counter-Clockwise', value: 'ccw' }
+        ],
+        group: 'motion',
+        applicableTo: 'all',
+        defaultValue: 'cw',
+        dependsOn: 'orbitEnabled'
+    },
     // ... (lines 18-271 same) ...
     // Canvas Properties
 
