@@ -638,6 +638,105 @@ sortedLayers.forEach(layer => {
 
 ---
 
+## TypeScript Type Constraints in Store State
+
+### Critical: Union Types Must Include All Valid Values
+
+**Problem**: When adding new element types to a tool group, forgetting to update the corresponding union type in the store breaks tool selection.
+
+```typescript
+// ❌ WRONG - Missing new types causes runtime failures
+type AppState = {
+    selectedTechnicalType: 'dfdProcess' | 'dfdDataStore' | 'isometricCube' | 'cylinder';
+    // Added 5 new shapes but forgot to update this type!
+}
+
+// Component tries to set 'stateStart' but TypeScript prevents it
+setSelectedTechnicalType('stateStart');  // Type error or silent failure
+```
+
+**Solution**: Always update union types when adding new variants:
+
+```typescript
+// ✅ CORRECT - All valid values included
+type AppState = {
+    selectedTechnicalType: 
+        | 'dfdProcess' 
+        | 'dfdDataStore' 
+        | 'isometricCube' 
+        | 'cylinder'
+        | 'stateStart'      // New
+        | 'stateEnd'        // New
+        | 'stateSync'       // New
+        | 'activationBar'   // New
+        | 'externalEntity'; // New
+}
+```
+
+**Why This Breaks**: TypeScript's type checking prevents assignment of values not in the union. If the store action has a type constraint, setting an unlisted value will either:
+1. Fail at compile time (if strict)
+2. Silently fail at runtime (if type is cast with `as any`)
+3. Cause the UI component to malfunction
+
+**Debugging Tip**: If a tool group dropdown stops working after adding new tools, check the store's type definition for the selection state.
+
+**Location**: This issue occurred in `src/store/app-store.ts` when implementing technical shapes.
+
+---
+
+## SVG Path Coordinate Systems
+
+### Critical: Understand Centered vs Absolute Coordinates
+
+**Problem**: SVG path definitions must use the correct coordinate system. Mixing centered (0,0 at shape center) with absolute coordinates causes shapes to render incorrectly or not at all.
+
+```typescript
+// ❌ WRONG - Inconsistent coordinate usage
+case 'heart':
+    // Uses 0 for center but mh (a variable) for bottom
+    return { type: 'path', path: `M 0 ${y + h * 0.3} ... ${mh} ...` };
+
+case 'ribbon':
+    // References undefined variable mh instead of calculating y + h/2
+    return { type: 'path', path: `... L ${x + w} ${mh} ...` };
+```
+
+**Solution**: Understand your coordinate system and use it consistently:
+
+```typescript
+// ✅ CORRECT - Consistent centered coordinate system
+// In shape-geometry.ts, all shapes use:
+const x = -mw;  // mw = width / 2
+const y = -mh;  // mh = height / 2
+// So (0, 0) is the center of the shape
+
+case 'heart':
+    // Bottom point should be y + h (not mh which is y + h/2)
+    return { type: 'path', path: `M ${0} ${y + h * 0.3} ... ${0} ${y + h} ...` };
+
+case 'ribbon':
+    // Middle point should be calculated as y + h/2
+    return { type: 'path', path: `... L ${x + w} ${y + h / 2} ...` };
+```
+
+**Key Insight**: 
+- `mh` and `mw` are **half** the dimensions, used to center the coordinate system
+- `x = -mw` and `y = -mh` set the top-left corner
+- Center point is `(0, 0)`
+- Bottom-right is `(x + w, y + h)` which equals `(mw, mh)`
+
+**Common Mistakes**:
+1. Using `mh` when you mean `y + h` (full height vs half height)
+2. Mixing absolute screen coordinates with shape-relative coordinates
+3. Forgetting that `x` and `y` are negative offsets from center
+
+**Debugging**: If a shape doesn't appear:
+1. Check if path coordinates are using the right reference point
+2. Verify all variables (like `mh`) are defined and used correctly
+3. Test with simple absolute values first, then convert to relative
+
+---
+
 ## Summary: The Most Important Lessons
 
 1. **Never use early returns in SolidJS** - Use `Show` component
@@ -648,3 +747,5 @@ sortedLayers.forEach(layer => {
 6. **Render floating UI at app root** - Avoid transform/z-index issues
 7. **Test incrementally** - Small changes, frequent testing
 8. **User feedback is invaluable** - What works in code may not work in practice
+9. **Update union types when adding variants** - TypeScript constraints must match runtime values
+10. **Understand coordinate systems** - SVG paths need consistent reference points
