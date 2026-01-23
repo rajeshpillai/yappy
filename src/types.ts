@@ -1,3 +1,4 @@
+import type { ElementAnimation } from './types/motion-types';
 export type ElementType = 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | 'fineliner' | 'inkbrush' | 'marker' | 'eraser' | 'pan' | 'selection' | 'image' | 'bezier' | 'diamond' | 'triangle' | 'hexagon' | 'octagon' | 'parallelogram' | 'star' | 'cloud' | 'heart' | 'cross' | 'checkmark' | 'arrowLeft' | 'arrowUp' | 'arrowDown' | 'arrowRight' | 'capsule' | 'stickyNote' | 'callout' | 'burst' | 'speechBubble' | 'ribbon' | 'bracketLeft' | 'bracketRight' | 'database' | 'document' | 'predefinedProcess' | 'internalStorage' | 'server' | 'loadBalancer' | 'firewall' | 'user' | 'messageQueue' | 'lambda' | 'router' | 'browser' | 'trapezoid' | 'rightTriangle' | 'pentagon' | 'septagon' | 'starPerson' | 'scroll' | 'wavyDivider' | 'doubleBanner' | 'lightbulb' | 'signpost' | 'burstBlob' | 'browserWindow' | 'mobilePhone' | 'ghostButton' | 'inputField' | 'organicBranch' | 'polygon';
 export type FillStyle = 'hachure' | 'solid' | 'cross-hatch' | 'zigzag' | 'dots' | 'dashed' | 'zigzag-line' | 'linear' | 'radial' | 'conic';
 export type StrokeStyle = 'solid' | 'dashed' | 'dotted';
@@ -189,11 +190,12 @@ export interface DrawingElement {
     filter?: string; // CSS filter string (e.g. "blur(5px)")
     isEditing?: boolean;
 
-    // Animation Settings
+
+    // NEW: Robust Animation System
+    /** @deprecated Use animations array instead */
     entranceAnimation?: EntranceAnimation;
-    exitAnimation?: ExitAnimation;
-    animationDuration?: number;  // ms, default 300
-    animationDelay?: number;     // ms, default 0;
+    animations?: ElementAnimation[];
+    isMotionPath?: boolean; // Can this element act as a path for others?
 
     // Motion Graphics
     flowAnimation?: boolean;

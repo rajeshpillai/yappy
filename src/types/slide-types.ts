@@ -1,4 +1,5 @@
 import type { DrawingElement, Layer, ViewState, GridSettings } from '../types';
+import type { DisplayState } from './motion-types';
 
 /**
  * Represents a single slide in a presentation
@@ -12,6 +13,8 @@ export interface Slide {
     gridSettings?: GridSettings;
     backgroundColor?: string;
     order: number;
+    states?: DisplayState[];
+    initialStateId?: string;
 }
 
 /**

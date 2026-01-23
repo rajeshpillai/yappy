@@ -1,12 +1,12 @@
 {
   "version": 3,
   "metadata": {
-    "createdAt": "2026-01-22T17:06:58.779Z",
-    "updatedAt": "2026-01-22T17:06:58.779Z"
+    "createdAt": "2026-01-23T05:01:24.624Z",
+    "updatedAt": "2026-01-23T05:01:24.624Z"
   },
   "slides": [
     {
-      "id": "0a9f96e3-8c93-42f4-8f39-6a13bf2a2af9",
+      "id": "6154a2e0-4d9b-421b-b472-3aa56436a6d2",
       "name": "Slide 1",
       "elements": [
         {
@@ -60,7 +60,8 @@
           ],
           "curveType": "straight",
           "isCollapsed": false,
-          "fillDensity": 2
+          "fillDensity": 2,
+          "flowAnimation": true
         },
         {
           "id": "1414eee2-3f56-4252-a2f9-46b1c7d1e300",
@@ -711,45 +712,6 @@
             "focus": 0
           },
           "curveType": "bezier",
-          "autoResize": false,
-          "shadowEnabled": false,
-          "shadowColor": "rgba(0,0,0,0.3)",
-          "shadowBlur": 10,
-          "shadowOffsetX": 5,
-          "shadowOffsetY": 5,
-          "gradientStart": "#ffffff",
-          "gradientEnd": "#000000",
-          "gradientDirection": 45
-        },
-        {
-          "id": "160705a8-0c6e-4fff-af32-3f4431134d39",
-          "type": "rectangle",
-          "x": 165.55556313785485,
-          "y": 40.00000284924917,
-          "width": 122.22222900390625,
-          "height": 84.44444274902344,
-          "strokeColor": "#000000",
-          "backgroundColor": "transparent",
-          "fillStyle": "hachure",
-          "strokeWidth": 2,
-          "strokeStyle": "dashed",
-          "roughness": 1,
-          "opacity": 100,
-          "angle": 0,
-          "renderStyle": "sketch",
-          "seed": 1946529628,
-          "roundness": null,
-          "locked": false,
-          "link": null,
-          "layerId": "default-layer",
-          "startArrowhead": null,
-          "endArrowhead": null,
-          "fontSize": 20,
-          "fontFamily": "hand-drawn",
-          "fontWeight": false,
-          "fontStyle": false,
-          "textAlign": "left",
-          "curveType": "straight",
           "autoResize": false,
           "shadowEnabled": false,
           "shadowColor": "rgba(0,0,0,0.3)",
