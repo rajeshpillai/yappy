@@ -53,6 +53,13 @@ export class SequenceAnimator {
     }
 
     /**
+     * Stop all animations for a specific element
+     */
+    stopSequence(elementId: string): void {
+        animator.stopAllElementAnimations(elementId);
+    }
+
+    /**
      * Recursive runner for the sequence
      */
     private runStep(elementId: string, sequence: ElementAnimation[], index: number, onAllComplete?: () => void): void {

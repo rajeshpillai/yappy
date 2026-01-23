@@ -1,7 +1,7 @@
 import { type Component, For, Show, createSignal, createMemo } from 'solid-js';
 import { store, updateElement, updateAnimation, reorderAnimation } from '../store/app-store';
 import { sequenceAnimator } from '../utils/animation/sequence-animator';
-import { Play, Plus, Trash2, ChevronDown, ChevronRight, ChevronUp } from 'lucide-solid';
+import { Play, Square, Plus, Trash2, ChevronDown, ChevronRight, ChevronUp } from 'lucide-solid';
 import type { ElementAnimation, PresetAnimation, RotateAnimation } from '../types/motion-types';
 
 const PRESETS = [
@@ -106,18 +106,35 @@ export const AnimationPanel: Component = () => {
         }
     };
 
+    const handleStop = () => {
+        const id = selectedId();
+        if (id) {
+            sequenceAnimator.stopSequence(id);
+        }
+    };
+
     return (
         <div class="animation-panel">
             <div class="panel-header" style={{ display: 'flex', 'justify-content': 'space-between', 'align-items': 'center', 'margin-bottom': '10px' }}>
                 <h3 style={{ margin: 0, 'font-size': '14px', 'font-weight': 600 }}>Animations</h3>
-                <button
-                    onClick={handlePlay}
-                    title="Preview Animation"
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', 'border-radius': '4px' }}
-                    class="icon-btn"
-                >
-                    <Play size={16} />
-                </button>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                    <button
+                        onClick={handleStop}
+                        title="Stop Animation"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', 'border-radius': '4px', color: '#ef4444' }}
+                        class="icon-btn"
+                    >
+                        <Square size={16} fill="currentColor" />
+                    </button>
+                    <button
+                        onClick={handlePlay}
+                        title="Preview Animation"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', 'border-radius': '4px', color: '#10b981' }}
+                        class="icon-btn"
+                    >
+                        <Play size={16} fill="currentColor" />
+                    </button>
+                </div>
             </div>
 
             <div class="animation-list" style={{ display: 'flex', 'flex-direction': 'column', gap: '8px' }}>
