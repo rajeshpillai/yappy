@@ -8,7 +8,7 @@ const PRESETS = [
     'fadeIn', 'fadeOut',
     'slideInLeft', 'slideInRight', 'slideInUp', 'slideInDown',
     'zoomIn', 'zoomOut',
-    'bounce', 'pulse', 'shakeX', 'shakeY'
+    'bounce', 'pulse', 'shakeX', 'shakeY', 'revolve'
 ];
 
 const EASINGS = [

@@ -1495,6 +1495,54 @@ export function rotateOutUpRight(elementId: string, duration: number = 1000, con
 
 
 /**
+ * Revolve an element in a circular path
+ */
+export function revolve(elementId: string, duration: number = 2000, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const startX = element.x;
+    const startY = element.y;
+    const radius = 50; // Default revolve radius
+    const centerX = startX + radius;
+    const centerY = startY;
+
+    const animId = generateAnimationId('revolve');
+    stopAllElementAnimations(elementId);
+
+    if (!activeAnimations.has(elementId)) {
+        activeAnimations.set(elementId, new Set());
+    }
+    activeAnimations.get(elementId)!.add(animId);
+
+    animationEngine.create(
+        animId,
+        (progress: number) => {
+            const angle = progress * Math.PI * 2;
+            const x = centerX - radius * Math.cos(angle);
+            const y = centerY - radius * Math.sin(angle);
+            updateElement(elementId, { x, y }, false);
+        },
+        {
+            duration,
+            easing: config.easing || 'linear',
+            delay: config.delay,
+            onComplete: () => {
+                const animIds = activeAnimations.get(elementId);
+                if (animIds) {
+                    animIds.delete(animId);
+                    if (animIds.size === 0) activeAnimations.delete(elementId);
+                }
+                config.onComplete?.();
+            }
+        }
+    );
+
+    animationEngine.start(animId);
+    return animId;
+}
+
+/**
  * Specials presets
  */
 export function hinge(elementId: string, duration: number = 2000, config: ElementAnimationConfig = {}): string {
