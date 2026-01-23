@@ -1,7 +1,7 @@
 import { type Component, For } from "solid-js";
 import { store, setSelectedTool, addElement, setStore } from "../store/app-store";
 import type { ElementType } from "../types";
-import { MousePointer2, Square, Circle, Minus, Type, MoveUpRight, Eraser, Hand, Image as ImageIcon, Activity, Diamond, CaseUpper } from "lucide-solid";
+import { MousePointer2, Square, Circle, Minus, Type, MoveUpRight, Eraser, Hand, Image as ImageIcon, Activity, Diamond, CaseUpper, Zap, Highlighter } from "lucide-solid";
 import { generateBlockText } from "../utils/block-alphabet";
 import PenToolGroup from "./pen-tool-group";
 import ShapeToolGroup from "./shape-tool-group";
@@ -29,6 +29,8 @@ const tools: { type: ElementType | 'selection' | 'block-text'; icon: Component<{
     { type: 'block-text', icon: CaseUpper, label: 'Block Text (Sketchnote)' },
     { type: 'image', icon: ImageIcon, label: 'Insert Image' },
     { type: 'eraser', icon: Eraser, label: 'Eraser' },
+    { type: 'laser', icon: Zap, label: 'Laser Pointer (Alt+P)' },
+    { type: 'ink', icon: Highlighter, label: 'Ink Overlay (Alt+I)' },
 ];
 
 const Toolbar: Component = () => {

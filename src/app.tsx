@@ -3,7 +3,8 @@ import {
   undo, redo, store, deleteElements, togglePropertyPanel, toggleLayerPanel,
   toggleMinimap, toggleZenMode, toggleCommandPalette, moveSelectedElements,
   switchLayerByIndex, cycleStrokeStyle, cycleFillStyle,
-  addChildNode, addSiblingNode, toggleCollapseSelection, togglePresentationMode
+  addChildNode, addSiblingNode, toggleCollapseSelection, togglePresentationMode,
+  setSelectedTool
 } from './store/app-store';
 import Canvas from './components/canvas';
 import Toolbar from './components/toolbar';
@@ -58,6 +59,12 @@ const App: Component = () => {
         } else if (e.key.toLowerCase() === 'z') {
           e.preventDefault();
           toggleZenMode();
+        } else if (key === 'p') {
+          e.preventDefault();
+          setSelectedTool('laser');
+        } else if (key === 'i') {
+          e.preventDefault();
+          setSelectedTool('ink');
         } else if (key >= '1' && key <= '9') {
           // Layer Switching: Alt + 1-9
           e.preventDefault();

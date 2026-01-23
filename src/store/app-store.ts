@@ -1316,3 +1316,20 @@ export const applyMindmapStyling = (rootId: string) => {
     setStore("elements", newElements);
     showToast(`Semantic styling applied to branch`, 'success');
 };
+
+// --- Transient Element Cleanup (Ink Overlay) ---
+if (typeof window !== 'undefined') {
+    setInterval(() => {
+        const now = Date.now();
+        const expiredIds = store.elements
+            .filter(el => el.ttl && now > el.ttl)
+            .map(el => el.id);
+
+        if (expiredIds.length > 0) {
+            // Delete without history
+            setStore("elements", (elements) =>
+                elements.filter(el => !expiredIds.includes(el.id))
+            );
+        }
+    }, 500);
+}

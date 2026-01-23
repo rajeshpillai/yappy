@@ -29,6 +29,8 @@ export class FreehandRenderer extends ShapeRenderer {
             this.renderInkbrush(ctx, absPoints, el.strokeWidth);
         } else if (el.type === 'marker') {
             this.renderMarker(ctx, absPoints, el.strokeWidth, el.opacity, layerOpacity);
+        } else if (el.type === 'ink') {
+            this.renderFineliner(ctx, absPoints, el.strokeWidth);
         }
 
         ctx.restore();

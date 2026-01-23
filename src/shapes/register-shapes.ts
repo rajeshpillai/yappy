@@ -62,7 +62,7 @@ export function registerShapes() {
     shapeRegistry.register('bezier', connectorRenderer);
 
     const freehandRenderer = new FreehandRenderer();
-    const freehandTypes = ['fineliner', 'inkbrush', 'marker'] as const;
+    const freehandTypes = ['fineliner', 'inkbrush', 'marker', 'ink'] as const;
     freehandTypes.forEach(type => shapeRegistry.register(type, freehandRenderer));
 
     const specialtyRenderer = new SpecialtyShapeRenderer();

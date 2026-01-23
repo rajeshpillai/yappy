@@ -168,6 +168,10 @@ const Canvas: Component = () => {
     let lastSnappingTime = 0;
     const SNAPPING_THROTTLE_MS = 16; // ~60 FPS
 
+    // Laser Pointer State (Transient)
+    const [laserTrail, setLaserTrail] = createSignal<Array<{ x: number, y: number, timestamp: number }>>([]);
+    const LASER_DECAY_MS = 800;
+
 
     const handleResize = () => {
         if (canvasRef) {
@@ -197,6 +201,16 @@ const Canvas: Component = () => {
         // Reset Transform Matrix to Identity so we don't accumulate translations!
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, canvasRef.width, canvasRef.height);
+
+        // --- Laser Trail Decay ---
+        const now = Date.now();
+        const currentTrail = laserTrail();
+        if (currentTrail.length > 0) {
+            const filtered = currentTrail.filter(p => now - p.timestamp < LASER_DECAY_MS);
+            if (filtered.length !== currentTrail.length) {
+                setLaserTrail(filtered);
+            }
+        }
 
         // Background color
         const isDarkMode = store.theme === 'dark';
@@ -927,7 +941,34 @@ const Canvas: Component = () => {
             }
         }
 
-        ctx.restore(); // Restore for line 104
+        // --- Render Laser Trail ---
+        const trail = laserTrail();
+        if (trail.length > 1) {
+            ctx.save();
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            for (let i = 0; i < trail.length - 1; i++) {
+                const p1 = trail[i];
+                const p2 = trail[i + 1];
+                const age = now - p1.timestamp;
+                const opacity = Math.max(0, 1 - age / LASER_DECAY_MS);
+
+                if (opacity <= 0) continue;
+
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.strokeStyle = `rgba(255, 0, 0, ${opacity})`;
+                ctx.lineWidth = (4 / store.viewState.scale) * opacity;
+                ctx.shadowBlur = 10 * opacity;
+                ctx.shadowColor = 'red';
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        ctx.restore(); // Final global restore
 
         // OPTIMIZATION: Track rendering performance
         const drawTime = performance.now() - startTime;
@@ -977,6 +1018,7 @@ const Canvas: Component = () => {
         store.viewState.panY;
         store.selection.length;
         selectionBox();
+        laserTrail(); // Track laser trail for real-time rendering logic
         // Track layer changes
         store.layers.length;
         store.layers.forEach(l => {
@@ -2004,6 +2046,38 @@ const Canvas: Component = () => {
             return;
         }
 
+        if (store.selectedTool === 'laser') {
+            isDrawing = true;
+            setLaserTrail([{ x, y, timestamp: Date.now() }]);
+            return;
+        }
+
+        if (store.selectedTool === 'ink') {
+            isDrawing = true;
+            startX = x;
+            startY = y;
+            currentId = crypto.randomUUID();
+            const newElement = {
+                ...store.defaultElementStyles,
+                id: currentId,
+                type: 'ink',
+                x,
+                y,
+                width: 0,
+                height: 0,
+                strokeColor: '#ef4444', // Bright red
+                strokeWidth: 4,
+                opacity: 100,
+                points: [0, 0],
+                pointsEncoding: 'flat',
+                ttl: Date.now() + 3000, // 3 seconds
+                layerId: store.activeLayerId,
+                seed: Math.floor(Math.random() * 2 ** 31)
+            } as DrawingElement;
+            addElement(newElement);
+            return;
+        }
+
         if (store.selectedTool === 'eraser') {
             isDrawing = true; // Enable drag
             const threshold = 10 / store.viewState.scale;
@@ -2479,6 +2553,12 @@ const Canvas: Component = () => {
         }
 
 
+        if (store.selectedTool === 'laser') {
+            const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
+            setLaserTrail(prev => [...prev.slice(-50), { x, y, timestamp: Date.now() }]);
+            requestAnimationFrame(draw); // Force update for laser even if nothing else changes
+        }
+
         if (!isDrawing || !currentId) {
             if (isDrawing && store.selectedTool === 'eraser') {
                 const threshold = 10 / store.viewState.scale;
@@ -2525,6 +2605,15 @@ const Canvas: Component = () => {
                     }];
                     updateElement(currentId, { points: newPoints }, false);
                 }
+            }
+        } else if (store.selectedTool === 'ink') {
+            const el = store.elements.find(e => e.id === currentId);
+            if (el && el.points) {
+                const { x: ex, y: ey } = getWorldCoordinates(e.clientX, e.clientY);
+                const px = ex - startX;
+                const py = ey - startY;
+                const newPoints = [...(el.points as number[]), px, py];
+                updateElement(currentId, { points: newPoints, ttl: Date.now() + 3000 }, false);
             }
         } else {
             // Apply snap to grid if enabled
@@ -2591,6 +2680,11 @@ const Canvas: Component = () => {
         if (store.selectedTool === 'pan') {
             isDragging = false;
             setCursor('grab');
+            return;
+        }
+
+        if (store.selectedTool === 'laser') {
+            isDrawing = false;
             return;
         }
 
@@ -2756,6 +2850,13 @@ const Canvas: Component = () => {
                 } else if (el.type === 'inkbrush') {
                     if (el.points && el.points.length > 2) {
                         // Normalize inkbrush - keep all points for cubic Bézier
+                        const updates = normalizePencil({ ...el, points: el.points });
+                        if (updates) {
+                            updateElement(currentId, updates);
+                        }
+                    }
+                } else if (el.type === 'ink') {
+                    if (el.points && el.points.length > 2) {
                         const updates = normalizePencil({ ...el, points: el.points });
                         if (updates) {
                             updateElement(currentId, updates);

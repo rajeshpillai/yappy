@@ -811,9 +811,9 @@
 - [ ] **AI Text-to-Diagram**
     - [ ] Prompt-based diagram generation (Mindmaps, Flowcharts, Architecture)
     - [ ] Logic for scaffolding elements from natural language
-- [ ] **Presentation Laser Pointer & Ink Overlays**
-    - [ ] Reactive laser pointer tool that leaves temporary trails
-    - [ ] Temporary "Ink" that fades after 2-3 seconds for live highlighting
+- [x] **Presentation Laser Pointer & Ink Overlays**
+    - [x] Reactive laser pointer tool that leaves temporary trails
+    - [x] Temporary "Ink" that fades after 2-3 seconds for live highlighting
 - [ ] **Personal Symbol Library**
     - [ ] Ability to save the current selection as a reusable "Symbol"
     - [ ] A dedicated "Symbols" panel for drag-and-drop reuse
