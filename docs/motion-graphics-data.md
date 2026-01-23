@@ -103,5 +103,8 @@ interface GlobalSettings {
 }
 ```
 
-- **`animationEnabled`**: Quick way to disable all animations (e.g., for performance or editing).
+- **`animationEnabled`**: Master toggle. When `false`, it **must disable all**:
+  - Element animations (entrance/exit/sequences).
+  - State transitions (Magic Move).
+  - **Flow animations** (dashed lines, pulsing effects).
 - **`reducedMotion`**: Should be respected by the engine to show simpler/no animations for users with vestibular disorders.

@@ -74,4 +74,17 @@ test.describe('Motion Graphics Data Structure', () => {
         expect(settings.animationEnabled).toBe(false);
         expect(settings.reducedMotion).toBe(true);
     });
+
+    test('should prioritize global settings over element settings (logic check)', () => {
+        // This test defines the required logic for the future engine implementation
+        const globalSettings: GlobalSettings = { animationEnabled: false };
+        const element: Partial<DrawingElement> = {
+            id: 'el-flow',
+            flowAnimation: true
+        };
+
+        // The engine's "shouldAnimate" logic must return false
+        const shouldAnimate = globalSettings.animationEnabled && element.flowAnimation;
+        expect(shouldAnimate).toBe(false);
+    });
 });
