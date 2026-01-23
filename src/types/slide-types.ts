@@ -32,6 +32,8 @@ export interface SlideDocumentMetadata {
 export interface GlobalSettings {
     theme?: 'light' | 'dark';
     defaultStyles?: Partial<DrawingElement>;
+    animationEnabled?: boolean; // Global toggle
+    reducedMotion?: boolean;    // Accessibility preference
 }
 
 /**

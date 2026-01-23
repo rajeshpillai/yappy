@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import type { DrawingElement } from '../src/types';
-import type { Slide } from '../src/types/slide-types';
+import type { Slide, GlobalSettings } from '../src/types/slide-types';
 import type { ElementAnimation, DisplayState } from '../src/types/motion-types';
 
 test.describe('Motion Graphics Data Structure', () => {
@@ -62,5 +62,16 @@ test.describe('Motion Graphics Data Structure', () => {
 
         expect(slide.states).toHaveLength(1);
         expect(slide.states?.[0].overrides['el1'].opacity).toBe(0.5);
+    });
+
+    test('should support Global Animation Settings', () => {
+        const settings: GlobalSettings = {
+            theme: 'dark',
+            animationEnabled: false,
+            reducedMotion: true
+        };
+
+        expect(settings.animationEnabled).toBe(false);
+        expect(settings.reducedMotion).toBe(true);
     });
 });

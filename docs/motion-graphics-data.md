@@ -90,3 +90,18 @@ The structure is designed to be extensible:
 - **Triggers**: The `trigger` field ('on-load', 'on-click', 'programmatic') allows adding new interaction types (e.g., 'on-scroll') without changing the animation definition.
 - **Sequencing**: The `animations` array inherently supports infinite chaining.
 - **New Animation Types**: The `ElementAnimation` union type can be extended with new interfaces (e.g., `FilterAnimation`) without breaking existing renderers.
+
+## 4. Global Animation Settings
+
+`GlobalSettings` in `src/types/slide-types.ts` now includes:
+
+```typescript
+interface GlobalSettings {
+  // ...
+  animationEnabled?: boolean; // Master toggle (default: true)
+  reducedMotion?: boolean;    // Accessibility (default: false)
+}
+```
+
+- **`animationEnabled`**: Quick way to disable all animations (e.g., for performance or editing).
+- **`reducedMotion`**: Should be respected by the engine to show simpler/no animations for users with vestibular disorders.
