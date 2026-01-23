@@ -5,7 +5,7 @@
 
 import type { Animation, AnimationConfig, AnimationState } from './animation-types';
 import { getEasing } from './animation-types';
-import { createSignal } from 'solid-js';
+import { createSignal, batch } from 'solid-js';
 import { store } from '../../store/app-store';
 
 const [globalTime, setGlobalTime] = createSignal(0);
@@ -186,64 +186,66 @@ class AnimationEngine {
         // Check global animation setting
         const animationsEnabled = store.globalSettings?.animationEnabled ?? true;
 
-        setGlobalTime(timestamp);
         let hasRunningAnimations = false;
+        batch(() => {
+            setGlobalTime(timestamp);
 
-        for (const animation of this.animations.values()) {
-            if (animation.state !== 'running') continue;
+            for (const animation of this.animations.values()) {
+                if (animation.state !== 'running') continue;
 
-            hasRunningAnimations = true;
+                hasRunningAnimations = true;
 
-            // If animations are globally disabled, force complete immediately
-            if (!animationsEnabled) {
-                // Determine final value (progress = 1)
-                animation.onUpdate(1);
+                // If animations are globally disabled, force complete immediately
+                if (!animationsEnabled) {
+                    // Determine final value (progress = 1)
+                    animation.onUpdate(1);
 
-                // Complete and cleanup
-                animation.state = 'completed';
-                animation.onComplete?.();
-                this.animations.delete(animation.id);
-                continue;
-            }
-
-            const elapsed = timestamp - animation.startTime - animation.delay;
-
-            // Still in delay phase
-            if (elapsed < 0) {
-                continue;
-            }
-
-            // Calculate raw progress
-            let rawProgress = Math.min(elapsed / animation.duration, 1);
-
-            // Handle alternating direction
-            if (animation.direction === -1) {
-                rawProgress = 1 - rawProgress;
-            }
-
-            // Apply easing
-            const easedProgress = animation.easing(rawProgress);
-
-            // Update
-            animation.onUpdate(easedProgress);
-
-            // Check completion
-            if (elapsed >= animation.duration) {
-                if (animation.loop && animation.currentLoop < animation.loopCount - 1) {
-                    // Loop
-                    animation.currentLoop++;
-                    animation.startTime = timestamp;
-                    if (animation.alternate) {
-                        animation.direction = animation.direction === 1 ? -1 : 1;
-                    }
-                } else {
-                    // Complete
+                    // Complete and cleanup
                     animation.state = 'completed';
                     animation.onComplete?.();
                     this.animations.delete(animation.id);
+                    continue;
+                }
+
+                const elapsed = timestamp - animation.startTime - animation.delay;
+
+                // Still in delay phase
+                if (elapsed < 0) {
+                    continue;
+                }
+
+                // Calculate raw progress
+                let rawProgress = Math.min(elapsed / animation.duration, 1);
+
+                // Handle alternating direction
+                if (animation.direction === -1) {
+                    rawProgress = 1 - rawProgress;
+                }
+
+                // Apply easing
+                const easedProgress = animation.easing(rawProgress);
+
+                // Update
+                animation.onUpdate(easedProgress);
+
+                // Check completion
+                if (elapsed >= animation.duration) {
+                    if (animation.loop && animation.currentLoop < animation.loopCount - 1) {
+                        // Loop
+                        animation.currentLoop++;
+                        animation.startTime = timestamp;
+                        if (animation.alternate) {
+                            animation.direction = animation.direction === 1 ? -1 : 1;
+                        }
+                    } else {
+                        // Complete
+                        animation.state = 'completed';
+                        animation.onComplete?.();
+                        this.animations.delete(animation.id);
+                    }
                 }
             }
-        }
+        });
 
         if (hasRunningAnimations || this.animations.size > 0 || this.forceTicker) {
             this.rafId = requestAnimationFrame(this.tick);

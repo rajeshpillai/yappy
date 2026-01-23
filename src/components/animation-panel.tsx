@@ -1,5 +1,5 @@
 
-import { type Component, For, Show, createSignal } from 'solid-js';
+import { type Component, For, Show, createSignal, createMemo } from 'solid-js';
 import { store, updateElement } from '../store/app-store';
 import { sequenceAnimator } from '../utils/animation/sequence-animator';
 import { Play, Plus, Trash2, ChevronDown, ChevronRight } from 'lucide-solid';
@@ -20,8 +20,11 @@ const EASINGS = [
 ];
 
 export const AnimationPanel: Component = () => {
-    const selectedId = () => store.selection.length === 1 ? store.selection[0] : null;
-    const element = () => selectedId() ? store.elements.find(el => el.id === selectedId()) : null;
+    const selectedId = createMemo(() => store.selection.length === 1 ? store.selection[0] : null);
+    const element = createMemo(() => {
+        const id = selectedId();
+        return id ? store.elements.find(el => el.id === id) : null;
+    });
 
     const [isAdding, setIsAdding] = createSignal(false);
 
