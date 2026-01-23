@@ -787,3 +787,23 @@
   - [ ] Implement UML Class/Structured shapes (Planned: Template-based vs Structured)
   - [ ] Orthogonal/Elbow routing refinements
  
+## Phase 60: Advanced Animation & Interaction
+- [ ] **Data Flow Animations (Piping Effect)**
+    - [ ] Implement animated "pulses" or dots moving along arrow/line paths
+    - [ ] Configurable pulse speed, color, and frequency
+    - [ ] Use case: showing data transmission or packet flow in technical diagrams
+- [ ] **Master Timeline UI**
+    - [ ] Create a bottom panel for orchestration
+    - [ ] Drag-and-drop start times and durations for all element animations
+    - [ ] Preview full scene choreography
+- [ ] **Follow-Path Animations**
+    - [ ] Allow elements to follow any Bezier curve or hand-drawn path
+    - [ ] Auto-rotation of the element to follow the path's tangent
+- [ ] **Interaction Triggers**
+    - [ ] **On Hover**: Pulse, scale, or color change when the mouse enters an element
+    - [ ] **On Click**: Trigger a different animation sequence from the current one
+    - [ ] **Collision/Proximity**: Trigger animations when elements get close to each other
+- [ ] **Auto-Animate (State Morphing)**
+    - [ ] Implement "Magic Move" transitions between two saved diagram states or slides
+    - [ ] Smoothly interpolate position, size, and color of elements with the same ID
+ 
