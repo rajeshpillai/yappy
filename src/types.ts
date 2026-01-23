@@ -5,7 +5,7 @@ export type StrokeStyle = 'solid' | 'dashed' | 'dotted';
 export type FontFamily = 'hand-drawn' | 'sans-serif' | 'monospace';
 export type TextAlign = 'left' | 'center' | 'right';
 export type VerticalAlign = 'top' | 'middle' | 'bottom';
-export type ArrowHead = 'arrow' | 'triangle' | 'dot' | 'circle' | 'bar' | null;
+export type ArrowHead = 'arrow' | 'triangle' | 'dot' | 'circle' | 'bar' | 'diamond' | 'diamondFilled' | 'crowsfoot' | null;
 
 export interface GradientStop {
     offset: number; // 0 to 1

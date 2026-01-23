@@ -5,7 +5,64 @@ import { normalizePoints } from "../../utils/render-element";
 
 export class ConnectorRenderer extends ShapeRenderer {
     protected renderArchitectural(context: RenderContext, _cx: number, _cy: number): void {
-        this.renderCommon(context, _cx, _cy);
+        const { ctx, element: el, isDarkMode } = context;
+        const strokeColor = RenderPipeline.adjustColor(el.strokeColor, isDarkMode);
+        const backgroundColor = el.backgroundColor === 'transparent' ? '#ffffff' : RenderPipeline.adjustColor(el.backgroundColor, isDarkMode);
+
+        ctx.save();
+        ctx.strokeStyle = strokeColor;
+        ctx.fillStyle = backgroundColor;
+        ctx.lineWidth = el.strokeWidth;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
+
+        if (el.strokeStyle === 'dashed') ctx.setLineDash([8, 8]);
+        else if (el.strokeStyle === 'dotted') ctx.setLineDash([2, 4]);
+
+        ctx.beginPath();
+        this.definePath(ctx, el);
+        ctx.stroke();
+
+        // Draw arrowheads
+        const pts = normalizePoints(el.points);
+        let start, end;
+        if (pts.length >= 2) {
+            start = { x: el.x + pts[0].x, y: el.y + pts[0].y };
+            end = { x: el.x + pts[pts.length - 1].x, y: el.y + pts[pts.length - 1].y };
+        } else {
+            start = { x: el.x, y: el.y };
+            end = { x: el.x + el.width, y: el.y + el.height };
+        }
+
+        let angle: number;
+        if (el.curveType === 'bezier') {
+            const cp1 = el.controlPoints?.[0] || { x: start.x, y: start.y };
+            const cp2 = el.controlPoints?.[1] || cp1;
+            if (el.startArrowhead) {
+                const startAngle = Math.atan2(start.y - cp1.y, start.x - cp1.x);
+                this.drawArrowheadArchitectural(ctx, start.x, start.y, startAngle, el.startArrowhead);
+            }
+            if (el.endArrowhead) {
+                const endAngle = Math.atan2(end.y - cp2.y, end.x - cp2.x);
+                this.drawArrowheadArchitectural(ctx, end.x, end.y, endAngle, el.endArrowhead);
+            }
+        } else if (el.curveType === 'elbow' && pts.length >= 2) {
+            const p0 = { x: el.x + pts[0].x, y: el.y + pts[0].y };
+            const p1 = { x: el.x + pts[1].x, y: el.y + pts[1].y };
+            const startAngle = Math.atan2(p0.y - p1.y, p0.x - p1.x);
+            if (el.startArrowhead) this.drawArrowheadArchitectural(ctx, p0.x, p0.y, startAngle, el.startArrowhead);
+
+            const pn_1 = { x: el.x + pts[pts.length - 1].x, y: el.y + pts[pts.length - 1].y };
+            const pn_2 = { x: el.x + pts[pts.length - 2].x, y: el.y + pts[pts.length - 2].y };
+            const endAngle = Math.atan2(pn_1.y - pn_2.y, pn_1.x - pn_2.x);
+            if (el.endArrowhead) this.drawArrowheadArchitectural(ctx, pn_1.x, pn_1.y, endAngle, el.endArrowhead);
+        } else {
+            angle = Math.atan2(end.y - start.y, end.x - start.x);
+            if (el.startArrowhead) this.drawArrowheadArchitectural(ctx, start.x, start.y, angle + Math.PI, el.startArrowhead);
+            if (el.endArrowhead) this.drawArrowheadArchitectural(ctx, end.x, end.y, angle, el.endArrowhead);
+        }
+
+        ctx.restore();
     }
 
     protected renderSketch(context: RenderContext, _cx: number, _cy: number): void {
@@ -29,21 +86,19 @@ export class ConnectorRenderer extends ShapeRenderer {
         const { rc, element: el } = context;
         const endX = el.x + el.width;
         const endY = el.y + el.height;
-        const w = el.width, h = el.height;
+        const pts = normalizePoints(el.points);
 
         let start = { x: el.x, y: el.y };
         let end = { x: endX, y: endY };
-        const pts = normalizePoints(el.points);
         if (pts.length >= 2) {
             start = { x: el.x + pts[0].x, y: el.y + pts[0].y };
             end = { x: el.x + pts[pts.length - 1].x, y: el.y + pts[pts.length - 1].y };
         }
 
-        let cp1, cp2;
         if (el.controlPoints && el.controlPoints.length > 0) {
-            cp1 = el.controlPoints[0];
+            const cp1 = el.controlPoints[0];
             if (el.controlPoints.length > 1) {
-                cp2 = el.controlPoints[1];
+                const cp2 = el.controlPoints[1];
                 const path = `M ${start.x} ${start.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${end.x} ${end.y}`;
                 rc.path(path, options);
                 if (el.startArrowhead) this.drawArrowhead(rc, start.x, start.y, Math.atan2(start.y - cp1.y, start.x - cp1.x), el.startArrowhead, options);
@@ -55,6 +110,8 @@ export class ConnectorRenderer extends ShapeRenderer {
                 if (el.endArrowhead) this.drawArrowhead(rc, end.x, end.y, Math.atan2(end.y - cp1.y, end.x - cp1.x), el.endArrowhead, options);
             }
         } else {
+            const w = el.width, h = el.height;
+            let cp1, cp2;
             if (Math.abs(w) > Math.abs(h)) {
                 cp1 = { x: start.x + w / 2, y: start.y };
                 cp2 = { x: end.x - w / 2, y: end.y };
@@ -118,11 +175,27 @@ export class ConnectorRenderer extends ShapeRenderer {
         const p2 = { x: x - headLen * Math.cos(angle + Math.PI / 6), y: y - headLen * Math.sin(angle + Math.PI / 6) };
 
         if (type === 'triangle' || type === 'arrow') {
-            rc.line(x, y, p1.x, p1.y, options);
-            rc.line(x, y, p2.x, p2.y, options);
-            if (type === 'triangle') rc.line(p1.x, p1.y, p2.x, p2.y, options);
+            if (type === 'triangle') {
+                rc.polygon([[x, y], [p1.x, p1.y], [p2.x, p2.y]], { ...options, fill: '#ffffff', fillStyle: 'solid' });
+            } else {
+                rc.line(x, y, p1.x, p1.y, options);
+                rc.line(x, y, p2.x, p2.y, options);
+            }
         } else if (type === 'circle' || type === 'dot') {
-            rc.circle(x, y, headLen, { ...options, fillStyle: (type === 'dot' ? 'solid' : options.fillStyle) });
+            rc.circle(x, y, headLen, { ...options, fill: type === 'dot' ? options.stroke : '#ffffff', fillStyle: 'solid' });
+        } else if (type === 'diamond' || type === 'diamondFilled') {
+            const p3 = { x: x - headLen * 2 * Math.cos(angle), y: y - headLen * 2 * Math.sin(angle) };
+            const m = { x: x - headLen * Math.cos(angle), y: y - headLen * Math.sin(angle) };
+            const d1 = { x: m.x - (headLen / 2) * Math.cos(angle - Math.PI / 2), y: m.y - (headLen / 2) * Math.sin(angle - Math.PI / 2) };
+            const d2 = { x: m.x - (headLen / 2) * Math.cos(angle + Math.PI / 2), y: m.y - (headLen / 2) * Math.sin(angle + Math.PI / 2) };
+            rc.polygon([[x, y], [d1.x, d1.y], [p3.x, p3.y], [d2.x, d2.y]], { ...options, fill: type === 'diamondFilled' ? options.stroke : '#ffffff', fillStyle: 'solid' });
+        } else if (type === 'crowsfoot') {
+            const f1 = { x: x - headLen * Math.cos(angle - Math.PI / 4), y: y - headLen * Math.sin(angle - Math.PI / 4) };
+            const f2 = { x: x - headLen * Math.cos(angle + Math.PI / 4), y: y - headLen * Math.sin(angle + Math.PI / 4) };
+            const f3 = { x: x - headLen * Math.cos(angle), y: y - headLen * Math.sin(angle) };
+            rc.line(x, y, f1.x, f1.y, options);
+            rc.line(x, y, f2.x, f2.y, options);
+            rc.line(x, y, f3.x, f3.y, options);
         } else if (type === 'bar') {
             const barX1 = x + Math.cos(angle + Math.PI / 2) * headLen;
             const barY1 = y + Math.sin(angle + Math.PI / 2) * headLen;
@@ -130,6 +203,70 @@ export class ConnectorRenderer extends ShapeRenderer {
             const barY2 = y + Math.sin(angle - Math.PI / 2) * headLen;
             rc.line(barX1, barY1, barX2, barY2, options);
         }
+    }
+
+    private drawArrowheadArchitectural(ctx: CanvasRenderingContext2D, x: number, y: number, angle: number, type: string) {
+        const headLen = 12;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+
+        ctx.setLineDash([]); // Usually arrowheads are solid even if line is dashed
+
+        if (type === 'triangle' || type === 'arrow') {
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-headLen * Math.cos(Math.PI / 6), -headLen * Math.sin(Math.PI / 6));
+            if (type === 'triangle') {
+                ctx.lineTo(-headLen * Math.cos(-Math.PI / 6), -headLen * Math.sin(-Math.PI / 6));
+                ctx.closePath();
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+            } else {
+                ctx.moveTo(0, 0);
+                ctx.lineTo(-headLen * Math.cos(-Math.PI / 6), -headLen * Math.sin(-Math.PI / 6));
+            }
+            ctx.stroke();
+        } else if (type === 'circle' || type === 'dot') {
+            ctx.beginPath();
+            ctx.arc(-headLen / 2 * Math.cos(0), 0, headLen / 2, 0, Math.PI * 2);
+            if (type === 'dot') {
+                ctx.fillStyle = ctx.strokeStyle;
+            } else {
+                ctx.fillStyle = '#ffffff';
+            }
+            ctx.fill();
+            ctx.stroke();
+        } else if (type === 'diamond' || type === 'diamondFilled') {
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-headLen, -headLen / 2);
+            ctx.lineTo(-headLen * 2, 0);
+            ctx.lineTo(-headLen, headLen / 2);
+            ctx.closePath();
+            if (type === 'diamondFilled') {
+                ctx.fillStyle = ctx.strokeStyle;
+            } else {
+                ctx.fillStyle = '#ffffff';
+            }
+            ctx.fill();
+            ctx.stroke();
+        } else if (type === 'crowsfoot') {
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-headLen * Math.cos(Math.PI / 4), -headLen * Math.sin(Math.PI / 4));
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-headLen * Math.cos(-Math.PI / 4), -headLen * Math.sin(-Math.PI / 4));
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-headLen, 0);
+            ctx.stroke();
+        } else if (type === 'bar') {
+            ctx.beginPath();
+            ctx.moveTo(0, -headLen);
+            ctx.lineTo(0, headLen);
+            ctx.stroke();
+        }
+        ctx.restore();
     }
 
     protected definePath(ctx: CanvasRenderingContext2D, el: any): void {

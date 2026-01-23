@@ -580,7 +580,13 @@ export const properties: PropertyConfig[] = [
         options: [
             { label: 'None', value: null },
             { label: 'Arrow', value: 'arrow' },
-            { label: 'Dot', value: 'dot' }
+            { label: 'Triangle (Inheritance)', value: 'triangle' },
+            { label: 'Diamond (Aggregation)', value: 'diamond' },
+            { label: 'Filled Diamond (Composition)', value: 'diamondFilled' },
+            { label: 'Crow\'s Foot (ER)', value: 'crowsfoot' },
+            { label: 'Circle', value: 'circle' },
+            { label: 'Dot', value: 'dot' },
+            { label: 'Bar', value: 'bar' }
         ],
         group: 'style',
         applicableTo: ['arrow', 'line'],
@@ -593,8 +599,13 @@ export const properties: PropertyConfig[] = [
         options: [
             { label: 'None', value: null },
             { label: 'Arrow', value: 'arrow' },
+            { label: 'Triangle (Inheritance)', value: 'triangle' },
+            { label: 'Diamond (Aggregation)', value: 'diamond' },
+            { label: 'Filled Diamond (Composition)', value: 'diamondFilled' },
+            { label: 'Crow\'s Foot (ER)', value: 'crowsfoot' },
+            { label: 'Circle', value: 'circle' },
             { label: 'Dot', value: 'dot' },
-            { label: 'Triangle', value: 'triangle' }
+            { label: 'Bar', value: 'bar' }
         ],
         group: 'style',
         applicableTo: ['arrow', 'line'],
