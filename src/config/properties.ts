@@ -182,7 +182,7 @@ export const properties: PropertyConfig[] = [
         max: 50,
         step: 1,
         group: 'style',
-        applicableTo: ['rectangle', 'diamond', 'capsule', 'speechBubble', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'dfdProcess', 'isometricCube', 'cylinder', 'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity'],
+        applicableTo: ['rectangle', 'diamond', 'capsule', 'speechBubble', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'dfdProcess', 'isometricCube', 'cylinder', 'stateSync', 'activationBar', 'externalEntity'],
         defaultValue: 0
     },
     {
@@ -215,7 +215,7 @@ export const properties: PropertyConfig[] = [
             { label: 'Miter (Sharp)', value: 'miter' }
         ],
         group: 'style',
-        applicableTo: ['rectangle', 'diamond', 'triangle', 'polygon', 'star', 'burst', 'hexagon', 'octagon', 'pentagon', 'septagon', 'trapezoid', 'arrow', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'bracketLeft', 'bracketRight', 'parallelogram', 'rightTriangle', 'dfdProcess', 'dfdDataStore', 'isometricCube', 'cylinder', 'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity'],
+        applicableTo: ['rectangle', 'diamond', 'triangle', 'polygon', 'star', 'burst', 'hexagon', 'octagon', 'pentagon', 'septagon', 'trapezoid', 'arrow', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'bracketLeft', 'bracketRight', 'parallelogram', 'rightTriangle', 'dfdProcess', 'dfdDataStore', 'isometricCube', 'cylinder', 'stateSync', 'activationBar', 'externalEntity'],
         defaultValue: 'round'
     },
     // Stroke
