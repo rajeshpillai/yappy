@@ -803,7 +803,18 @@
     - [ ] **On Hover**: Pulse, scale, or color change when the mouse enters an element
     - [ ] **On Click**: Trigger a different animation sequence from the current one
     - [ ] **Collision/Proximity**: Trigger animations when elements get close to each other
-- [ ] **Auto-Animate (State Morphing)**
-    - [ ] Implement "Magic Move" transitions between two saved diagram states or slides
-    - [ ] Smoothly interpolate position, size, and color of elements with the same ID
+- [x] **Auto-Animate (State Morphing)** <!-- id: 102 -->
+    - [x] Implement "Magic Move" transitions between two saved diagram states or slides
+    - [x] Smoothly interpolate position, size, and color of elements with the same ID
+
+## Phase 61: Advanced Workflow & Presentation
+- [ ] **AI Text-to-Diagram**
+    - [ ] Prompt-based diagram generation (Mindmaps, Flowcharts, Architecture)
+    - [ ] Logic for scaffolding elements from natural language
+- [ ] **Presentation Laser Pointer & Ink Overlays**
+    - [ ] Reactive laser pointer tool that leaves temporary trails
+    - [ ] Temporary "Ink" that fades after 2-3 seconds for live highlighting
+- [ ] **Personal Symbol Library**
+    - [ ] Ability to save the current selection as a reusable "Symbol"
+    - [ ] A dedicated "Symbols" panel for drag-and-drop reuse
  
