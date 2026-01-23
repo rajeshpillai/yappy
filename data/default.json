@@ -1,12 +1,12 @@
 {
   "version": 3,
   "metadata": {
-    "createdAt": "2026-01-23T19:19:18.021Z",
-    "updatedAt": "2026-01-23T19:19:18.021Z"
+    "createdAt": "2026-01-23T19:25:37.293Z",
+    "updatedAt": "2026-01-23T19:25:37.293Z"
   },
   "slides": [
     {
-      "id": "c568bd1b-3319-4bea-b47f-6b102c99198d",
+      "id": "c7adf27c-d531-4ce4-924b-69cb375d3e9d",
       "name": "Slide 1",
       "elements": [
         {
@@ -57,8 +57,8 @@
         {
           "id": "beb29756-d005-45ac-b0ac-05e04a2e15e2",
           "type": "rectangle",
-          "x": 190.41671399422637,
-          "y": 435.72917318344116,
+          "x": 472.22225996888716,
+          "y": 234.6180510520935,
           "width": 103.33337402343744,
           "height": 82.22224426269531,
           "strokeColor": "#000000",
@@ -106,10 +106,10 @@
         {
           "id": "9396e46a-4afd-42e9-9c5d-6934104578ad",
           "type": "arrow",
-          "x": 308.3333435058594,
-          "y": 312.22222900390625,
-          "width": -66.24994249991428,
-          "height": 123.50694417953491,
+          "x": 354.4444580078125,
+          "y": 267.22222900390625,
+          "width": 117.7778019610746,
+          "height": 8.506944179534912,
           "strokeColor": "#000000",
           "backgroundColor": "transparent",
           "fillStyle": "hachure",
@@ -135,13 +135,13 @@
             "elementId": "c45e1a56-6577-4f74-84cc-fa65aad7069a",
             "focus": 0,
             "gap": 5,
-            "position": "bottom"
+            "position": "right"
           },
           "endBinding": {
             "elementId": "beb29756-d005-45ac-b0ac-05e04a2e15e2",
             "focus": 0,
             "gap": 5,
-            "position": "top"
+            "position": "left"
           },
           "curveType": "straight",
           "autoResize": false,
@@ -153,7 +153,8 @@
           "gradientStart": "#ffffff",
           "gradientEnd": "#000000",
           "gradientDirection": 45,
-          "flowAnimation": true
+          "flowAnimation": true,
+          "flowColor": "#e03131"
         }
       ],
       "layers": [
@@ -268,7 +269,7 @@
           }
         }
       ],
-      "initialStateId": "9ed4f117-8ee3-421a-afcd-48982a5b3c3d",
+      "initialStateId": "0262a33d-85b2-40bd-b190-72acbc0f5657",
       "order": 0
     }
   ],
