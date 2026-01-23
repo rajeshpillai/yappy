@@ -10,8 +10,9 @@ import {
 import {
     Menu as MenuIcon, FolderOpen, Share2, FilePlus, Trash2, Maximize,
     Moon, Sun, Download, Layout,
-    Layers, Check
+    Layers, Check, Play, Square
 } from "lucide-solid";
+import { sequenceAnimator } from "../utils/animation/sequence-animator";
 import HelpDialog from "./help-dialog";
 import LoadExportDialog from "./load-export-dialog";
 import FileOpenDialog from "./file-open-dialog";
@@ -544,6 +545,14 @@ const Menu: Component = () => {
 
                     <div style={{ position: 'fixed', top: '12px', right: '12px', "z-index": 100 }}>
                         <div class="menu-container">
+                            <button class="menu-btn" onClick={() => sequenceAnimator.playAll('programmatic')} title="Play All Animations">
+                                <Play size={18} color="#10b981" fill="#10b981" />
+                                <span style={{ "margin-left": "4px", color: '#10b981', "font-weight": "bold" }}>Play All</span>
+                            </button>
+                            <button class="menu-btn" onClick={() => sequenceAnimator.stopAll()} title="Stop All Animations">
+                                <Square size={18} color="#ef4444" fill="#ef4444" />
+                            </button>
+                            <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
                             <button class="menu-btn primary" onClick={handleShare} title="Share">
                                 <Share2 size={18} />
                                 <span style={{ "margin-left": "4px" }}>Share</span>

@@ -60,6 +60,24 @@ export class SequenceAnimator {
     }
 
     /**
+     * Play all animations for all elements in the store
+     */
+    playAll(trigger: 'on-load' | 'programmatic' = 'programmatic'): void {
+        store.elements.forEach(element => {
+            this.playSequence(element.id, trigger);
+        });
+    }
+
+    /**
+     * Stop all animations for all elements in the store
+     */
+    stopAll(): void {
+        store.elements.forEach(element => {
+            this.stopSequence(element.id);
+        });
+    }
+
+    /**
      * Recursive runner for the sequence
      */
     private runStep(elementId: string, sequence: ElementAnimation[], index: number, onAllComplete?: () => void): void {
