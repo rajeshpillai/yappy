@@ -104,7 +104,7 @@ export const normalizeElement = (el: Partial<DrawingElement> & { id: string; typ
 
         // Animation Settings
         ...(el.entranceAnimation !== undefined && { entranceAnimation: el.entranceAnimation }),
-
+        ...(el.animations !== undefined && { animations: el.animations }),
 
         // Control Points
         ...(el.controlPoints !== undefined && { controlPoints: el.controlPoints }),
@@ -113,6 +113,7 @@ export const normalizeElement = (el: Partial<DrawingElement> & { id: string; typ
         ...(el.flowAnimation !== undefined && { flowAnimation: el.flowAnimation }),
         ...(el.flowSpeed !== undefined && { flowSpeed: el.flowSpeed }),
         ...(el.flowStyle !== undefined && { flowStyle: el.flowStyle }),
+        ...(el.isMotionPath !== undefined && { isMotionPath: el.isMotionPath }),
     } as DrawingElement;
 };
 
@@ -125,6 +126,7 @@ export const migrateDrawingData = (data: any): {
     layers: Layer[];
     viewState: { scale: number; panX: number; panY: number };
     gridSettings?: GridSettings;
+    globalSettings?: GlobalSettings;
     canvasBackgroundColor?: string;
 } => {
     // Use existing layers or create default
@@ -160,11 +162,12 @@ export const migrateDrawingData = (data: any): {
         layers: migratedLayers,
         viewState: data.viewState || { scale: 1, panX: 0, panY: 0 },
         gridSettings: data.gridSettings,
+        globalSettings: data.globalSettings,
         canvasBackgroundColor: data.canvasBackgroundColor
     };
 };
 
-import type { SlideDocument, Slide } from '../types/slide-types';
+import type { SlideDocument, Slide, GlobalSettings } from '../types/slide-types';
 
 /**
  * Check if data is already in the new v3 slide format
@@ -204,7 +207,7 @@ export const migrateToSlideFormat = (data: any): SlideDocument => {
             updatedAt: new Date().toISOString()
         },
         slides: [slide],
-        globalSettings: {}
+        globalSettings: data.globalSettings || {}
     };
 };
 
@@ -217,6 +220,7 @@ export const extractSlideAsLegacy = (doc: SlideDocument, slideIndex: number = 0)
     layers: Layer[];
     viewState: { scale: number; panX: number; panY: number };
     gridSettings?: GridSettings;
+    globalSettings?: GlobalSettings;
     canvasBackgroundColor?: string;
 } => {
     const slide = doc.slides[slideIndex];
@@ -241,6 +245,7 @@ export const extractSlideAsLegacy = (doc: SlideDocument, slideIndex: number = 0)
         layers: slide.layers,
         viewState: slide.viewState,
         gridSettings: slide.gridSettings,
+        globalSettings: doc.globalSettings,
         canvasBackgroundColor: slide.backgroundColor
     };
 };

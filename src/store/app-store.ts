@@ -1094,6 +1094,7 @@ export const loadTemplate = (templateData: {
     layers: Layer[];
     viewState?: ViewState;
     gridSettings?: GridSettings;
+    globalSettings?: GlobalSettings;
     canvasBackgroundColor?: string;
 }) => {
     // Clear history and reset canvas
@@ -1106,6 +1107,7 @@ export const loadTemplate = (templateData: {
         activeLayerId: templateData.layers[0]?.id || 'default-layer',
         viewState: templateData.viewState || { scale: 1, panX: 0, panY: 0 },
         gridSettings: templateData.gridSettings || store.gridSettings,
+        globalSettings: templateData.globalSettings || store.globalSettings,
         canvasBackgroundColor: templateData.canvasBackgroundColor || store.canvasBackgroundColor,
         selection: []
     });

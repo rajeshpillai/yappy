@@ -53,6 +53,7 @@ const Menu: Component = () => {
                     viewState: store.viewState,
                     layers: store.layers,
                     gridSettings: store.gridSettings,
+                    globalSettings: store.globalSettings,
                     canvasBackgroundColor: store.canvasBackgroundColor,
                     version: 2
                 });
@@ -68,6 +69,7 @@ const Menu: Component = () => {
                 viewState: store.viewState,
                 layers: store.layers,
                 gridSettings: store.gridSettings,
+                globalSettings: store.globalSettings,
                 canvasBackgroundColor: store.canvasBackgroundColor,
                 version: 2
             });
@@ -123,6 +125,7 @@ const Menu: Component = () => {
                     layers: migrated.layers,
                     activeLayerId: migrated.layers[0]?.id || 'default-layer',
                     gridSettings: migrated.gridSettings || { enabled: false, snapToGrid: false, objectSnapping: false, gridSize: 20, gridColor: '#e0e0e0', gridOpacity: 0.5, style: 'lines' },
+                    globalSettings: migrated.globalSettings || { animationEnabled: true, reducedMotion: false },
                     canvasBackgroundColor: migrated.canvasBackgroundColor || '#fafafa'
                 });
                 setDrawingId(targetId);
@@ -206,6 +209,7 @@ const Menu: Component = () => {
                     layers: migrated.layers,
                     activeLayerId: migrated.layers[0]?.id || 'default-layer',
                     gridSettings: migrated.gridSettings || { enabled: false, snapToGrid: false, objectSnapping: false, gridSize: 20, gridColor: '#e0e0e0', gridOpacity: 0.5, style: 'lines' },
+                    globalSettings: migrated.globalSettings || { animationEnabled: true, reducedMotion: false },
                     canvasBackgroundColor: migrated.canvasBackgroundColor || '#fafafa'
                 });
                 const name = file.name.replace(/\.json$/i, '');

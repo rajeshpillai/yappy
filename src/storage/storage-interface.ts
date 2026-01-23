@@ -12,6 +12,7 @@ export interface DrawingData {
     viewState: ViewState;
     layers?: Layer[];
     gridSettings?: GridSettings;
+    globalSettings?: GlobalSettings;
     canvasBackgroundColor?: string;
 }
 
