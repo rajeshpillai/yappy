@@ -11,8 +11,11 @@ export type AnimationTrigger =
 export type AnimationAction =
     | 'preset'          // Use a predefined effect (fade, bounce)
     | 'property'        // Animate specific property (frame-based)
+    | 'rotate'          // Specialized rotation (angle)
     | 'path'            // Move along a path
-    | 'transition';     // Morph to a new state
+    | 'transition'      // Morph to a new state
+    | 'orbit'           // Persistent orbit
+    | 'spin';          // Persistent spin
 
 // Base animation interface
 export interface BaseAnimation {
@@ -49,7 +52,15 @@ export interface PathAnimation extends BaseAnimation {
     orientToPath?: boolean;
 }
 
-export type ElementAnimation = PresetAnimation | PropertyAnimation | PathAnimation;
+// 4. Rotate Animation (Discrete Rotation)
+export interface RotateAnimation extends BaseAnimation {
+    type: 'rotate';
+    fromAngle?: number;
+    toAngle: number;
+    relative?: boolean; // If true, treat toAngle as delta
+}
+
+export type ElementAnimation = PresetAnimation | PropertyAnimation | PathAnimation | RotateAnimation;
 
 // Defines what properties can be overridden in a state
 export interface DrawingElementState {

@@ -2,7 +2,7 @@ import { type Component, For, Show, createSignal, createMemo } from 'solid-js';
 import { store, updateElement, updateAnimation, reorderAnimation } from '../store/app-store';
 import { sequenceAnimator } from '../utils/animation/sequence-animator';
 import { Play, Plus, Trash2, ChevronDown, ChevronRight, ChevronUp } from 'lucide-solid';
-import type { ElementAnimation, PresetAnimation } from '../types/motion-types';
+import type { ElementAnimation, PresetAnimation, RotateAnimation } from '../types/motion-types';
 
 const PRESETS = [
     'fadeIn', 'fadeOut',
@@ -45,6 +45,26 @@ export const AnimationPanel: Component = () => {
             id: crypto.randomUUID(),
             type: 'preset',
             name: name,
+            duration: 1000,
+            delay: 0,
+            easing: 'easeOutQuad',
+            trigger: el.animations?.length ? 'after-prev' : 'on-load'
+        };
+
+        const currentAnims = el.animations || [];
+        updateElement(el.id, { animations: [...currentAnims, newAnim] }, true);
+        setIsAdding(false);
+    };
+
+    const addRotateAnimation = () => {
+        const el = element();
+        if (!el) return;
+
+        const newAnim: RotateAnimation = {
+            id: crypto.randomUUID(),
+            type: 'rotate',
+            toAngle: 90,
+            relative: true,
             duration: 1000,
             delay: 0,
             easing: 'easeOutQuad',
@@ -167,6 +187,26 @@ export const AnimationPanel: Component = () => {
                             )}
                         </For>
                     </div>
+
+                    <div style={{ 'margin-top': '8px', 'padding-top': '8px', 'border-top': '1px solid var(--border-color)', 'display': 'flex', 'gap': '4px' }}>
+                        <button
+                            onClick={addRotateAnimation}
+                            style={{
+                                'flex': 1,
+                                'padding': '6px',
+                                'border': 'none',
+                                'background': '#3b82f6',
+                                'color': 'white',
+                                'border-radius': '4px',
+                                'cursor': 'pointer',
+                                'font-size': '11px',
+                                'font-weight': 600
+                            }}
+                        >
+                            + Add Rotate
+                        </button>
+                    </div>
+
                     <button
                         onClick={() => setIsAdding(false)}
                         style={{ 'width': '100%', 'margin-top': '8px', 'padding': '4px', 'font-size': '11px', 'cursor': 'pointer' }}
@@ -211,7 +251,8 @@ const AnimationItem: Component<{
                     {props.expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                 </div>
                 <div style={{ 'flex': 1, 'font-size': '12px', 'font-weight': 500 }}>
-                    {props.animation.type === 'preset' ? (props.animation as PresetAnimation).name : 'Property'}
+                    {props.animation.type === 'preset' ? (props.animation as PresetAnimation).name :
+                        props.animation.type === 'rotate' ? 'Rotate' : 'Property'}
                     <span style={{ 'margin-left': '6px', 'opacity': 0.5, 'font-size': '10px' }}>
                         {props.animation.duration}ms
                     </span>
@@ -299,6 +340,31 @@ const AnimationItem: Component<{
                             <For each={EASINGS}>{easing => <option value={easing}>{easing}</option>}</For>
                         </select>
                     </div>
+
+                    {/* Specialized Rotate Settings */}
+                    <Show when={props.animation.type === 'rotate'}>
+                        <div style={{ 'display': 'flex', 'align-items': 'center', 'justify-content': 'space-between' }}>
+                            <label style={{ 'font-size': '11px', 'opacity': 0.7 }}>To Angle (deg)</label>
+                            <input
+                                type="number"
+                                step="15"
+                                value={(props.animation as any).toAngle}
+                                onInput={(e) => props.onUpdate({ toAngle: Number(e.currentTarget.value) } as any)}
+                                style={{ 'width': '60px', 'font-size': '11px', 'padding': '2px 4px' }}
+                            />
+                        </div>
+                        <div style={{ 'display': 'flex', 'align-items': 'center', 'gap': '8px' }}>
+                            <input
+                                type="checkbox"
+                                id={`rel-${props.animation.id}`}
+                                checked={(props.animation as any).relative || false}
+                                onChange={(e) => props.onUpdate({ relative: e.currentTarget.checked } as any)}
+                            />
+                            <label for={`rel-${props.animation.id}`} style={{ 'font-size': '11px', 'opacity': 0.7, 'cursor': 'pointer' }}>
+                                Relative to current
+                            </label>
+                        </div>
+                    </Show>
 
                     {/* Restore State */}
                     <div style={{ 'display': 'flex', 'align-items': 'center', 'gap': '8px', 'margin-top': '4px' }}>

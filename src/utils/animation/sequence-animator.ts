@@ -139,11 +139,24 @@ export class SequenceAnimator {
             }
         } else if (anim.type === 'property') {
             this.animateProperty(elementId, anim, config);
+        } else if (anim.type === 'rotate') {
+            this.animateRotate(elementId, anim as any, config);
         } else if (anim.type === 'path') {
             // TODO: Implement path animation logic
             console.warn('Path animation not yet implemented');
             onComplete();
         }
+    }
+
+    private animateRotate(elementId: string, anim: any, config: ElementAnimationConfig): void {
+        const el = store.elements.find(e => e.id === elementId);
+        if (!el) {
+            config.onComplete?.();
+            return;
+        }
+
+        const toAngle = anim.relative ? (el.angle || 0) + (anim.toAngle * Math.PI / 180) : (anim.toAngle * Math.PI / 180);
+        animateElement(elementId, { angle: toAngle }, config);
     }
 
     private animateProperty(elementId: string, anim: PropertyAnimation, config: ElementAnimationConfig): void {
