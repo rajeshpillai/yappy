@@ -41,7 +41,7 @@ interface AppState {
     maxLayers: number;
     canvasTexture: 'none' | 'dots' | 'grid' | 'graph' | 'paper';
     isRecording: boolean;
-    selectedTechnicalType: 'dfdProcess' | 'dfdDataStore' | 'isometricCube' | 'cylinder';
+    selectedTechnicalType: 'dfdProcess' | 'dfdDataStore' | 'isometricCube' | 'cylinder' | 'stateStart' | 'stateEnd' | 'stateSync' | 'activationBar' | 'externalEntity';
 }
 
 const initialState: AppState = {
