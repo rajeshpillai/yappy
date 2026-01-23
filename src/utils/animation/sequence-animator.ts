@@ -126,7 +126,10 @@ export class SequenceAnimator {
             delay: anim.delay,
             easing: anim.easing,
             onComplete,
-            params: (anim as any).params
+            params: (anim as any).params,
+            loop: anim.repeat === -1,
+            loopCount: anim.repeat !== -1 && (anim.repeat || 0) > 0 ? anim.repeat : undefined,
+            alternate: anim.yoyo
         };
 
         if (anim.type === 'preset') {

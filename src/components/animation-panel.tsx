@@ -342,6 +342,33 @@ const AnimationItem: Component<{
                         </select>
                     </div>
 
+                    {/* Loop Settings */}
+                    <div style={{ 'display': 'flex', 'align-items': 'center', 'gap': '8px', 'margin-top': '4px' }}>
+                        <input
+                            type="checkbox"
+                            id={`loop-${props.animation.id}`}
+                            checked={props.animation.repeat === -1}
+                            onChange={(e) => props.onUpdate({ repeat: e.currentTarget.checked ? -1 : 0 })}
+                        />
+                        <label for={`loop-${props.animation.id}`} style={{ 'font-size': '11px', 'opacity': 0.7, 'cursor': 'pointer' }}>
+                            Loop Infinitely
+                        </label>
+                    </div>
+
+                    <Show when={props.animation.repeat === -1}>
+                        <div style={{ 'display': 'flex', 'align-items': 'center', 'gap': '8px' }}>
+                            <input
+                                type="checkbox"
+                                id={`yoyo-${props.animation.id}`}
+                                checked={props.animation.yoyo || false}
+                                onChange={(e) => props.onUpdate({ yoyo: e.currentTarget.checked })}
+                            />
+                            <label for={`yoyo-${props.animation.id}`} style={{ 'font-size': '11px', 'opacity': 0.7, 'cursor': 'pointer' }}>
+                                Ping-Pong (Yoyo)
+                            </label>
+                        </div>
+                    </Show>
+
                     {/* Specialized Rotate Settings */}
                     <Show when={props.animation.type === 'rotate'}>
                         <div style={{ 'display': 'flex', 'align-items': 'center', 'justify-content': 'space-between' }}>
