@@ -1,0 +1,277 @@
+
+import { type Component, For, Show, createSignal } from 'solid-js';
+import { store, updateElement } from '../store/app-store';
+import { sequenceAnimator } from '../utils/animation/sequence-animator';
+import { Play, Plus, Trash2, ChevronDown, ChevronRight } from 'lucide-solid';
+import type { ElementAnimation, PresetAnimation } from '../types/motion-types';
+
+const PRESETS = [
+    'fadeIn', 'fadeOut',
+    'slideInLeft', 'slideInRight', 'slideInUp', 'slideInDown',
+    'zoomIn', 'zoomOut',
+    'bounce', 'pulse', 'shakeX', 'shakeY'
+];
+
+const EASINGS = [
+    'linear', 'easeInQuad', 'easeOutQuad', 'easeInOutQuad',
+    'easeInCubic', 'easeOutCubic', 'easeInOutCubic',
+    'easeInElastic', 'easeOutElastic', 'easeInOutElastic',
+    'easeInBounce', 'easeOutBounce', 'easeInOutBounce'
+];
+
+export const AnimationPanel: Component = () => {
+    const selectedId = () => store.selection.length === 1 ? store.selection[0] : null;
+    const element = () => selectedId() ? store.elements.find(el => el.id === selectedId()) : null;
+
+    const [isAdding, setIsAdding] = createSignal(false);
+
+    const addPreset = (name: string) => {
+        const el = element();
+        if (!el) return;
+
+        const newAnim: PresetAnimation = {
+            id: crypto.randomUUID(),
+            type: 'preset',
+            name: name,
+            duration: 1000,
+            delay: 0,
+            easing: 'easeOutQuad',
+            trigger: el.animations?.length ? 'after-prev' : 'on-load'
+        };
+
+        const currentAnims = el.animations || [];
+        updateElement(el.id, { animations: [...currentAnims, newAnim] }, true);
+        setIsAdding(false);
+    };
+
+    const removeAnimation = (animId: string) => {
+        const el = element();
+        if (!el || !el.animations) return;
+        updateElement(el.id, {
+            animations: el.animations.filter(a => a.id !== animId)
+        }, true);
+    };
+
+    const updateAnimProperty = (animId: string, updates: Partial<ElementAnimation>) => {
+        const el = element();
+        if (!el || !el.animations) return;
+
+        const newAnims = el.animations.map(a =>
+            a.id === animId ? { ...a, ...updates } : a
+        );
+        updateElement(el.id, { animations: newAnims as ElementAnimation[] }, true); // Cast to fix index signature mismatch if any
+    };
+
+    const handlePlay = () => {
+        const id = selectedId();
+        if (id) {
+            sequenceAnimator.playSequence(id, 'programmatic');
+        }
+    };
+
+    return (
+        <div class="animation-panel">
+            <div class="panel-header" style={{ display: 'flex', 'justify-content': 'space-between', 'align-items': 'center', 'margin-bottom': '10px' }}>
+                <h3 style={{ margin: 0, 'font-size': '14px', 'font-weight': 600 }}>Animations</h3>
+                <button
+                    onClick={handlePlay}
+                    title="Preview Animation"
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', 'border-radius': '4px' }}
+                    class="icon-btn"
+                >
+                    <Play size={16} />
+                </button>
+            </div>
+
+            <div class="animation-list" style={{ display: 'flex', 'flex-direction': 'column', gap: '8px' }}>
+                <For each={element()?.animations || []}>
+                    {(anim, index) => (
+                        <AnimationItem
+                            animation={anim}
+                            index={index()}
+                            onUpdate={(u) => updateAnimProperty(anim.id, u)}
+                            onRemove={() => removeAnimation(anim.id)}
+                        />
+                    )}
+                </For>
+            </div>
+
+            <Show when={!isAdding()}>
+                <button
+                    onClick={() => setIsAdding(true)}
+                    style={{
+                        'width': '100%',
+                        'margin-top': '10px',
+                        'padding': '8px',
+                        'display': 'flex',
+                        'justify-content': 'center',
+                        'align-items': 'center',
+                        'gap': '6px',
+                        'background': 'var(--bg-secondary)',
+                        'border': '1px dashed var(--border-color)',
+                        'border-radius': '6px',
+                        'cursor': 'pointer',
+                        'font-size': '12px'
+                    }}
+                >
+                    <Plus size={14} /> Add Animation
+                </button>
+            </Show>
+
+            <Show when={isAdding()}>
+                <div class="add-menu" style={{
+                    'margin-top': '10px',
+                    'background': 'var(--bg-secondary)',
+                    'padding': '8px',
+                    'border-radius': '6px',
+                    'border': '1px solid var(--border-color)'
+                }}>
+                    <div style={{ 'font-size': '12px', 'margin-bottom': '6px', 'font-weight': 500 }}>Select Preset</div>
+                    <div style={{ 'display': 'grid', 'grid-template-columns': '1fr 1fr', 'gap': '4px' }}>
+                        <For each={PRESETS}>
+                            {preset => (
+                                <button
+                                    onClick={() => addPreset(preset)}
+                                    style={{
+                                        'text-align': 'left',
+                                        'padding': '4px 8px',
+                                        'border': 'none',
+                                        'background': 'var(--bg-panel)',
+                                        'border-radius': '4px',
+                                        'cursor': 'pointer',
+                                        'font-size': '11px'
+                                    }}
+                                >
+                                    {preset}
+                                </button>
+                            )}
+                        </For>
+                    </div>
+                    <button
+                        onClick={() => setIsAdding(false)}
+                        style={{ 'width': '100%', 'margin-top': '8px', 'padding': '4px', 'font-size': '11px', 'cursor': 'pointer' }}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </Show>
+        </div>
+    );
+};
+
+const AnimationItem: Component<{
+    animation: ElementAnimation;
+    index: number;
+    onUpdate: (updates: Partial<ElementAnimation>) => void;
+    onRemove: () => void;
+}> = (props) => {
+    const [expanded, setExpanded] = createSignal(false);
+
+    return (
+        <div style={{
+            'background': 'var(--bg-secondary)',
+            'border-radius': '6px',
+            'border': '1px solid var(--border-color)',
+            'overflow': 'hidden'
+        }}>
+            <div
+                style={{
+                    'display': 'flex',
+                    'align-items': 'center',
+                    'padding': '8px',
+                    'cursor': 'pointer',
+                    'background': expanded() ? 'rgba(0,0,0,0.03)' : 'transparent'
+                }}
+                onClick={() => setExpanded(!expanded())}
+            >
+                <div style={{ 'margin-right': '6px', 'display': 'flex' }}>
+                    {expanded() ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                </div>
+                <div style={{ 'flex': 1, 'font-size': '12px', 'font-weight': 500 }}>
+                    {props.animation.type === 'preset' ? (props.animation as PresetAnimation).name : 'Property'}
+                    <span style={{ 'margin-left': '6px', 'opacity': 0.5, 'font-size': '10px' }}>
+                        {props.animation.duration}ms
+                    </span>
+                </div>
+                <button
+                    onClick={(e) => { e.stopPropagation(); props.onRemove(); }}
+                    style={{ 'border': 'none', 'background': 'none', 'cursor': 'pointer', 'opacity': 0.6, 'padding': '2px' }}
+                >
+                    <Trash2 size={14} />
+                </button>
+            </div>
+
+            <Show when={expanded()}>
+                <div style={{ 'padding': '8px', 'border-top': '1px solid var(--border-color)', 'display': 'flex', 'flex-direction': 'column', 'gap': '8px' }}>
+
+                    {/* Trigger */}
+                    <div style={{ 'display': 'flex', 'align-items': 'center', 'justify-content': 'space-between' }}>
+                        <label style={{ 'font-size': '11px', 'opacity': 0.7 }}>Trigger</label>
+                        <select
+                            value={props.animation.trigger}
+                            onChange={(e) => props.onUpdate({ trigger: e.currentTarget.value as any })}
+                            style={{ 'font-size': '11px', 'padding': '2px 4px', 'width': '80px' }}
+                        >
+                            <option value="on-load">On Load</option>
+                            <option value="on-click">On Click</option>
+                            <option value="after-prev">After Previous</option>
+                            <option value="with-prev">With Previous</option>
+                        </select>
+                    </div>
+
+                    {/* Duration */}
+                    <div style={{ 'display': 'flex', 'align-items': 'center', 'justify-content': 'space-between' }}>
+                        <label style={{ 'font-size': '11px', 'opacity': 0.7 }}>Duration (ms)</label>
+                        <input
+                            type="number"
+                            step="100"
+                            min="0"
+                            value={props.animation.duration}
+                            onInput={(e) => props.onUpdate({ duration: Number(e.currentTarget.value) })}
+                            style={{ 'width': '60px', 'font-size': '11px', 'padding': '2px 4px' }}
+                        />
+                    </div>
+
+                    {/* Delay */}
+                    <div style={{ 'display': 'flex', 'align-items': 'center', 'justify-content': 'space-between' }}>
+                        <label style={{ 'font-size': '11px', 'opacity': 0.7 }}>Delay (ms)</label>
+                        <input
+                            type="number"
+                            step="100"
+                            min="0"
+                            value={props.animation.delay}
+                            onInput={(e) => props.onUpdate({ delay: Number(e.currentTarget.value) })}
+                            style={{ 'width': '60px', 'font-size': '11px', 'padding': '2px 4px' }}
+                        />
+                    </div>
+
+                    {/* Easing */}
+                    <div style={{ 'display': 'flex', 'align-items': 'center', 'justify-content': 'space-between' }}>
+                        <label style={{ 'font-size': '11px', 'opacity': 0.7 }}>Easing</label>
+                        <select
+                            value={props.animation.easing}
+                            onChange={(e) => props.onUpdate({ easing: e.currentTarget.value as any })}
+                            style={{ 'font-size': '11px', 'padding': '2px 4px', 'width': '100px' }}
+                        >
+                            <For each={EASINGS}>{easing => <option value={easing}>{easing}</option>}</For>
+                        </select>
+                    </div>
+
+                    {/* Restore State */}
+                    <div style={{ 'display': 'flex', 'align-items': 'center', 'gap': '8px', 'margin-top': '4px' }}>
+                        <input
+                            type="checkbox"
+                            id={`restore-${props.animation.id}`}
+                            checked={props.animation.restoreAfter || false}
+                            onChange={(e) => props.onUpdate({ restoreAfter: e.currentTarget.checked })}
+                        />
+                        <label for={`restore-${props.animation.id}`} style={{ 'font-size': '11px', 'opacity': 0.7, 'cursor': 'pointer' }}>
+                            Restore state after finish
+                        </label>
+                    </div>
+
+                </div>
+            </Show>
+        </div>
+    );
+};

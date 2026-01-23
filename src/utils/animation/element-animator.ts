@@ -61,6 +61,10 @@ export interface ElementAnimationTarget {
 export interface ElementAnimationConfig extends Omit<AnimationConfig, 'onUpdate'> {
     /** Optional callback with current animated values */
     onUpdate?: (values: Partial<ElementAnimationTarget>) => void;
+    /** For attention seekers / presets */
+    intensity?: number;
+    /** For pulse / scale presets */
+    scale?: number;
 }
 
 /**
@@ -249,17 +253,25 @@ export function resumeElementAnimation(animationId: string): void {
 /**
  * Fade in an element
  */
-export function fadeIn(elementId: string, duration: number = 300): string {
+export function fadeIn(elementId: string, duration: number = 300, config: ElementAnimationConfig = {}): string {
     // Set initial opacity to 0
     updateElement(elementId, { opacity: 0 }, false);
-    return animateElement(elementId, { opacity: 100 }, { duration, easing: 'easeOutQuad' });
+    return animateElement(elementId, { opacity: 100 }, {
+        duration,
+        easing: 'easeOutQuad',
+        ...config
+    });
 }
 
 /**
  * Fade out an element
  */
-export function fadeOut(elementId: string, duration: number = 300): string {
-    return animateElement(elementId, { opacity: 0 }, { duration, easing: 'easeOutQuad' });
+export function fadeOut(elementId: string, duration: number = 300, config: ElementAnimationConfig = {}): string {
+    return animateElement(elementId, { opacity: 0 }, {
+        duration,
+        easing: 'easeOutQuad',
+        ...config
+    });
 }
 
 /**
@@ -306,22 +318,23 @@ export function scaleIn(elementId: string, duration: number = 300, config: Eleme
 /**
  * Bounce effect (emphasis)
  */
-export function bounce(elementId: string, intensity: number = 20, config: ElementAnimationConfig = {}): string {
+export function bounce(elementId: string, duration: number = 450, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
+    const intensity = config.intensity ?? 20;
     const originalY = element.y;
 
     return animateElement(elementId, {
         y: originalY - intensity
     }, {
-        duration: 150,
+        duration: duration * 0.33,
         easing: 'easeOutQuad',
         delay: config.delay,
         onStart: config.onStart,
         onComplete: () => {
             animateElement(elementId, { y: originalY }, {
-                duration: 300,
+                duration: duration * 0.67,
                 easing: 'easeOutBounce',
                 onComplete: config.onComplete
             });
@@ -332,10 +345,11 @@ export function bounce(elementId: string, intensity: number = 20, config: Elemen
 /**
  * Pulse effect (emphasis)
  */
-export function pulse(elementId: string, scale: number = 1.1, duration: number = 300, config: ElementAnimationConfig = {}): string {
+export function pulse(elementId: string, duration: number = 300, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
+    const scale = config.scale ?? 1.1;
     const originalWidth = element.width;
     const originalHeight = element.height;
     const originalX = element.x;
@@ -441,10 +455,11 @@ export function rubberBand(elementId: string, duration: number = 1000, config: E
 /**
  * ShakeX effect (attention seeker)
  */
-export function shakeX(elementId: string, intensity: number = 10, duration: number = 400, config: ElementAnimationConfig = {}): string {
+export function shakeX(elementId: string, duration: number = 400, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
+    const intensity = config.intensity ?? 10;
     const originalX = element.x;
 
     return animateElement(elementId, {
@@ -467,10 +482,11 @@ export function shakeX(elementId: string, intensity: number = 10, duration: numb
 /**
  * ShakeY effect (attention seeker)
  */
-export function shakeY(elementId: string, intensity: number = 10, duration: number = 400, config: ElementAnimationConfig = {}): string {
+export function shakeY(elementId: string, duration: number = 400, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
+    const intensity = config.intensity ?? 10;
     const originalY = element.y;
 
     return animateElement(elementId, {
@@ -833,87 +849,119 @@ export function scaleOut(elementId: string, duration: number = 300, config: Elem
 /**
  * Slide in from left
  */
-export function slideInLeft(elementId: string, duration: number = 300): string {
+export function slideInLeft(elementId: string, duration: number = 300, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
     const targetX = element.x;
     updateElement(elementId, { x: -element.width, opacity: 0 }, false);
 
-    return animateElement(elementId, { x: targetX, opacity: 100 }, { duration, easing: 'easeOutQuad' });
+    return animateElement(elementId, { x: targetX, opacity: 100 }, {
+        duration,
+        easing: 'easeOutQuad',
+        ...config
+    });
 }
 
 /**
  * Slide in from right
  */
-export function slideInRight(elementId: string, duration: number = 300): string {
+export function slideInRight(elementId: string, duration: number = 300, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
     const targetX = element.x;
     updateElement(elementId, { x: window.innerWidth + 100, opacity: 0 }, false);
 
-    return animateElement(elementId, { x: targetX, opacity: 100 }, { duration, easing: 'easeOutQuad' });
+    return animateElement(elementId, { x: targetX, opacity: 100 }, {
+        duration,
+        easing: 'easeOutQuad',
+        ...config
+    });
 }
 
 /**
  * Slide in from top
  */
-export function slideInUp(elementId: string, duration: number = 300): string {
+export function slideInUp(elementId: string, duration: number = 300, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
     const targetY = element.y;
     updateElement(elementId, { y: -element.height, opacity: 0 }, false);
 
-    return animateElement(elementId, { y: targetY, opacity: 100 }, { duration, easing: 'easeOutQuad' });
+    return animateElement(elementId, { y: targetY, opacity: 100 }, {
+        duration,
+        easing: 'easeOutQuad',
+        ...config
+    });
 }
 
 /**
  * Slide in from bottom
  */
-export function slideInDown(elementId: string, duration: number = 300): string {
+export function slideInDown(elementId: string, duration: number = 300, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
     const targetY = element.y;
     updateElement(elementId, { y: window.innerHeight + 100, opacity: 0 }, false);
 
-    return animateElement(elementId, { y: targetY, opacity: 100 }, { duration, easing: 'easeOutQuad' });
+    return animateElement(elementId, { y: targetY, opacity: 100 }, {
+        duration,
+        easing: 'easeOutQuad',
+        ...config
+    });
 }
 
 /**
  * Slide out to left
  */
-export function slideOutLeft(elementId: string, duration: number = 300): string {
+export function slideOutLeft(elementId: string, duration: number = 300, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
-    return animateElement(elementId, { x: -element.width, opacity: 0 }, { duration, easing: 'easeInQuad' });
+    return animateElement(elementId, { x: -element.width, opacity: 0 }, {
+        duration,
+        easing: 'easeInQuad',
+        ...config
+    });
 }
 
 /**
  * Slide out to right
  */
-export function slideOutRight(elementId: string, duration: number = 300): string {
-    return animateElement(elementId, { x: window.innerWidth + 100, opacity: 0 }, { duration, easing: 'easeInQuad' });
+export function slideOutRight(elementId: string, duration: number = 300, config: ElementAnimationConfig = {}): string {
+    return animateElement(elementId, { x: window.innerWidth + 100, opacity: 0 }, {
+        duration,
+        easing: 'easeInQuad',
+        ...config
+    });
 }
 
 /**
  * Slide out to top
  */
-export function slideOutUp(elementId: string, duration: number = 300): string {
+export function slideOutUp(elementId: string, duration: number = 300, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
-    return animateElement(elementId, { y: -element.height, opacity: 0 }, { duration, easing: 'easeInQuad' });
+    return animateElement(elementId, { y: -element.height, opacity: 0 }, {
+        duration,
+        easing: 'easeInQuad',
+        ...config
+    });
 }
 
 /**
  * Slide out to bottom
  */
-export function slideOutDown(elementId: string, duration: number = 300): string {
-    return animateElement(elementId, { y: window.innerHeight + 100, opacity: 0 }, { duration, easing: 'easeInQuad' });
+export function slideOutDown(elementId: string, duration: number = 300, config: ElementAnimationConfig = {}): string {
+    return animateElement(elementId, { y: window.innerHeight + 100, opacity: 0 }, {
+        duration,
+        easing: 'easeInQuad',
+        ...config
+    });
 }
 
 
@@ -1652,17 +1700,18 @@ export function getElementPreviewBaseState(elementId: string): any | undefined {
  * Play the entrance animation configured on an element
  * NOTE: Restores element to original state after animation completes (for preview purposes)
  */
-export function playEntranceAnimation(elementId: string): string {
+export function playEntranceAnimation(elementId: string, options: { isPreview?: boolean, onComplete?: () => void } = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
     const animation = element.entranceAnimation ?? 'none';
     const duration = (element as any).animationDuration ?? 300;
+    const { isPreview = true, onComplete } = options;
 
     // Capture or retrieve original state to restore after animation
     // If an animation is already running, we MUST use the already captured base state
     // to prevent capturing an intermediate "in-flight" state.
-    if (!previewBaseStates.has(elementId)) {
+    if (isPreview && !previewBaseStates.has(elementId)) {
         previewBaseStates.set(elementId, {
             x: element.x,
             y: element.y,
@@ -1672,11 +1721,14 @@ export function playEntranceAnimation(elementId: string): string {
             angle: element.angle
         });
     }
-    const originalState = previewBaseStates.get(elementId);
+    const originalState = isPreview ? previewBaseStates.get(elementId) : null;
 
     const restoreState = () => {
-        updateElement(elementId, originalState, false);
-        previewBaseStates.delete(elementId);
+        if (isPreview && originalState) {
+            updateElement(elementId, originalState, false);
+            previewBaseStates.delete(elementId);
+        }
+        onComplete?.();
     };
 
     const config = { onComplete: restoreState };
@@ -1700,12 +1752,12 @@ export function playEntranceAnimation(elementId: string): string {
         case 'fadeInBottomRight': return fadeInBottomRight(elementId, duration, config);
 
         // Attention seekers
-        case 'bounce': return bounce(elementId);
-        case 'flash': return flash(elementId, duration);
-        case 'pulse': return pulse(elementId, 1.1, duration);
-        case 'rubberBand': return rubberBand(elementId, duration);
-        case 'shakeX': return shakeX(elementId, 10, duration);
-        case 'shakeY': return shakeY(elementId, 10, duration);
+        case 'bounce': return bounce(elementId, duration, config);
+        case 'flash': return flash(elementId, duration, config);
+        case 'pulse': return pulse(elementId, duration, { scale: 1.1, ...config });
+        case 'rubberBand': return rubberBand(elementId, duration, config);
+        case 'shakeX': return shakeX(elementId, duration, { intensity: 10, ...config });
+        case 'shakeY': return shakeY(elementId, duration, { intensity: 10, ...config });
         case 'headShake': return headShake(elementId, duration);
         case 'swing': return swing(elementId, duration);
         case 'tada': return tada(elementId, duration);
@@ -1787,15 +1839,16 @@ export function playEntranceAnimation(elementId: string): string {
  * Play the exit animation configured on an element
  * NOTE: Restores element to original state after animation completes (for preview purposes)
  */
-export function playExitAnimation(elementId: string): string {
+export function playExitAnimation(elementId: string, options: { isPreview?: boolean, onComplete?: () => void } = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
     const animation = (element as any).exitAnimation ?? 'none';
     const duration = (element as any).animationDuration ?? 300;
+    const { isPreview = true, onComplete } = options;
 
     // Capture or retrieve original state to restore after animation
-    if (!previewBaseStates.has(elementId)) {
+    if (isPreview && !previewBaseStates.has(elementId)) {
         previewBaseStates.set(elementId, {
             x: element.x,
             y: element.y,
@@ -1805,11 +1858,14 @@ export function playExitAnimation(elementId: string): string {
             angle: element.angle
         });
     }
-    const originalState = previewBaseStates.get(elementId);
+    const originalState = isPreview ? previewBaseStates.get(elementId) : null;
 
     const restoreState = () => {
-        updateElement(elementId, originalState, false);
-        previewBaseStates.delete(elementId);
+        if (isPreview && originalState) {
+            updateElement(elementId, originalState, false);
+            previewBaseStates.delete(elementId);
+        }
+        onComplete?.();
     };
 
     const config = { onComplete: restoreState };
@@ -1860,6 +1916,14 @@ export function playExitAnimation(elementId: string): string {
             return animateElement(elementId, { x: window.innerWidth + 100, opacity: 0 }, { duration, easing: 'easeInQuad', onComplete: restoreState });
         case 'slideOutUp':
             return animateElement(elementId, { y: -element.height, opacity: 0 }, { duration, easing: 'easeInQuad', onComplete: restoreState });
+
+        // Attention seekers
+        case 'bounce': return bounce(elementId, duration, config);
+        case 'flash': return flash(elementId, duration, config);
+        case 'pulse': return pulse(elementId, duration, { scale: 1.1, ...config });
+        case 'rubberBand': return rubberBand(elementId, duration, config);
+        case 'shakeX': return shakeX(elementId, duration, { intensity: 10, ...config });
+        case 'shakeY': return shakeY(elementId, duration, { intensity: 10, ...config });
 
         // Rotating exits
         case 'rotateOut': return rotateOut(elementId, duration, config);

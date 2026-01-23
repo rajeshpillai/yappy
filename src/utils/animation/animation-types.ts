@@ -179,19 +179,25 @@ export function getEasing(easing?: EasingName | EasingFunction): EasingFunction 
  * Interpolate between two numbers
  */
 export function lerp(start: number, end: number, progress: number): number {
+    if (isNaN(start)) return end;
+    if (isNaN(end)) return start;
     return start + (end - start) * progress;
 }
 
 /**
  * Interpolate between two colors (hex format)
  */
-export function lerpColor(startHex: string, endHex: string, progress: number): string {
+export function lerpColor(startHex: string | null | undefined, endHex: string | null | undefined, progress: number): string {
+    if (!startHex) return endHex || '#000000';
+    if (!endHex) return startHex;
+
     const parseHex = (hex: string): [number, number, number] => {
         const h = hex.replace('#', '');
+        if (h.length < 6) return [0, 0, 0];
         return [
-            parseInt(h.substring(0, 2), 16),
-            parseInt(h.substring(2, 4), 16),
-            parseInt(h.substring(4, 6), 16)
+            parseInt(h.substring(0, 2), 16) || 0,
+            parseInt(h.substring(2, 4), 16) || 0,
+            parseInt(h.substring(4, 6), 16) || 0
         ];
     };
 

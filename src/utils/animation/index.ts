@@ -63,3 +63,10 @@ export type {
 
 // Timeline
 export { Timeline, createTimeline } from './timeline';
+
+// Sequence Animator
+export { sequenceAnimator } from './sequence-animator';
+
+// State Manager
+export { stateManager } from './state-manager';
+
