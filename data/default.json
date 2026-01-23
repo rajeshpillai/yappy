@@ -1,21 +1,21 @@
 {
   "version": 3,
   "metadata": {
-    "createdAt": "2026-01-23T18:07:26.044Z",
-    "updatedAt": "2026-01-23T18:07:26.044Z"
+    "createdAt": "2026-01-23T18:51:50.013Z",
+    "updatedAt": "2026-01-23T18:51:50.013Z"
   },
   "slides": [
     {
-      "id": "3429aab6-54c1-4c3b-b2cf-edc2f446ffde",
+      "id": "6e0ac4eb-ef0b-41c8-92aa-9f6f6769c6d9",
       "name": "Slide 1",
       "elements": [
         {
-          "id": "22a043b0-8946-41a2-b9b7-1aea19ccbdaa",
-          "type": "circle",
-          "x": 666.1571450156432,
-          "y": 415.70876508082716,
-          "width": 68.888916015625,
-          "height": 65.5555419921875,
+          "id": "9be33760-38b8-472f-9a67-0400de491820",
+          "type": "rectangle",
+          "x": 527.77783203125,
+          "y": 197.2917537689209,
+          "width": 126.66665649414062,
+          "height": 196.6666259765625,
           "strokeColor": "#000000",
           "backgroundColor": "transparent",
           "fillStyle": "hachure",
@@ -25,7 +25,7 @@
           "opacity": 100,
           "angle": 0,
           "renderStyle": "sketch",
-          "seed": 558399765,
+          "seed": 1703529493,
           "roundness": null,
           "locked": false,
           "link": null,
@@ -39,11 +39,141 @@
           "textAlign": "left",
           "boundElements": [
             {
-              "id": "7e3b13b0-9200-4805-b433-e1993c541fbe",
+              "id": "c4b99cc2-bb4f-4858-b6ee-8ff4cf20ced2",
+              "type": "arrow"
+            },
+            {
+              "id": "d394511d-e607-485a-8dd7-ced450ff1e35",
+              "type": "line"
+            },
+            {
+              "id": "56d7ebea-ca50-4055-8ca8-c5092288f0ae",
               "type": "arrow"
             }
           ],
           "curveType": "straight",
+          "autoResize": false,
+          "shadowEnabled": false,
+          "shadowColor": "rgba(0,0,0,0.3)",
+          "shadowBlur": 10,
+          "shadowOffsetX": 5,
+          "shadowOffsetY": 5,
+          "gradientStart": "#ffffff",
+          "gradientEnd": "#000000",
+          "gradientDirection": 45
+        },
+        {
+          "id": "0dbaf613-41f8-41d1-953a-c7bf1145e2b9",
+          "type": "cylinder",
+          "x": 881.1112670898438,
+          "y": 251.73617362976074,
+          "width": 78.888916015625,
+          "height": 133.33335876464844,
+          "strokeColor": "#000000",
+          "backgroundColor": "transparent",
+          "fillStyle": "hachure",
+          "strokeWidth": 2,
+          "strokeStyle": "solid",
+          "roughness": 1,
+          "opacity": 100,
+          "angle": 0,
+          "renderStyle": "sketch",
+          "seed": 1341332660,
+          "roundness": null,
+          "locked": false,
+          "link": null,
+          "layerId": "default-layer",
+          "startArrowhead": null,
+          "endArrowhead": null,
+          "fontSize": 20,
+          "fontFamily": "hand-drawn",
+          "fontWeight": false,
+          "fontStyle": false,
+          "textAlign": "left",
+          "boundElements": [
+            {
+              "id": "c4b99cc2-bb4f-4858-b6ee-8ff4cf20ced2",
+              "type": "arrow"
+            },
+            {
+              "id": "d394511d-e607-485a-8dd7-ced450ff1e35",
+              "type": "line"
+            },
+            {
+              "id": "56d7ebea-ca50-4055-8ca8-c5092288f0ae",
+              "type": "arrow"
+            }
+          ],
+          "curveType": "straight",
+          "autoResize": false,
+          "shadowEnabled": false,
+          "shadowColor": "rgba(0,0,0,0.3)",
+          "shadowBlur": 10,
+          "shadowOffsetX": 5,
+          "shadowOffsetY": 5,
+          "gradientStart": "#ffffff",
+          "gradientEnd": "#000000",
+          "gradientDirection": 45
+        },
+        {
+          "id": "56d7ebea-ca50-4055-8ca8-c5092288f0ae",
+          "type": "arrow",
+          "x": 654.4444885253906,
+          "y": 295.62506675720215,
+          "width": 226.66677856445312,
+          "height": 22.777786254882812,
+          "strokeColor": "#e03131",
+          "backgroundColor": "transparent",
+          "fillStyle": "hachure",
+          "strokeWidth": 2,
+          "strokeStyle": "solid",
+          "roughness": 1,
+          "opacity": 100,
+          "angle": 0,
+          "renderStyle": "sketch",
+          "seed": 1178531709,
+          "roundness": null,
+          "locked": false,
+          "link": null,
+          "layerId": "default-layer",
+          "points": [
+            {
+              "x": 0,
+              "y": 0
+            },
+            {
+              "x": 211.66677856445312,
+              "y": 0
+            },
+            {
+              "x": 211.66677856445312,
+              "y": 22.777786254882812
+            },
+            {
+              "x": 226.66677856445312,
+              "y": 22.777786254882812
+            }
+          ],
+          "startArrowhead": null,
+          "endArrowhead": null,
+          "fontSize": 20,
+          "fontFamily": "hand-drawn",
+          "fontWeight": false,
+          "fontStyle": false,
+          "textAlign": "left",
+          "startBinding": {
+            "elementId": "9be33760-38b8-472f-9a67-0400de491820",
+            "focus": 0,
+            "gap": 5,
+            "position": "right"
+          },
+          "endBinding": {
+            "elementId": "0dbaf613-41f8-41d1-953a-c7bf1145e2b9",
+            "focus": 0,
+            "gap": 5,
+            "position": "left"
+          },
+          "curveType": "elbow",
           "autoResize": false,
           "shadowEnabled": false,
           "shadowColor": "rgba(0,0,0,0.3)",
@@ -53,239 +183,15 @@
           "gradientStart": "#ffffff",
           "gradientEnd": "#000000",
           "gradientDirection": 45,
-          "animations": [
+          "controlPoints": [
             {
-              "id": "ee861990-bbcf-4623-9147-e1ddbb2047e5",
-              "type": "preset",
-              "name": "revolve",
-              "duration": 3000,
-              "delay": 0,
-              "easing": "easeOutBounce",
-              "trigger": "after-prev",
-              "params": {
-                "radius": 90
-              },
-              "repeat": -1,
-              "yoyo": false
-            }
-          ]
-        },
-        {
-          "id": "73051539-aea6-4e0a-acb9-055dd80bfa12",
-          "type": "circle",
-          "x": 445.5555725097656,
-          "y": 454.4444580078125,
-          "width": 68.888916015625,
-          "height": 65.5555419921875,
-          "strokeColor": "#000000",
-          "backgroundColor": "#fcc419",
-          "fillStyle": "solid",
-          "strokeWidth": 2,
-          "strokeStyle": "solid",
-          "roughness": 1,
-          "opacity": 100,
-          "angle": 0,
-          "renderStyle": "sketch",
-          "seed": 558399765,
-          "roundness": null,
-          "locked": false,
-          "link": null,
-          "layerId": "default-layer",
-          "startArrowhead": null,
-          "endArrowhead": null,
-          "fontSize": 20,
-          "fontFamily": "hand-drawn",
-          "fontWeight": false,
-          "fontStyle": false,
-          "textAlign": "left",
-          "textColor": "#fcc419",
-          "boundElements": [
-            {
-              "id": "7e3b13b0-9200-4805-b433-e1993c541fbe",
-              "type": "arrow"
-            },
-            {
-              "id": "bc80d6b0-a4b5-402f-96fd-e9c4e465b093",
-              "type": "arrow"
+              "x": 634.9999542236328,
+              "y": 277.98607063293457
             }
           ],
-          "curveType": "straight",
-          "autoResize": false,
-          "shadowEnabled": false,
-          "shadowColor": "rgba(0,0,0,0.3)",
-          "shadowBlur": 10,
-          "shadowOffsetX": 5,
-          "shadowOffsetY": 5,
-          "gradientStart": "#ffffff",
-          "gradientEnd": "#000000",
-          "gradientDirection": 45
-        },
-        {
-          "id": "7e3b13b0-9200-4805-b433-e1993c541fbe",
-          "type": "arrow",
-          "x": 514.4444885253906,
-          "y": 487.22222900390625,
-          "width": 151.71265649025258,
-          "height": -38.73569292698534,
-          "strokeColor": "#000000",
-          "backgroundColor": "transparent",
-          "fillStyle": "hachure",
-          "strokeWidth": 2,
-          "strokeStyle": "solid",
-          "roughness": 1,
-          "opacity": 100,
-          "angle": 0,
-          "renderStyle": "sketch",
-          "seed": 1947671491,
-          "roundness": null,
-          "locked": false,
-          "link": null,
-          "layerId": "default-layer",
-          "startArrowhead": null,
-          "endArrowhead": null,
-          "fontSize": 20,
-          "fontFamily": "hand-drawn",
-          "fontWeight": false,
-          "fontStyle": false,
-          "textAlign": "left",
-          "startBinding": {
-            "elementId": "73051539-aea6-4e0a-acb9-055dd80bfa12",
-            "focus": 0,
-            "gap": 5,
-            "position": "right"
-          },
-          "endBinding": {
-            "elementId": "22a043b0-8946-41a2-b9b7-1aea19ccbdaa",
-            "focus": 0,
-            "gap": 5,
-            "position": "left"
-          },
-          "curveType": "straight",
-          "autoResize": false,
-          "shadowEnabled": false,
-          "shadowColor": "rgba(0,0,0,0.3)",
-          "shadowBlur": 10,
-          "shadowOffsetX": 5,
-          "shadowOffsetY": 5,
-          "gradientStart": "#ffffff",
-          "gradientEnd": "#000000",
-          "gradientDirection": 45
-        },
-        {
-          "id": "902b7fb5-d5d8-4561-97c4-ea14b76ecd18",
-          "type": "star",
-          "x": 861.5309077271816,
-          "y": 415.4611899785387,
-          "width": 68.888916015625,
-          "height": 65.5555419921875,
-          "strokeColor": "#000000",
-          "backgroundColor": "transparent",
-          "fillStyle": "hachure",
-          "strokeWidth": 2,
-          "strokeStyle": "solid",
-          "roughness": 1,
-          "opacity": 100,
-          "angle": 0,
-          "renderStyle": "sketch",
-          "seed": 558399765,
-          "roundness": null,
-          "locked": false,
-          "link": null,
-          "layerId": "default-layer",
-          "startArrowhead": null,
-          "endArrowhead": null,
-          "fontSize": 20,
-          "fontFamily": "hand-drawn",
-          "fontWeight": false,
-          "fontStyle": false,
-          "textAlign": "left",
-          "boundElements": [
-            {
-              "id": "7e3b13b0-9200-4805-b433-e1993c541fbe",
-              "type": "arrow"
-            },
-            {
-              "id": "bc80d6b0-a4b5-402f-96fd-e9c4e465b093",
-              "type": "arrow"
-            }
-          ],
-          "curveType": "straight",
-          "autoResize": false,
-          "shadowEnabled": false,
-          "shadowColor": "rgba(0,0,0,0.3)",
-          "shadowBlur": 10,
-          "shadowOffsetX": 5,
-          "shadowOffsetY": 5,
-          "gradientStart": "#ffffff",
-          "gradientEnd": "#000000",
-          "gradientDirection": 45,
-          "animations": [
-            {
-              "id": "ee861990-bbcf-4623-9147-e1ddbb2047e5",
-              "type": "preset",
-              "name": "revolve",
-              "duration": 3000,
-              "delay": 0,
-              "easing": "easeOutBounce",
-              "trigger": "after-prev",
-              "params": {
-                "radius": 90
-              },
-              "repeat": -1,
-              "yoyo": false
-            }
-          ]
-        },
-        {
-          "id": "bc80d6b0-a4b5-402f-96fd-e9c4e465b093",
-          "type": "arrow",
-          "x": 514.4444885253906,
-          "y": 487.22222900390625,
-          "width": 347.08641920179093,
-          "height": -38.9832680292738,
-          "strokeColor": "#000000",
-          "backgroundColor": "transparent",
-          "fillStyle": "hachure",
-          "strokeWidth": 2,
-          "strokeStyle": "solid",
-          "roughness": 1,
-          "opacity": 100,
-          "angle": 0,
-          "renderStyle": "sketch",
-          "seed": 860821790,
-          "roundness": null,
-          "locked": false,
-          "link": null,
-          "layerId": "default-layer",
-          "startArrowhead": null,
-          "endArrowhead": null,
-          "fontSize": 20,
-          "fontFamily": "hand-drawn",
-          "fontWeight": false,
-          "fontStyle": false,
-          "textAlign": "left",
-          "startBinding": {
-            "elementId": "73051539-aea6-4e0a-acb9-055dd80bfa12",
-            "focus": 0,
-            "gap": 5,
-            "position": "right"
-          },
-          "endBinding": {
-            "elementId": "902b7fb5-d5d8-4561-97c4-ea14b76ecd18",
-            "focus": 0,
-            "gap": 5,
-            "position": "left"
-          },
-          "curveType": "straight",
-          "autoResize": false,
-          "shadowEnabled": false,
-          "shadowColor": "rgba(0,0,0,0.3)",
-          "shadowBlur": 10,
-          "shadowOffsetX": 5,
-          "shadowOffsetY": 5,
-          "gradientStart": "#ffffff",
-          "gradientEnd": "#000000",
-          "gradientDirection": 45
+          "flowAnimation": true,
+          "flowStyle": "pulse",
+          "flowColor": "#6741d9"
         }
       ],
       "layers": [

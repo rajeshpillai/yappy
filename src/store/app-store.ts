@@ -72,6 +72,7 @@ const initialState: AppState = {
         startArrowhead: null,
         endArrowhead: null,
         autoResize: false,
+        flowColor: undefined,
         seed: 0,
         shadowEnabled: false,
         shadowColor: 'rgba(0,0,0,0.3)',

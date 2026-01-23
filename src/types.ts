@@ -201,6 +201,8 @@ export interface DrawingElement {
     flowAnimation?: boolean;
     flowSpeed?: number;          // 0 to 10
     flowStyle?: 'dashes' | 'dots' | 'pulse';
+    flowColor?: string;
+    flowDensity?: number;        // 1 to 10
 
     // NEW: Persistent Animations
     spinEnabled?: boolean;

@@ -44,7 +44,7 @@ export const properties: PropertyConfig[] = [
         label: 'Flow Animation',
         type: 'toggle',
         group: 'motion',
-        applicableTo: 'all',
+        applicableTo: ['arrow', 'line'],
         defaultValue: false
     },
     {
@@ -55,7 +55,7 @@ export const properties: PropertyConfig[] = [
         max: 10,
         step: 0.1,
         group: 'motion',
-        applicableTo: 'all',
+        applicableTo: ['arrow', 'line'],
         defaultValue: 1,
         dependsOn: 'flowAnimation'
     },
@@ -64,13 +64,34 @@ export const properties: PropertyConfig[] = [
         label: 'Flow Style',
         type: 'select',
         options: [
-            { label: 'Dashes', value: 'dashes' },
             { label: 'Dots', value: 'dots' },
-            { label: 'Pulse', value: 'pulse' }
+            { label: 'Dashes', value: 'dashes' },
+            { label: 'Energy Pulse', value: 'pulse' }
         ],
         group: 'motion',
-        applicableTo: 'all',
-        defaultValue: 'dashes',
+        applicableTo: ['arrow', 'line'],
+        defaultValue: 'dots',
+        dependsOn: 'flowAnimation'
+    },
+    {
+        key: 'flowColor',
+        label: 'Flow Color',
+        type: 'color',
+        group: 'motion',
+        applicableTo: ['arrow', 'line'],
+        defaultValue: undefined, // Defaults to stroke color
+        dependsOn: 'flowAnimation'
+    },
+    {
+        key: 'flowDensity',
+        label: 'Flow Density',
+        type: 'slider',
+        min: 1,
+        max: 10,
+        step: 1,
+        group: 'motion',
+        applicableTo: ['arrow', 'line'],
+        defaultValue: 3,
         dependsOn: 'flowAnimation'
     },
     {
