@@ -1,10 +1,13 @@
-import { type Component, For, createSignal, Show } from 'solid-js';
+import { type Component, For, createSignal, Show, onMount, onCleanup } from 'solid-js';
 import { store, addDisplayState, updateDisplayState, deleteDisplayState, applyDisplayState, toggleStatePanel } from '../store/app-store';
 import { Camera, RefreshCw, Trash2, Play, X } from 'lucide-solid';
 import "./state-panel.css";
 
 export const StatePanel: Component = () => {
     const [newName, setNewName] = createSignal('');
+    const [position, setPosition] = createSignal({ x: 0, y: 0 });
+    const [isDragging, setIsDragging] = createSignal(false);
+    const [dragStart, setDragStart] = createSignal({ x: 0, y: 0 });
 
     const handleAdd = () => {
         if (newName().trim()) {
@@ -15,10 +18,49 @@ export const StatePanel: Component = () => {
         }
     };
 
+    const onMouseDown = (e: MouseEvent) => {
+        const header = (e.target as HTMLElement).closest('.panel-header');
+        if (!header || (e.target as HTMLElement).closest('.close-btn')) return;
+
+        setIsDragging(true);
+        setDragStart({
+            x: e.clientX - position().x,
+            y: e.clientY - position().y
+        });
+        e.preventDefault();
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+        if (!isDragging()) return;
+        setPosition({
+            x: e.clientX - dragStart().x,
+            y: e.clientY - dragStart().y
+        });
+    };
+
+    const onMouseUp = () => {
+        setIsDragging(false);
+    };
+
+    onMount(() => {
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+        onCleanup(() => {
+            window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('mouseup', onMouseUp);
+        });
+    });
+
     return (
         <Show when={store.showStatePanel}>
-            <div class="state-panel">
-                <div class="panel-header">
+            <div
+                class="state-panel"
+                classList={{ dragging: isDragging() }}
+                style={{
+                    transform: `translate(${position().x}px, ${position().y}px)`
+                }}
+            >
+                <div class="panel-header" onMouseDown={onMouseDown}>
                     <h3>Display States</h3>
                     <button class="close-btn" onClick={() => toggleStatePanel(false)}>
                         <X size={18} />
