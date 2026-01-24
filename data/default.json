@@ -1,21 +1,21 @@
 {
   "version": 3,
   "metadata": {
-    "createdAt": "2026-01-23T19:25:37.293Z",
-    "updatedAt": "2026-01-23T19:25:37.293Z"
+    "createdAt": "2026-01-24T07:23:04.668Z",
+    "updatedAt": "2026-01-24T07:23:04.669Z"
   },
   "slides": [
     {
-      "id": "c7adf27c-d531-4ce4-924b-69cb375d3e9d",
+      "id": "145cd43b-0663-43ed-8c36-c0c07b13079c",
       "name": "Slide 1",
       "elements": [
         {
-          "id": "c45e1a56-6577-4f74-84cc-fa65aad7069a",
+          "id": "c4d982a4-59bc-4431-a54a-0398885cf39b",
           "type": "circle",
-          "x": 262.22222900390625,
-          "y": 222.22222900390625,
-          "width": 92.22222900390625,
-          "height": 90,
+          "x": 603.3333740234375,
+          "y": 305.5555725097656,
+          "width": 83.33331298828125,
+          "height": 91.11111450195312,
           "strokeColor": "#000000",
           "backgroundColor": "transparent",
           "fillStyle": "hachure",
@@ -25,7 +25,7 @@
           "opacity": 100,
           "angle": 0,
           "renderStyle": "sketch",
-          "seed": 1235209126,
+          "seed": 1066477145,
           "roundness": null,
           "locked": false,
           "link": null,
@@ -37,12 +37,6 @@
           "fontWeight": false,
           "fontStyle": false,
           "textAlign": "left",
-          "boundElements": [
-            {
-              "id": "9396e46a-4afd-42e9-9c5d-6934104578ad",
-              "type": "arrow"
-            }
-          ],
           "curveType": "straight",
           "autoResize": false,
           "shadowEnabled": false,
@@ -55,12 +49,12 @@
           "gradientDirection": 45
         },
         {
-          "id": "beb29756-d005-45ac-b0ac-05e04a2e15e2",
-          "type": "rectangle",
-          "x": 472.22225996888716,
-          "y": 234.6180510520935,
-          "width": 103.33337402343744,
-          "height": 82.22224426269531,
+          "id": "d3087e98-c3b5-4ef8-a8dd-a64809a29985",
+          "type": "diamond",
+          "x": 603.3333740234375,
+          "y": 493.33338928222656,
+          "width": 98.888916015625,
+          "height": 85.5555419921875,
           "strokeColor": "#000000",
           "backgroundColor": "transparent",
           "fillStyle": "hachure",
@@ -70,7 +64,7 @@
           "opacity": 100,
           "angle": 0,
           "renderStyle": "sketch",
-          "seed": 1532951495,
+          "seed": 1912474242,
           "roundness": null,
           "locked": false,
           "link": null,
@@ -82,16 +76,6 @@
           "fontWeight": false,
           "fontStyle": false,
           "textAlign": "left",
-          "boundElements": [
-            {
-              "id": "9396e46a-4afd-42e9-9c5d-6934104578ad",
-              "type": "arrow"
-            },
-            {
-              "id": "f856821e-76f4-4ab8-950e-7a60deacb7f4",
-              "type": "arrow"
-            }
-          ],
           "curveType": "straight",
           "autoResize": false,
           "shadowEnabled": false,
@@ -104,12 +88,12 @@
           "gradientDirection": 45
         },
         {
-          "id": "9396e46a-4afd-42e9-9c5d-6934104578ad",
-          "type": "arrow",
-          "x": 354.4444580078125,
-          "y": 267.22222900390625,
-          "width": 117.7778019610746,
-          "height": 8.506944179534912,
+          "id": "48a5893a-9fe2-4512-b5a1-6cf942c80b49",
+          "type": "capsule",
+          "x": 366.6667175292969,
+          "y": 327.77777099609375,
+          "width": 143.3333740234375,
+          "height": 47.777801513671875,
           "strokeColor": "#000000",
           "backgroundColor": "transparent",
           "fillStyle": "hachure",
@@ -119,7 +103,7 @@
           "opacity": 100,
           "angle": 0,
           "renderStyle": "sketch",
-          "seed": 1389609600,
+          "seed": 1081790237,
           "roundness": null,
           "locked": false,
           "link": null,
@@ -131,18 +115,6 @@
           "fontWeight": false,
           "fontStyle": false,
           "textAlign": "left",
-          "startBinding": {
-            "elementId": "c45e1a56-6577-4f74-84cc-fa65aad7069a",
-            "focus": 0,
-            "gap": 5,
-            "position": "right"
-          },
-          "endBinding": {
-            "elementId": "beb29756-d005-45ac-b0ac-05e04a2e15e2",
-            "focus": 0,
-            "gap": 5,
-            "position": "left"
-          },
           "curveType": "straight",
           "autoResize": false,
           "shadowEnabled": false,
@@ -152,9 +124,46 @@
           "shadowOffsetY": 5,
           "gradientStart": "#ffffff",
           "gradientEnd": "#000000",
-          "gradientDirection": 45,
-          "flowAnimation": true,
-          "flowColor": "#e03131"
+          "gradientDirection": 45
+        },
+        {
+          "id": "a00f7b6e-6c95-4907-9ca4-ba12f48a22fc",
+          "type": "circle",
+          "x": 722.2222290039062,
+          "y": 713.3333740234375,
+          "width": 106.66668701171875,
+          "height": 108.888916015625,
+          "strokeColor": "#000000",
+          "backgroundColor": "transparent",
+          "fillStyle": "hachure",
+          "strokeWidth": 2,
+          "strokeStyle": "solid",
+          "roughness": 1,
+          "opacity": 0,
+          "angle": 0,
+          "renderStyle": "sketch",
+          "seed": 1158003753,
+          "roundness": null,
+          "locked": false,
+          "link": null,
+          "layerId": "default-layer",
+          "startArrowhead": null,
+          "endArrowhead": "arrow",
+          "fontSize": 20,
+          "fontFamily": "hand-drawn",
+          "fontWeight": false,
+          "fontStyle": false,
+          "textAlign": "left",
+          "curveType": "straight",
+          "autoResize": false,
+          "shadowEnabled": false,
+          "shadowColor": "rgba(0,0,0,0.3)",
+          "shadowBlur": 10,
+          "shadowOffsetX": 5,
+          "shadowOffsetY": 5,
+          "gradientStart": "#ffffff",
+          "gradientEnd": "#000000",
+          "gradientDirection": 45
         }
       ],
       "layers": [
@@ -172,7 +181,7 @@
       ],
       "viewState": {
         "scale": 1,
-        "panX": 111.11111405455034,
+        "panX": 0,
         "panY": 0
       },
       "gridSettings": {
@@ -187,44 +196,34 @@
       "backgroundColor": "#ffffff",
       "states": [
         {
-          "id": "0262a33d-85b2-40bd-b190-72acbc0f5657",
+          "id": "fe32d6de-ec89-4f84-ba48-b0dd0e32c65b",
           "name": "A",
           "overrides": {
-            "c45e1a56-6577-4f74-84cc-fa65aad7069a": {
-              "x": 262.22222900390625,
-              "y": 222.22222900390625,
-              "width": 92.22222900390625,
-              "height": 90,
+            "c4d982a4-59bc-4431-a54a-0398885cf39b": {
+              "x": 603.3333740234375,
+              "y": 305.5555725097656,
+              "width": 83.33331298828125,
+              "height": 91.11111450195312,
               "opacity": 100,
               "angle": 0,
               "backgroundColor": "transparent",
               "strokeColor": "#000000"
             },
-            "beb29756-d005-45ac-b0ac-05e04a2e15e2": {
-              "x": 472.22225996888716,
-              "y": 234.6180510520935,
-              "width": 103.33337402343744,
-              "height": 82.22224426269531,
+            "d3087e98-c3b5-4ef8-a8dd-a64809a29985": {
+              "x": 603.3333740234375,
+              "y": 483.3333740234375,
+              "width": 98.888916015625,
+              "height": 85.5555419921875,
               "opacity": 100,
               "angle": 0,
               "backgroundColor": "transparent",
               "strokeColor": "#000000"
             },
-            "9396e46a-4afd-42e9-9c5d-6934104578ad": {
-              "x": 354.4444580078125,
-              "y": 267.22222900390625,
-              "width": 117.7778019610746,
-              "height": 8.506944179534912,
-              "opacity": 100,
-              "angle": 0,
-              "backgroundColor": "transparent",
-              "strokeColor": "#000000"
-            },
-            "f856821e-76f4-4ab8-950e-7a60deacb7f4": {
-              "x": 472.2222599688871,
-              "y": 275.72917318344116,
-              "width": -6.666687011718693,
-              "height": 5.104166507720947,
+            "48a5893a-9fe2-4512-b5a1-6cf942c80b49": {
+              "x": 357.7778015136719,
+              "y": 332.22222900390625,
+              "width": 143.3333740234375,
+              "height": 47.777801513671875,
               "opacity": 100,
               "angle": 0,
               "backgroundColor": "transparent",
@@ -233,34 +232,70 @@
           }
         },
         {
-          "id": "9ed4f117-8ee3-421a-afcd-48982a5b3c3d",
+          "id": "2808eae9-535c-4831-b0d8-fa26c05b13d4",
           "name": "B",
           "overrides": {
-            "c45e1a56-6577-4f74-84cc-fa65aad7069a": {
-              "x": 262.22222900390625,
-              "y": 222.22222900390625,
-              "width": 92.22222900390625,
-              "height": 90,
+            "c4d982a4-59bc-4431-a54a-0398885cf39b": {
+              "x": 603.3333740234375,
+              "y": 305.5555725097656,
+              "width": 83.33331298828125,
+              "height": 91.11111450195312,
               "opacity": 100,
               "angle": 0,
               "backgroundColor": "transparent",
               "strokeColor": "#000000"
             },
-            "beb29756-d005-45ac-b0ac-05e04a2e15e2": {
-              "x": 190.41671399422637,
-              "y": 435.72917318344116,
-              "width": 103.33337402343744,
-              "height": 82.22224426269531,
+            "d3087e98-c3b5-4ef8-a8dd-a64809a29985": {
+              "x": 601.1111145019531,
+              "y": 164.44447326660156,
+              "width": 98.888916015625,
+              "height": 85.5555419921875,
               "opacity": 100,
               "angle": 0,
               "backgroundColor": "transparent",
               "strokeColor": "#000000"
             },
-            "9396e46a-4afd-42e9-9c5d-6934104578ad": {
-              "x": 308.3333435058594,
-              "y": 312.22222900390625,
-              "width": -66.24994249991428,
-              "height": 123.50694417953491,
+            "48a5893a-9fe2-4512-b5a1-6cf942c80b49": {
+              "x": 797.7778625488281,
+              "y": 336.6666564941406,
+              "width": 143.3333740234375,
+              "height": 47.777801513671875,
+              "opacity": 100,
+              "angle": 0,
+              "backgroundColor": "transparent",
+              "strokeColor": "#000000"
+            }
+          }
+        },
+        {
+          "id": "c4725038-41a6-4dda-a104-0e3d3a207406",
+          "name": "C",
+          "overrides": {
+            "c4d982a4-59bc-4431-a54a-0398885cf39b": {
+              "x": 603.3333740234375,
+              "y": 305.5555725097656,
+              "width": 83.33331298828125,
+              "height": 91.11111450195312,
+              "opacity": 100,
+              "angle": 0,
+              "backgroundColor": "transparent",
+              "strokeColor": "#000000"
+            },
+            "d3087e98-c3b5-4ef8-a8dd-a64809a29985": {
+              "x": 603.3333740234375,
+              "y": 493.33338928222656,
+              "width": 98.888916015625,
+              "height": 85.5555419921875,
+              "opacity": 100,
+              "angle": 0,
+              "backgroundColor": "transparent",
+              "strokeColor": "#000000"
+            },
+            "48a5893a-9fe2-4512-b5a1-6cf942c80b49": {
+              "x": 366.6667175292969,
+              "y": 327.77777099609375,
+              "width": 143.3333740234375,
+              "height": 47.777801513671875,
               "opacity": 100,
               "angle": 0,
               "backgroundColor": "transparent",
@@ -269,7 +304,7 @@
           }
         }
       ],
-      "initialStateId": "0262a33d-85b2-40bd-b190-72acbc0f5657",
+      "initialStateId": "c4725038-41a6-4dda-a104-0e3d3a207406",
       "order": 0
     }
   ],
