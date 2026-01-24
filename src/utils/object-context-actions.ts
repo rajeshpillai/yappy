@@ -165,6 +165,26 @@ export const copyStyle = () => {
             fontSize: el.fontSize,
             textAlign: el.textAlign,
             roundness: el.roundness,
+            // Gradient Properties
+            gradientStart: el.gradientStart,
+            gradientEnd: el.gradientEnd,
+            gradientDirection: el.gradientDirection,
+            gradientStops: el.gradientStops ? JSON.parse(JSON.stringify(el.gradientStops)) : undefined,
+            gradientType: el.gradientType,
+            gradientHandlePositions: el.gradientHandlePositions ? JSON.parse(JSON.stringify(el.gradientHandlePositions)) : undefined,
+            // Shadow Properties
+            shadowEnabled: el.shadowEnabled,
+            shadowColor: el.shadowColor,
+            shadowBlur: el.shadowBlur,
+            shadowOffsetX: el.shadowOffsetX,
+            shadowOffsetY: el.shadowOffsetY,
+            // Border & Fill extras
+            drawInnerBorder: el.drawInnerBorder,
+            innerBorderColor: el.innerBorderColor,
+            innerBorderDistance: el.innerBorderDistance,
+            strokeLineJoin: el.strokeLineJoin,
+            fillDensity: el.fillDensity,
+            renderStyle: el.renderStyle,
             // Motion
             flowAnimation: el.flowAnimation,
             flowSpeed: el.flowSpeed,
