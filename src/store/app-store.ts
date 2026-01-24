@@ -1,12 +1,13 @@
 import { batch } from "solid-js";
 import { createStore } from "solid-js/store";
 import type { DrawingElement, ViewState, ElementType, Layer, GridSettings } from "../types";
-import { createDefaultSlide, createSlideDocument } from '../types/slide-types';
-import type { Slide, GlobalSettings } from '../types/slide-types';
+import { createDefaultSlide, createSlideDocument, DEFAULT_SLIDE_TRANSITION } from '../types/slide-types';
+import type { Slide, GlobalSettings, SlideTransition } from '../types/slide-types';
 import type { ElementAnimation, DisplayState } from "../types/motion-types";
 import { showToast } from "../components/toast";
 import { MindmapLayoutEngine, type LayoutDirection } from "../utils/mindmap-layout";
 import { animationEngine } from "../utils/animation/animation-engine";
+import { slideTransitionManager } from "../utils/animation/slide-transition-manager";
 
 interface AppState {
     // Current Active Slide properties (for performance and compatibility)
@@ -531,30 +532,35 @@ export const saveActiveSlide = () => {
     setStore("slides", currentIndex, currentSlideValues);
 };
 
-export const setActiveSlide = (index: number) => {
+export const setActiveSlide = async (index: number, skipAnimation?: boolean) => {
     if (index < 0 || index >= store.slides.length) return;
+    if (index === store.activeSlideIndex && !slideTransitionManager.transitioning) return;
 
-    // In spatial canvas, switching slides just updates the active index and focuses the view
-    batch(() => {
-        setStore("activeSlideIndex", index);
-        setStore("selection", []); // Clear selection on slide switch
+    // Clear selection immediately
+    setStore("selection", []);
 
-        const nextSlide = store.slides[index];
+    // Determine if we should animate
+    // In presentation mode with transitions enabled, use the transition manager
+    const shouldAnimate = store.presentationMode && !skipAnimation;
+
+    if (shouldAnimate) {
+        // Use transition manager for animated slide switch
+        await slideTransitionManager.transitionTo(index);
+    } else {
+        // Immediate switch (edit mode or skipAnimation)
+        await slideTransitionManager.transitionTo(index, { skipAnimation: true });
+    }
+
+    // Update background and dimensions from the new slide
+    const nextSlide = store.slides[index];
+    if (nextSlide) {
         if (nextSlide.backgroundColor) {
             setStore("canvasBackgroundColor", nextSlide.backgroundColor);
         }
         setStore("dimensions", JSON.parse(JSON.stringify(nextSlide.dimensions)));
+    }
 
-        if (store.presentationMode) {
-            zoomToFitSlide();
-        } else {
-            // Option: Smooth pan to slide if not in presentation mode?
-            // For now, just jump
-            zoomToFitSlide();
-        }
-    });
-
-    showToast(`Switched to Slide ${index + 1}`, 'info');
+    showToast(`Slide ${index + 1}`, 'info');
 };
 
 export const addSlide = () => {
@@ -622,6 +628,20 @@ export const reorderSlides = (fromIndex: number, toIndex: number) => {
     setStore("activeSlideIndex", newActiveIndex);
 };
 
+/**
+ * Update the transition settings for a specific slide
+ */
+export const updateSlideTransition = (slideIndex: number, transition: Partial<SlideTransition>) => {
+    if (slideIndex < 0 || slideIndex >= store.slides.length) return;
+
+    const currentTransition = store.slides[slideIndex]?.transition || { ...DEFAULT_SLIDE_TRANSITION };
+
+    setStore("slides", slideIndex, "transition", {
+        ...currentTransition,
+        ...transition
+    });
+};
+
 export const loadDocument = (doc: any) => {
     batch(() => {
         // Version Migration Logic
@@ -676,6 +696,13 @@ export const loadDocument = (doc: any) => {
             layers = doc.layers || initialState.layers;
             slides = [createDefaultSlide()];
         }
+
+        // Ensure all slides have transition data (migration for older documents)
+        slides.forEach(slide => {
+            if (!slide.transition) {
+                slide.transition = { ...DEFAULT_SLIDE_TRANSITION };
+            }
+        });
 
         setStore("elements", JSON.parse(JSON.stringify(elements)));
         setStore("slides", JSON.parse(JSON.stringify(slides)));

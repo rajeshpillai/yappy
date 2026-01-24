@@ -2,6 +2,51 @@ import type { DrawingElement, Layer, GridSettings } from '../types';
 import type { DisplayState } from './motion-types';
 
 /**
+ * Available slide transition types
+ */
+export type SlideTransitionType =
+    | 'none'
+    | 'fade'
+    | 'slide-left'
+    | 'slide-right'
+    | 'slide-up'
+    | 'slide-down'
+    | 'zoom-in'
+    | 'zoom-out';
+
+/**
+ * Available easing functions for transitions
+ */
+export type SlideTransitionEasing =
+    | 'linear'
+    | 'easeInQuad'
+    | 'easeOutQuad'
+    | 'easeInOutQuad'
+    | 'easeInCubic'
+    | 'easeOutCubic'
+    | 'easeInOutCubic'
+    | 'easeOutBack'
+    | 'easeSpring';
+
+/**
+ * Configuration for a slide transition
+ */
+export interface SlideTransition {
+    type: SlideTransitionType;
+    duration: number;  // milliseconds
+    easing: SlideTransitionEasing;
+}
+
+/**
+ * Default transition settings
+ */
+export const DEFAULT_SLIDE_TRANSITION: SlideTransition = {
+    type: 'none',
+    duration: 500,
+    easing: 'easeInOutQuad'
+};
+
+/**
  * Represents a single slide frame in the spatial canvas
  */
 export interface Slide {
@@ -12,6 +57,7 @@ export interface Slide {
     order: number;
     backgroundColor?: string;
     thumbnail?: string; // Data URL preview
+    transition?: SlideTransition; // Transition when entering this slide
 }
 
 /**
@@ -59,7 +105,8 @@ export const createDefaultSlide = (id?: string, name?: string, x: number = 0, y:
     spatialPosition: { x, y },
     dimensions: { width: 1920, height: 1080 }, // Default 1080p
     backgroundColor: '#ffffff',
-    order: 0
+    order: 0,
+    transition: { ...DEFAULT_SLIDE_TRANSITION }
 });
 
 /**

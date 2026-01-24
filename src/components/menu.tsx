@@ -32,10 +32,12 @@ export const [isLoadExportOpen, setIsLoadExportOpen] = createSignal(false);
 export const [showHelp, setShowHelp] = createSignal(false);
 
 // Exported handlers for App.tsx integration
-let sharedSetSaveIntent: (intent: 'workspace' | 'disk') => void;
+let sharedSetSaveIntent: (intent: 'workspace' | 'disk') => void = () => { };
 export const handleSaveRequest = (intent: 'workspace' | 'disk') => {
-    sharedSetSaveIntent(intent);
-    setIsSaveOpen(true);
+    if (typeof sharedSetSaveIntent === 'function') {
+        sharedSetSaveIntent(intent);
+        setIsSaveOpen(true);
+    }
 };
 
 export const handleNew = (docType: 'infinite' | 'slides' = 'slides') => {
@@ -57,65 +59,65 @@ const Menu: Component = () => {
     (window as any).triggerImageUpload = () => fileInputRef?.click();
 
     const performSave = async (filename: string) => {
-        setDrawingId(filename);
+        try {
+            setDrawingId(filename);
 
-        // 1. Ensure current slide data is synced to slides array
-        saveActiveSlide();
+            // 1. Ensure current slide data is synced to slides array
+            saveActiveSlide();
 
-        // 2. Prepare SlideDocument v4
-        const slideDoc: SlideDocument = {
-            version: 4,
-            metadata: {
-                name: filename,
-                updatedAt: new Date().toISOString(),
-                docType: store.docType
-            },
-            elements: JSON.parse(JSON.stringify(store.elements)),
-            layers: JSON.parse(JSON.stringify(store.layers)),
-            slides: JSON.parse(JSON.stringify(store.slides)),
-            globalSettings: JSON.parse(JSON.stringify(store.globalSettings)),
-            gridSettings: JSON.parse(JSON.stringify(store.gridSettings)),
-            states: JSON.parse(JSON.stringify(store.states))
-        };
+            // 2. Prepare SlideDocument v4
+            const slideDoc: SlideDocument = {
+                version: 4,
+                metadata: {
+                    name: filename,
+                    updatedAt: new Date().toISOString(),
+                    docType: store.docType
+                },
+                elements: JSON.parse(JSON.stringify(store.elements)),
+                layers: JSON.parse(JSON.stringify(store.layers)),
+                slides: JSON.parse(JSON.stringify(store.slides)),
+                globalSettings: JSON.parse(JSON.stringify(store.globalSettings)),
+                gridSettings: JSON.parse(JSON.stringify(store.gridSettings)),
+                states: JSON.parse(JSON.stringify(store.states))
+            };
 
-        if (saveIntent() === 'workspace') {
-            try {
+            if (saveIntent() === 'workspace') {
                 await storage.saveDrawing(filename, slideDoc);
                 showToast(`Drawing saved as "${filename}"!`, 'success');
-            } catch (e) {
-                console.error(e);
-                showToast('Failed to save to workspace', 'error');
-            }
-        } else {
-            const data = JSON.stringify(slideDoc, null, 2);
+            } else {
+                const data = JSON.stringify(slideDoc, null, 2);
 
-            const blob = new Blob([data], { type: 'application/json' });
-            const fileNameWithExt = `${filename}.json`;
-            const file = new File([blob], fileNameWithExt, { type: 'application/json' });
+                const blob = new Blob([data], { type: 'application/json' });
+                const fileNameWithExt = `${filename}.json`;
+                const file = new File([blob], fileNameWithExt, { type: 'application/json' });
 
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                try {
-                    await navigator.share({
-                        files: [file],
-                        title: 'Yappy Drawing',
-                        text: 'Save your drawing JSON'
-                    });
-                    return;
-                } catch (err) {
-                    if ((err as Error).name !== 'AbortError') {
-                        console.error('Share failed:', err);
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({
+                            files: [file],
+                            title: 'Yappy Drawing',
+                            text: 'Save your drawing JSON'
+                        });
+                        return;
+                    } catch (err) {
+                        if ((err as Error).name !== 'AbortError') {
+                            console.error('Share failed:', err);
+                        }
                     }
                 }
-            }
 
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileNameWithExt;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileNameWithExt;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        } catch (e) {
+            console.error('Save failed:', e);
+            showToast(`Failed to save: ${e instanceof Error ? e.message : String(e)}`, 'error');
         }
     };
 

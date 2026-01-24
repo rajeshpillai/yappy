@@ -34,7 +34,7 @@ export type DocumentData = DrawingData | SlideDocument;
  * Type guard to check if data is the new slide format
  */
 export const isSlideDocument = (data: any): data is SlideDocument => {
-    return data && data.version === 3 && Array.isArray(data.slides);
+    return data && (data.version === 3 || data.version === 4) && Array.isArray(data.slides);
 };
 
 export interface StorageInterface {

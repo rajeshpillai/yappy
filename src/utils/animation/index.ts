@@ -71,3 +71,7 @@ export { sequenceAnimator } from './sequence-animator';
 // State Manager
 export { stateManager } from './state-manager';
 
+// Slide Transition Manager
+export { slideTransitionManager } from './slide-transition-manager';
+export type { TransitionContext, TransitionOptions } from './slide-transition-manager';
+

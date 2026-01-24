@@ -1,362 +1,389 @@
 {
-    "version": 3,
-    "metadata": {
-        "createdAt": "2026-01-24T13:12:00.000Z",
-        "updatedAt": "2026-01-24T13:20:00.000Z"
+  "version": 4,
+  "metadata": {
+    "name": "cloud-architecture-demo",
+    "updatedAt": "2026-01-24T17:17:19.063Z",
+    "docType": "infinite"
+  },
+  "elements": [
+    {
+      "id": "client-user",
+      "type": "user",
+      "x": 50,
+      "y": 240,
+      "width": 100,
+      "height": 120,
+      "strokeColor": "#3b82f6",
+      "backgroundColor": "#eff6ff",
+      "fillStyle": "solid",
+      "opacity": 100,
+      "containerText": "Client",
+      "fontSize": 14,
+      "layerId": "default-layer",
+      "shadowEnabled": true,
+      "shadowBlur": 10
     },
-    "slides": [
+    {
+      "id": "global-lb",
+      "type": "circle",
+      "x": 250,
+      "y": 230,
+      "width": 140,
+      "height": 140,
+      "strokeColor": "#f59e0b",
+      "backgroundColor": "#fffbeb",
+      "fillStyle": "solid",
+      "opacity": 0,
+      "containerText": "Global\nLoad Balancer",
+      "fontSize": 14,
+      "layerId": "default-layer",
+      "gradientType": "radial",
+      "gradientStops": [
         {
-            "id": "cloud-arch-slide",
-            "name": "Modern Cloud Architecture",
-            "elements": [
-                {
-                    "id": "client-user",
-                    "type": "user",
-                    "x": 50,
-                    "y": 240,
-                    "width": 100,
-                    "height": 120,
-                    "strokeColor": "#3b82f6",
-                    "backgroundColor": "#eff6ff",
-                    "fillStyle": "solid",
-                    "opacity": 100,
-                    "containerText": "Client",
-                    "fontSize": 14,
-                    "layerId": "default-layer",
-                    "shadowEnabled": true,
-                    "shadowBlur": 10
-                },
-                {
-                    "id": "global-lb",
-                    "type": "circle",
-                    "x": 250,
-                    "y": 230,
-                    "width": 140,
-                    "height": 140,
-                    "strokeColor": "#f59e0b",
-                    "backgroundColor": "#fffbeb",
-                    "fillStyle": "solid",
-                    "opacity": 0,
-                    "containerText": "Global\nLoad Balancer",
-                    "fontSize": 14,
-                    "layerId": "default-layer",
-                    "gradientType": "radial",
-                    "gradientStops": [
-                        {
-                            "offset": 0,
-                            "color": "#fbbf24"
-                        },
-                        {
-                            "offset": 1,
-                            "color": "#f59e0b"
-                        }
-                    ]
-                },
-                {
-                    "id": "svc-node-1",
-                    "type": "circle",
-                    "x": 550,
-                    "y": 60,
-                    "width": 110,
-                    "height": 110,
-                    "strokeColor": "#8b5cf6",
-                    "backgroundColor": "#f5f3ff",
-                    "fillStyle": "solid",
-                    "opacity": 0,
-                    "containerText": "Order\nService",
-                    "fontSize": 13,
-                    "layerId": "default-layer"
-                },
-                {
-                    "id": "svc-node-2",
-                    "type": "circle",
-                    "x": 550,
-                    "y": 245,
-                    "width": 110,
-                    "height": 110,
-                    "strokeColor": "#8b5cf6",
-                    "backgroundColor": "#f5f3ff",
-                    "fillStyle": "solid",
-                    "opacity": 0,
-                    "containerText": "User\nService",
-                    "fontSize": 13,
-                    "layerId": "default-layer"
-                },
-                {
-                    "id": "svc-node-3",
-                    "type": "circle",
-                    "x": 550,
-                    "y": 430,
-                    "width": 110,
-                    "height": 110,
-                    "strokeColor": "#8b5cf6",
-                    "backgroundColor": "#f5f3ff",
-                    "fillStyle": "solid",
-                    "opacity": 0,
-                    "containerText": "Auth\nService",
-                    "fontSize": 13,
-                    "layerId": "default-layer"
-                },
-                {
-                    "id": "global-db",
-                    "type": "database",
-                    "x": 850,
-                    "y": 240,
-                    "width": 120,
-                    "height": 140,
-                    "strokeColor": "#10b981",
-                    "backgroundColor": "#ecfdf5",
-                    "fillStyle": "solid",
-                    "opacity": 0,
-                    "containerText": "Shared\nState DB",
-                    "fontSize": 14,
-                    "layerId": "default-layer",
-                    "shadowEnabled": true,
-                    "shadowBlur": 20,
-                    "shadowColor": "rgba(16, 185, 129, 0.4)"
-                },
-                {
-                    "id": "req-flow-entry",
-                    "type": "arrow",
-                    "x": 150,
-                    "y": 300,
-                    "width": 100,
-                    "height": 0,
-                    "opacity": 0,
-                    "flowAnimation": true,
-                    "flowSpeed": 5,
-                    "strokeColor": "#3b82f6",
-                    "layerId": "default-layer"
-                },
-                {
-                    "id": "req-flow-routed-1",
-                    "type": "arrow",
-                    "x": 390,
-                    "y": 300,
-                    "width": 160,
-                    "height": -180,
-                    "opacity": 0,
-                    "flowAnimation": true,
-                    "flowSpeed": 3,
-                    "strokeColor": "#f59e0b",
-                    "layerId": "default-layer"
-                },
-                {
-                    "id": "req-flow-routed-2",
-                    "type": "arrow",
-                    "x": 390,
-                    "y": 300,
-                    "width": 160,
-                    "height": 0,
-                    "opacity": 0,
-                    "flowAnimation": true,
-                    "flowSpeed": 3,
-                    "strokeColor": "#f59e0b",
-                    "layerId": "default-layer"
-                },
-                {
-                    "id": "req-flow-routed-3",
-                    "type": "arrow",
-                    "x": 390,
-                    "y": 300,
-                    "width": 160,
-                    "height": 180,
-                    "opacity": 0,
-                    "flowAnimation": true,
-                    "flowSpeed": 3,
-                    "strokeColor": "#f59e0b",
-                    "layerId": "default-layer"
-                },
-                {
-                    "id": "db-flow",
-                    "type": "arrow",
-                    "x": 660,
-                    "y": 300,
-                    "width": 190,
-                    "height": 10,
-                    "opacity": 0,
-                    "flowAnimation": true,
-                    "flowSpeed": 2,
-                    "strokeColor": "#10b981",
-                    "layerId": "default-layer"
-                },
-                {
-                    "id": "header-text",
-                    "type": "text",
-                    "x": 350,
-                    "y": 10,
-                    "width": 400,
-                    "height": 40,
-                    "text": "Cloud Architecture Journey",
-                    "fontSize": 28,
-                    "fontFamily": "sans-serif",
-                    "textAlign": "center",
-                    "layerId": "default-layer"
-                }
-            ],
-            "layers": [
-                {
-                    "id": "default-layer",
-                    "name": "Architecture",
-                    "visible": true,
-                    "order": 0,
-                    "opacity": 1
-                }
-            ],
-            "viewState": {
-                "scale": 1,
-                "panX": 0,
-                "panY": 0
-            },
-            "states": [
-                {
-                    "id": "arch-state-entry",
-                    "name": "1. Client Request",
-                    "overrides": {
-                        "header-text": {
-                            "text": "Step 1: Request Hits Proxy 🌐"
-                        },
-                        "client-user": {
-                            "opacity": 100,
-                            "scale": 1
-                        },
-                        "global-lb": {
-                            "opacity": 100,
-                            "scale": 1
-                        },
-                        "req-flow-entry": {
-                            "opacity": 100
-                        },
-                        "svc-node-1": {
-                            "opacity": 0
-                        },
-                        "svc-node-2": {
-                            "opacity": 0
-                        },
-                        "svc-node-3": {
-                            "opacity": 0
-                        },
-                        "global-db": {
-                            "opacity": 0
-                        },
-                        "req-flow-routed-1": {
-                            "opacity": 0
-                        },
-                        "req-flow-routed-2": {
-                            "opacity": 0
-                        },
-                        "req-flow-routed-3": {
-                            "opacity": 0
-                        },
-                        "db-flow": {
-                            "opacity": 0
-                        }
-                    }
-                },
-                {
-                    "id": "arch-state-routing",
-                    "name": "2. Microservice Routing",
-                    "overrides": {
-                        "header-text": {
-                            "text": "Step 2: Smart Routing 🔀"
-                        },
-                        "global-lb": {
-                            "opacity": 100,
-                            "scale": 1.1,
-                            "shadowEnabled": true,
-                            "shadowBlur": 25
-                        },
-                        "svc-node-1": {
-                            "opacity": 100
-                        },
-                        "svc-node-2": {
-                            "opacity": 100
-                        },
-                        "svc-node-3": {
-                            "opacity": 100
-                        },
-                        "global-db": {
-                            "opacity": 0
-                        },
-                        "req-flow-routed-1": {
-                            "opacity": 100
-                        },
-                        "req-flow-routed-2": {
-                            "opacity": 100
-                        },
-                        "req-flow-routed-3": {
-                            "opacity": 100
-                        },
-                        "db-flow": {
-                            "opacity": 0
-                        }
-                    }
-                },
-                {
-                    "id": "arch-state-persistence",
-                    "name": "3. Persistence",
-                    "overrides": {
-                        "header-text": {
-                            "text": "Step 3: State Management 💾"
-                        },
-                        "svc-node-1": {
-                            "opacity": 100
-                        },
-                        "svc-node-2": {
-                            "opacity": 100,
-                            "strokeWidth": 5,
-                            "shadowEnabled": true,
-                            "shadowBlur": 15
-                        },
-                        "svc-node-3": {
-                            "opacity": 100
-                        },
-                        "global-db": {
-                            "opacity": 100
-                        },
-                        "db-flow": {
-                            "opacity": 100,
-                            "flowSpeed": 6
-                        }
-                    }
-                },
-                {
-                    "id": "arch-state-final",
-                    "name": "4. Results",
-                    "overrides": {
-                        "header-text": {
-                            "text": "A Scalable, Distributed System! 🚀✨"
-                        },
-                        "client-user": {
-                            "opacity": 100,
-                            "scale": 0.8
-                        },
-                        "global-lb": {
-                            "opacity": 100
-                        },
-                        "svc-node-1": {
-                            "opacity": 100,
-                            "backgroundColor": "#ede9fe"
-                        },
-                        "svc-node-2": {
-                            "opacity": 100
-                        },
-                        "svc-node-3": {
-                            "opacity": 100,
-                            "backgroundColor": "#ede9fe"
-                        },
-                        "global-db": {
-                            "opacity": 100,
-                            "scale": 1.2,
-                            "shadowBlur": 40,
-                            "backgroundColor": "#d1fae5"
-                        },
-                        "db-flow": {
-                            "opacity": 100
-                        }
-                    }
-                }
-            ]
+          "offset": 0,
+          "color": "#fbbf24"
+        },
+        {
+          "offset": 1,
+          "color": "#f59e0b"
         }
-    ]
+      ]
+    },
+    {
+      "id": "svc-node-1",
+      "type": "circle",
+      "x": 550,
+      "y": 60,
+      "width": 110,
+      "height": 110,
+      "strokeColor": "#8b5cf6",
+      "backgroundColor": "#f5f3ff",
+      "fillStyle": "solid",
+      "opacity": 0,
+      "containerText": "Order\nService",
+      "fontSize": 13,
+      "layerId": "default-layer"
+    },
+    {
+      "id": "svc-node-2",
+      "type": "circle",
+      "x": 550,
+      "y": 245,
+      "width": 110,
+      "height": 110,
+      "strokeColor": "#8b5cf6",
+      "backgroundColor": "#f5f3ff",
+      "fillStyle": "solid",
+      "opacity": 0,
+      "containerText": "User\nService",
+      "fontSize": 13,
+      "layerId": "default-layer"
+    },
+    {
+      "id": "svc-node-3",
+      "type": "circle",
+      "x": 550,
+      "y": 430,
+      "width": 110,
+      "height": 110,
+      "strokeColor": "#8b5cf6",
+      "backgroundColor": "#f5f3ff",
+      "fillStyle": "solid",
+      "opacity": 0,
+      "containerText": "Auth\nService",
+      "fontSize": 13,
+      "layerId": "default-layer"
+    },
+    {
+      "id": "global-db",
+      "type": "database",
+      "x": 850,
+      "y": 240,
+      "width": 120,
+      "height": 140,
+      "strokeColor": "#10b981",
+      "backgroundColor": "#ecfdf5",
+      "fillStyle": "solid",
+      "opacity": 0,
+      "containerText": "Shared\nState DB",
+      "fontSize": 14,
+      "layerId": "default-layer",
+      "shadowEnabled": true,
+      "shadowBlur": 20,
+      "shadowColor": "rgba(16, 185, 129, 0.4)"
+    },
+    {
+      "id": "req-flow-entry",
+      "type": "arrow",
+      "x": 150,
+      "y": 300,
+      "width": 100,
+      "height": 0,
+      "opacity": 0,
+      "flowAnimation": true,
+      "flowSpeed": 5,
+      "strokeColor": "#3b82f6",
+      "layerId": "default-layer"
+    },
+    {
+      "id": "req-flow-routed-1",
+      "type": "arrow",
+      "x": 390,
+      "y": 300,
+      "width": 160,
+      "height": -180,
+      "opacity": 0,
+      "flowAnimation": true,
+      "flowSpeed": 3,
+      "strokeColor": "#f59e0b",
+      "layerId": "default-layer"
+    },
+    {
+      "id": "req-flow-routed-2",
+      "type": "arrow",
+      "x": 390,
+      "y": 300,
+      "width": 160,
+      "height": 0,
+      "opacity": 0,
+      "flowAnimation": true,
+      "flowSpeed": 3,
+      "strokeColor": "#f59e0b",
+      "layerId": "default-layer"
+    },
+    {
+      "id": "req-flow-routed-3",
+      "type": "arrow",
+      "x": 390,
+      "y": 300,
+      "width": 160,
+      "height": 180,
+      "opacity": 0,
+      "flowAnimation": true,
+      "flowSpeed": 3,
+      "strokeColor": "#f59e0b",
+      "layerId": "default-layer"
+    },
+    {
+      "id": "db-flow",
+      "type": "arrow",
+      "x": 660,
+      "y": 300,
+      "width": 190,
+      "height": 10,
+      "opacity": 0,
+      "flowAnimation": true,
+      "flowSpeed": 2,
+      "strokeColor": "#10b981",
+      "layerId": "default-layer"
+    },
+    {
+      "id": "header-text",
+      "type": "text",
+      "x": 350,
+      "y": 10,
+      "width": 400,
+      "height": 40,
+      "text": "Cloud Architecture Journey",
+      "fontSize": 28,
+      "fontFamily": "sans-serif",
+      "textAlign": "center",
+      "layerId": "default-layer"
+    }
+  ],
+  "layers": [
+    {
+      "id": "default-layer",
+      "name": "Architecture",
+      "visible": true,
+      "order": 0,
+      "opacity": 1
+    }
+  ],
+  "slides": [
+    {
+      "id": "cloud-arch-slide",
+      "name": "Modern Cloud Architecture",
+      "spatialPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "order": 0,
+      "transition": {
+        "type": "none",
+        "duration": 500,
+        "easing": "easeInOutQuad"
+      },
+      "thumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wAARCAC0AUADASIAAhEBAxEB/8QAGQABAQEBAQEAAAAAAAAAAAAAAAQDAQIH/8QAIhABAAICAgIBBQAAAAAAAAAAAAECAxESIQRBMRMiMqHB/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAEC/8QAFxEBAQEBAAAAAAAAAAAAAAAAAAERAv/aAAwDAQACEQMRAD8A+nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAw8iY3SLfjvv8AiybUrbcO7RRNKZp+nFY3H3a/Sil9lmEutQEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY+RNePGYmeXxEe2ybJXJGS14ms76jfqFiVPFYpbjxmvvUztTiTZbZbaiYp1O4ntRhleiKYHI+HWVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHi1dvYCecW5e6U010AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/2Q==",
+      "backgroundColor": "#ffffff"
+    }
+  ],
+  "globalSettings": {
+    "animationEnabled": true,
+    "reducedMotion": false,
+    "renderStyle": "sketch",
+    "showMindmapToolbar": true
+  },
+  "gridSettings": {
+    "enabled": false,
+    "snapToGrid": false,
+    "objectSnapping": true,
+    "gridSize": 20,
+    "gridColor": "#cccccc",
+    "gridOpacity": 0.5,
+    "style": "lines"
+  },
+  "states": [
+    {
+      "id": "arch-state-entry",
+      "name": "1. Client Request",
+      "overrides": {
+        "header-text": {
+          "text": "Step 1: Request Hits Proxy 🌐"
+        },
+        "client-user": {
+          "opacity": 100,
+          "scale": 1
+        },
+        "global-lb": {
+          "opacity": 100,
+          "scale": 1
+        },
+        "req-flow-entry": {
+          "opacity": 100
+        },
+        "svc-node-1": {
+          "opacity": 0
+        },
+        "svc-node-2": {
+          "opacity": 0
+        },
+        "svc-node-3": {
+          "opacity": 0
+        },
+        "global-db": {
+          "opacity": 0
+        },
+        "req-flow-routed-1": {
+          "opacity": 0
+        },
+        "req-flow-routed-2": {
+          "opacity": 0
+        },
+        "req-flow-routed-3": {
+          "opacity": 0
+        },
+        "db-flow": {
+          "opacity": 0
+        }
+      }
+    },
+    {
+      "id": "arch-state-routing",
+      "name": "2. Microservice Routing",
+      "overrides": {
+        "header-text": {
+          "text": "Step 2: Smart Routing 🔀"
+        },
+        "global-lb": {
+          "opacity": 100,
+          "scale": 1.1,
+          "shadowEnabled": true,
+          "shadowBlur": 25
+        },
+        "svc-node-1": {
+          "opacity": 100
+        },
+        "svc-node-2": {
+          "opacity": 100
+        },
+        "svc-node-3": {
+          "opacity": 100
+        },
+        "global-db": {
+          "opacity": 0
+        },
+        "req-flow-routed-1": {
+          "opacity": 100
+        },
+        "req-flow-routed-2": {
+          "opacity": 100
+        },
+        "req-flow-routed-3": {
+          "opacity": 100
+        },
+        "db-flow": {
+          "opacity": 0
+        }
+      }
+    },
+    {
+      "id": "arch-state-persistence",
+      "name": "3. Persistence",
+      "overrides": {
+        "header-text": {
+          "text": "Step 3: State Management 💾"
+        },
+        "svc-node-1": {
+          "opacity": 100
+        },
+        "svc-node-2": {
+          "opacity": 100,
+          "strokeWidth": 5,
+          "shadowEnabled": true,
+          "shadowBlur": 15
+        },
+        "svc-node-3": {
+          "opacity": 100
+        },
+        "global-db": {
+          "opacity": 100
+        },
+        "db-flow": {
+          "opacity": 100,
+          "flowSpeed": 6
+        }
+      }
+    },
+    {
+      "id": "arch-state-final",
+      "name": "4. Results",
+      "overrides": {
+        "header-text": {
+          "text": "A Scalable, Distributed System! 🚀✨"
+        },
+        "client-user": {
+          "opacity": 100,
+          "scale": 0.8
+        },
+        "global-lb": {
+          "opacity": 100
+        },
+        "svc-node-1": {
+          "opacity": 100,
+          "backgroundColor": "#ede9fe"
+        },
+        "svc-node-2": {
+          "opacity": 100
+        },
+        "svc-node-3": {
+          "opacity": 100,
+          "backgroundColor": "#ede9fe"
+        },
+        "global-db": {
+          "opacity": 100,
+          "scale": 1.2,
+          "shadowBlur": 40,
+          "backgroundColor": "#d1fae5"
+        },
+        "db-flow": {
+          "opacity": 100
+        }
+      }
+    }
+  ]
 }

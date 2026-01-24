@@ -23,9 +23,8 @@ export class FileSystemStorage implements StorageInterface {
         }
 
         // Auto-upgrade logic: Convert all legacy points to flat format on save
-        payload.slides = payload.slides.map(slide => ({
-            ...slide,
-            elements: slide.elements.map(el => {
+        if (payload.version === 4 && payload.elements) {
+            payload.elements = payload.elements.map(el => {
                 if ((el.type === 'fineliner' || el.type === 'inkbrush' || el.type === 'marker') && el.points && typeof el.points[0] !== 'number') {
                     const flatPoints: number[] = [];
                     (el.points as any[]).forEach(p => {
@@ -34,16 +33,41 @@ export class FileSystemStorage implements StorageInterface {
                     return { ...el, points: flatPoints, pointsEncoding: 'flat' as const };
                 }
                 return el;
-            })
-        }));
+            });
+        }
 
-        await fetch(`${this.baseUrl}/${id}`, {
+        if (payload.slides) {
+            payload.slides = payload.slides.map(slide => {
+                const updatedSlide = { ...slide };
+                // Version 3 format had elements PER slide
+                if ((updatedSlide as any).elements) {
+                    (updatedSlide as any).elements = (updatedSlide as any).elements.map((el: any) => {
+                        if ((el.type === 'fineliner' || el.type === 'inkbrush' || el.type === 'marker') && el.points && typeof el.points[0] !== 'number') {
+                            const flatPoints: number[] = [];
+                            (el.points as any[]).forEach((p: any) => {
+                                flatPoints.push(p.x, p.y);
+                            });
+                            return { ...el, points: flatPoints, pointsEncoding: 'flat' as const };
+                        }
+                        return el;
+                    });
+                }
+                return updatedSlide;
+            });
+        }
+
+        const response = await fetch(`${this.baseUrl}/${id}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(payload),
         });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ error: 'Unknown server error' }));
+            throw new Error(error.error || `Failed to save: ${response.statusText}`);
+        }
     }
 
     async loadDrawing(id: string): Promise<DocumentData | null> {
@@ -59,9 +83,13 @@ export class FileSystemStorage implements StorageInterface {
     }
 
     async deleteDrawing(id: string): Promise<void> {
-        await fetch(`${this.baseUrl}/${id}`, {
+        const response = await fetch(`${this.baseUrl}/${id}`, {
             method: 'DELETE',
         });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ error: 'Unknown server error' }));
+            throw new Error(error.error || `Failed to delete: ${response.statusText}`);
+        }
     }
 }
 
