@@ -261,7 +261,9 @@ export class RenderPipeline {
         const textColorRaw = el.textColor || el.strokeColor;
         const textColor = this.adjustColor(textColorRaw, isDarkMode);
 
-        ctx.textAlign = 'center';
+        // Apply text alignment (default to center for containerText)
+        const textAlign = el.textAlign || 'center';
+        ctx.textAlign = textAlign;
         ctx.textBaseline = 'middle';
 
         const startY = cy - metrics.textHeight / 2 + metrics.lineHeight / 2 + startYOffset;
@@ -269,6 +271,16 @@ export class RenderPipeline {
         // Fine-tune baseline shift for better visual centering (font dependent)
         const baselineShift = el.fontFamily === 'hand-drawn' ? 2 : 0;
         const textYAdjusted = startY + baselineShift;
+
+        // Calculate x position based on alignment
+        const getXPosition = () => {
+            if (textAlign === 'left') {
+                return cx - (el.width || maxWidth) / 2 + 10;
+            } else if (textAlign === 'right') {
+                return cx + (el.width || maxWidth) / 2 - 10;
+            }
+            return cx; // center
+        };
 
         // Render Highlight
         if (el.textHighlightEnabled) {
@@ -281,14 +293,23 @@ export class RenderPipeline {
             metrics.lines.forEach((line, index) => {
                 const y = textYAdjusted + index * metrics.lineHeight;
                 const lineWidth = ctx.measureText(line).width;
+                const xPos = getXPosition();
 
                 // Vertical padding adjustment to make it look centered
                 const vPadding = padding / 2;
 
+                // Calculate highlight x position based on alignment
+                let highlightX = xPos - lineWidth / 2 - padding;
+                if (textAlign === 'left') {
+                    highlightX = xPos - padding;
+                } else if (textAlign === 'right') {
+                    highlightX = xPos - lineWidth - padding;
+                }
+
                 ctx.beginPath();
                 if (ctx.roundRect) {
                     ctx.roundRect(
-                        cx - lineWidth / 2 - padding,
+                        highlightX,
                         y - metrics.lineHeight / 2 - vPadding,
                         lineWidth + padding * 2,
                         metrics.lineHeight + vPadding * 2,
@@ -297,7 +318,7 @@ export class RenderPipeline {
                 } else {
                     // Fallback for older browsers
                     ctx.rect(
-                        cx - lineWidth / 2 - padding,
+                        highlightX,
                         y - metrics.lineHeight / 2 - vPadding,
                         lineWidth + padding * 2,
                         metrics.lineHeight + vPadding * 2
@@ -311,7 +332,8 @@ export class RenderPipeline {
         ctx.fillStyle = textColor;
         metrics.lines.forEach((line, index) => {
             const y = textYAdjusted + index * metrics.lineHeight;
-            ctx.fillText(line, cx, y, el.width - 10);
+            const xPos = getXPosition();
+            ctx.fillText(line, xPos, y, el.width - 10);
         });
 
         ctx.restore();

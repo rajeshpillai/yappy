@@ -33,6 +33,9 @@ export class TextRenderer extends ShapeRenderer {
         const textColorRaw = el.textColor || el.strokeColor;
         const textColor = RenderPipeline.adjustColor(textColorRaw, isDarkMode);
 
+        // Apply text alignment
+        const textAlign = el.textAlign || 'left';
+        ctx.textAlign = textAlign;
         ctx.textBaseline = 'hanging';
 
         if (el.textHighlightEnabled) {
@@ -48,15 +51,26 @@ export class TextRenderer extends ShapeRenderer {
             // Baseline adjustment for better visual centering
             const baselineShift = el.fontFamily === 'hand-drawn' ? -2 : 0;
 
+            // Calculate x position based on alignment
+            const getXPosition = (lineWidth: number) => {
+                if (textAlign === 'center') {
+                    return el.x + (el.width || lineWidth) / 2;
+                } else if (textAlign === 'right') {
+                    return el.x + (el.width || lineWidth);
+                }
+                return el.x;
+            };
+
             lines.forEach((line, index) => {
                 const lineWidth = ctx.measureText(line).width;
+                const xPos = getXPosition(lineWidth);
                 const yOffset = el.y + index * lineHeight + baselineShift;
                 const vPadding = padding / 2;
 
                 ctx.beginPath();
                 if (ctx.roundRect) {
                     ctx.roundRect(
-                        el.x - padding,
+                        xPos - (textAlign === 'center' ? lineWidth / 2 : 0) - padding,
                         yOffset - vPadding,
                         lineWidth + padding * 2,
                         lineHeight + vPadding * 2,
@@ -64,7 +78,7 @@ export class TextRenderer extends ShapeRenderer {
                     );
                 } else {
                     ctx.rect(
-                        el.x - padding,
+                        xPos - (textAlign === 'center' ? lineWidth / 2 : 0) - padding,
                         yOffset - vPadding,
                         lineWidth + padding * 2,
                         lineHeight + vPadding * 2
@@ -75,17 +89,28 @@ export class TextRenderer extends ShapeRenderer {
 
             ctx.fillStyle = textColor;
             lines.forEach((line, index) => {
+                const lineWidth = ctx.measureText(line).width;
+                const xPos = getXPosition(lineWidth);
                 const yOffset = el.y + index * lineHeight;
-                ctx.fillText(line, el.x, yOffset);
+                ctx.fillText(line, xPos, yOffset);
             });
         } else {
             ctx.fillStyle = textColor;
+
+            // Calculate x position based on alignment
+            let xPos = el.x;
+            if (textAlign === 'center') {
+                xPos = el.x + (el.width || actualWidth) / 2;
+            } else if (textAlign === 'right') {
+                xPos = el.x + (el.width || actualWidth);
+            }
+
             if (scaleX !== 1) {
-                ctx.translate(el.x, el.y);
+                ctx.translate(xPos, el.y);
                 ctx.scale(scaleX, 1);
                 ctx.fillText(el.text, 0, 0);
             } else {
-                ctx.fillText(el.text, el.x, el.y);
+                ctx.fillText(el.text, xPos, el.y);
             }
         }
         ctx.restore();
