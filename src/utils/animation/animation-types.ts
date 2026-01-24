@@ -33,9 +33,13 @@ export function createSpring(
         const duration = 1; // normalized to 1 second
         const time = t * duration;
 
+        // Guard against zero/negative values for stability
+        const safeMass = Math.max(mass, 0.01);
+        const safeStiffness = Math.max(stiffness, 0.01);
+
         // Calculate damping ratio and natural frequency
-        const omega0 = Math.sqrt(stiffness / mass);
-        const zeta = damping / (2 * Math.sqrt(stiffness * mass));
+        const omega0 = Math.sqrt(safeStiffness / safeMass);
+        const zeta = damping / (2 * Math.sqrt(safeStiffness * safeMass));
 
         // Initial conditions: start at 0, end at 1
         const initialDisplacement = -1; // Start at 0 (1 - 1 = 0)
@@ -43,7 +47,8 @@ export function createSpring(
 
         let position: number;
 
-        if (zeta < 1) {
+        const epsilon = 0.001;
+        if (zeta < 1 - epsilon) {
             // Under-damped (oscillates before settling)
             const omegaD = omega0 * Math.sqrt(1 - zeta * zeta);
             const envelope = Math.exp(-zeta * omega0 * time);
@@ -51,11 +56,7 @@ export function createSpring(
             const B = (initialVelocity + zeta * omega0 * initialDisplacement) / omegaD;
 
             position = 1 + envelope * (A * Math.cos(omegaD * time) + B * Math.sin(omegaD * time));
-        } else if (zeta === 1) {
-            // Critically damped (no overshoot, fastest settle)
-            const envelope = Math.exp(-omega0 * time);
-            position = 1 + envelope * (initialDisplacement + (initialVelocity + omega0 * initialDisplacement) * time);
-        } else {
+        } else if (zeta > 1 + epsilon) {
             // Over-damped (slow settle, no oscillation)
             const r1 = -omega0 * (zeta + Math.sqrt(zeta * zeta - 1));
             const r2 = -omega0 * (zeta - Math.sqrt(zeta * zeta - 1));
@@ -63,6 +64,10 @@ export function createSpring(
             const B = initialDisplacement - A;
 
             position = 1 + A * Math.exp(r1 * time) + B * Math.exp(r2 * time);
+        } else {
+            // Critically damped (no overshoot, fastest settle) - fallback for near 1.0
+            const envelope = Math.exp(-omega0 * time);
+            position = 1 + envelope * (initialDisplacement + (initialVelocity + omega0 * initialDisplacement) * time);
         }
 
         return position;
