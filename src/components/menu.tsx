@@ -3,9 +3,7 @@ import { showToast } from "./toast";
 import { storage } from "../storage/file-system-storage";
 import {
     store, setStore, deleteElements, clearHistory, toggleTheme, zoomToFit,
-    addLayer, reorderLayers, bringToFront, sendToBack, groupSelected, ungroupSelected,
-    togglePropertyPanel, toggleLayerPanel, toggleMinimap, toggleStatePanel, loadTemplate, setSelectedTool,
-    toggleGrid, toggleSnapToGrid
+    togglePropertyPanel, toggleLayerPanel, toggleMinimap, toggleStatePanel, loadTemplate
 } from "../store/app-store";
 import {
     Menu as MenuIcon, FolderOpen, Share2, FilePlus, Trash2, Maximize,
