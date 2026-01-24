@@ -33,7 +33,8 @@ export function createSpring(
         const duration = 1; // normalized to 1 second
         const time = t * duration;
 
-        // Guard against zero/negative values for stability
+        // Guard against zero/negative values for mass and stiffness to prevent NaN results
+        // during calculation of omega0 and zeta.
         const safeMass = Math.max(mass, 0.01);
         const safeStiffness = Math.max(stiffness, 0.01);
 
@@ -47,6 +48,8 @@ export function createSpring(
 
         let position: number;
 
+        // Use a small epsilon for the damping ratio comparison to handle floating point
+        // imprecision near 1.0 (critical damping).
         const epsilon = 0.001;
         if (zeta < 1 - epsilon) {
             // Under-damped (oscillates before settling)
@@ -65,6 +68,7 @@ export function createSpring(
 
             position = 1 + A * Math.exp(r1 * time) + B * Math.exp(r2 * time);
         } else {
+            // Case: Math.abs(zeta - 1) <= epsilon
             // Critically damped (no overshoot, fastest settle) - fallback for near 1.0
             const envelope = Math.exp(-omega0 * time);
             position = 1 + envelope * (initialDisplacement + (initialVelocity + omega0 * initialDisplacement) * time);
