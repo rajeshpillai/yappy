@@ -592,6 +592,21 @@ export const applyDisplayState = async (id: string, animate: boolean = true) => 
     }
 };
 
+export const applyNextState = async () => {
+    if (store.states.length === 0) return;
+    const currentIndex = store.states.findIndex(s => s.id === store.activeStateId);
+    const nextIndex = (currentIndex + 1) % store.states.length;
+    await applyDisplayState(store.states[nextIndex].id);
+};
+
+export const applyPreviousState = async () => {
+    if (store.states.length === 0) return;
+    const currentIndex = store.states.findIndex(s => s.id === store.activeStateId);
+    let prevIndex = currentIndex - 1;
+    if (prevIndex < 0) prevIndex = store.states.length - 1;
+    await applyDisplayState(store.states[prevIndex].id);
+};
+
 // Helper to clear history (e.g. on new file)
 export const clearHistory = () => {
     undoStack.length = 0;

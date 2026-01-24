@@ -4,6 +4,7 @@ import {
   toggleMinimap, toggleZenMode, toggleStatePanel, toggleCommandPalette, moveSelectedElements,
   switchLayerByIndex, cycleStrokeStyle, cycleFillStyle,
   addChildNode, addSiblingNode, toggleCollapseSelection, togglePresentationMode,
+  applyNextState, applyPreviousState, applyDisplayState,
   setSelectedTool, setStore, groupSelected, ungroupSelected,
   bringToFront, sendToBack, reorderLayers, toggleGrid, toggleSnapToGrid, addLayer
 } from './store/app-store';
@@ -100,6 +101,31 @@ const App: Component = () => {
           switchLayerByIndex(index);
         }
         return; // Handle Alt and exit
+      }
+
+      // Shared Global Shortcuts (No Alt)
+      if (!e.altKey && !e.ctrlKey && !e.metaKey) {
+        if (code === 'ArrowRight') {
+          e.preventDefault();
+          applyNextState();
+        } else if (code === 'ArrowLeft') {
+          e.preventDefault();
+          applyPreviousState();
+        } else if (code === 'Home') {
+          e.preventDefault();
+          if (store.states.length > 0) applyDisplayState(store.states[0].id);
+        }
+      }
+
+      // Shared Alt Shortcuts (Commands)
+      if (e.altKey && !e.ctrlKey && !e.metaKey) {
+        if (code === 'ArrowRight') {
+          e.preventDefault();
+          applyNextState();
+        } else if (code === 'ArrowLeft') {
+          e.preventDefault();
+          applyPreviousState();
+        }
       }
 
       // Ctrl/Meta Shortcuts

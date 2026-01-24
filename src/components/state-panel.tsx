@@ -1,6 +1,6 @@
 import { type Component, For, createSignal, Show, onMount, onCleanup } from 'solid-js';
 import { store, addDisplayState, updateDisplayState, deleteDisplayState, applyDisplayState, toggleStatePanel } from '../store/app-store';
-import { Camera, RefreshCw, Trash2, Play, X } from 'lucide-solid';
+import { Camera, RefreshCw, Trash2, Play, X, RotateCcw } from 'lucide-solid';
 import "./state-panel.css";
 
 export const StatePanel: Component = () => {
@@ -18,9 +18,15 @@ export const StatePanel: Component = () => {
         }
     };
 
+    const handleReset = () => {
+        if (store.states.length > 0) {
+            applyDisplayState(store.states[0].id);
+        }
+    };
+
     const onMouseDown = (e: MouseEvent) => {
         const header = (e.target as HTMLElement).closest('.panel-header');
-        if (!header || (e.target as HTMLElement).closest('.close-btn')) return;
+        if (!header || (e.target as HTMLElement).closest('.close-btn') || (e.target as HTMLElement).closest('.reset-btn')) return;
 
         setIsDragging(true);
         setDragStart({
@@ -60,11 +66,16 @@ export const StatePanel: Component = () => {
                     transform: `translate(${position().x}px, ${position().y}px)`
                 }}
             >
-                <div class="panel-header" onMouseDown={onMouseDown}>
+                <div class="panel-header" onMouseDown={onMouseDown} onDblClick={handleReset}>
                     <h3>Display States</h3>
-                    <button class="close-btn" onClick={() => toggleStatePanel(false)}>
-                        <X size={18} />
-                    </button>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                        <button class="icon-btn reset-btn" onClick={handleReset} title="Reset to Start">
+                            <RotateCcw size={18} />
+                        </button>
+                        <button class="close-btn" onClick={() => toggleStatePanel(false)}>
+                            <X size={18} />
+                        </button>
+                    </div>
                 </div>
 
                 <div class="panel-actions">
