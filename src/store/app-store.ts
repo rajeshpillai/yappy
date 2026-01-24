@@ -571,11 +571,12 @@ export const setActiveSlide = (index: number) => {
 export const addSlide = () => {
     saveActiveSlide();
 
-    const newSlide = createDefaultSlide();
-    newSlide.order = store.slides.length;
+    const nextIndex = store.slides.length;
+    const newSlide = createDefaultSlide(undefined, `Slide ${nextIndex + 1}`);
+    newSlide.order = nextIndex;
 
     setStore("slides", (prev) => [...prev, newSlide]);
-    setActiveSlide(store.slides.length - 1);
+    setActiveSlide(nextIndex);
 
     showToast('Slide added', 'success');
 };

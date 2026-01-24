@@ -1,5 +1,6 @@
 import { For, Show } from "solid-js";
 import { store, setActiveSlide, addSlide, deleteSlide } from "../store/app-store";
+import { X } from "lucide-solid";
 import "./slide-navigator.css";
 
 export const SlideNavigator = () => {
@@ -15,13 +16,19 @@ export const SlideNavigator = () => {
                                 <div
                                     class={`slide-thumbnail ${store.activeSlideIndex === index() ? 'active' : ''}`}
                                     onClick={() => setActiveSlide(index())}
-                                    onContextMenu={(e) => {
-                                        e.preventDefault();
-                                        if (confirm(`Delete Slide ${index() + 1}?`)) {
-                                            deleteSlide(index());
-                                        }
-                                    }}
                                 >
+                                    <button
+                                        class="slide-delete-btn"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (confirm(`Delete Slide ${index() + 1}?`)) {
+                                                deleteSlide(index());
+                                            }
+                                        }}
+                                        title="Delete Slide"
+                                    >
+                                        <X size={14} />
+                                    </button>
                                     <div class="slide-preview">
                                         <div class="slide-name-tag">{slide.name || `Slide ${index() + 1}`}</div>
                                     </div>
