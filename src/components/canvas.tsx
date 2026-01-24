@@ -233,9 +233,13 @@ const Canvas: Component = () => {
     let lastSnappingTime = 0;
     const SNAPPING_THROTTLE_MS = 16; // ~60 FPS
 
-    // Laser Pointer State (Transient)
-    const [laserTrail, setLaserTrail] = createSignal<Array<{ x: number, y: number, timestamp: number }>>([]);
+    // Laser Pointer State (Transient) - Using mutable array for performance
+    let laserTrailData: Array<{ x: number, y: number, timestamp: number }> = [];
+    let laserRafPending = false;
+    let lastLaserUpdateTime = 0;
+    const LASER_THROTTLE_MS = 8; // ~120fps for smooth trail
     const LASER_DECAY_MS = 800;
+    const LASER_MAX_POINTS = 100;
 
 
     const handleResize = () => {
@@ -267,14 +271,17 @@ const Canvas: Component = () => {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, canvasRef.width, canvasRef.height);
 
-        // --- Laser Trail Decay ---
+        // --- Laser Trail Decay (using mutable array for performance) ---
         const now = Date.now();
-        const currentTrail = laserTrail();
-        if (currentTrail.length > 0) {
-            const filtered = currentTrail.filter(p => now - p.timestamp < LASER_DECAY_MS);
-            if (filtered.length !== currentTrail.length) {
-                setLaserTrail(filtered);
+        if (laserTrailData.length > 0) {
+            // Filter in place for performance
+            let writeIdx = 0;
+            for (let i = 0; i < laserTrailData.length; i++) {
+                if (now - laserTrailData[i].timestamp < LASER_DECAY_MS) {
+                    laserTrailData[writeIdx++] = laserTrailData[i];
+                }
             }
+            laserTrailData.length = writeIdx;
         }
 
         // Render Canvas Overall Background (The "Infinite" workspace)
@@ -1058,30 +1065,43 @@ const Canvas: Component = () => {
             }
         }
 
-        // --- Render Laser Trail ---
-        const trail = laserTrail();
-        if (trail.length > 1) {
+        // --- Render Laser Trail (optimized: batch by opacity bands, no per-segment shadows) ---
+        if (laserTrailData.length > 1) {
             ctx.save();
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
 
-            for (let i = 0; i < trail.length - 1; i++) {
-                const p1 = trail[i];
-                const p2 = trail[i + 1];
+            // Single glow layer (cheaper than per-segment shadows)
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = 'rgba(255, 50, 50, 0.6)';
+
+            // Batch segments into opacity bands for fewer state changes
+            const baseWidth = 4 / store.viewState.scale;
+            let currentOpacityBand = -1;
+
+            for (let i = 0; i < laserTrailData.length - 1; i++) {
+                const p1 = laserTrailData[i];
+                const p2 = laserTrailData[i + 1];
                 const age = now - p1.timestamp;
                 const opacity = Math.max(0, 1 - age / LASER_DECAY_MS);
 
                 if (opacity <= 0) continue;
 
-                ctx.beginPath();
-                ctx.moveTo(p1.x, p1.y);
+                // Quantize opacity to bands (0.2, 0.4, 0.6, 0.8, 1.0) for batching
+                const band = Math.ceil(opacity * 5);
+                if (band !== currentOpacityBand) {
+                    if (currentOpacityBand !== -1) ctx.stroke(); // Finish previous batch
+                    currentOpacityBand = band;
+                    const bandOpacity = band / 5;
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(255, 30, 30, ${bandOpacity})`;
+                    ctx.lineWidth = baseWidth * bandOpacity;
+                    ctx.moveTo(p1.x, p1.y);
+                }
                 ctx.lineTo(p2.x, p2.y);
-                ctx.strokeStyle = `rgba(255, 0, 0, ${opacity})`;
-                ctx.lineWidth = (4 / store.viewState.scale) * opacity;
-                ctx.shadowBlur = 10 * opacity;
-                ctx.shadowColor = 'red';
-                ctx.stroke();
             }
+            if (currentOpacityBand !== -1) ctx.stroke(); // Finish last batch
+
             ctx.restore();
         }
 
@@ -1135,7 +1155,7 @@ const Canvas: Component = () => {
         store.viewState.panY;
         store.selection.length;
         selectionBox();
-        laserTrail(); // Track laser trail for real-time rendering logic
+        // Note: laserTrailData is mutable (not reactive) for performance
         // Track layer changes
         store.layers.length;
         store.layers.forEach(l => {
@@ -2167,7 +2187,8 @@ const Canvas: Component = () => {
 
         if (store.selectedTool === 'laser') {
             isDrawing = true;
-            setLaserTrail([{ x, y, timestamp: Date.now() }]);
+            laserTrailData = [{ x, y, timestamp: Date.now() }];
+            lastLaserUpdateTime = Date.now();
             return;
         }
 
@@ -2673,9 +2694,25 @@ const Canvas: Component = () => {
 
 
         if (store.selectedTool === 'laser') {
-            const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
-            setLaserTrail(prev => [...prev.slice(-50), { x, y, timestamp: Date.now() }]);
-            requestAnimationFrame(draw); // Force update for laser even if nothing else changes
+            const now = Date.now();
+            // Throttle updates for smooth performance
+            if (now - lastLaserUpdateTime >= LASER_THROTTLE_MS) {
+                lastLaserUpdateTime = now;
+                const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
+                // Mutate array directly for performance
+                if (laserTrailData.length >= LASER_MAX_POINTS) {
+                    laserTrailData.shift();
+                }
+                laserTrailData.push({ x, y, timestamp: now });
+                // Single RAF request to prevent stacking
+                if (!laserRafPending) {
+                    laserRafPending = true;
+                    requestAnimationFrame(() => {
+                        laserRafPending = false;
+                        draw();
+                    });
+                }
+            }
         }
 
         if (!isDrawing || !currentId) {
@@ -2804,6 +2841,14 @@ const Canvas: Component = () => {
 
         if (store.selectedTool === 'laser') {
             isDrawing = false;
+            // Continue decay animation until trail is empty
+            const decayLoop = () => {
+                if (laserTrailData.length > 0) {
+                    draw();
+                    requestAnimationFrame(decayLoop);
+                }
+            };
+            requestAnimationFrame(decayLoop);
             return;
         }
 
