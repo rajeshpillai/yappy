@@ -23,9 +23,12 @@ export const MindmapActionToolbar: Component = () => {
         const el = selectedElement();
         if (!el) return false;
 
-        // Has parent/children relationships OR is a common mindmap starting shape
-        const startTypes: string[] = ['text', 'cloud', 'circle', 'rectangle', 'stickyNote', 'diamond'];
-        return !!el.parentId || hasChildren() || startTypes.includes(el.type);
+        // Exclude types that don't make sense for mindmaps
+        const excludedTypes = ['line', 'arrow', 'image', 'fineliner', 'inkbrush', 'marker', 'bezier'];
+        if (excludedTypes.includes(el.type)) return false;
+
+        // Show for any shape (they can all be mindmap nodes)
+        return true;
     });
 
     const shouldShowToolbar = createMemo(() => {
