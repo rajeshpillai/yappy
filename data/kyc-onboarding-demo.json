@@ -2,7 +2,7 @@
     "version": 3,
     "metadata": {
         "createdAt": "2026-01-24T13:10:00.000Z",
-        "updatedAt": "2026-01-24T13:10:00.000Z"
+        "updatedAt": "2026-01-24T13:22:00.000Z"
     },
     "slides": [
         {
@@ -181,7 +181,13 @@
                         "status-label": {
                             "text": "Step 1: Mobile & OTP Verification 📱"
                         },
+                        "user-app": {
+                            "opacity": 100,
+                            "backgroundColor": "#ffffff",
+                            "strokeColor": "#3b82f6"
+                        },
                         "mobile-phone": {
+                            "opacity": 100,
                             "containerText": "Wait for OTP...",
                             "backgroundColor": "#eff6ff"
                         },
@@ -189,6 +195,21 @@
                             "opacity": 0
                         },
                         "backend-server": {
+                            "opacity": 0
+                        },
+                        "ai-engine": {
+                            "opacity": 0
+                        },
+                        "selfie-icon": {
+                            "opacity": 0
+                        },
+                        "flow-app-to-server": {
+                            "opacity": 0
+                        },
+                        "flow-server-to-ai": {
+                            "opacity": 0
+                        },
+                        "success-ribbon": {
                             "opacity": 0
                         }
                     }
@@ -201,6 +222,7 @@
                             "text": "Step 2: Document Scanning 📄"
                         },
                         "mobile-phone": {
+                            "opacity": 100,
                             "containerText": "Scanning..."
                         },
                         "identity-docs": {
@@ -210,6 +232,9 @@
                         },
                         "backend-server": {
                             "opacity": 50
+                        },
+                        "ai-engine": {
+                            "opacity": 0
                         }
                     }
                 },
@@ -221,12 +246,11 @@
                             "text": "Step 3: Server Processing ⚙️"
                         },
                         "user-app": {
-                            "x": 50,
                             "opacity": 100
                         },
                         "identity-docs": {
-                            "x": 380,
-                            "opacity": 0
+                            "opacity": 100,
+                            "x": 380
                         },
                         "backend-server": {
                             "opacity": 100,
@@ -241,6 +265,9 @@
                         "flow-server-to-ai": {
                             "opacity": 100,
                             "flowAnimation": true
+                        },
+                        "selfie-icon": {
+                            "opacity": 0
                         }
                     }
                 },
@@ -252,6 +279,7 @@
                             "text": "Step 4: Liveness Detection 📸"
                         },
                         "mobile-phone": {
+                            "opacity": 100,
                             "containerText": "Smile!"
                         },
                         "selfie-icon": {
@@ -266,6 +294,9 @@
                         },
                         "flow-server-to-ai": {
                             "opacity": 0
+                        },
+                        "backend-server": {
+                            "opacity": 100
                         }
                     }
                 },
@@ -277,6 +308,7 @@
                             "text": "Journey Complete! ✅"
                         },
                         "user-app": {
+                            "opacity": 100,
                             "backgroundColor": "#f0fdf4",
                             "strokeColor": "#10b981"
                         },
@@ -284,15 +316,16 @@
                             "opacity": 0
                         },
                         "selfie-icon": {
+                            "opacity": 100,
                             "x": 150,
-                            "y": 200,
-                            "opacity": 100
+                            "y": 200
                         },
                         "success-ribbon": {
                             "opacity": 100,
                             "y": 450
                         },
                         "backend-server": {
+                            "opacity": 100,
                             "backgroundColor": "#d1fae5"
                         }
                     }

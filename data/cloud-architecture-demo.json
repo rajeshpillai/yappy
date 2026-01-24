@@ -2,7 +2,7 @@
     "version": 3,
     "metadata": {
         "createdAt": "2026-01-24T13:12:00.000Z",
-        "updatedAt": "2026-01-24T13:15:00.000Z"
+        "updatedAt": "2026-01-24T13:20:00.000Z"
     },
     "slides": [
         {
@@ -36,7 +36,7 @@
                     "strokeColor": "#f59e0b",
                     "backgroundColor": "#fffbeb",
                     "fillStyle": "solid",
-                    "opacity": 100,
+                    "opacity": 0,
                     "containerText": "Global\nLoad Balancer",
                     "fontSize": 14,
                     "layerId": "default-layer",
@@ -217,10 +217,12 @@
                             "text": "Step 1: Request Hits Proxy 🌐"
                         },
                         "client-user": {
-                            "opacity": 100
+                            "opacity": 100,
+                            "scale": 1
                         },
                         "global-lb": {
-                            "opacity": 100
+                            "opacity": 100,
+                            "scale": 1
                         },
                         "req-flow-entry": {
                             "opacity": 100
@@ -228,19 +230,38 @@
                         "svc-node-1": {
                             "opacity": 0
                         },
+                        "svc-node-2": {
+                            "opacity": 0
+                        },
+                        "svc-node-3": {
+                            "opacity": 0
+                        },
                         "global-db": {
+                            "opacity": 0
+                        },
+                        "req-flow-routed-1": {
+                            "opacity": 0
+                        },
+                        "req-flow-routed-2": {
+                            "opacity": 0
+                        },
+                        "req-flow-routed-3": {
+                            "opacity": 0
+                        },
+                        "db-flow": {
                             "opacity": 0
                         }
                     }
                 },
                 {
                     "id": "arch-state-routing",
-                    "name": "2. Smart Routing",
+                    "name": "2. Microservice Routing",
                     "overrides": {
                         "header-text": {
-                            "text": "Step 2: Microservice Routing 🔀"
+                            "text": "Step 2: Smart Routing 🔀"
                         },
                         "global-lb": {
+                            "opacity": 100,
                             "scale": 1.1,
                             "shadowEnabled": true,
                             "shadowBlur": 25
@@ -254,6 +275,9 @@
                         "svc-node-3": {
                             "opacity": 100
                         },
+                        "global-db": {
+                            "opacity": 0
+                        },
                         "req-flow-routed-1": {
                             "opacity": 100
                         },
@@ -262,6 +286,9 @@
                         },
                         "req-flow-routed-3": {
                             "opacity": 100
+                        },
+                        "db-flow": {
+                            "opacity": 0
                         }
                     }
                 },
@@ -272,10 +299,17 @@
                         "header-text": {
                             "text": "Step 3: State Management 💾"
                         },
+                        "svc-node-1": {
+                            "opacity": 100
+                        },
                         "svc-node-2": {
+                            "opacity": 100,
                             "strokeWidth": 5,
                             "shadowEnabled": true,
                             "shadowBlur": 15
+                        },
+                        "svc-node-3": {
+                            "opacity": 100
                         },
                         "global-db": {
                             "opacity": 100
@@ -294,20 +328,31 @@
                             "text": "A Scalable, Distributed System! 🚀✨"
                         },
                         "client-user": {
-                            "x": 100,
-                            "y": 240,
+                            "opacity": 100,
                             "scale": 0.8
                         },
+                        "global-lb": {
+                            "opacity": 100
+                        },
+                        "svc-node-1": {
+                            "opacity": 100,
+                            "backgroundColor": "#ede9fe"
+                        },
+                        "svc-node-2": {
+                            "opacity": 100
+                        },
+                        "svc-node-3": {
+                            "opacity": 100,
+                            "backgroundColor": "#ede9fe"
+                        },
                         "global-db": {
+                            "opacity": 100,
                             "scale": 1.2,
                             "shadowBlur": 40,
                             "backgroundColor": "#d1fae5"
                         },
-                        "svc-node-1": {
-                            "backgroundColor": "#ede9fe"
-                        },
-                        "svc-node-3": {
-                            "backgroundColor": "#ede9fe"
+                        "db-flow": {
+                            "opacity": 100
                         }
                     }
                 }
