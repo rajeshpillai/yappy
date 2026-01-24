@@ -1,4 +1,4 @@
-import { type Component, createSignal, onMount, Show, onCleanup } from "solid-js";
+import { type Component, createSignal, onMount, Show } from "solid-js";
 import { showToast } from "./toast";
 import { storage } from "../storage/file-system-storage";
 import {
@@ -23,26 +23,53 @@ import TemplateBrowser from "./template-browser";
 import type { Template } from "../types/template-types";
 import "./menu.css";
 
+// Exported signals for App.tsx integration
+export const [drawingId, setDrawingId] = createSignal('default');
+export const [isDialogOpen, setIsDialogOpen] = createSignal(false);
+export const [isExportOpen, setIsExportOpen] = createSignal(false);
+export const [isSaveOpen, setIsSaveOpen] = createSignal(false);
+export const [isLoadExportOpen, setIsLoadExportOpen] = createSignal(false);
+export const [showHelp, setShowHelp] = createSignal(false);
+
+// Exported handlers for App.tsx integration
+let sharedSetSaveIntent: (intent: 'workspace' | 'disk') => void;
+export const handleSaveRequest = (intent: 'workspace' | 'disk') => {
+    sharedSetSaveIntent(intent);
+    setIsSaveOpen(true);
+};
+
+export const handleNew = () => {
+    if (confirm('Start new sketch? Unsaved changes will be lost.')) {
+        setStore("elements", []);
+        setStore("viewState", { scale: 1, panX: 0, panY: 0 });
+        setStore("selection", []);
+        setStore("layers", [
+            {
+                id: 'default-layer',
+                name: 'Layer 1',
+                visible: true,
+                locked: false,
+                opacity: 1,
+                order: 0
+            }
+        ]);
+        setStore("activeLayerId", 'default-layer');
+        clearHistory();
+        setDrawingId('untitled');
+        showToast('New sketch created', 'info');
+    }
+};
+
 const Menu: Component = () => {
-    const [drawingId, setDrawingId] = createSignal('default');
-    const [isDialogOpen, setIsDialogOpen] = createSignal(false);
-    const [isExportOpen, setIsExportOpen] = createSignal(false);
-    const [isSaveOpen, setIsSaveOpen] = createSignal(false);
-    const [isLoadExportOpen, setIsLoadExportOpen] = createSignal(false);
-    const [loadExportInitialTab, setLoadExportInitialTab] = createSignal<'load' | 'save'>('load');
     const [isMenuOpen, setIsMenuOpen] = createSignal(false);
-    const [showHelp, setShowHelp] = createSignal(false);
+    const [loadExportInitialTab, setLoadExportInitialTab] = createSignal<'load' | 'save'>('load');
     let fileInputRef: HTMLInputElement | undefined;
 
     const [saveIntent, setSaveIntent] = createSignal<'workspace' | 'disk'>('workspace');
-    const [clipboard, setClipboard] = createSignal<any[]>([]);
+    sharedSetSaveIntent = setSaveIntent;
     const [isTemplateBrowserOpen, setIsTemplateBrowserOpen] = createSignal(false);
 
-    const handleSaveRequest = (intent: 'workspace' | 'disk') => {
-        setSaveIntent(intent);
-        setIsSaveOpen(true);
-        setIsMenuOpen(false);
-    };
+    (window as any).triggerImageUpload = () => fileInputRef?.click();
 
     const performSave = async (filename: string) => {
         setDrawingId(filename);
@@ -146,29 +173,6 @@ const Menu: Component = () => {
         }
     };
 
-    const handleNew = () => {
-        if (confirm('Start new sketch? Unsaved changes will be lost.')) {
-            setStore("elements", []);
-            setStore("viewState", { scale: 1, panX: 0, panY: 0 });
-            setStore("selection", []);
-            setStore("layers", [
-                {
-                    id: 'default-layer',
-                    name: 'Layer 1',
-                    visible: true,
-                    locked: false,
-                    opacity: 1,
-                    order: 0
-                }
-            ]);
-            setStore("activeLayerId", 'default-layer');
-            clearHistory();
-            setDrawingId('untitled');
-            showToast('New sketch created', 'info');
-        }
-        setIsMenuOpen(false);
-    };
-
     const handleResetView = () => {
         zoomToFit();
     };
@@ -241,184 +245,6 @@ const Menu: Component = () => {
             setDrawingId(id);
             handleLoad(id);
         }
-
-        const handleKeyDown = (e: KeyboardEvent) => {
-            // console.log('Key:', e.key, 'Alt:', e.altKey, 'Ctrl:', e.ctrlKey);
-            if (e.ctrlKey) {
-                if (e.key === 'o') {
-                    e.preventDefault();
-                    setIsDialogOpen(true);
-                } else if (e.key === 's') {
-                    e.preventDefault();
-                    handleSaveRequest('workspace');
-                } else if (e.key.toLowerCase() === 'e' && e.shiftKey) {
-                    e.preventDefault();
-                    setIsExportOpen(true);
-                } else if (e.key.toLowerCase() === 'a') {
-                    if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
-                        e.preventDefault();
-                        setStore('selection', store.elements.map(el => el.id));
-                    }
-                } else if (e.key.toLowerCase() === 'c') {
-                    if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
-                        e.preventDefault();
-                        const selectedElements = store.elements.filter(el => store.selection.includes(el.id));
-                        setClipboard(selectedElements);
-                    }
-                } else if (e.key.toLowerCase() === 'v') {
-                    if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
-                        e.preventDefault();
-                        const copiedElements = clipboard();
-                        if (copiedElements.length > 0) {
-                            const groupMapping = new Map<string, string>();
-                            copiedElements.forEach(el => {
-                                el.groupIds?.forEach((gid: string) => {
-                                    if (!groupMapping.has(gid)) {
-                                        groupMapping.set(gid, crypto.randomUUID());
-                                    }
-                                });
-                            });
-
-                            const offset = 20;
-                            const newElements = copiedElements.map(el => ({
-                                ...el,
-                                id: crypto.randomUUID(),
-                                x: el.x + offset,
-                                y: el.y + offset,
-                                groupIds: el.groupIds?.map((gid: string) => groupMapping.get(gid)!)
-                            }));
-                            setStore('elements', [...store.elements, ...newElements]);
-                            setStore('selection', newElements.map(el => el.id));
-                        }
-                    }
-                } else if (e.key.toLowerCase() === 'd') {
-                    if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
-                        e.preventDefault();
-                        const selectedElements = store.elements.filter(el => store.selection.includes(el.id));
-                        if (selectedElements.length > 0) {
-                            const groupMapping = new Map<string, string>();
-                            selectedElements.forEach(el => {
-                                el.groupIds?.forEach((gid: string) => {
-                                    if (!groupMapping.has(gid)) {
-                                        groupMapping.set(gid, crypto.randomUUID());
-                                    }
-                                });
-                            });
-
-                            const offset = 20;
-                            const newElements = selectedElements.map(el => ({
-                                ...el,
-                                id: crypto.randomUUID(),
-                                x: el.x + offset,
-                                y: el.y + offset,
-                                groupIds: el.groupIds?.map((gid: string) => groupMapping.get(gid)!)
-                            }));
-                            setStore('elements', [...store.elements, ...newElements]);
-                            setStore('selection', newElements.map(el => el.id));
-                        }
-                    }
-                } else if (e.key.toLowerCase() === 'x') {
-                    if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
-                        e.preventDefault();
-                        const selectedElements = store.elements.filter(el => store.selection.includes(el.id));
-                        setClipboard(selectedElements);
-                        if (selectedElements.length > 0) {
-                            deleteElements(store.selection);
-                        }
-                    }
-                } else if (e.key.toLowerCase() === 'g') {
-                    if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
-                        e.preventDefault();
-                        if (e.shiftKey) {
-                            ungroupSelected();
-                        } else {
-                            groupSelected();
-                        }
-                    }
-                } else if (e.key === ']') {
-                    e.preventDefault();
-                    if (store.selection.length > 0) {
-                        bringToFront(store.selection);
-                    }
-                } else if (e.key === '[') {
-                    e.preventDefault();
-                    if (store.selection.length > 0) {
-                        sendToBack(store.selection);
-                    }
-                }
-            } else if (e.altKey) {
-                if (e.key === '[') {
-                    e.preventDefault();
-                    const layers = store.layers;
-                    const idx = layers.findIndex(l => l.id === store.activeLayerId);
-                    if (idx > 0) {
-                        reorderLayers(idx, idx - 1);
-                    }
-                } else if (e.key === ']') {
-                    e.preventDefault();
-                    const layers = store.layers;
-                    const idx = layers.findIndex(l => l.id === store.activeLayerId);
-                    if (idx !== -1 && idx < layers.length - 1) {
-                        reorderLayers(idx, idx + 1);
-                    }
-                } else if (e.key === '\\') {
-                    e.preventDefault();
-                    const anyVisible = store.showPropertyPanel || store.showLayerPanel;
-                    togglePropertyPanel(!anyVisible);
-                    toggleLayerPanel(!anyVisible);
-                } else if (e.key.toLowerCase() === 'n') {
-                    e.preventDefault();
-                    handleNew();
-                }
-            } else if (e.key === '?' && e.shiftKey) {
-                if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
-                    e.preventDefault();
-                    setShowHelp(true);
-                }
-            } else if (e.key === '"' || (e.key === "'" && e.shiftKey)) {
-                if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
-                    e.preventDefault();
-                    toggleGrid();
-                }
-            } else if (e.key === ':' || (e.key === ';' && e.shiftKey)) {
-                if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
-                    e.preventDefault();
-                    toggleSnapToGrid();
-                }
-            } else if (e.shiftKey && e.key.toLowerCase() === 'n') {
-                e.preventDefault();
-                addLayer();
-            } else if (e.key === 'Escape') {
-                setIsDialogOpen(false);
-                setIsExportOpen(false);
-                setIsSaveOpen(false);
-                setIsMenuOpen(false);
-                setShowHelp(false);
-                setIsLoadExportOpen(false);
-            } else {
-                // Tool Shortcuts (No Modifiers)
-                if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
-                    // Start checking strict modifier absence
-                    if (!e.ctrlKey && !e.altKey && !e.metaKey) {
-                        const key = e.key.toLowerCase();
-                        if (key === 'v' || key === '1') setSelectedTool('selection');
-                        else if (key === 'r' || key === '2') setSelectedTool('rectangle');
-                        else if (key === 'o' || key === '3') setSelectedTool('circle');
-                        else if (key === 'l' || key === '4') setSelectedTool('line');
-                        else if (key === 'a' || key === '5') setSelectedTool('arrow');
-                        else if (key === 't' || key === '6') setSelectedTool('text');
-                        else if (key === 'e' || key === '7') setSelectedTool('eraser');
-                        else if (key === 'p' || key === '8') setSelectedTool('fineliner');
-                        else if (key === '9' || key === 'i') fileInputRef?.click();
-                        else if (key === 'b' || key === '0') setSelectedTool('bezier');
-                        else if (key === 'd') setSelectedTool('diamond');
-                        else if (key === 'h') setSelectedTool('pan');
-                    }
-                }
-            }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        onCleanup(() => window.removeEventListener('keydown', handleKeyDown));
     });
 
     return (
@@ -532,7 +358,7 @@ const Menu: Component = () => {
                                         </div>
                                     </div>
                                     <div class="menu-separator"></div>
-                                    <button class="menu-item" onClick={handleNew}>
+                                    <button class="menu-item" onClick={() => { handleNew(); setIsMenuOpen(false); }}>
                                         <FilePlus size={16} />
                                         <span class="label">New Sketch</span>
                                     </button>

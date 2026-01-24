@@ -14,6 +14,7 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     z-index: 100;
     border: 1px solid #e5e7eb;
+    user-select: none;
 }
 
 /* Mobile: constrain width and enable horizontal scroll */
@@ -62,6 +63,7 @@
     color: #4b5563;
     cursor: pointer;
     transition: all 0.2s;
+    user-select: none;
 }
 
 .toolbar-btn:hover {

@@ -7,6 +7,7 @@
     box-shadow: var(--shadow-sm);
     gap: 4px;
     border: 1px solid var(--border-color);
+    user-select: none;
 }
 
 .title-input {
@@ -168,5 +169,6 @@
     z-index: 100;
     font-size: 14px;
     pointer-events: none;
+    user-select: none;
     /* Let clicks pass through if needed, but it's a block */
 }

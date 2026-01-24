@@ -18,7 +18,9 @@
     max-width: 90vw;
     max-height: 85vh;
     border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    z-index: 1001;
+    user-select: none;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -56,8 +58,9 @@
 }
 
 .help-modal-body {
-    padding: 24px;
+    max-height: 90vh;
     overflow-y: auto;
+    user-select: none;
 }
 
 .social-links {

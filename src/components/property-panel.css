@@ -14,6 +14,7 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
     /* Prevent container from overflowing */
+    user-select: none;
 }
 
 .property-panel-container.minimized {
@@ -135,6 +136,7 @@
     font-size: 13px;
     color: var(--text-primary);
     flex: 1;
+    user-select: none;
 }
 
 /* Form Controls */

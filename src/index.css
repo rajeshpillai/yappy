@@ -215,6 +215,13 @@ button:focus-visible {
   }
 }
 
+.unselectable {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
 /* Minimap Styles */
 .minimap-container {
   position: fixed;

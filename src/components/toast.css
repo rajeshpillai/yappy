@@ -12,6 +12,7 @@
     align-items: center;
     gap: 12px;
     z-index: 2000;
+    user-select: none;
     font-size: 14px;
     font-weight: 500;
     border: 1px solid var(--border-color);
@@ -38,9 +39,17 @@
     justify-content: center;
 }
 
-.toast-success .toast-icon { color: #10b981; }
-.toast-error .toast-icon { color: #ef4444; }
-.toast-info .toast-icon { color: #3b82f6; }
+.toast-success .toast-icon {
+    color: #10b981;
+}
+
+.toast-error .toast-icon {
+    color: #ef4444;
+}
+
+.toast-info .toast-icon {
+    color: #3b82f6;
+}
 
 .toast-message {
     flex: 1;
@@ -69,6 +78,7 @@
         opacity: 0;
         transform: translate(-50%, 20px);
     }
+
     to {
         opacity: 1;
         transform: translate(-50%, 0);

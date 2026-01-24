@@ -23,6 +23,7 @@
     overflow: hidden;
     border: 1px solid var(--border-color);
     animation: dialogScale 0.2s ease-out;
+    user-select: none;
 }
 
 @keyframes dialogScale {
