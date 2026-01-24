@@ -526,14 +526,10 @@ export const properties: PropertyConfig[] = [
     {
         key: 'fontSize',
         label: 'Size',
-        type: 'select',
-        // simplified to select for now, could be slider
-        options: [
-            { label: 'Small', value: 16 },
-            { label: 'Medium', value: 20 },
-            { label: 'Large', value: 28 },
-            { label: 'XL', value: 36 }
-        ],
+        type: 'slider',
+        min: 8,
+        max: 200,
+        step: 1,
         group: 'text',
         applicableTo: ['text', 'rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'line', 'arrow', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'dfdProcess', 'dfdDataStore', 'isometricCube', 'cylinder', 'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity'],
         defaultValue: 20

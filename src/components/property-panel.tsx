@@ -555,14 +555,22 @@ const PropertyPanel: Component = () => {
                 return (
                     <div class="control-row">
                         <label>{prop.label}</label>
-                        <div class="slider-wrapper">
+                        <div class="slider-group">
+                            <div class="slider-wrapper">
+                                <input
+                                    type="range"
+                                    min={prop.min} max={prop.max} step={prop.step}
+                                    value={getPropertyValue(prop) ?? prop.defaultValue}
+                                    onInput={(e) => handleChange(prop.key, Number(e.currentTarget.value))}
+                                />
+                            </div>
                             <input
-                                type="range"
+                                type="number"
+                                class="precise-number-input"
                                 min={prop.min} max={prop.max} step={prop.step}
                                 value={getPropertyValue(prop) ?? prop.defaultValue}
                                 onInput={(e) => handleChange(prop.key, Number(e.currentTarget.value))}
                             />
-                            <span class="value-display">{getPropertyValue(prop)}</span>
                         </div>
                     </div>
                 );

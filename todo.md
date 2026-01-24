@@ -818,3 +818,6 @@
     - [ ] Ability to save the current selection as a reusable "Symbol"
     - [ ] A dedicated "Symbols" panel for drag-and-drop reuse
  
+
+ ** Current
+ - [ ] - Implementing custom font size for elements
