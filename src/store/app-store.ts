@@ -659,7 +659,7 @@ export const loadDocument = (doc: SlideDocument) => {
     batch(() => {
         setStore("slides", JSON.parse(JSON.stringify(doc.slides)));
         setStore("globalSettings", doc.globalSettings || initialState.globalSettings);
-        const loadedDocType = doc.metadata?.docType || 'slides';
+        const loadedDocType = doc.metadata?.docType || 'infinite';
         setStore("docType", loadedDocType);
         setStore("showSlideNavigator", loadedDocType === 'slides');
 
