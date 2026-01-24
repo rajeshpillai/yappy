@@ -659,7 +659,9 @@ export const loadDocument = (doc: SlideDocument) => {
     batch(() => {
         setStore("slides", JSON.parse(JSON.stringify(doc.slides)));
         setStore("globalSettings", doc.globalSettings || initialState.globalSettings);
-        setStore("docType", doc.metadata?.docType || 'slides');
+        const loadedDocType = doc.metadata?.docType || 'slides';
+        setStore("docType", loadedDocType);
+        setStore("showSlideNavigator", loadedDocType === 'slides');
 
         // Load the first slide
         const targetIndex = 0;
@@ -688,7 +690,10 @@ export const loadDocument = (doc: SlideDocument) => {
 // --- Document Type Actions ---
 
 export const setDocType = (type: 'infinite' | 'slides') => {
-    setStore("docType", type);
+    batch(() => {
+        setStore("docType", type);
+        setStore("showSlideNavigator", type === 'slides');
+    });
 };
 
 // --- State Morphing Actions ---
@@ -795,10 +800,10 @@ export const clearHistory = () => {
     setStore("redoStackLength", 0);
 };
 
-export const resetToNewDocument = () => {
-    const doc = createSlideDocument('Untitled');
+export const resetToNewDocument = (docType: 'infinite' | 'slides' = 'slides') => {
+    const doc = createSlideDocument('Untitled', docType);
     loadDocument(doc);
-    showToast('New sketch created', 'info');
+    showToast(`New ${docType === 'slides' ? 'presentation' : 'sketch'} created`, 'info');
 };
 
 export const duplicateElement = (id: string) => {

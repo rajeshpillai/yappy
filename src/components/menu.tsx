@@ -38,9 +38,9 @@ export const handleSaveRequest = (intent: 'workspace' | 'disk') => {
     setIsSaveOpen(true);
 };
 
-export const handleNew = () => {
-    if (confirm('Start new sketch? Unsaved changes will be lost.')) {
-        resetToNewDocument();
+export const handleNew = (docType: 'infinite' | 'slides' = 'slides') => {
+    if (confirm(`Start new ${docType === 'slides' ? 'presentation' : 'sketch'}? Unsaved changes will be lost.`)) {
+        resetToNewDocument(docType);
         setDrawingId('untitled');
     }
 };
@@ -301,9 +301,13 @@ const Menu: Component = () => {
                                         </div>
                                     </div>
                                     <div class="menu-separator"></div>
-                                    <button class="menu-item" onClick={() => { handleNew(); setIsMenuOpen(false); }}>
+                                    <button class="menu-item" onClick={() => { handleNew('slides'); setIsMenuOpen(false); }}>
                                         <FilePlus size={16} />
-                                        <span class="label">New Sketch</span>
+                                        <span class="label">New Presentation</span>
+                                    </button>
+                                    <button class="menu-item" onClick={() => { handleNew('infinite'); setIsMenuOpen(false); }}>
+                                        <Maximize size={16} />
+                                        <span class="label">New Infinite Drawing</span>
                                     </button>
                                     <button class="menu-item" onClick={() => { setIsTemplateBrowserOpen(true); setIsMenuOpen(false); }}>
                                         <Layout size={16} />
