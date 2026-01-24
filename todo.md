@@ -904,4 +904,6 @@
 
  ** Current
  - [X] - Implementing custom font size for elements
- - [ ] - Canvas Document Type not getting saved.
+ - [X] - Canvas Document Type not getting saved (Fixed: version-aware defaults in loadDocument)
+ - [X] - Laser pointer lagging (Fixed: mutable arrays, throttling, RAF deduplication)
+ - [X] - Pen/Ink tools lagging (Fixed: local point buffer, throttled store updates)

@@ -241,6 +241,27 @@ const Canvas: Component = () => {
     const LASER_DECAY_MS = 800;
     const LASER_MAX_POINTS = 100;
 
+    // Pen/Ink Tool Optimization - Buffer points locally and batch update to store
+    let penPointsBuffer: number[] = [];
+    let lastPenUpdateTime = 0;
+    const PEN_UPDATE_THROTTLE_MS = 16; // ~60fps store updates
+    let penUpdatePending = false;
+
+    const flushPenPoints = () => {
+        if (!currentId || penPointsBuffer.length === 0) return;
+        const el = store.elements.find(e => e.id === currentId);
+        if (el && el.points) {
+            const existingPoints = el.points as number[];
+            const newPoints = [...existingPoints, ...penPointsBuffer];
+            const updates: Partial<DrawingElement> = { points: newPoints };
+            // For ink tool, also update ttl
+            if (el.type === 'ink') {
+                updates.ttl = Date.now() + 3000;
+            }
+            updateElement(currentId, updates, false);
+            penPointsBuffer = [];
+        }
+    };
 
     const handleResize = () => {
         if (canvasRef) {
@@ -2238,6 +2259,10 @@ const Canvas: Component = () => {
 
         isDrawing = true;
 
+        // Clear pen buffer for new stroke
+        penPointsBuffer = [];
+        lastPenUpdateTime = 0;
+
         // Snap start position if enabled
         let creationX = x;
         let creationY = y;
@@ -2728,48 +2753,26 @@ const Canvas: Component = () => {
             return;
         }
 
-        if (store.selectedTool === 'fineliner' || store.selectedTool === 'marker') {
-            const el = store.elements.find(e => e.id === currentId);
-            if (el && el.points) {
-                const { x: ex, y: ey } = getWorldCoordinates(e.clientX, e.clientY);
-                const px = ex - startX;
-                const py = ey - startY;
+        if (store.selectedTool === 'fineliner' || store.selectedTool === 'marker' || store.selectedTool === 'inkbrush' || store.selectedTool === 'ink') {
+            const { x: ex, y: ey } = getWorldCoordinates(e.clientX, e.clientY);
+            const px = ex - startX;
+            const py = ey - startY;
 
-                if (el.pointsEncoding === 'flat') {
-                    const newPoints = [...(el.points as number[]), px, py];
-                    updateElement(currentId, { points: newPoints }, false);
-                } else {
-                    const newPoints = [...(el.points as any[]), { x: px, y: py, p: 0.5 }];
-                    updateElement(currentId, { points: newPoints }, false);
-                }
-            }
-        } else if (store.selectedTool === 'inkbrush') {
-            const el = store.elements.find(e => e.id === currentId);
-            if (el && el.points) {
-                const { x: ex, y: ey } = getWorldCoordinates(e.clientX, e.clientY);
-                const px = ex - startX;
-                const py = ey - startY;
+            // Buffer points locally for performance
+            penPointsBuffer.push(px, py);
 
-                if (el.pointsEncoding === 'flat') {
-                    const newPoints = [...(el.points as number[]), px, py];
-                    updateElement(currentId, { points: newPoints }, false);
-                } else {
-                    const newPoints = [...(el.points as any[]), {
-                        x: px,
-                        y: py,
-                        p: (e.pressure !== undefined && e.pressure > 0) ? e.pressure : 0.5
-                    }];
-                    updateElement(currentId, { points: newPoints }, false);
-                }
-            }
-        } else if (store.selectedTool === 'ink') {
-            const el = store.elements.find(e => e.id === currentId);
-            if (el && el.points) {
-                const { x: ex, y: ey } = getWorldCoordinates(e.clientX, e.clientY);
-                const px = ex - startX;
-                const py = ey - startY;
-                const newPoints = [...(el.points as number[]), px, py];
-                updateElement(currentId, { points: newPoints, ttl: Date.now() + 3000 }, false);
+            const now = Date.now();
+            // Throttle store updates but ensure smooth visual feedback
+            if (now - lastPenUpdateTime >= PEN_UPDATE_THROTTLE_MS) {
+                lastPenUpdateTime = now;
+                flushPenPoints();
+            } else if (!penUpdatePending) {
+                // Schedule a flush if not already pending
+                penUpdatePending = true;
+                requestAnimationFrame(() => {
+                    penUpdatePending = false;
+                    flushPenPoints();
+                });
             }
         } else {
             // Apply snap to grid if enabled
@@ -3003,25 +3006,13 @@ const Canvas: Component = () => {
                     if (el.height < 0) {
                         updateElement(currentId, { y: el.y + el.height, height: Math.abs(el.height) });
                     }
-                } else if (el.type === 'fineliner' || el.type === 'marker') {
-                    if (el.points && el.points.length > 2) {
-                        // Simple normalization - keep all points for smooth curves
-                        const updates = normalizePencil({ ...el, points: el.points });
-                        if (updates) {
-                            updateElement(currentId, updates);
-                        }
-                    }
-                } else if (el.type === 'inkbrush') {
-                    if (el.points && el.points.length > 2) {
-                        // Normalize inkbrush - keep all points for cubic Bézier
-                        const updates = normalizePencil({ ...el, points: el.points });
-                        if (updates) {
-                            updateElement(currentId, updates);
-                        }
-                    }
-                } else if (el.type === 'ink') {
-                    if (el.points && el.points.length > 2) {
-                        const updates = normalizePencil({ ...el, points: el.points });
+                } else if (el.type === 'fineliner' || el.type === 'marker' || el.type === 'inkbrush' || el.type === 'ink') {
+                    // Flush any buffered points before normalization
+                    flushPenPoints();
+                    // Re-fetch element after flush
+                    const updatedEl = store.elements.find(e => e.id === currentId);
+                    if (updatedEl && updatedEl.points && updatedEl.points.length > 2) {
+                        const updates = normalizePencil({ ...updatedEl, points: updatedEl.points });
                         if (updates) {
                             updateElement(currentId, updates);
                         }
