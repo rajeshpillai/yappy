@@ -10,6 +10,66 @@
 export type EasingFunction = (t: number) => number;
 
 /**
+ * Spring physics easing generator
+ * Creates natural, physics-based motion with overshoot and settle
+ * Based on damped harmonic oscillator simulation
+ *
+ * @param stiffness - Spring tension (higher = snappier, typical: 100-300)
+ * @param damping - Friction/resistance (higher = less bounce, typical: 10-40)
+ * @param mass - Object weight (higher = slower, typical: 0.5-2)
+ * @param velocity - Initial velocity (typical: 0)
+ * @returns Easing function with natural spring motion
+ */
+export function createSpring(
+    stiffness = 170,
+    damping = 26,
+    mass = 1,
+    velocity = 0
+): EasingFunction {
+    return (t: number): number => {
+        if (t === 0 || t === 1) return t;
+
+        // Normalize time to seconds for physics calculation
+        const duration = 1; // normalized to 1 second
+        const time = t * duration;
+
+        // Calculate damping ratio and natural frequency
+        const omega0 = Math.sqrt(stiffness / mass);
+        const zeta = damping / (2 * Math.sqrt(stiffness * mass));
+
+        // Initial conditions: start at 0, end at 1
+        const initialDisplacement = -1; // Start at 0 (1 - 1 = 0)
+        const initialVelocity = velocity;
+
+        let position: number;
+
+        if (zeta < 1) {
+            // Under-damped (oscillates before settling)
+            const omegaD = omega0 * Math.sqrt(1 - zeta * zeta);
+            const envelope = Math.exp(-zeta * omega0 * time);
+            const A = initialDisplacement;
+            const B = (initialVelocity + zeta * omega0 * initialDisplacement) / omegaD;
+
+            position = 1 + envelope * (A * Math.cos(omegaD * time) + B * Math.sin(omegaD * time));
+        } else if (zeta === 1) {
+            // Critically damped (no overshoot, fastest settle)
+            const envelope = Math.exp(-omega0 * time);
+            position = 1 + envelope * (initialDisplacement + (initialVelocity + omega0 * initialDisplacement) * time);
+        } else {
+            // Over-damped (slow settle, no oscillation)
+            const r1 = -omega0 * (zeta + Math.sqrt(zeta * zeta - 1));
+            const r2 = -omega0 * (zeta - Math.sqrt(zeta * zeta - 1));
+            const A = (initialVelocity - r2 * initialDisplacement) / (r1 - r2);
+            const B = initialDisplacement - A;
+
+            position = 1 + A * Math.exp(r1 * time) + B * Math.exp(r2 * time);
+        }
+
+        return position;
+    };
+}
+
+/**
  * Collection of easing functions
  * t = normalized time (0 to 1)
  * Returns normalized progress (0 to 1)
@@ -85,6 +145,9 @@ export const easings = {
         const c3 = c1 + 1;
         return c3 * t * t * t - c1 * t * t;
     },
+
+    // Spring - default spring physics preset (gentle bounce)
+    easeSpring: createSpring(170, 26, 1, 0),
 } as const;
 
 export type EasingName = keyof typeof easings;

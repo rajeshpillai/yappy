@@ -21,7 +21,8 @@ import {
     pauseElementAnimation,
     resumeElementAnimation,
     easings,
-    animationEngine
+    animationEngine,
+    createSpring
 } from "./utils/animation";
 import {
     copyToClipboard, cutToClipboard, pasteFromClipboard,
@@ -545,6 +546,7 @@ export const YappyAPI = {
     resumeElementAnimation,
     easings,
     animationEngine,
+    createSpring,
 
     // Clipboard & Style
     copyToClipboard,

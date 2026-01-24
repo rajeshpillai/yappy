@@ -829,11 +829,13 @@
   - [ ] Example: `animateElements([...], { stagger: 100 })` // 100ms between each
   - [ ] Use case: Cascade/ripple effects, sequential reveals
 
-- [ ] **Spring Physics Easing**
-  - [ ] Implement spring-based animation (tension, friction, mass parameters)
-  - [ ] Add `easeSpring()` to animation-types.ts easing library
-  - [ ] Example: `easing: spring(1, 80, 10, 0)` // stiffness, damping, mass, velocity
-  - [ ] Use case: Natural, organic motion (bounce, elastic, rubbery effects)
+- [x] **Spring Physics Easing**
+  - [x] Implement spring-based animation (tension, friction, mass parameters)
+  - [x] Add `easeSpring()` to animation-types.ts easing library
+  - [x] Add `createSpring()` function generator for custom spring parameters
+  - [x] Export from animation public API (index.ts)
+  - [x] Example: `easing: 'easeSpring'` or `easing: createSpring(170, 26, 1, 0)`
+  - [x] Use case: Natural, organic motion (bounce, elastic, rubbery effects)
 
 - [ ] **Loop/Repeat/Direction Controls**
   - [ ] Add `loop`, `repeat`, `direction` to AnimationConfig

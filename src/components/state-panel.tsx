@@ -1,6 +1,6 @@
 import { type Component, For, createSignal, Show, onMount, onCleanup } from 'solid-js';
 import { store, addDisplayState, updateDisplayState, deleteDisplayState, applyDisplayState, toggleStatePanel } from '../store/app-store';
-import { Camera, RefreshCw, Trash2, Play, X, RotateCcw } from 'lucide-solid';
+import { Camera, RefreshCw, Trash2, Play, X, RotateCcw, PlayCircle } from 'lucide-solid';
 import "./state-panel.css";
 
 export const StatePanel: Component = () => {
@@ -8,6 +8,7 @@ export const StatePanel: Component = () => {
     const [position, setPosition] = createSignal({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = createSignal(false);
     const [dragStart, setDragStart] = createSignal({ x: 0, y: 0 });
+    const [isPlaying, setIsPlaying] = createSignal(false);
 
     const handleAdd = () => {
         if (newName().trim()) {
@@ -24,9 +25,31 @@ export const StatePanel: Component = () => {
         }
     };
 
+    const handlePlayAll = async () => {
+        if (store.states.length === 0 || isPlaying()) return;
+
+        setIsPlaying(true);
+
+        // Start from beginning
+        await applyDisplayState(store.states[0].id);
+
+        // Sequence through all states with delay
+        for (let i = 1; i < store.states.length; i++) {
+            if (!isPlaying()) break; // Allow stopping
+            await new Promise(resolve => setTimeout(resolve, 1500)); // 1.5s between states
+            await applyDisplayState(store.states[i].id);
+        }
+
+        setIsPlaying(false);
+    };
+
+    const handleStopPlayback = () => {
+        setIsPlaying(false);
+    };
+
     const onMouseDown = (e: MouseEvent) => {
         const header = (e.target as HTMLElement).closest('.panel-header');
-        if (!header || (e.target as HTMLElement).closest('.close-btn') || (e.target as HTMLElement).closest('.reset-btn')) return;
+        if (!header || (e.target as HTMLElement).closest('.close-btn') || (e.target as HTMLElement).closest('.reset-btn') || (e.target as HTMLElement).closest('.play-all-btn')) return;
 
         setIsDragging(true);
         setDragStart({
@@ -69,6 +92,15 @@ export const StatePanel: Component = () => {
                 <div class="panel-header" onMouseDown={onMouseDown} onDblClick={handleReset}>
                     <h3>Display States</h3>
                     <div style={{ display: 'flex', gap: '4px' }}>
+                        <Show when={!isPlaying()} fallback={
+                            <button class="icon-btn play-all-btn" onClick={handleStopPlayback} title="Stop Playback">
+                                <X size={18} />
+                            </button>
+                        }>
+                            <button class="icon-btn play-all-btn" onClick={handlePlayAll} title="Play All States" disabled={store.states.length === 0}>
+                                <PlayCircle size={18} />
+                            </button>
+                        </Show>
                         <button class="icon-btn reset-btn" onClick={handleReset} title="Reset to Start">
                             <RotateCcw size={18} />
                         </button>

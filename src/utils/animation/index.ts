@@ -14,7 +14,7 @@ export type {
 } from './animation-types';
 
 // Easing functions
-export { easings, getEasing, lerp, lerpColor } from './animation-types';
+export { easings, getEasing, lerp, lerpColor, createSpring } from './animation-types';
 
 // Animation Engine
 export { animationEngine, generateAnimationId } from './animation-engine';
