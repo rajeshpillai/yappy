@@ -2,9 +2,11 @@ import {
     store, addElement, updateElement, deleteElements, setViewState, pushToHistory, setStore, zoomToFit,
     undo, redo, groupSelected, ungroupSelected, duplicateElement, toggleTheme,
     addLayer, deleteLayer, setActiveLayer, mergeLayerDown, flattenLayers, isolateLayer, showAllLayers,
-    toggleGrid, toggleSnapToGrid, toggleCommandPalette, togglePropertyPanel, togglePresentationMode
+    toggleGrid, toggleSnapToGrid, toggleCommandPalette, togglePropertyPanel, togglePresentationMode,
+    addDisplayState, updateDisplayState, deleteDisplayState, applyDisplayState, toggleStatePanel,
+    addChildNode, addSiblingNode, toggleCollapseSelection, toggleCollapse
 } from "./store/app-store";
-import type { ElementType, DrawingElement, FillStyle, StrokeStyle, FontFamily, TextAlign, ArrowHead, VerticalAlign, Point } from "./types";
+import type { ElementType, DrawingElement, FillStyle, StrokeStyle, FontFamily, TextAlign, ArrowHead, VerticalAlign, Point, GradientStop, GradientType } from "./types";
 import {
     animateElement,
     animateElements,
@@ -69,9 +71,36 @@ interface ElementOptions {
     shadowBlur?: number;
     shadowOffsetX?: number;
     shadowOffsetY?: number;
+
+    // Gradients
     gradientStart?: string;
     gradientEnd?: string;
     gradientDirection?: number;
+    gradientStops?: GradientStop[];
+    gradientType?: GradientType;
+    gradientHandlePositions?: { start: Point; end: Point };
+
+    // Border Extras
+    drawInnerBorder?: boolean;
+    innerBorderColor?: string;
+    innerBorderDistance?: number;
+    strokeLineJoin?: 'round' | 'bevel' | 'miter';
+
+    // Interactive Behaviors
+    spinEnabled?: boolean;
+    spinSpeed?: number;
+    orbitEnabled?: boolean;
+    orbitCenterId?: string;
+    orbitRadius?: number;
+    orbitSpeed?: number;
+    orbitDirection?: 'cw' | 'ccw';
+
+    // Motion Graphics
+    flowAnimation?: boolean;
+    flowSpeed?: number;
+    flowStyle?: 'dashes' | 'dots' | 'pulse';
+    flowColor?: string;
+    flowDensity?: number;
 
     // Text Styling
     textColor?: string;
@@ -161,6 +190,28 @@ export const YappyAPI = {
             gradientStart: options?.gradientStart,
             gradientEnd: options?.gradientEnd,
             gradientDirection: options?.gradientDirection,
+            gradientStops: options?.gradientStops,
+            gradientType: options?.gradientType,
+            gradientHandlePositions: options?.gradientHandlePositions,
+
+            drawInnerBorder: options?.drawInnerBorder,
+            innerBorderColor: options?.innerBorderColor,
+            innerBorderDistance: options?.innerBorderDistance,
+            strokeLineJoin: options?.strokeLineJoin,
+
+            spinEnabled: options?.spinEnabled,
+            spinSpeed: options?.spinSpeed,
+            orbitEnabled: options?.orbitEnabled,
+            orbitCenterId: options?.orbitCenterId,
+            orbitRadius: options?.orbitRadius,
+            orbitSpeed: options?.orbitSpeed,
+            orbitDirection: options?.orbitDirection,
+
+            flowAnimation: options?.flowAnimation,
+            flowSpeed: options?.flowSpeed,
+            flowStyle: options?.flowStyle,
+            flowColor: options?.flowColor,
+            flowDensity: options?.flowDensity,
 
             // Text Styling
             textColor: options?.textColor,
@@ -332,6 +383,10 @@ export const YappyAPI = {
         setStore("selection", ids);
     },
 
+    clearSelection() {
+        setStore("selection", []);
+    },
+
     setView(scale: number, panX: number, panY: number) {
         setViewState({ scale, panX, panY });
     },
@@ -457,7 +512,20 @@ export const YappyAPI = {
     toggleGrid() { toggleGrid(); },
     toggleSnapToGrid() { toggleSnapToGrid(); },
 
-    // Command Palette
+    // Display States
+    addDisplayState(name: string) { addDisplayState(name); },
+    updateDisplayState(id: string) { updateDisplayState(id); },
+    deleteDisplayState(id: string) { deleteDisplayState(id); },
+    applyDisplayState(id: string, animate: boolean = true) { applyDisplayState(id, animate); },
+    toggleStatePanel(visible?: boolean) { toggleStatePanel(visible); },
+
+    // Hierarchy / Mindmap actions
+    addChildNode(parentId: string) { addChildNode(parentId); },
+    addSiblingNode(siblingId: string) { addSiblingNode(siblingId); },
+    toggleCollapseSelection() { toggleCollapseSelection(); },
+    toggleCollapse(id: string) { toggleCollapse(id); },
+
+    // UI Panels
     toggleCommandPalette(visible?: boolean) { toggleCommandPalette(visible); },
     togglePropertyPanel(visible?: boolean) { togglePropertyPanel(visible); },
     togglePresentationMode(visible?: boolean) { togglePresentationMode(visible); },
