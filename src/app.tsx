@@ -1,7 +1,7 @@
 import { type Component, onMount, onCleanup, Show } from 'solid-js';
 import {
   undo, redo, store, deleteElements, togglePropertyPanel, toggleLayerPanel,
-  toggleMinimap, toggleZenMode, toggleCommandPalette, moveSelectedElements,
+  toggleMinimap, toggleZenMode, toggleStatePanel, toggleCommandPalette, moveSelectedElements,
   switchLayerByIndex, cycleStrokeStyle, cycleFillStyle,
   addChildNode, addSiblingNode, toggleCollapseSelection, togglePresentationMode,
   setSelectedTool, setStore, groupSelected, ungroupSelected,
@@ -63,6 +63,9 @@ const App: Component = () => {
         } else if (key === 'm') {
           e.preventDefault();
           toggleMinimap();
+        } else if (key === 's') {
+          e.preventDefault();
+          toggleStatePanel();
         } else if (key === 'z') {
           e.preventDefault();
           toggleZenMode();

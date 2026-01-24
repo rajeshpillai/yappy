@@ -20,7 +20,7 @@ When you switch from one state to another, Yappy calculates the difference betwe
 ## How to use Display States
 
 ### 1. Open the State Panel
-Toggle the **State Panel** from the Menu or using the command palette. You'll see a list of your saved states and a "Capture" button.
+Toggle the **State Panel** from the Menu, using the command palette, or with the keyboard shortcut **Alt + S**. You'll see a list of your saved states and a "Capture" button.
 
 ### 2. Capture a State
 Structure your diagram as you want it to appear initially. Click the **Capture** button in the State Panel. Give it a descriptive name like "Step 1: Introduction".
