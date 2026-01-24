@@ -1,6 +1,6 @@
 import { type Component, Show, createSignal, createMemo, createEffect } from "solid-js";
 import { store, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, toggleCollapse } from "../store/app-store";
-import { getElementPreviewBaseState } from "../utils/animation/element-animator";
+import { getElementPreviewBaseState, isElementAnimating } from "../utils/animation/element-animator";
 import { Plus, ArrowDown, Wand2, Palette, ChevronUp, ChevronDown, LayoutGrid, LayoutList, Target } from "lucide-solid";
 import { clickOutside } from "../utils/click-outside";
 import "./mindmap-action-toolbar.css";
@@ -28,9 +28,21 @@ export const MindmapActionToolbar: Component = () => {
         return !!el.parentId || hasChildren() || startTypes.includes(el.type);
     });
 
+    const shouldShowToolbar = createMemo(() => {
+        const el = selectedElement();
+        if (!el) return false;
+
+        // Hide if user has disabled the toolbar in settings
+        if (!store.globalSettings.showMindmapToolbar) return false;
+
+        // Hide if element is currently animating
+        if (isElementAnimating(el.id)) return false;
+
+        return isMindmapNode();
+    });
 
     return (
-        <Show when={isMindmapNode()}>
+        <Show when={shouldShowToolbar()}>
             <ToolbarContent
                 hasChildren={hasChildren}
                 isLayoutOpen={isLayoutOpen}

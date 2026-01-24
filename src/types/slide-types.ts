@@ -35,6 +35,7 @@ export interface GlobalSettings {
     animationEnabled?: boolean; // Global toggle
     reducedMotion?: boolean;    // Accessibility preference
     renderStyle?: 'sketch' | 'architectural'; // Default style for new elements
+    showMindmapToolbar?: boolean; // Toggle floating mindmap toolbar
 }
 
 /**

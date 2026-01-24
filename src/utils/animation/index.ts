@@ -26,6 +26,7 @@ export {
     stopElementAnimation,
     pauseElementAnimation,
     resumeElementAnimation,
+    isElementAnimating,
     // Presets
     fadeIn,
     fadeOut,

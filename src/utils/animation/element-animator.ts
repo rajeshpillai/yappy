@@ -23,6 +23,14 @@ export function stopAllElementAnimations(elementId: string): void {
     }
 }
 
+/**
+ * Check if an element is currently animating
+ */
+export function isElementAnimating(elementId: string): boolean {
+    const animIds = activeAnimations.get(elementId);
+    return animIds ? animIds.size > 0 : false;
+}
+
 // Properties that can be animated
 export type AnimatableProperty =
     | 'x'

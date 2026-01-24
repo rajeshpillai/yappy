@@ -16,6 +16,14 @@ export interface PropertyConfig {
 
 export const properties: PropertyConfig[] = [
     {
+        key: 'showMindmapToolbar',
+        label: 'Mindmap Toolbar',
+        type: 'toggle',
+        group: 'canvas',
+        applicableTo: ['canvas'],
+        defaultValue: true
+    },
+    {
         key: 'renderStyle',
         label: 'Default Drawing Style',
         type: 'select',

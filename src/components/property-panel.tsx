@@ -501,6 +501,7 @@ const PropertyPanel: Component = () => {
             else if (key === 'maxLayers') setMaxLayers(parseInt(value));
             else if (key === 'canvasTexture') setCanvasTexture(value);
             else if (key === 'renderStyle') updateGlobalSettings({ renderStyle: value });
+            else if (key === 'showMindmapToolbar') updateGlobalSettings({ showMindmapToolbar: value });
         } else {
             updateDefaultStyles({ [key]: finalValue });
         }
@@ -519,6 +520,7 @@ const PropertyPanel: Component = () => {
             }
             if (prop.key === 'maxLayers') return store.maxLayers;
             if (prop.key === 'renderStyle') return store.globalSettings.renderStyle;
+            if (prop.key === 'showMindmapToolbar') return store.globalSettings.showMindmapToolbar;
             return (store as any)[prop.key];
         }
         if (target.type === 'element') {

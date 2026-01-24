@@ -114,7 +114,8 @@ const initialState: AppState = {
     globalSettings: {
         animationEnabled: true,
         reducedMotion: false,
-        renderStyle: 'sketch'
+        renderStyle: 'sketch',
+        showMindmapToolbar: true // Default to showing the toolbar
     },
     showCanvasProperties: false,
     canvasBackgroundColor: '#ffffff',
