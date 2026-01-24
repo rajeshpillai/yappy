@@ -148,6 +148,18 @@
     white-space: nowrap;
 }
 
+.slide-thumbnail-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.slide-thumbnail:hover .slide-thumbnail-img {
+    transform: scale(1.05);
+}
+
 .add-slide-container {
     padding: 20px;
     background: rgba(255, 255, 255, 0.9);

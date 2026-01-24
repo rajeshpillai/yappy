@@ -68,12 +68,12 @@ const App: Component = () => {
         } else if (code === 'KeyM' || key === 'm') {
           e.preventDefault();
           toggleMinimap();
-        } else if (code === 'KeyS' || key === 's') {
-          e.preventDefault();
-          toggleStatePanel();
         } else if (code === 'KeyZ' || key === 'z') {
           e.preventDefault();
-          toggleZenMode();
+          const nextZen = !store.zenMode;
+          toggleZenMode(nextZen);
+          // Hide navigator in Zen mode too
+          toggleSlideNavigator(!nextZen);
         } else if (code === 'KeyP' || key === 'p') {
           e.preventDefault();
           setSelectedTool('laser');
@@ -304,7 +304,11 @@ const App: Component = () => {
         <Menu />
       </Show>
       <Canvas />
-      <Show when={!store.presentationMode} fallback={<PresentationControls />}>
+      <Show when={!store.presentationMode && !store.zenMode && store.showSlideNavigator} fallback={
+        <Show when={store.presentationMode}>
+          <PresentationControls />
+        </Show>
+      }>
         <SlideNavigator />
       </Show>
 

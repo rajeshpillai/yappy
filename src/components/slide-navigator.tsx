@@ -30,7 +30,11 @@ export const SlideNavigator = () => {
                                         <X size={14} />
                                     </button>
                                     <div class="slide-preview">
-                                        <div class="slide-name-tag">{slide.name || `Slide ${index() + 1}`}</div>
+                                        <Show when={slide.thumbnail} fallback={
+                                            <div class="slide-name-tag">{slide.name || `Slide ${index() + 1}`}</div>
+                                        }>
+                                            <img src={slide.thumbnail} class="slide-thumbnail-img" />
+                                        </Show>
                                     </div>
                                 </div>
                             </div>

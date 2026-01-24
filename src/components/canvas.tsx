@@ -1,7 +1,7 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show, untrack } from "solid-js";
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
 import { isElementHiddenByHierarchy, getDescendants } from "../utils/hierarchy";
-import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit, isLayerVisible, isLayerLocked, toggleCollapse, setParent, clearParent, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, togglePropertyPanel } from "../store/app-store";
+import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit, isLayerVisible, isLayerLocked, toggleCollapse, setParent, clearParent, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, togglePropertyPanel, updateSlideThumbnail } from "../store/app-store";
 import { renderElement, normalizePoints } from "../utils/render-element";
 import { getAnchorPoints, findClosestAnchor } from "../utils/anchor-points";
 import { calculateSmartElbowRoute } from "../utils/routing";
@@ -98,6 +98,64 @@ const Canvas: Component = () => {
             handleStartRecording(req.format || 'webm');
             setRequestRecording(null);
         }
+    });
+
+    const captureThumbnail = () => {
+        if (!canvasRef) return;
+
+        const { width: sW, height: sH } = store.dimensions;
+        if (sW === 0 || sH === 0) return;
+
+        // Create a temp canvas for the thumbnail
+        const thumbCanvas = document.createElement('canvas');
+        const thumbW = 320; // 16:9 ratio (ish)
+        const thumbH = (thumbW * sH) / sW;
+        thumbCanvas.width = thumbW;
+        thumbCanvas.height = thumbH;
+        const tCtx = thumbCanvas.getContext('2d');
+        if (!tCtx) return;
+
+        // We want to render the current slide at the thumbnail scale
+        const thumbScale = thumbW / sW;
+
+        tCtx.save();
+        tCtx.scale(thumbScale, thumbScale);
+
+        // Background
+        const isDarkMode = store.theme === 'dark';
+        tCtx.fillStyle = store.canvasBackgroundColor || (isDarkMode ? "#121212" : "#ffffff");
+        tCtx.fillRect(0, 0, sW, sH);
+
+        // Render elements
+        const rc = rough.canvas(thumbCanvas);
+        const sortedLayers = [...store.layers].sort((a, b) => a.order - b.order);
+
+        sortedLayers.forEach(layer => {
+            if (!isLayerVisible(layer.id)) return;
+            const layerElements = store.elements.filter(el => el.layerId === layer.id);
+            layerElements.forEach(el => {
+                const layerOpacity = (layer?.opacity ?? 1);
+                renderElement(rc, tCtx, el, isDarkMode, layerOpacity);
+            });
+        });
+
+        tCtx.restore();
+
+        const dataUrl = thumbCanvas.toDataURL('image/jpeg', 0.6);
+        updateSlideThumbnail(store.activeSlideIndex, dataUrl);
+    };
+
+    // Trigger thumbnail capture on slide change or debounced element changes
+    let thumbTimeout: any;
+    createEffect(() => {
+        // Track slide index and element count/versions (implicitly)
+        store.activeSlideIndex;
+        store.elements;
+
+        window.clearTimeout(thumbTimeout);
+        thumbTimeout = window.setTimeout(() => {
+            untrack(() => captureThumbnail());
+        }, 1000); // 1s throttle for thumbnails
     });
 
     const handleStartRecording = (format: 'webm' | 'mp4') => {

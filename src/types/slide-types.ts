@@ -16,6 +16,7 @@ export interface Slide {
     order: number;
     states?: DisplayState[];
     initialStateId?: string;
+    thumbnail?: string; // Data URL preview
 }
 
 /**

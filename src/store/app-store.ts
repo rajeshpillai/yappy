@@ -57,6 +57,7 @@ interface AppState {
     states: DisplayState[];
     activeStateId?: string;
     showStatePanel: boolean;
+    showSlideNavigator: boolean;
 }
 
 const defaultSlide = createDefaultSlide();
@@ -146,6 +147,7 @@ const initialState: AppState = {
     selectedTechnicalType: 'dfdProcess',
     states: [],
     showStatePanel: false,
+    showSlideNavigator: true,
 };
 
 export const [store, setStore] = createStore<AppState>(initialState);
@@ -520,6 +522,10 @@ export const updateGlobalSettings = (updates: Partial<GlobalSettings>) => {
 
 // --- Slide Management Actions ---
 
+export const updateSlideThumbnail = (index: number, dataUrl: string) => {
+    setStore("slides", index, "thumbnail", dataUrl);
+};
+
 export const saveActiveSlide = () => {
     const currentIndex = store.activeSlideIndex;
     if (currentIndex < 0 || currentIndex >= store.slides.length) return;
@@ -532,6 +538,7 @@ export const saveActiveSlide = () => {
         backgroundColor: store.canvasBackgroundColor,
         states: JSON.parse(JSON.stringify(store.states)),
         initialStateId: store.activeStateId,
+        thumbnail: store.slides[store.activeSlideIndex].thumbnail, // Keep existing or update
         dimensions: JSON.parse(JSON.stringify(store.dimensions)),
     };
 
@@ -1327,6 +1334,10 @@ export const toggleMinimap = (visible?: boolean) => {
 
 export const toggleZenMode = (visible?: boolean) => {
     setStore('zenMode', (v) => visible ?? !v);
+};
+
+export const toggleSlideNavigator = (visible?: boolean) => {
+    setStore('showSlideNavigator', (v) => visible ?? !v);
 };
 
 export const zoomToFitSlide = () => {
