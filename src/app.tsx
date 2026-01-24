@@ -58,40 +58,40 @@ const App: Component = () => {
         if (code === 'Enter' || key === 'enter') {
           e.preventDefault();
           togglePropertyPanel();
-        } else if (key === 'l') {
+        } else if (code === 'KeyL' || key === 'l') {
           e.preventDefault();
           toggleLayerPanel();
-        } else if (key === 'm') {
+        } else if (code === 'KeyM' || key === 'm') {
           e.preventDefault();
           toggleMinimap();
-        } else if (key === 's') {
+        } else if (code === 'KeyS' || key === 's') {
           e.preventDefault();
           toggleStatePanel();
-        } else if (key === 'z') {
+        } else if (code === 'KeyZ' || key === 'z') {
           e.preventDefault();
           toggleZenMode();
-        } else if (key === 'p') {
+        } else if (code === 'KeyP' || key === 'p') {
           e.preventDefault();
           setSelectedTool('laser');
-        } else if (key === 'i') {
+        } else if (code === 'KeyI' || key === 'i') {
           e.preventDefault();
           setSelectedTool('ink');
-        } else if (key === '\\') {
+        } else if (key === '\\' || code === 'Backslash') {
           e.preventDefault();
           const anyVisible = store.showPropertyPanel || store.showLayerPanel;
           togglePropertyPanel(!anyVisible);
           toggleLayerPanel(!anyVisible);
-        } else if (key === '[') {
+        } else if (key === '[' || code === 'BracketLeft') {
           e.preventDefault();
           const layers = store.layers;
           const idx = layers.findIndex(l => l.id === store.activeLayerId);
           if (idx > 0) reorderLayers(idx, idx - 1);
-        } else if (key === ']') {
+        } else if (key === ']' || code === 'BracketRight') {
           e.preventDefault();
           const layers = store.layers;
           const idx = layers.findIndex(l => l.id === store.activeLayerId);
           if (idx !== -1 && idx < layers.length - 1) reorderLayers(idx, idx + 1);
-        } else if (key === 'n') {
+        } else if (key === 'n' || code === 'KeyN') {
           e.preventDefault();
           handleNew();
         } else if (key >= '1' && key <= '9') {
@@ -99,6 +99,12 @@ const App: Component = () => {
           e.preventDefault();
           const index = parseInt(key) - 1;
           switchLayerByIndex(index);
+        } else if (code === 'ArrowRight') {
+          e.preventDefault();
+          applyNextState();
+        } else if (code === 'ArrowLeft') {
+          e.preventDefault();
+          applyPreviousState();
         }
         return; // Handle Alt and exit
       }
@@ -114,17 +120,6 @@ const App: Component = () => {
         } else if (code === 'Home') {
           e.preventDefault();
           if (store.states.length > 0) applyDisplayState(store.states[0].id);
-        }
-      }
-
-      // Shared Alt Shortcuts (Commands)
-      if (e.altKey && !e.ctrlKey && !e.metaKey) {
-        if (code === 'ArrowRight') {
-          e.preventDefault();
-          applyNextState();
-        } else if (code === 'ArrowLeft') {
-          e.preventDefault();
-          applyPreviousState();
         }
       }
 
