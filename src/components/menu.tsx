@@ -2,8 +2,9 @@ import { type Component, createSignal, onMount, Show } from "solid-js";
 import { showToast } from "./toast";
 import { storage } from "../storage/file-system-storage";
 import {
-    store, setStore, deleteElements, clearHistory, toggleTheme, zoomToFit,
-    togglePropertyPanel, toggleLayerPanel, toggleMinimap, toggleStatePanel, loadTemplate
+    store, deleteElements, toggleTheme, zoomToFit,
+    togglePropertyPanel, toggleLayerPanel, toggleMinimap, toggleStatePanel, loadTemplate,
+    loadDocument, resetToNewDocument, saveActiveSlide
 } from "../store/app-store";
 import {
     Menu as MenuIcon, FolderOpen, Share2, FilePlus, Trash2, Maximize,
@@ -16,7 +17,8 @@ import LoadExportDialog from "./load-export-dialog";
 import FileOpenDialog from "./file-open-dialog";
 import ExportDialog from "./export-dialog";
 import SaveDialog from "./save-dialog";
-import { migrateDrawingData, migrateToSlideFormat, extractSlideAsLegacy, isSlideDocument } from "../utils/migration";
+import { migrateToSlideFormat, isSlideDocument } from "../utils/migration";
+import type { SlideDocument } from "../types/slide-types";
 import TemplateBrowser from "./template-browser";
 import type { Template } from "../types/template-types";
 import "./menu.css";
@@ -38,23 +40,8 @@ export const handleSaveRequest = (intent: 'workspace' | 'disk') => {
 
 export const handleNew = () => {
     if (confirm('Start new sketch? Unsaved changes will be lost.')) {
-        setStore("elements", []);
-        setStore("viewState", { scale: 1, panX: 0, panY: 0 });
-        setStore("selection", []);
-        setStore("layers", [
-            {
-                id: 'default-layer',
-                name: 'Layer 1',
-                visible: true,
-                locked: false,
-                opacity: 1,
-                order: 0
-            }
-        ]);
-        setStore("activeLayerId", 'default-layer');
-        clearHistory();
+        resetToNewDocument();
         setDrawingId('untitled');
-        showToast('New sketch created', 'info');
     }
 };
 
@@ -72,37 +59,30 @@ const Menu: Component = () => {
     const performSave = async (filename: string) => {
         setDrawingId(filename);
 
+        // 1. Ensure current slide data is synced to slides array
+        saveActiveSlide();
+
+        // 2. Prepare SlideDocument v3
+        const slideDoc: SlideDocument = {
+            version: 3,
+            metadata: {
+                name: filename,
+                updatedAt: new Date().toISOString(),
+                docType: 'slides'
+            },
+            slides: JSON.parse(JSON.stringify(store.slides)),
+            globalSettings: JSON.parse(JSON.stringify(store.globalSettings))
+        };
+
         if (saveIntent() === 'workspace') {
             try {
-                await storage.saveDrawing(filename, {
-                    elements: store.elements,
-                    viewState: store.viewState,
-                    layers: store.layers,
-                    gridSettings: store.gridSettings,
-                    globalSettings: store.globalSettings,
-                    canvasBackgroundColor: store.canvasBackgroundColor,
-                    states: store.states,
-                    initialStateId: store.activeStateId,
-                    version: 2
-                });
+                await storage.saveDrawing(filename, slideDoc);
                 showToast(`Drawing saved as "${filename}"!`, 'success');
             } catch (e) {
                 console.error(e);
                 showToast('Failed to save to workspace', 'error');
             }
         } else {
-            // Convert to v3 slide format for disk save
-            const slideDoc = migrateToSlideFormat({
-                elements: store.elements,
-                viewState: store.viewState,
-                layers: store.layers,
-                gridSettings: store.gridSettings,
-                globalSettings: store.globalSettings,
-                canvasBackgroundColor: store.canvasBackgroundColor,
-                states: store.states,
-                initialStateId: store.activeStateId,
-                version: 2
-            });
             const data = JSON.stringify(slideDoc, null, 2);
 
             const blob = new Blob([data], { type: 'application/json' });
@@ -140,26 +120,9 @@ const Menu: Component = () => {
         try {
             const data = await storage.loadDrawing(targetId);
             if (data) {
-                // Handle both v2 and v3 formats
-                let migrated;
-                if (isSlideDocument(data)) {
-                    // v3 format - extract first slide for now
-                    migrated = extractSlideAsLegacy(data, 0);
-                } else {
-                    // v2 or older - use existing migration
-                    migrated = migrateDrawingData(data);
-                }
-                setStore({
-                    elements: migrated.elements,
-                    viewState: migrated.viewState || { scale: 1, panX: 0, panY: 0 },
-                    layers: migrated.layers,
-                    activeLayerId: migrated.layers[0]?.id || 'default-layer',
-                    gridSettings: migrated.gridSettings || { enabled: false, snapToGrid: false, objectSnapping: false, gridSize: 20, gridColor: '#e0e0e0', gridOpacity: 0.5, style: 'lines' },
-                    globalSettings: migrated.globalSettings || { animationEnabled: true, reducedMotion: false },
-                    canvasBackgroundColor: migrated.canvasBackgroundColor || '#fafafa',
-                    states: migrated.states || [],
-                    activeStateId: migrated.initialStateId
-                });
+                // Ensure data is in SlideDocument format (migrate if v2)
+                const doc = isSlideDocument(data) ? data : migrateToSlideFormat(data);
+                loadDocument(doc);
                 setDrawingId(targetId);
                 showToast('Drawing loaded successfully', 'success');
             } else {
@@ -200,29 +163,11 @@ const Menu: Component = () => {
         reader.onload = (event) => {
             try {
                 const json = JSON.parse(event.target?.result as string);
-                // Handle both v2 (elements) and v3 (slides) formats
-                let migrated;
-                if (isSlideDocument(json)) {
-                    // v3 format - extract first slide
-                    migrated = extractSlideAsLegacy(json, 0);
-                } else if (json.elements) {
-                    // v2 or older format
-                    migrated = migrateDrawingData(json);
-                } else {
-                    showToast('Invalid file format', 'error');
-                    return;
-                }
-                setStore({
-                    elements: migrated.elements,
-                    viewState: migrated.viewState || { scale: 1, panX: 0, panY: 0 },
-                    layers: migrated.layers,
-                    activeLayerId: migrated.layers[0]?.id || 'default-layer',
-                    gridSettings: migrated.gridSettings || { enabled: false, snapToGrid: false, objectSnapping: false, gridSize: 20, gridColor: '#e0e0e0', gridOpacity: 0.5, style: 'lines' },
-                    globalSettings: migrated.globalSettings || { animationEnabled: true, reducedMotion: false },
-                    canvasBackgroundColor: migrated.canvasBackgroundColor || '#fafafa',
-                    states: migrated.states || [],
-                    activeStateId: migrated.initialStateId
-                });
+
+                // Ensure data is in SlideDocument format (migrate if v2)
+                const doc = isSlideDocument(json) ? json : migrateToSlideFormat(json);
+                loadDocument(doc);
+
                 const name = file.name.replace(/\.json$/i, '');
                 setDrawingId(name);
                 showToast('File loaded successfully', 'success');

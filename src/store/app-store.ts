@@ -1,25 +1,35 @@
 import { batch } from "solid-js";
 import { createStore } from "solid-js/store";
 import type { DrawingElement, ViewState, ElementType, Layer, GridSettings } from "../types";
-import type { GlobalSettings } from '../types/slide-types';
+import { createDefaultSlide, createSlideDocument } from '../types/slide-types';
+import type { Slide, GlobalSettings, SlideDocument } from '../types/slide-types';
 import type { ElementAnimation, DisplayState } from "../types/motion-types";
 import { showToast } from "../components/toast";
 import { MindmapLayoutEngine, type LayoutDirection } from "../utils/mindmap-layout";
 import { animationEngine } from "../utils/animation/animation-engine";
 
 interface AppState {
+    // Current Active Slide properties (for performance and compatibility)
     elements: DrawingElement[];
     viewState: ViewState;
+    layers: Layer[];
+    activeLayerId: string;
+    gridSettings: GridSettings;
+    canvasBackgroundColor: string;
+    dimensions: { width: number; height: number };
+
+    // Slide Management
+    slides: Slide[];
+    activeSlideIndex: number;
+    docType: 'infinite' | 'slides';
+
+    // Remaining Global State
     selectedTool: ElementType | 'selection';
     selection: string[]; // IDs of selected elements
     defaultElementStyles: Partial<DrawingElement>; // Styles for new elements
     theme: 'light' | 'dark';
-    layers: Layer[];
-    activeLayerId: string;
-    gridSettings: GridSettings;
     globalSettings: GlobalSettings;
     showCanvasProperties: boolean;
-    canvasBackgroundColor: string;
     undoStackLength: number;
     redoStackLength: number;
     flowTick: number; // For forcing redraws on flow animations
@@ -49,9 +59,28 @@ interface AppState {
     showStatePanel: boolean;
 }
 
+const defaultSlide = createDefaultSlide();
+
 const initialState: AppState = {
-    elements: [],
-    viewState: { scale: 1, panX: 0, panY: 0 },
+    elements: defaultSlide.elements,
+    viewState: defaultSlide.viewState,
+    layers: defaultSlide.layers,
+    activeLayerId: defaultSlide.layers[0].id,
+    gridSettings: {
+        enabled: false,
+        snapToGrid: false,
+        objectSnapping: true,
+        gridSize: 20,
+        gridColor: '#cccccc',
+        gridOpacity: 0.5,
+        style: 'lines'
+    },
+    canvasBackgroundColor: defaultSlide.backgroundColor || '#ffffff',
+    dimensions: defaultSlide.dimensions,
+    slides: [defaultSlide],
+    activeSlideIndex: 0,
+    docType: 'slides',
+
     canvasTexture: 'none',
     selectedTool: 'selection',
     selection: [],
@@ -89,28 +118,6 @@ const initialState: AppState = {
         gradientDirection: 45
     },
     theme: (localStorage.getItem('theme') as 'light' | 'dark') || 'light',
-    layers: [
-        {
-            id: 'default-layer',
-            name: 'Layer 1',
-            visible: true,
-            locked: false,
-            opacity: 1,
-            order: 0,
-            backgroundColor: 'transparent',
-            colorTag: undefined
-        }
-    ],
-    activeLayerId: 'default-layer',
-    gridSettings: {
-        enabled: false,
-        snapToGrid: false,
-        objectSnapping: true,
-        gridSize: 20,
-        gridColor: '#cccccc',
-        gridOpacity: 0.5,
-        style: 'lines'
-    },
     globalSettings: {
         animationEnabled: true,
         reducedMotion: false,
@@ -118,7 +125,6 @@ const initialState: AppState = {
         showMindmapToolbar: true // Default to showing the toolbar
     },
     showCanvasProperties: false,
-    canvasBackgroundColor: '#ffffff',
     undoStackLength: 0,
     redoStackLength: 0,
     showPropertyPanel: false,
@@ -140,7 +146,7 @@ const initialState: AppState = {
     selectedTechnicalType: 'dfdProcess',
     states: [],
     showStatePanel: false,
-}; // Default light background
+};
 
 export const [store, setStore] = createStore<AppState>(initialState);
 
@@ -512,6 +518,167 @@ export const updateGlobalSettings = (updates: Partial<GlobalSettings>) => {
     }
 };
 
+// --- Slide Management Actions ---
+
+export const saveActiveSlide = () => {
+    const currentIndex = store.activeSlideIndex;
+    if (currentIndex < 0 || currentIndex >= store.slides.length) return;
+
+    const currentSlideValues: Partial<Slide> = {
+        elements: JSON.parse(JSON.stringify(store.elements)),
+        layers: JSON.parse(JSON.stringify(store.layers)),
+        viewState: JSON.parse(JSON.stringify(store.viewState)),
+        gridSettings: JSON.parse(JSON.stringify(store.gridSettings)),
+        backgroundColor: store.canvasBackgroundColor,
+        states: JSON.parse(JSON.stringify(store.states)),
+        initialStateId: store.activeStateId,
+        dimensions: JSON.parse(JSON.stringify(store.dimensions)),
+    };
+
+    setStore("slides", currentIndex, currentSlideValues);
+};
+
+export const setActiveSlide = (index: number) => {
+    if (index < 0 || index >= store.slides.length || index === store.activeSlideIndex) return;
+
+    // 1. Save current slide
+    saveActiveSlide();
+
+    // 2. Load next slide
+    const nextSlide = store.slides[index];
+
+    batch(() => {
+        setStore("activeSlideIndex", index);
+        setStore("elements", JSON.parse(JSON.stringify(nextSlide.elements)));
+        setStore("layers", JSON.parse(JSON.stringify(nextSlide.layers)));
+        setStore("viewState", JSON.parse(JSON.stringify(nextSlide.viewState)));
+        setStore("gridSettings", nextSlide.gridSettings ? JSON.parse(JSON.stringify(nextSlide.gridSettings)) : initialState.gridSettings);
+        setStore("canvasBackgroundColor", nextSlide.backgroundColor || '#ffffff');
+        setStore("dimensions", JSON.parse(JSON.stringify(nextSlide.dimensions)));
+        setStore("states", nextSlide.states ? JSON.parse(JSON.stringify(nextSlide.states)) : []);
+        setStore("activeStateId", nextSlide.initialStateId);
+        setStore("selection", []); // Clear selection on slide switch
+
+        // Update active layer ID if needed
+        if (!nextSlide.layers.some(l => l.id === store.activeLayerId)) {
+            setStore("activeLayerId", nextSlide.layers[0]?.id || 'default-layer');
+        }
+    });
+
+    showToast(`Switched to Slide ${index + 1}`, 'info');
+};
+
+export const addSlide = () => {
+    saveActiveSlide();
+
+    const newSlide = createDefaultSlide();
+    newSlide.order = store.slides.length;
+
+    setStore("slides", (prev) => [...prev, newSlide]);
+    setActiveSlide(store.slides.length - 1);
+
+    showToast('Slide added', 'success');
+};
+
+export const deleteSlide = (index: number) => {
+    if (store.slides.length <= 1) {
+        showToast('Cannot delete the last slide', 'error');
+        return;
+    }
+
+    const newSlides = store.slides.filter((_, i) => i !== index);
+
+    // Update orders
+    newSlides.forEach((s, i) => s.order = i);
+
+    let nextIndex = store.activeSlideIndex;
+    if (nextIndex >= newSlides.length) {
+        nextIndex = newSlides.length - 1;
+    }
+
+    batch(() => {
+        setStore("slides", newSlides);
+        if (index === store.activeSlideIndex) {
+            // Force load the new slide at this index (or previous if it was the last one)
+            const nextSlide = newSlides[nextIndex];
+            setStore("activeSlideIndex", nextIndex);
+            setStore("elements", JSON.parse(JSON.stringify(nextSlide.elements)));
+            setStore("layers", JSON.parse(JSON.stringify(nextSlide.layers)));
+            setStore("viewState", JSON.parse(JSON.stringify(nextSlide.viewState)));
+            setStore("gridSettings", nextSlide.gridSettings ? JSON.parse(JSON.stringify(nextSlide.gridSettings)) : initialState.gridSettings);
+            setStore("canvasBackgroundColor", nextSlide.backgroundColor || '#ffffff');
+            setStore("dimensions", JSON.parse(JSON.stringify(nextSlide.dimensions)));
+            setStore("states", nextSlide.states ? JSON.parse(JSON.stringify(nextSlide.states)) : []);
+            setStore("activeStateId", nextSlide.initialStateId);
+            setStore("selection", []);
+        } else if (index < store.activeSlideIndex) {
+            setStore("activeSlideIndex", store.activeSlideIndex - 1);
+        }
+    });
+
+    showToast('Slide deleted', 'info');
+};
+
+export const reorderSlides = (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) return;
+
+    const newSlides = [...store.slides];
+    const [moved] = newSlides.splice(fromIndex, 1);
+    newSlides.splice(toIndex, 0, moved);
+
+    // Update orders
+    newSlides.forEach((s, i) => s.order = i);
+
+    // Update active index if it moved
+    let newActiveIndex = store.activeSlideIndex;
+    if (store.activeSlideIndex === fromIndex) {
+        newActiveIndex = toIndex;
+    } else if (fromIndex < store.activeSlideIndex && toIndex >= store.activeSlideIndex) {
+        newActiveIndex--;
+    } else if (fromIndex > store.activeSlideIndex && toIndex <= store.activeSlideIndex) {
+        newActiveIndex++;
+    }
+
+    setStore("slides", newSlides);
+    setStore("activeSlideIndex", newActiveIndex);
+};
+
+export const loadDocument = (doc: SlideDocument) => {
+    batch(() => {
+        setStore("slides", JSON.parse(JSON.stringify(doc.slides)));
+        setStore("globalSettings", doc.globalSettings || initialState.globalSettings);
+        setStore("docType", doc.metadata?.docType || 'slides');
+
+        // Load the first slide
+        const targetIndex = 0;
+
+        const firstSlide = doc.slides[targetIndex];
+        setStore("activeSlideIndex", targetIndex);
+        setStore("elements", JSON.parse(JSON.stringify(firstSlide.elements)));
+        setStore("layers", JSON.parse(JSON.stringify(firstSlide.layers)));
+        setStore("viewState", JSON.parse(JSON.stringify(firstSlide.viewState)));
+        setStore("gridSettings", firstSlide.gridSettings ? JSON.parse(JSON.stringify(firstSlide.gridSettings)) : initialState.gridSettings);
+        setStore("canvasBackgroundColor", firstSlide.backgroundColor || '#ffffff');
+        setStore("dimensions", JSON.parse(JSON.stringify(firstSlide.dimensions)));
+        setStore("states", firstSlide.states ? JSON.parse(JSON.stringify(firstSlide.states)) : []);
+        setStore("activeStateId", firstSlide.initialStateId);
+        setStore("selection", []);
+
+        if (!firstSlide.layers.some((l: Layer) => l.id === store.activeLayerId)) {
+            setStore("activeLayerId", firstSlide.layers[0]?.id || 'default-layer');
+        }
+    });
+
+    // Clear history on new document load
+    clearHistory();
+};
+
+// --- Document Type Actions ---
+
+export const setDocType = (type: 'infinite' | 'slides') => {
+    setStore("docType", type);
+};
+
 // --- State Morphing Actions ---
 
 export const toggleStatePanel = (visible?: boolean) => {
@@ -614,6 +781,12 @@ export const clearHistory = () => {
     redoStack.length = 0;
     setStore("undoStackLength", 0);
     setStore("redoStackLength", 0);
+};
+
+export const resetToNewDocument = () => {
+    const doc = createSlideDocument('Untitled');
+    loadDocument(doc);
+    showToast('New sketch created', 'info');
 };
 
 export const duplicateElement = (id: string) => {

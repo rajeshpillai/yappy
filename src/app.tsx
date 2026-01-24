@@ -14,6 +14,7 @@ import {
   copyToClipboard, cutToClipboard, pasteFromClipboard,
   copyStyle, pasteStyle
 } from './utils/object-context-actions';
+import { setActiveSlide } from './store/app-store';
 import Menu, {
   handleNew, handleSaveRequest, setIsDialogOpen, setIsExportOpen, setShowHelp
 } from './components/menu';
@@ -27,6 +28,8 @@ import { Settings } from 'lucide-solid';
 import Toast from './components/toast';
 import { MindmapActionToolbar } from './components/mindmap-action-toolbar';
 import { registerShapes } from './shapes/register-shapes';
+import { SlideNavigator } from './components/slide-navigator';
+import { addSlide } from './store/app-store';
 
 const App: Component = () => {
   // Removed showHelp state as it is now in Menu.tsx
@@ -121,15 +124,29 @@ const App: Component = () => {
 
       // Shared Global Shortcuts (No Alt)
       if (!e.altKey && !e.ctrlKey && !e.metaKey) {
-        if (code === 'ArrowRight') {
+        if (code === 'ArrowRight' || code === 'PageDown') {
           e.preventDefault();
-          applyNextState();
-        } else if (code === 'ArrowLeft') {
+          const currentIndex = store.states.findIndex(s => s.id === store.activeStateId);
+          if (currentIndex < store.states.length - 1) {
+            applyNextState();
+          } else {
+            setActiveSlide(store.activeSlideIndex + 1);
+          }
+        } else if (code === 'ArrowLeft' || code === 'PageUp') {
           e.preventDefault();
-          applyPreviousState();
+          const currentIndex = store.states.findIndex(s => s.id === store.activeStateId);
+          if (currentIndex > 0) {
+            applyPreviousState();
+          } else {
+            setActiveSlide(store.activeSlideIndex - 1);
+          }
         } else if (code === 'Home') {
           e.preventDefault();
-          if (store.states.length > 0) applyDisplayState(store.states[0].id);
+          if (store.states.length > 0) {
+            applyDisplayState(store.states[0].id);
+          } else {
+            setActiveSlide(0);
+          }
         }
       }
 
@@ -159,6 +176,9 @@ const App: Component = () => {
         } else if (key === 'g') {
           e.preventDefault();
           if (e.shiftKey) ungroupSelected(); else groupSelected();
+        } else if (key === 'm') {
+          e.preventDefault();
+          addSlide();
         } else if (key === 'c' || code === 'KeyC') {
           e.preventDefault();
           if (e.altKey) copyStyle(); else await copyToClipboard();
@@ -285,6 +305,10 @@ const App: Component = () => {
       <Canvas />
       <CommandPalette />
       <StatePanel />
+
+      <Show when={!store.presentationMode}>
+        <SlideNavigator />
+      </Show>
 
       {/* Floating Property Panel Toggle (bottom-right corner) */}
       <Show when={!store.presentationMode}>

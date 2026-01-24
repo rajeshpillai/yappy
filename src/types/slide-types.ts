@@ -7,6 +7,7 @@ import type { DisplayState } from './motion-types';
 export interface Slide {
     id: string;
     name: string;
+    dimensions: { width: number; height: number }; // slide dimensions in canvas units
     elements: DrawingElement[];
     layers: Layer[];
     viewState: ViewState;
@@ -24,6 +25,7 @@ export interface SlideDocumentMetadata {
     name?: string;
     createdAt?: string;
     updatedAt?: string;
+    docType?: 'infinite' | 'slides';
 }
 
 /**
@@ -54,6 +56,7 @@ export interface SlideDocument {
 export const createDefaultSlide = (id?: string, name?: string): Slide => ({
     id: id || crypto.randomUUID(),
     name: name || 'Slide 1',
+    dimensions: { width: 1920, height: 1080 }, // Default 1080p
     elements: [],
     layers: [{
         id: 'default-layer',
@@ -64,7 +67,7 @@ export const createDefaultSlide = (id?: string, name?: string): Slide => ({
         order: 0,
         backgroundColor: 'transparent'
     }],
-    viewState: { scale: 1, panX: 0, panY: 0 },
+    viewState: { scale: 0.5, panX: 0, panY: 0 }, // Modified default view state for slides
     backgroundColor: '#ffffff',
     order: 0
 });
@@ -72,12 +75,13 @@ export const createDefaultSlide = (id?: string, name?: string): Slide => ({
 /**
  * Create a new empty slide document
  */
-export const createSlideDocument = (name?: string): SlideDocument => ({
+export const createSlideDocument = (name?: string, docType: 'infinite' | 'slides' = 'slides'): SlideDocument => ({
     version: 3,
     metadata: {
         name,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        docType
     },
     slides: [createDefaultSlide()],
     globalSettings: {}

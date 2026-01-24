@@ -24,6 +24,18 @@ export const properties: PropertyConfig[] = [
         defaultValue: true
     },
     {
+        key: 'docType',
+        label: 'Document Type',
+        type: 'select',
+        options: [
+            { label: 'Slide Presentation', value: 'slides' },
+            { label: 'Infinite Canvas', value: 'infinite' }
+        ],
+        group: 'canvas',
+        applicableTo: ['canvas'],
+        defaultValue: 'slides'
+    },
+    {
         key: 'renderStyle',
         label: 'Default Drawing Style',
         type: 'select',

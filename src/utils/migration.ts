@@ -206,6 +206,7 @@ export const migrateToSlideFormat = (data: any): SlideDocument => {
         backgroundColor: migrated.canvasBackgroundColor || '#ffffff',
         states: migrated.states,
         initialStateId: migrated.initialStateId,
+        dimensions: { width: 1920, height: 1080 }, // Default for migrated slides
         order: 0
     };
 
@@ -257,7 +258,7 @@ export const extractSlideAsLegacy = (doc: SlideDocument, slideIndex: number = 0)
         viewState: slide.viewState,
         gridSettings: slide.gridSettings,
         globalSettings: doc.globalSettings,
-        canvasBackgroundColor: slide.backgroundColor,
+        canvasBackgroundColor: slide.backgroundColor || '#ffffff',
         states: slide.states,
         initialStateId: slide.initialStateId
     };

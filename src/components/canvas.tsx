@@ -212,20 +212,48 @@ const Canvas: Component = () => {
             }
         }
 
-        // Background color
+        // Render Canvas Overall Background (The "Infinite" workspace)
         const isDarkMode = store.theme === 'dark';
-        // Use store background color, but fallback to theme default if needed
-        let bgColor = store.canvasBackgroundColor;
-        if (!bgColor) {
-            bgColor = isDarkMode ? "#121212" : "#fafafa";
-        }
-        ctx.fillStyle = bgColor;
+        const workspaceBg = isDarkMode ? "#1a1a1b" : "#e2e8f0"; // Slightly darker for contrast
+        ctx.fillStyle = workspaceBg;
         ctx.fillRect(0, 0, canvasRef.width, canvasRef.height);
+
+        const { scale, panX, panY } = store.viewState;
+
+        ctx.save();
+        ctx.translate(panX, panY);
+        ctx.scale(scale, scale);
+
+        // --- Render Slide Boundary ---
+        if (store.docType === 'slides') {
+            const { width: sW, height: sH } = store.dimensions;
+
+            // 1. Draw Slide Shadow (Outer)
+            ctx.save();
+            ctx.shadowColor = isDarkMode ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.15)";
+            ctx.shadowBlur = 40;
+            ctx.shadowOffsetY = 10;
+            ctx.fillStyle = "black"; // Base for shadow
+            ctx.fillRect(0, 0, sW, sH);
+            ctx.restore();
+
+            // 2. Draw Slide Surface
+            const slideBg = store.canvasBackgroundColor || (isDarkMode ? "#121212" : "#ffffff");
+            ctx.fillStyle = slideBg;
+            ctx.fillRect(0, 0, sW, sH);
+
+            // 3. Clipping for Presentation Mode
+            if (store.presentationMode) {
+                ctx.beginPath();
+                ctx.rect(0, 0, sW, sH);
+                ctx.clip();
+            }
+        }
+        ctx.restore();
 
         // Render Canvas Texture
         if (store.canvasTexture !== 'none') {
             const texture = store.canvasTexture;
-            const { scale, panX, panY } = store.viewState;
 
             ctx.save();
             ctx.setTransform(1, 0, 0, 1, 0, 0); // Use screen coordinates for texture
@@ -293,8 +321,6 @@ const Canvas: Component = () => {
         }
 
         ctx.save();
-
-        const { scale, panX, panY } = store.viewState;
 
         ctx.translate(panX, panY);
         ctx.scale(scale, scale);
