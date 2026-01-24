@@ -24,7 +24,7 @@
                     "roughness": 0,
                     "opacity": 100,
                     "angle": 0,
-                    "renderStyle": "architectural",
+                    "renderStyle": "sketch",
                     "seed": 1,
                     "roundness": null,
                     "containerText": "AI MODEL",
@@ -34,6 +34,7 @@
                     "shadowEnabled": true,
                     "shadowColor": "rgba(59, 130, 246, 0.4)",
                     "shadowBlur": 20,
+                    "layerId": "default-layer",
                     "gradientType": "radial",
                     "gradientStops": [
                         {
@@ -112,6 +113,7 @@
                     "shadowEnabled": true,
                     "shadowColor": "rgba(139, 92, 246, 0.5)",
                     "shadowBlur": 30,
+                    "layerId": "default-layer",
                     "gradientType": "linear",
                     "gradientDirection": 135,
                     "gradientStops": [
@@ -136,7 +138,8 @@
                     "flowAnimation": true,
                     "flowSpeed": 3,
                     "strokeColor": "#8b5cf6",
-                    "strokeWidth": 2
+                    "strokeWidth": 2,
+                    "layerId": "default-layer"
                 },
                 {
                     "id": "arrow-2",
@@ -149,7 +152,8 @@
                     "flowAnimation": true,
                     "flowSpeed": 3,
                     "strokeColor": "#8b5cf6",
-                    "strokeWidth": 2
+                    "strokeWidth": 2,
+                    "layerId": "default-layer"
                 },
                 {
                     "id": "arrow-3",
@@ -162,7 +166,8 @@
                     "flowAnimation": true,
                     "flowSpeed": 3,
                     "strokeColor": "#8b5cf6",
-                    "strokeWidth": 2
+                    "strokeWidth": 2,
+                    "layerId": "default-layer"
                 },
                 {
                     "id": "title-text",
@@ -174,7 +179,8 @@
                     "text": "The Problem: Isolated Data",
                     "fontSize": 24,
                     "fontFamily": "sans-serif",
-                    "textAlign": "center"
+                    "textAlign": "center",
+                    "layerId": "default-layer"
                 }
             ],
             "layers": [
@@ -221,8 +227,7 @@
                             "opacity": 100
                         },
                         "mcp-hub": {
-                            "opacity": 0,
-                            "scale": 0.5
+                            "opacity": 0
                         },
                         "arrow-1": {
                             "opacity": 0
@@ -330,6 +335,7 @@
                             "y": 200,
                             "width": 200,
                             "height": 200,
+                            "opacity": 100,
                             "shadowBlur": 50,
                             "strokeColor": "#10b981"
                         },
