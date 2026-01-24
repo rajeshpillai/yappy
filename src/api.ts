@@ -21,6 +21,10 @@ import {
     easings,
     animationEngine
 } from "./utils/animation";
+import {
+    copyToClipboard, cutToClipboard, pasteFromClipboard,
+    copyStyle, pasteStyle
+} from "./utils/object-context-actions";
 
 interface ElementOptions {
     strokeColor?: string;
@@ -472,7 +476,14 @@ export const YappyAPI = {
     pauseElementAnimation,
     resumeElementAnimation,
     easings,
-    animationEngine
+    animationEngine,
+
+    // Clipboard & Style
+    copyToClipboard,
+    cutToClipboard,
+    pasteFromClipboard,
+    copyStyle,
+    pasteStyle
 };
 
 declare global {

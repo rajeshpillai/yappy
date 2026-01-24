@@ -58,6 +58,7 @@
 }
 
 .help-modal-body {
+    padding: 0 24px 24px 24px;
     max-height: 90vh;
     overflow-y: auto;
     user-select: none;

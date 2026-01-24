@@ -48,11 +48,11 @@ const App: Component = () => {
         return;
       }
 
+      const code = e.code;
+      const key = e.key.toLowerCase();
+
       // Allow Alt shortcuts (Commands) even if focused on inputs
-      if (e.altKey) {
-        // Use e.code for layout-independent checking where possible, fall back to key
-        const code = e.code;
-        const key = e.key.toLowerCase();
+      if (e.altKey && !e.ctrlKey && !e.metaKey) {
 
         if (code === 'Enter' || key === 'enter') {
           e.preventDefault();
@@ -99,13 +99,6 @@ const App: Component = () => {
         return; // Handle Alt and exit
       }
 
-      // Don't handle other shortcuts if typing in an input/textarea
-      if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') {
-        return;
-      }
-
-      const key = e.key.toLowerCase();
-
       // Ctrl/Meta Shortcuts
       if (e.ctrlKey || e.metaKey) {
         if (key === 'z') {
@@ -132,13 +125,13 @@ const App: Component = () => {
         } else if (key === 'g') {
           e.preventDefault();
           if (e.shiftKey) ungroupSelected(); else groupSelected();
-        } else if (key === 'c') {
+        } else if (key === 'c' || code === 'KeyC') {
           e.preventDefault();
           if (e.altKey) copyStyle(); else await copyToClipboard();
-        } else if (key === 'v') {
+        } else if (key === 'v' || code === 'KeyV') {
           e.preventDefault();
           if (e.altKey) pasteStyle(); else await pasteFromClipboard();
-        } else if (key === 'x') {
+        } else if (key === 'x' || code === 'KeyX') {
           e.preventDefault();
           await cutToClipboard();
         } else if (key === ']') {
