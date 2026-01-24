@@ -62,16 +62,20 @@ const Menu: Component = () => {
         // 1. Ensure current slide data is synced to slides array
         saveActiveSlide();
 
-        // 2. Prepare SlideDocument v3
+        // 2. Prepare SlideDocument v4
         const slideDoc: SlideDocument = {
-            version: 3,
+            version: 4,
             metadata: {
                 name: filename,
                 updatedAt: new Date().toISOString(),
-                docType: 'slides'
+                docType: store.docType
             },
+            elements: JSON.parse(JSON.stringify(store.elements)),
+            layers: JSON.parse(JSON.stringify(store.layers)),
             slides: JSON.parse(JSON.stringify(store.slides)),
-            globalSettings: JSON.parse(JSON.stringify(store.globalSettings))
+            globalSettings: JSON.parse(JSON.stringify(store.globalSettings)),
+            gridSettings: JSON.parse(JSON.stringify(store.gridSettings)),
+            states: JSON.parse(JSON.stringify(store.states))
         };
 
         if (saveIntent() === 'workspace') {

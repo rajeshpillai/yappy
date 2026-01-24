@@ -177,10 +177,10 @@ export const migrateDrawingData = (data: any): {
 import type { SlideDocument, Slide, GlobalSettings } from '../types/slide-types';
 
 /**
- * Check if data is already in the new v3 slide format
+ * Check if data is already in the v3+ slide format (v3 or v4)
  */
 export const isSlideDocument = (data: any): data is SlideDocument => {
-    return data && data.version === 3 && Array.isArray(data.slides);
+    return data && (data.version === 3 || data.version === 4) && Array.isArray(data.slides);
 };
 
 /**

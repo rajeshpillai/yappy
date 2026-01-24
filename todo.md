@@ -903,4 +903,5 @@
 ---
 
  ** Current
- - [ ] - Implementing custom font size for elements
+ - [X] - Implementing custom font size for elements
+ - [ ] - Canvas Document Type not getting saved.

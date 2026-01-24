@@ -1,155 +1,44 @@
 {
   "version": 3,
   "metadata": {
-    "name": "slide-default",
-    "updatedAt": "2026-01-24T13:03:41.396Z",
-    "docType": "slides"
+    "createdAt": "2026-01-24T13:52:48.651Z",
+    "updatedAt": "2026-01-24T13:52:48.651Z"
   },
   "slides": [
     {
-      "id": "244609f3-55a8-4456-863a-dc94c6c5f38e",
+      "id": "b6f14d5b-d352-4a64-81df-08d59069553d",
       "name": "Slide 1",
-      "dimensions": {
-        "width": 1920,
-        "height": 1080
-      },
       "elements": [
         {
-          "strokeColor": "#000000",
-          "backgroundColor": "transparent",
-          "fillStyle": "hachure",
-          "strokeWidth": 2,
-          "strokeStyle": "solid",
-          "roughness": 1,
-          "renderStyle": "sketch",
-          "opacity": 100,
-          "angle": 0,
-          "roundness": null,
-          "locked": false,
-          "fontSize": 20,
-          "fontFamily": "hand-drawn",
-          "fontWeight": false,
-          "fontStyle": false,
-          "textAlign": "left",
-          "startArrowhead": "crowsfoot",
-          "endArrowhead": "arrow",
-          "autoResize": false,
-          "seed": 5522838,
-          "shadowEnabled": false,
-          "shadowColor": "rgba(0,0,0,0.3)",
-          "shadowBlur": 10,
-          "shadowOffsetX": 5,
-          "shadowOffsetY": 5,
-          "gradientStart": "#ffffff",
-          "gradientEnd": "#000000",
-          "gradientDirection": 45,
           "id": "7e4646df-3017-40df-b618-72d694d8be47",
           "type": "arrow",
           "x": 858.7804581521071,
           "y": 243.54084043470334,
           "width": 6.726696599284992,
           "height": 595.3126490367194,
-          "layerId": "default-layer",
-          "curveType": "straight"
-        },
-        {
-          "strokeColor": "#000000",
-          "backgroundColor": "transparent",
-          "fillStyle": "hachure",
-          "strokeWidth": 8,
-          "strokeStyle": "solid",
-          "roughness": 1,
-          "renderStyle": "sketch",
-          "opacity": 100,
-          "angle": 0,
-          "roundness": null,
-          "locked": false,
-          "fontSize": 20,
-          "fontFamily": "hand-drawn",
-          "fontWeight": false,
-          "fontStyle": false,
-          "textAlign": "left",
-          "startArrowhead": null,
-          "endArrowhead": "arrow",
-          "autoResize": false,
-          "seed": 2016391868,
-          "shadowEnabled": false,
-          "shadowColor": "rgba(0,0,0,0.3)",
-          "shadowBlur": 10,
-          "shadowOffsetX": 5,
-          "shadowOffsetY": 5,
-          "gradientStart": "#ffffff",
-          "gradientEnd": "#000000",
-          "gradientDirection": 45,
-          "id": "a108d99e-7cf9-497f-ab6f-e0819836f46c",
-          "type": "arrow",
-          "x": 1120.4583901916076,
-          "y": 302.72094513691565,
-          "width": 252.25112247318634,
-          "height": 181.6208081806941,
-          "layerId": "default-layer",
-          "curveType": "straight"
-        }
-      ],
-      "layers": [
-        {
-          "id": "default-layer",
-          "name": "Layer 1",
-          "visible": true,
-          "locked": false,
-          "opacity": 1,
-          "order": 0,
-          "backgroundColor": "transparent"
-        }
-      ],
-      "viewState": {
-        "scale": 0.4962962962962963,
-        "panX": 202.55555555555554,
-        "panY": 40
-      },
-      "backgroundColor": "#ffffff",
-      "order": 0,
-      "gridSettings": {
-        "enabled": false,
-        "snapToGrid": false,
-        "objectSnapping": true,
-        "gridSize": 20,
-        "gridColor": "#cccccc",
-        "gridOpacity": 0.5,
-        "style": "lines"
-      },
-      "states": [],
-      "thumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wAARCAC0AUADASIAAhEBAxEB/8QAGgABAQEBAQEBAAAAAAAAAAAAAAQDAgEFB//EADMQAQACAgEBBQQHCQAAAAAAAAABAgMEESEFMXFzsRIiNWEyQVFTYqGyBhM0QlJygZHR/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AP04AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHzv2g16bXYuziyTeK+zz7tprPSQfRHlaxSkVjmYiOOs8z/t6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAj7YjnsnZjmY9ye5Yj7X+E7XlyCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABH2v8J2+PureixJ2t8J2/Jt6ArCO6AAAAAEmXHs4Mls2tac1LTzbBe351me7wnp4NdbaxbVbTitPNZ4vWY4tWfsmGyfZ1K5rxlpacWev0cle/wn7Y+UgoEmHctXLGvu0jFmt0paPoZPCft+U9fFWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAl7V+Fbfk39JVJe1PhW35F/0yCmv0Y8HrnHPOOs/KHQAAAAAAOM2LHnxzjy0i9Ld8Sj52NCeLe3sasfzd+TH4/1R+fivAc48lMuOuTFeL0tHMWieYl0jyal8OS2fRmKXt1vitPuZP8Ak/OP88vdHtDDu5M2GkWpm15iMuO0dazPz+vukFYAAAAAAAAAAAAAAAAAAAAAAAAACbtLr2ZteTf9MqU/aHw7a5+5v6SDXD1w0n8MO2etPOtimOsTSPRoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAw3uuhseVb0lux3I50s8T9eO3oD3V66mH+yvo1Y6X8Dr8fd19GwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADPZ66uWPwT6NGexjtm1suKuScdr0msXiOfZ5jvBxoddDW8qvpDdho4L62lgwZMv72+OkVm/s+z7XEd/H1NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf/2Q=="
-    },
-    {
-      "id": "321b2be2-ae17-477f-a000-782849f1c492",
-      "name": "Slide 1",
-      "dimensions": {
-        "width": 1920,
-        "height": 1080
-      },
-      "elements": [
-        {
           "strokeColor": "#000000",
           "backgroundColor": "transparent",
           "fillStyle": "hachure",
           "strokeWidth": 2,
           "strokeStyle": "solid",
           "roughness": 1,
-          "renderStyle": "sketch",
           "opacity": 100,
           "angle": 0,
+          "renderStyle": "sketch",
+          "seed": 5522838,
           "roundness": null,
           "locked": false,
+          "link": null,
+          "layerId": "default-layer",
+          "startArrowhead": "crowsfoot",
+          "endArrowhead": "arrow",
           "fontSize": 20,
           "fontFamily": "hand-drawn",
           "fontWeight": false,
           "fontStyle": false,
           "textAlign": "left",
-          "startArrowhead": null,
-          "endArrowhead": null,
+          "curveType": "straight",
           "autoResize": false,
-          "seed": 378126475,
           "shadowEnabled": false,
           "shadowColor": "rgba(0,0,0,0.3)",
           "shadowBlur": 10,
@@ -157,15 +46,68 @@
           "shadowOffsetY": 5,
           "gradientStart": "#ffffff",
           "gradientEnd": "#000000",
-          "gradientDirection": 45,
+          "gradientDirection": 45
+        },
+        {
+          "id": "a108d99e-7cf9-497f-ab6f-e0819836f46c",
+          "type": "arrow",
+          "x": 1120.4583901916076,
+          "y": 302.72094513691565,
+          "width": 252.25112247318634,
+          "height": 181.6208081806941,
+          "strokeColor": "#000000",
+          "backgroundColor": "transparent",
+          "fillStyle": "hachure",
+          "strokeWidth": 8,
+          "strokeStyle": "solid",
+          "roughness": 1,
+          "opacity": 100,
+          "angle": 0,
+          "renderStyle": "sketch",
+          "seed": 2016391868,
+          "roundness": null,
+          "locked": false,
+          "link": null,
+          "layerId": "default-layer",
+          "startArrowhead": null,
+          "endArrowhead": "arrow",
+          "fontSize": 20,
+          "fontFamily": "hand-drawn",
+          "fontWeight": false,
+          "fontStyle": false,
+          "textAlign": "left",
+          "curveType": "straight",
+          "autoResize": false,
+          "shadowEnabled": false,
+          "shadowColor": "rgba(0,0,0,0.3)",
+          "shadowBlur": 10,
+          "shadowOffsetX": 5,
+          "shadowOffsetY": 5,
+          "gradientStart": "#ffffff",
+          "gradientEnd": "#000000",
+          "gradientDirection": 45
+        },
+        {
           "id": "86c548e3-0f59-4fbf-ad8b-1124c2005fe3",
           "type": "inkbrush",
-          "x": 1020.0000610351562,
+          "x": 3020.0000610351562,
           "y": 360.0000305175781,
           "width": 237.77777099609375,
           "height": 206.66665649414062,
+          "strokeColor": "#000000",
+          "backgroundColor": "transparent",
+          "fillStyle": "hachure",
+          "strokeWidth": 2,
+          "strokeStyle": "solid",
+          "roughness": 1,
+          "opacity": 100,
+          "angle": 0,
+          "renderStyle": "sketch",
+          "seed": 378126475,
+          "roundness": null,
+          "locked": false,
+          "link": null,
           "layerId": "default-layer",
-          "curveType": "straight",
           "points": [
             0,
             46.666656494140625,
@@ -232,68 +174,16 @@
             237.77777099609375,
             206.66665649414062
           ],
-          "pointsEncoding": "flat"
-        }
-      ],
-      "layers": [
-        {
-          "id": "default-layer",
-          "name": "Layer 1",
-          "visible": true,
-          "locked": false,
-          "opacity": 1,
-          "order": 0,
-          "backgroundColor": "transparent"
-        }
-      ],
-      "viewState": {
-        "scale": 0.6370370370370371,
-        "panX": 71.44444444444446,
-        "panY": 40
-      },
-      "backgroundColor": "#ffffff",
-      "order": 1,
-      "gridSettings": {
-        "enabled": false,
-        "snapToGrid": false,
-        "objectSnapping": true,
-        "gridSize": 20,
-        "gridColor": "#cccccc",
-        "gridOpacity": 0.5,
-        "style": "lines"
-      },
-      "states": [],
-      "thumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wAARCAC0AUADASIAAhEBAxEB/8QAGQABAAMBAQAAAAAAAAAAAAAAAAIDBAEH/8QAMBABAAIBAgIHBQkAAAAAAAAAAAECAwQRITESEyIyUXGRFDSBobEkQ1JhYnKCwdH/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8A9OAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABHJkpjpN8lq1rHOZnaASGWNVfL7tp73j8V+xX/AH5E5NbSJtbDhvWOPRped/hvHH5A1COO9cuKuSndvETHlKQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACmNPE5py5Z6y2/ZiY4Uj8o/tcAAq1eTqtNktHe22rHjM8Ij1BDQe44Z8aRMeTQhhpGLDTHHKlYr6JgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMtftOpi/3OKez+q3KZ+CzVYr58E46ZOhM8525x4I441OLHWkY8ExXhHRtNYiPLaQaBnjNqI7+ktP7LxP12c9r2na2n1Ff4b/TcGkcpaL0i0RMRPjExPpLoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/Z"
-    },
-    {
-      "id": "c3f20ec4-03ac-4ebe-a980-dc0ca8caedbe",
-      "name": "Slide 1",
-      "dimensions": {
-        "width": 1920,
-        "height": 1080
-      },
-      "elements": [
-        {
-          "strokeColor": "#000000",
-          "backgroundColor": "transparent",
-          "fillStyle": "hachure",
-          "strokeWidth": 2,
-          "strokeStyle": "solid",
-          "roughness": 1,
-          "renderStyle": "sketch",
-          "opacity": 100,
-          "angle": 0,
-          "roundness": null,
-          "locked": false,
+          "pointsEncoding": "flat",
+          "startArrowhead": null,
+          "endArrowhead": null,
           "fontSize": 20,
           "fontFamily": "hand-drawn",
           "fontWeight": false,
           "fontStyle": false,
           "textAlign": "left",
-          "startArrowhead": null,
-          "endArrowhead": null,
+          "curveType": "straight",
           "autoResize": false,
-          "seed": 583297325,
           "shadowEnabled": false,
           "shadowColor": "rgba(0,0,0,0.3)",
           "shadowBlur": 10,
@@ -301,76 +191,38 @@
           "shadowOffsetY": 5,
           "gradientStart": "#ffffff",
           "gradientEnd": "#000000",
-          "gradientDirection": 45,
+          "gradientDirection": 45
+        },
+        {
           "id": "e6b458e5-b97e-4ea7-8e5e-1d406faa35ee",
           "type": "rectangle",
-          "x": 953.3333740234375,
+          "x": 4953.3333740234375,
           "y": 408.888916015625,
           "width": 268.888916015625,
           "height": 222.22222900390625,
-          "layerId": "default-layer",
-          "curveType": "straight"
-        }
-      ],
-      "layers": [
-        {
-          "id": "default-layer",
-          "name": "Layer 1",
-          "visible": true,
-          "locked": false,
-          "opacity": 1,
-          "order": 0,
-          "backgroundColor": "transparent"
-        }
-      ],
-      "viewState": {
-        "scale": 0.6370370370370371,
-        "panX": 71.44444444444446,
-        "panY": 40
-      },
-      "backgroundColor": "#ffffff",
-      "order": 2,
-      "gridSettings": {
-        "enabled": false,
-        "snapToGrid": false,
-        "objectSnapping": true,
-        "gridSize": 20,
-        "gridColor": "#cccccc",
-        "gridOpacity": 0.5,
-        "style": "lines"
-      },
-      "states": [],
-      "thumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wAARCAC0AUADASIAAhEBAxEB/8QAGQABAQEBAQEAAAAAAAAAAAAAAAQBAwIH/8QAORABAAIAAwQDCg8AAAAAAAAAAAECAwQRBRU1siFx0RIUIiUxQUN0kaIjMjNEUVJTYmRygYKSk8H/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8A+nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOGex7ZbKXxaUi9omIiszpE6zEeX9XdHtbh9/zU5oA12lPo8pH77T/h4z18mT067LAEfjP8J7zI3p54yftstAR67T+jKe2zctmMxOcxMtmaYUTXDres4dpnXWZjz9StHHGr+r15pBYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAj2vw7E1nTwqc0LEe1+HX6dPCpzQCwAAABFExvu0axr3tHX8aVqOONW9XjmkFgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACPa3Dr6fWpzQseMbCw8fCthY1YtS0aTEg9iPdWSj0U/2W7TdeS+xn+du0FgjjZeSiNIwfft2sjZWRiNIwZ0n79u0FqOONX6Pm9eaWbqyXT8DPTGnylu12y+Ty+Wva+Dh9za0REzNpmdI6+sHcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH/9k="
-    },
-    {
-      "id": "a2cdfbd3-8cf6-4cc9-aaaf-d7612b3392e6",
-      "name": "Slide 1",
-      "dimensions": {
-        "width": 1920,
-        "height": 1080
-      },
-      "elements": [
-        {
           "strokeColor": "#000000",
           "backgroundColor": "transparent",
           "fillStyle": "hachure",
           "strokeWidth": 2,
           "strokeStyle": "solid",
           "roughness": 1,
-          "renderStyle": "sketch",
           "opacity": 100,
           "angle": 0,
+          "renderStyle": "sketch",
+          "seed": 583297325,
           "roundness": null,
           "locked": false,
+          "link": null,
+          "layerId": "default-layer",
+          "startArrowhead": null,
+          "endArrowhead": null,
           "fontSize": 20,
           "fontFamily": "hand-drawn",
           "fontWeight": false,
           "fontStyle": false,
           "textAlign": "left",
-          "startArrowhead": null,
-          "endArrowhead": null,
+          "curveType": "straight",
           "autoResize": false,
-          "seed": 994103071,
           "shadowEnabled": false,
           "shadowColor": "rgba(0,0,0,0.3)",
           "shadowBlur": 10,
@@ -378,76 +230,38 @@
           "shadowOffsetY": 5,
           "gradientStart": "#ffffff",
           "gradientEnd": "#000000",
-          "gradientDirection": 45,
+          "gradientDirection": 45
+        },
+        {
           "id": "80e360e5-4c54-4087-a1f8-93734120fb71",
           "type": "diamond",
-          "x": 1040,
+          "x": 7040,
           "y": 368.888916015625,
           "width": 235.5556640625,
           "height": 224.4444580078125,
-          "layerId": "default-layer",
-          "curveType": "straight"
-        }
-      ],
-      "layers": [
-        {
-          "id": "default-layer",
-          "name": "Layer 1",
-          "visible": true,
-          "locked": false,
-          "opacity": 1,
-          "order": 0,
-          "backgroundColor": "transparent"
-        }
-      ],
-      "viewState": {
-        "scale": 0.6370370370370371,
-        "panX": 71.44444444444446,
-        "panY": 40
-      },
-      "backgroundColor": "#ffffff",
-      "order": 3,
-      "gridSettings": {
-        "enabled": false,
-        "snapToGrid": false,
-        "objectSnapping": true,
-        "gridSize": 20,
-        "gridColor": "#cccccc",
-        "gridOpacity": 0.5,
-        "style": "lines"
-      },
-      "states": [],
-      "thumbnail": "data:image/jpeg;base64,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"
-    },
-    {
-      "id": "fc50e749-7141-4b74-a835-28c86bc25989",
-      "name": "Slide 1",
-      "dimensions": {
-        "width": 1920,
-        "height": 1080
-      },
-      "elements": [
-        {
           "strokeColor": "#000000",
           "backgroundColor": "transparent",
           "fillStyle": "hachure",
           "strokeWidth": 2,
           "strokeStyle": "solid",
           "roughness": 1,
-          "renderStyle": "sketch",
           "opacity": 100,
           "angle": 0,
+          "renderStyle": "sketch",
+          "seed": 994103071,
           "roundness": null,
           "locked": false,
+          "link": null,
+          "layerId": "default-layer",
+          "startArrowhead": null,
+          "endArrowhead": null,
           "fontSize": 20,
           "fontFamily": "hand-drawn",
           "fontWeight": false,
           "fontStyle": false,
           "textAlign": "left",
-          "startArrowhead": null,
-          "endArrowhead": null,
+          "curveType": "straight",
           "autoResize": false,
-          "seed": 1627108083,
           "shadowEnabled": false,
           "shadowColor": "rgba(0,0,0,0.3)",
           "shadowBlur": 10,
@@ -455,76 +269,38 @@
           "shadowOffsetY": 5,
           "gradientStart": "#ffffff",
           "gradientEnd": "#000000",
-          "gradientDirection": 45,
+          "gradientDirection": 45
+        },
+        {
           "id": "5e6a0102-8486-4d18-8d9a-2406917cc2df",
           "type": "database",
-          "x": 1057.77783203125,
+          "x": 9057.77783203125,
           "y": 433.3333435058594,
           "width": 151.111083984375,
           "height": 231.11111450195312,
-          "layerId": "default-layer",
-          "curveType": "straight"
-        }
-      ],
-      "layers": [
-        {
-          "id": "default-layer",
-          "name": "Layer 1",
-          "visible": true,
-          "locked": false,
-          "opacity": 1,
-          "order": 0,
-          "backgroundColor": "transparent"
-        }
-      ],
-      "viewState": {
-        "scale": 0.6370370370370371,
-        "panX": 71.44444444444446,
-        "panY": 40
-      },
-      "backgroundColor": "#ffffff",
-      "order": 4,
-      "gridSettings": {
-        "enabled": false,
-        "snapToGrid": false,
-        "objectSnapping": true,
-        "gridSize": 20,
-        "gridColor": "#cccccc",
-        "gridOpacity": 0.5,
-        "style": "lines"
-      },
-      "states": [],
-      "thumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wAARCAC0AUADASIAAhEBAxEB/8QAGwABAAIDAQEAAAAAAAAAAAAAAAEEAgMFBgf/xAA0EAEAAgEDAgIHBAsAAAAAAAAAAQIDBBESBSFBUQYTMXFzkbIiNUKzFBUjJDM0YXKhsdH/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8A+nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAi/Lhbhty27b+zcEtc6jBW3G2bHE+U2h5bRZelanS4cvpFfPGqyVi8xrLWri3nv9j8G3l4+bp1x+i3H7Nej8fdiB2omJjeO8DzWaPRmtv3O9K5/wAMdNtPPf3Y+3z7Or0LNqc/Ssd9Zy9bF71nnEctq3mI5bdt9ojfYHQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARbtWfcljk7Y7T/SQVulxE9I0cTG8eop9MNk6HR2tytpMEz5zjhh0z7q0nwKfTC0CK1rSsVpWKxHhEbKvTO+ltPnnzfmWW1PpXfRTO237XL+ZYFwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABhm/g5P7Z/0zRevOlqz4xsCv037s0nwafTCy5+nz5tHgx4NRpctox1isZMUc62iI2329sfJs/Wem8fXRPlOC/8AwFxT6V/Ix8XL9dj9Pm/bT6TU5J8N6cI+dtmzQYcmDSxTLx5za15ivsjlabbf5BYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB//Z"
-    },
-    {
-      "id": "45ce4fa8-a588-4e94-887d-7d30bb8de173",
-      "name": "Slide 6",
-      "dimensions": {
-        "width": 1920,
-        "height": 1080
-      },
-      "elements": [
-        {
           "strokeColor": "#000000",
           "backgroundColor": "transparent",
           "fillStyle": "hachure",
           "strokeWidth": 2,
           "strokeStyle": "solid",
           "roughness": 1,
-          "renderStyle": "sketch",
           "opacity": 100,
           "angle": 0,
+          "renderStyle": "sketch",
+          "seed": 1627108083,
           "roundness": null,
           "locked": false,
+          "link": null,
+          "layerId": "default-layer",
+          "startArrowhead": null,
+          "endArrowhead": null,
           "fontSize": 20,
           "fontFamily": "hand-drawn",
           "fontWeight": false,
           "fontStyle": false,
           "textAlign": "left",
-          "startArrowhead": null,
-          "endArrowhead": null,
+          "curveType": "straight",
           "autoResize": false,
-          "seed": 629925928,
           "shadowEnabled": false,
           "shadowColor": "rgba(0,0,0,0.3)",
           "shadowBlur": 10,
@@ -532,15 +308,46 @@
           "shadowOffsetY": 5,
           "gradientStart": "#ffffff",
           "gradientEnd": "#000000",
-          "gradientDirection": 45,
+          "gradientDirection": 45
+        },
+        {
           "id": "897e967c-b116-4091-9963-d06503ee5343",
           "type": "burst",
-          "x": 806,
+          "x": 10806,
           "y": 306,
           "width": 262,
           "height": 374,
+          "strokeColor": "#000000",
+          "backgroundColor": "transparent",
+          "fillStyle": "hachure",
+          "strokeWidth": 2,
+          "strokeStyle": "solid",
+          "roughness": 1,
+          "opacity": 100,
+          "angle": 0,
+          "renderStyle": "sketch",
+          "seed": 629925928,
+          "roundness": null,
+          "locked": false,
+          "link": null,
           "layerId": "default-layer",
-          "curveType": "straight"
+          "startArrowhead": null,
+          "endArrowhead": null,
+          "fontSize": 20,
+          "fontFamily": "hand-drawn",
+          "fontWeight": false,
+          "fontStyle": false,
+          "textAlign": "left",
+          "curveType": "straight",
+          "autoResize": false,
+          "shadowEnabled": false,
+          "shadowColor": "rgba(0,0,0,0.3)",
+          "shadowBlur": 10,
+          "shadowOffsetX": 5,
+          "shadowOffsetY": 5,
+          "gradientStart": "#ffffff",
+          "gradientEnd": "#000000",
+          "gradientDirection": 45
         }
       ],
       "layers": [
@@ -551,17 +358,16 @@
           "locked": false,
           "opacity": 1,
           "order": 0,
-          "backgroundColor": "transparent"
+          "backgroundColor": "transparent",
+          "isGroup": false,
+          "expanded": true
         }
       ],
       "viewState": {
-        "scale": 0.4962962962962963,
-        "panX": 202.55555555555554,
-        "panY": 40
+        "scale": 1,
+        "panX": 0,
+        "panY": 0
       },
-      "backgroundColor": "#ffffff",
-      "order": 5,
-      "thumbnail": "data:image/jpeg;base64,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",
       "gridSettings": {
         "enabled": false,
         "snapToGrid": false,
@@ -571,7 +377,13 @@
         "gridOpacity": 0.5,
         "style": "lines"
       },
-      "states": []
+      "backgroundColor": "#ffffff",
+      "states": [],
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "order": 0
     }
   ],
   "globalSettings": {

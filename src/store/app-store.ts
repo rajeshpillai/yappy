@@ -2,7 +2,7 @@ import { batch } from "solid-js";
 import { createStore } from "solid-js/store";
 import type { DrawingElement, ViewState, ElementType, Layer, GridSettings } from "../types";
 import { createDefaultSlide, createSlideDocument } from '../types/slide-types';
-import type { Slide, GlobalSettings, SlideDocument } from '../types/slide-types';
+import type { Slide, GlobalSettings } from '../types/slide-types';
 import type { ElementAnimation, DisplayState } from "../types/motion-types";
 import { showToast } from "../components/toast";
 import { MindmapLayoutEngine, type LayoutDirection } from "../utils/mindmap-layout";
@@ -60,27 +60,19 @@ interface AppState {
     showSlideNavigator: boolean;
 }
 
-const defaultSlide = createDefaultSlide();
+const initialDoc = createSlideDocument();
 
 const initialState: AppState = {
-    elements: defaultSlide.elements,
-    viewState: defaultSlide.viewState,
-    layers: defaultSlide.layers,
-    activeLayerId: defaultSlide.layers[0].id,
-    gridSettings: {
-        enabled: false,
-        snapToGrid: false,
-        objectSnapping: true,
-        gridSize: 20,
-        gridColor: '#cccccc',
-        gridOpacity: 0.5,
-        style: 'lines'
-    },
-    canvasBackgroundColor: defaultSlide.backgroundColor || '#ffffff',
-    dimensions: defaultSlide.dimensions,
-    slides: [defaultSlide],
+    elements: initialDoc.elements,
+    viewState: { scale: 0.5, panX: 0, panY: 0 },
+    layers: initialDoc.layers,
+    activeLayerId: initialDoc.layers[0].id,
+    gridSettings: initialDoc.gridSettings!,
+    canvasBackgroundColor: '#ffffff',
+    dimensions: { width: 1920, height: 1080 },
+    slides: initialDoc.slides,
     activeSlideIndex: 0,
-    docType: 'slides',
+    docType: 'infinite',
 
     canvasTexture: 'none',
     selectedTool: 'selection',
@@ -147,7 +139,7 @@ const initialState: AppState = {
     selectedTechnicalType: 'dfdProcess',
     states: [],
     showStatePanel: false,
-    showSlideNavigator: true,
+    showSlideNavigator: false,
 };
 
 export const [store, setStore] = createStore<AppState>(initialState);
@@ -531,47 +523,33 @@ export const saveActiveSlide = () => {
     if (currentIndex < 0 || currentIndex >= store.slides.length) return;
 
     const currentSlideValues: Partial<Slide> = {
-        elements: JSON.parse(JSON.stringify(store.elements)),
-        layers: JSON.parse(JSON.stringify(store.layers)),
-        viewState: JSON.parse(JSON.stringify(store.viewState)),
-        gridSettings: JSON.parse(JSON.stringify(store.gridSettings)),
         backgroundColor: store.canvasBackgroundColor,
-        states: JSON.parse(JSON.stringify(store.states)),
-        initialStateId: store.activeStateId,
-        thumbnail: store.slides[store.activeSlideIndex].thumbnail, // Keep existing or update
         dimensions: JSON.parse(JSON.stringify(store.dimensions)),
+        thumbnail: store.slides[store.activeSlideIndex].thumbnail,
     };
 
     setStore("slides", currentIndex, currentSlideValues);
 };
 
 export const setActiveSlide = (index: number) => {
-    if (index < 0 || index >= store.slides.length || index === store.activeSlideIndex) return;
+    if (index < 0 || index >= store.slides.length) return;
 
-    // 1. Save current slide
-    saveActiveSlide();
-
-    // 2. Load next slide
-    const nextSlide = store.slides[index];
-
+    // In spatial canvas, switching slides just updates the active index and focuses the view
     batch(() => {
         setStore("activeSlideIndex", index);
-        setStore("elements", JSON.parse(JSON.stringify(nextSlide.elements)));
-        setStore("layers", JSON.parse(JSON.stringify(nextSlide.layers)));
-        setStore("viewState", JSON.parse(JSON.stringify(nextSlide.viewState)));
-        setStore("gridSettings", nextSlide.gridSettings ? JSON.parse(JSON.stringify(nextSlide.gridSettings)) : initialState.gridSettings);
-        setStore("canvasBackgroundColor", nextSlide.backgroundColor || '#ffffff');
-        setStore("dimensions", JSON.parse(JSON.stringify(nextSlide.dimensions)));
-        setStore("states", nextSlide.states ? JSON.parse(JSON.stringify(nextSlide.states)) : []);
-        setStore("activeStateId", nextSlide.initialStateId);
         setStore("selection", []); // Clear selection on slide switch
 
-        // Update active layer ID if needed
-        if (!nextSlide.layers.some(l => l.id === store.activeLayerId)) {
-            setStore("activeLayerId", nextSlide.layers[0]?.id || 'default-layer');
+        const nextSlide = store.slides[index];
+        if (nextSlide.backgroundColor) {
+            setStore("canvasBackgroundColor", nextSlide.backgroundColor);
         }
+        setStore("dimensions", JSON.parse(JSON.stringify(nextSlide.dimensions)));
 
         if (store.presentationMode) {
+            zoomToFitSlide();
+        } else {
+            // Option: Smooth pan to slide if not in presentation mode?
+            // For now, just jump
             zoomToFitSlide();
         }
     });
@@ -583,7 +561,11 @@ export const addSlide = () => {
     saveActiveSlide();
 
     const nextIndex = store.slides.length;
-    const newSlide = createDefaultSlide(undefined, `Slide ${nextIndex + 1}`);
+    // Position new slide to the right of the last one
+    const lastSlide = store.slides[store.slides.length - 1];
+    const newX = lastSlide ? lastSlide.spatialPosition.x + 2000 : 0;
+
+    const newSlide = createDefaultSlide(undefined, `Slide ${nextIndex + 1}`, newX, 0);
     newSlide.order = nextIndex;
 
     setStore("slides", (prev) => [...prev, newSlide]);
@@ -610,22 +592,7 @@ export const deleteSlide = (index: number) => {
 
     batch(() => {
         setStore("slides", newSlides);
-        if (index === store.activeSlideIndex) {
-            // Force load the new slide at this index (or previous if it was the last one)
-            const nextSlide = newSlides[nextIndex];
-            setStore("activeSlideIndex", nextIndex);
-            setStore("elements", JSON.parse(JSON.stringify(nextSlide.elements)));
-            setStore("layers", JSON.parse(JSON.stringify(nextSlide.layers)));
-            setStore("viewState", JSON.parse(JSON.stringify(nextSlide.viewState)));
-            setStore("gridSettings", nextSlide.gridSettings ? JSON.parse(JSON.stringify(nextSlide.gridSettings)) : initialState.gridSettings);
-            setStore("canvasBackgroundColor", nextSlide.backgroundColor || '#ffffff');
-            setStore("dimensions", JSON.parse(JSON.stringify(nextSlide.dimensions)));
-            setStore("states", nextSlide.states ? JSON.parse(JSON.stringify(nextSlide.states)) : []);
-            setStore("activeStateId", nextSlide.initialStateId);
-            setStore("selection", []);
-        } else if (index < store.activeSlideIndex) {
-            setStore("activeSlideIndex", store.activeSlideIndex - 1);
-        }
+        setActiveSlide(nextIndex);
     });
 
     showToast('Slide deleted', 'info');
@@ -655,32 +622,85 @@ export const reorderSlides = (fromIndex: number, toIndex: number) => {
     setStore("activeSlideIndex", newActiveIndex);
 };
 
-export const loadDocument = (doc: SlideDocument) => {
+export const loadDocument = (doc: any) => {
     batch(() => {
-        setStore("slides", JSON.parse(JSON.stringify(doc.slides)));
+        // Version Migration Logic
+        let elements: DrawingElement[] = [];
+        let slides: Slide[] = [];
+        let layers: Layer[] = [];
+        let gridSettings = doc.gridSettings || initialState.gridSettings;
+        let states = doc.states || [];
+
+        if (doc.version === 4) {
+            elements = doc.elements;
+            slides = doc.slides;
+            layers = doc.layers;
+            states = doc.states || [];
+            gridSettings = doc.gridSettings || gridSettings;
+        } else if (doc.version === 3) {
+            // Migrate v3 (multi-slides with separate element buckets) to v4 (spatial)
+            layers = doc.slides[0]?.layers || initialState.layers;
+            const horizontalGap = 2000;
+
+            doc.slides.forEach((oldSlide: any, index: number) => {
+                const spatialX = index * horizontalGap;
+                const spatialY = 0;
+
+                // Offset elements
+                const offsetElements = oldSlide.elements.map((el: DrawingElement) => ({
+                    ...el,
+                    x: el.x + spatialX,
+                    y: el.y + spatialY
+                }));
+                elements.push(...offsetElements);
+
+                // Create new slide frame
+                slides.push({
+                    id: oldSlide.id,
+                    name: oldSlide.name,
+                    spatialPosition: { x: spatialX, y: spatialY },
+                    dimensions: oldSlide.dimensions || { width: 1920, height: 1080 },
+                    order: index,
+                    backgroundColor: oldSlide.backgroundColor,
+                    thumbnail: oldSlide.thumbnail
+                });
+
+                // Collect states
+                if (oldSlide.states) {
+                    states.push(...oldSlide.states);
+                }
+            });
+        } else {
+            // Legacy v1/v2 or unknown
+            elements = doc.elements || [];
+            layers = doc.layers || initialState.layers;
+            slides = [createDefaultSlide()];
+        }
+
+        setStore("elements", JSON.parse(JSON.stringify(elements)));
+        setStore("slides", JSON.parse(JSON.stringify(slides)));
+        setStore("layers", JSON.parse(JSON.stringify(layers)));
+        setStore("states", JSON.parse(JSON.stringify(states)));
+        setStore("gridSettings", JSON.parse(JSON.stringify(gridSettings)));
+
         setStore("globalSettings", doc.globalSettings || initialState.globalSettings);
-        const loadedDocType = doc.metadata?.docType || 'infinite';
+        // Determine docType with version-aware defaults:
+        // - v4: use stored docType
+        // - v3: default to 'slides' (v3 is inherently slide-based)
+        // - v1/v2 legacy: default to 'infinite' (pre-slide format)
+        const loadedDocType = doc.metadata?.docType || (doc.version >= 3 ? 'slides' : 'infinite');
         setStore("docType", loadedDocType);
         setStore("showSlideNavigator", loadedDocType === 'slides');
 
-        // Load the first slide
-        const targetIndex = 0;
-
-        const firstSlide = doc.slides[targetIndex];
-        setStore("activeSlideIndex", targetIndex);
-        setStore("elements", JSON.parse(JSON.stringify(firstSlide.elements)));
-        setStore("layers", JSON.parse(JSON.stringify(firstSlide.layers)));
-        setStore("viewState", JSON.parse(JSON.stringify(firstSlide.viewState)));
-        setStore("gridSettings", firstSlide.gridSettings ? JSON.parse(JSON.stringify(firstSlide.gridSettings)) : initialState.gridSettings);
-        setStore("canvasBackgroundColor", firstSlide.backgroundColor || '#ffffff');
-        setStore("dimensions", JSON.parse(JSON.stringify(firstSlide.dimensions)));
-        setStore("states", firstSlide.states ? JSON.parse(JSON.stringify(firstSlide.states)) : []);
-        setStore("activeStateId", firstSlide.initialStateId);
+        setStore("activeSlideIndex", 0);
         setStore("selection", []);
 
-        if (!firstSlide.layers.some((l: Layer) => l.id === store.activeLayerId)) {
-            setStore("activeLayerId", firstSlide.layers[0]?.id || 'default-layer');
+        if (!layers.some((l: Layer) => l.id === store.activeLayerId)) {
+            setStore("activeLayerId", layers[0]?.id || 'default-layer');
         }
+
+        // Initial view focus
+        setTimeout(() => zoomToFitSlide(), 100);
     });
 
     // Clear history on new document load
@@ -1346,8 +1366,13 @@ export const toggleSlideNavigator = (visible?: boolean) => {
 };
 
 export const zoomToFitSlide = () => {
+    const slide = store.slides[store.activeSlideIndex];
+    if (!slide) return;
+
+    const { width: sW, height: sH } = slide.dimensions;
+    const { x: spatialX, y: spatialY } = slide.spatialPosition;
     const margin = 40; // Pixels
-    const { width: sW, height: sH } = store.dimensions;
+
     const availableW = window.innerWidth - margin * 2;
     const availableH = window.innerHeight - margin * 2;
 
@@ -1355,9 +1380,9 @@ export const zoomToFitSlide = () => {
     const scaleH = availableH / sH;
     const newScale = Math.min(scaleW, scaleH);
 
-    // Center it
-    const panX = (window.innerWidth - sW * newScale) / 2;
-    const panY = (window.innerHeight - sH * newScale) / 2;
+    // Calculate pan to center the spatial slide region
+    const panX = (window.innerWidth - sW * newScale) / 2 - spatialX * newScale;
+    const panY = (window.innerHeight - sH * newScale) / 2 - spatialY * newScale;
 
     setStore('viewState', {
         scale: newScale,

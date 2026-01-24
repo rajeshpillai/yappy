@@ -103,7 +103,11 @@ const Canvas: Component = () => {
     const captureThumbnail = () => {
         if (!canvasRef) return;
 
-        const { width: sW, height: sH } = store.dimensions;
+        const slide = store.slides[store.activeSlideIndex];
+        if (!slide) return;
+
+        const { width: sW, height: sH } = slide.dimensions;
+        const { x: spatialX, y: spatialY } = slide.spatialPosition;
         if (sW === 0 || sH === 0) return;
 
         // Create a temp canvas for the thumbnail
@@ -120,11 +124,12 @@ const Canvas: Component = () => {
 
         tCtx.save();
         tCtx.scale(thumbScale, thumbScale);
+        tCtx.translate(-spatialX, -spatialY); // Focus on the slide's spatial area
 
         // Background
         const isDarkMode = store.theme === 'dark';
-        tCtx.fillStyle = store.canvasBackgroundColor || (isDarkMode ? "#121212" : "#ffffff");
-        tCtx.fillRect(0, 0, sW, sH);
+        tCtx.fillStyle = slide.backgroundColor || (isDarkMode ? "#121212" : "#ffffff");
+        tCtx.fillRect(spatialX, spatialY, sW, sH);
 
         // Render elements
         const rc = rough.canvas(thumbCanvas);
@@ -132,6 +137,8 @@ const Canvas: Component = () => {
 
         sortedLayers.forEach(layer => {
             if (!isLayerVisible(layer.id)) return;
+            // Only render elements that are within this slide's bounds (roughly)
+            // Or just render all and let clipping/positioning handle it
             const layerElements = store.elements.filter(el => el.layerId === layer.id);
             layerElements.forEach(el => {
                 const layerOpacity = (layer?.opacity ?? 1);
@@ -282,30 +289,43 @@ const Canvas: Component = () => {
         ctx.translate(panX, panY);
         ctx.scale(scale, scale);
 
-        // --- Render Slide Boundary ---
+        // --- Render Slide Boundaries ---
         if (store.docType === 'slides') {
-            const { width: sW, height: sH } = store.dimensions;
+            // Strict Mode: Only render the ACTIVE slide
+            const activeSlide = store.slides[store.activeSlideIndex];
+            if (activeSlide) {
+                const { width: sW, height: sH } = activeSlide.dimensions;
+                const { x: sX, y: sY } = activeSlide.spatialPosition;
 
-            // 1. Draw Slide Shadow (Outer)
-            ctx.save();
-            ctx.shadowColor = isDarkMode ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.15)";
-            ctx.shadowBlur = 40;
-            ctx.shadowOffsetY = 10;
-            ctx.fillStyle = "black"; // Base for shadow
-            ctx.fillRect(0, 0, sW, sH);
-            ctx.restore();
+                // 1. Draw Slide Shadow (Outer)
+                ctx.save();
+                ctx.shadowColor = isDarkMode ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.15)";
+                ctx.shadowBlur = 40;
+                ctx.shadowOffsetY = 10;
+                ctx.fillStyle = "black";
+                ctx.fillRect(sX, sY, sW, sH);
+                ctx.restore();
 
-            // 2. Draw Slide Surface
-            const slideBg = store.canvasBackgroundColor || (isDarkMode ? "#121212" : "#ffffff");
-            ctx.fillStyle = slideBg;
-            ctx.fillRect(0, 0, sW, sH);
-
-            // 3. Clipping for Presentation Mode
-            if (store.presentationMode) {
-                ctx.beginPath();
-                ctx.rect(0, 0, sW, sH);
-                ctx.clip();
+                // 2. Draw Slide Surface
+                const slideBg = activeSlide.backgroundColor || (isDarkMode ? "#121212" : "#ffffff");
+                ctx.fillStyle = slideBg;
+                ctx.fillRect(sX, sY, sW, sH);
             }
+        } else if (store.docType === 'infinite') {
+            // Wide Mode: Render ALL slide frames as spatial landmarks
+            store.slides.forEach((slide) => {
+                const { width: sW, height: sH } = slide.dimensions;
+                const { x: sX, y: sY } = slide.spatialPosition;
+
+                // Simple grey frame for landmarks in infinite mode
+                ctx.strokeStyle = isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(sX, sY, sW, sH);
+
+                // Optional: very light background
+                ctx.fillStyle = isDarkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)";
+                ctx.fillRect(sX, sY, sW, sH);
+            });
         }
         ctx.restore();
 
@@ -531,6 +551,19 @@ const Canvas: Component = () => {
             layerElements.forEach(el => {
                 let cx = el.x + el.width / 2;
                 let cy = el.y + el.height / 2;
+
+                // Strict isolation in Slide Mode
+                if (store.docType === 'slides') {
+                    const activeSlide = store.slides[store.activeSlideIndex];
+                    if (activeSlide) {
+                        const { x: sX, y: sY } = activeSlide.spatialPosition;
+                        const { width: sW, height: sH } = activeSlide.dimensions;
+                        const isOnActiveSlide = cx >= sX && cx <= sX + sW && cy >= sY && cy <= sY + sH;
+
+                        // If element is completely outside the active slide frame, don't render it
+                        if (!isOnActiveSlide) return;
+                    }
+                }
 
                 if (el.type !== 'text' || editingId() !== el.id) {
                     const layerOpacity = (layer?.opacity ?? 1);

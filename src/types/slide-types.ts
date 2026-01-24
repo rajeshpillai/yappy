@@ -1,21 +1,16 @@
-import type { DrawingElement, Layer, ViewState, GridSettings } from '../types';
+import type { DrawingElement, Layer, GridSettings } from '../types';
 import type { DisplayState } from './motion-types';
 
 /**
- * Represents a single slide in a presentation
+ * Represents a single slide frame in the spatial canvas
  */
 export interface Slide {
     id: string;
     name: string;
-    dimensions: { width: number; height: number }; // slide dimensions in canvas units
-    elements: DrawingElement[];
-    layers: Layer[];
-    viewState: ViewState;
-    gridSettings?: GridSettings;
-    backgroundColor?: string;
+    spatialPosition: { x: number, y: number };
+    dimensions: { width: number, height: number }; // slide dimensions in canvas units
     order: number;
-    states?: DisplayState[];
-    initialStateId?: string;
+    backgroundColor?: string;
     thumbnail?: string; // Data URL preview
 }
 
@@ -30,7 +25,7 @@ export interface SlideDocumentMetadata {
 }
 
 /**
- * Global settings that apply across all slides
+ * Global settings that apply across the entire canvas
  */
 export interface GlobalSettings {
     theme?: 'light' | 'dark';
@@ -42,22 +37,42 @@ export interface GlobalSettings {
 }
 
 /**
- * The new v3 document format with multi-slide support
+ * The new v4 document format with spatial unified canvas
  */
 export interface SlideDocument {
-    version: 3;
+    version: 4;
     metadata: SlideDocumentMetadata;
+    elements: DrawingElement[];
+    layers: Layer[];
     slides: Slide[];
     globalSettings?: GlobalSettings;
+    gridSettings?: GridSettings;
+    states?: DisplayState[];
 }
 
 /**
  * Default slide factory
  */
-export const createDefaultSlide = (id?: string, name?: string): Slide => ({
+export const createDefaultSlide = (id?: string, name?: string, x: number = 0, y: number = 0): Slide => ({
     id: id || crypto.randomUUID(),
     name: name || 'Slide 1',
+    spatialPosition: { x, y },
     dimensions: { width: 1920, height: 1080 }, // Default 1080p
+    backgroundColor: '#ffffff',
+    order: 0
+});
+
+/**
+ * Create a new empty slide document
+ */
+export const createSlideDocument = (name?: string, docType: 'infinite' | 'slides' = 'slides'): SlideDocument => ({
+    version: 4,
+    metadata: {
+        name,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        docType
+    },
     elements: [],
     layers: [{
         id: 'default-layer',
@@ -68,22 +83,15 @@ export const createDefaultSlide = (id?: string, name?: string): Slide => ({
         order: 0,
         backgroundColor: 'transparent'
     }],
-    viewState: { scale: 0.5, panX: 0, panY: 0 }, // Modified default view state for slides
-    backgroundColor: '#ffffff',
-    order: 0
-});
-
-/**
- * Create a new empty slide document
- */
-export const createSlideDocument = (name?: string, docType: 'infinite' | 'slides' = 'slides'): SlideDocument => ({
-    version: 3,
-    metadata: {
-        name,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        docType
-    },
     slides: [createDefaultSlide()],
-    globalSettings: {}
+    globalSettings: {},
+    gridSettings: {
+        enabled: false,
+        snapToGrid: false,
+        objectSnapping: true,
+        gridSize: 20,
+        gridColor: '#cccccc',
+        gridOpacity: 0.5,
+        style: 'lines'
+    }
 });
