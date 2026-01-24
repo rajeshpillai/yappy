@@ -1,5 +1,5 @@
 import { store } from "../../store/app-store";
-import { animateElement, fadeIn, fadeOut } from "./element-animator";
+import { animateElement, fadeIn } from "./element-animator";
 import type { DisplayState } from "../../types/motion-types";
 
 /**
@@ -18,9 +18,8 @@ export class MorphAnimator {
         // Element IDs from target state
         const targetIds = Object.keys(targetOverrides);
 
-        // 1. Identify Shared, New, and Removed elements
+        // 1. Identify Shared and New elements
         const sharedIds = currentElements.filter(el => targetIds.includes(el.id)).map(el => el.id);
-        const exitingIds = currentElements.filter(el => !targetIds.includes(el.id)).map(el => el.id);
         const enteringIds = targetIds.filter(id => !currentElements.some(el => el.id === id));
 
         // 2. Animate Shared Elements (The "Magic Move")
@@ -34,22 +33,8 @@ export class MorphAnimator {
             });
         });
 
-        // 3. Animate Exiting Elements (Fade out and maybe remove?)
-        exitingIds.forEach(id => {
-            fadeOut(id, duration * 0.5, {
-                onComplete: () => {
-                    // Optional: we might not want to actually DELETE them from store 
-                    // unless they are missing from the logical slide, 
-                    // but for DisplayState overrides, we just keep them at 0 opacity.
-                }
-            });
-        });
-
-        // 4. Animate Entering Elements (Fade in)
+        // 3. Animate Entering Elements (Fade in)
         enteringIds.forEach(id => {
-            // Note: If they are not in store.elements, we have a problem.
-            // In the current DisplayState model, we assume all elements involved 
-            // are already in the store, just perhaps hidden or at different positions.
             const targetProps = targetOverrides[id];
             if (!targetProps) return;
 
