@@ -1088,6 +1088,7 @@ const Canvas: Component = () => {
     };
 
     const handleWheel = (e: WheelEvent) => {
+        if (store.presentationMode) return;
         e.preventDefault();
 
         // Normalize delta values based on deltaMode
@@ -1683,6 +1684,7 @@ const Canvas: Component = () => {
     };
 
     const handlePointerDown = (e: PointerEvent) => {
+        if (store.presentationMode) return;
         (e.currentTarget as Element).setPointerCapture(e.pointerId);
         const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
 

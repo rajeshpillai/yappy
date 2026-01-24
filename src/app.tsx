@@ -29,6 +29,7 @@ import Toast from './components/toast';
 import { MindmapActionToolbar } from './components/mindmap-action-toolbar';
 import { registerShapes } from './shapes/register-shapes';
 import { SlideNavigator } from './components/slide-navigator';
+import { PresentationControls } from './components/presentation-controls';
 import { addSlide } from './store/app-store';
 
 const App: Component = () => {
@@ -303,11 +304,14 @@ const App: Component = () => {
         <Menu />
       </Show>
       <Canvas />
-      <CommandPalette />
-      <StatePanel />
-
-      <Show when={!store.presentationMode}>
+      <Show when={!store.presentationMode} fallback={<PresentationControls />}>
         <SlideNavigator />
+      </Show>
+
+      {/* Panels hidden in Presentation Mode */}
+      <Show when={!store.presentationMode}>
+        <CommandPalette />
+        <StatePanel />
       </Show>
 
       {/* Floating Property Panel Toggle (bottom-right corner) */}

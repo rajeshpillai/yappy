@@ -563,6 +563,10 @@ export const setActiveSlide = (index: number) => {
         if (!nextSlide.layers.some(l => l.id === store.activeLayerId)) {
             setStore("activeLayerId", nextSlide.layers[0]?.id || 'default-layer');
         }
+
+        if (store.presentationMode) {
+            zoomToFitSlide();
+        }
     });
 
     showToast(`Switched to Slide ${index + 1}`, 'info');
@@ -1325,8 +1329,46 @@ export const toggleZenMode = (visible?: boolean) => {
     setStore('zenMode', (v) => visible ?? !v);
 };
 
+export const zoomToFitSlide = () => {
+    const margin = 40; // Pixels
+    const { width: sW, height: sH } = store.dimensions;
+    const availableW = window.innerWidth - margin * 2;
+    const availableH = window.innerHeight - margin * 2;
+
+    const scaleW = availableW / sW;
+    const scaleH = availableH / sH;
+    const newScale = Math.min(scaleW, scaleH);
+
+    // Center it
+    const panX = (window.innerWidth - sW * newScale) / 2;
+    const panY = (window.innerHeight - sH * newScale) / 2;
+
+    setStore('viewState', {
+        scale: newScale,
+        panX,
+        panY
+    });
+};
+
 export const togglePresentationMode = (visible?: boolean) => {
-    setStore('presentationMode', (v) => visible ?? !v);
+    const newState = visible ?? !store.presentationMode;
+    batch(() => {
+        setStore('presentationMode', newState);
+        if (newState) {
+            // Auto fit on enter
+            zoomToFitSlide();
+            setStore('selection', []); // Clear selection
+        }
+    });
+
+    // Handle Fullscreen API
+    if (newState) {
+        document.documentElement.requestFullscreen?.().catch(e => {
+            console.warn("Fullscreen failed:", e);
+        });
+    } else if (document.fullscreenElement) {
+        document.exitFullscreen?.();
+    }
 };
 
 export const setSelectedTechnicalType = (type: AppState['selectedTechnicalType']) => {
