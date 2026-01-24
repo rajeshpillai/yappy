@@ -109,6 +109,16 @@ const App: Component = () => {
         return; // Handle Alt and exit
       }
 
+      // Ignore hotkeys when typing in input fields, textareas, or contenteditable elements
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable
+      ) {
+        return; // Let the user type normally
+      }
+
       // Shared Global Shortcuts (No Alt)
       if (!e.altKey && !e.ctrlKey && !e.metaKey) {
         if (code === 'ArrowRight') {
