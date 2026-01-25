@@ -656,7 +656,7 @@
 - [x] **Inner Radius for Rectangles/Shapes**
   - [x] Add `innerRadius` property (0-100% of shape size)
   - [x] Implement rounded inner corners rendering
-  - [x] Add double-border support (`doubleBorder`, `innerBorderWidth`, `innerBorderColor`)
+  - [x] Add double-border support (`drawInnerBorder`, `innerBorderDistance`, `innerBorderColor`)
   - [x] Property panel controls
 - [x] **Rough Paint Brush (Texture Fill)**
   - [x] Research RoughJS texture fill capabilities
@@ -965,4 +965,12 @@
  - main (before slides)
  - dev
  - feat/slides-canvas -> Slides implementation
- - feat/slides-transition -> Complete (ready to merge)
+ - feat/slides-transition -> Complete (merged to dev)
+
+## Phase 69: Stability & Logic Refinements
+- [x] **Property Panel Race Condition Fix**
+  - [x] Implement target-ID validation in `handleChange`
+  - [x] Prevent stale component events from overwriting new selections
+- [x] **Keyboard Shortcut Restoration**
+  - [x] Fix regression in `App.tsx` global keydown handler
+  - [x] Restore Ctrl+C, Ctrl+V, Ctrl+D, Ctrl+S functionality

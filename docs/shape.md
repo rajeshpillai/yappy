@@ -25,6 +25,9 @@ This document describes the supported properties, attributes, and implementation
 | `shadowEnabled` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Drop shadow toggle |
 | `gradientStart` | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | Linear/Radial start color |
 | `gradientDirection`| ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | Gradient Angle |
+| `drawInnerBorder` | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | Double border toggle |
+| `innerBorderDistance`| ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | Distance from outer border |
+| `innerBorderColor`| ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | Color of inner border |
 
 > ¹ **Polygons** include: Hexagon, Octagon, Star, Cloud, Heart, Arrow (Left/Right/Up/Down), Capsule, Sticky Note, Speech Bubble, Database, Document, etc.
 
