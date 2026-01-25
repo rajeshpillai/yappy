@@ -1,4 +1,4 @@
-import { type Component, For } from "solid-js";
+import { type Component, For, createSignal, onMount, onCleanup } from "solid-js";
 import { store, setSelectedTool, addElement, setStore } from "../store/app-store";
 import type { ElementType } from "../types";
 import { MousePointer2, Square, Circle, Minus, Type, MoveUpRight, Eraser, Hand, Image as ImageIcon, Activity, Diamond, CaseUpper, Zap, Highlighter } from "lucide-solid";
@@ -35,6 +35,43 @@ const tools: { type: ElementType | 'selection' | 'block-text'; icon: Component<{
 
 const Toolbar: Component = () => {
     let fileInputRef: HTMLInputElement | null = null;
+    const [position, setPosition] = createSignal({ x: 0, y: 0 });
+    const [isDragging, setIsDragging] = createSignal(false);
+    const [dragStart, setDragStart] = createSignal({ x: 0, y: 0 });
+
+    const onMouseDown = (e: MouseEvent) => {
+        // Drag if clicked on the container's padding or gaps, or the handle itself
+        const target = e.target as HTMLElement;
+        if (target.classList.contains('toolbar-container') || target.closest('.drag-handle')) {
+            setIsDragging(true);
+            setDragStart({
+                x: e.clientX - position().x,
+                y: e.clientY - position().y
+            });
+            e.preventDefault();
+        }
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+        if (!isDragging()) return;
+        setPosition({
+            x: e.clientX - dragStart().x,
+            y: e.clientY - dragStart().y
+        });
+    };
+
+    const onMouseUp = () => {
+        setIsDragging(false);
+    };
+
+    onMount(() => {
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+        onCleanup(() => {
+            window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('mouseup', onMouseUp);
+        });
+    });
 
     const handleToolClick = (type: ElementType | 'selection' | 'block-text') => {
         if (type === 'image') {
@@ -161,7 +198,18 @@ const Toolbar: Component = () => {
     const bezierIndex = tools.findIndex(t => t.type === 'bezier');
 
     return (
-        <div class="toolbar-container" onContextMenu={(e) => e.preventDefault()}>
+        <div
+            class="toolbar-container"
+            classList={{ dragging: isDragging() }}
+            onContextMenu={(e) => e.preventDefault()}
+            onMouseDown={onMouseDown}
+            style={{
+                transform: `translateX(-50%) translate(${position().x}px, ${position().y}px)`
+            }}
+        >
+            <div class="drag-handle" title="Drag to move toolbar">
+                <div class="drag-dots"></div>
+            </div>
             <input
                 type="file"
                 ref={el => fileInputRef = el}

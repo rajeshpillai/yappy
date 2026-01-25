@@ -1,4 +1,4 @@
-import { createSignal, onMount, onCleanup } from "solid-js";
+import { onMount, onCleanup } from "solid-js";
 import { Portal } from "solid-js/web";
 import { store, updateSlideTransition } from "../store/app-store";
 import { slideTransitionManager } from "../utils/animation";

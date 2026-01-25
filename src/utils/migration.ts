@@ -195,29 +195,28 @@ export const migrateToSlideFormat = (data: any): SlideDocument => {
     // Migrate the drawing data first (handles element/layer normalization)
     const migrated = migrateDrawingData(data);
 
-    // Create a single slide from the legacy data
+    // Create a single slide from the legacy data (Spatial Viewport)
     const slide: Slide = {
         id: crypto.randomUUID(),
         name: 'Slide 1',
-        elements: migrated.elements,
-        layers: migrated.layers,
-        viewState: data.viewState || { scale: 1, panX: 0, panY: 0 },
-        gridSettings: migrated.gridSettings,
-        backgroundColor: migrated.canvasBackgroundColor || '#ffffff',
-        states: migrated.states,
-        initialStateId: migrated.initialStateId,
+        spatialPosition: { x: 0, y: 0 },
         dimensions: { width: 1920, height: 1080 }, // Default for migrated slides
+        backgroundColor: migrated.canvasBackgroundColor || '#ffffff',
         order: 0
     };
 
     return {
-        version: 3,
+        version: 4,
         metadata: {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         },
+        elements: migrated.elements,
+        layers: migrated.layers,
         slides: [slide],
-        globalSettings: data.globalSettings || {}
+        globalSettings: data.globalSettings || {},
+        gridSettings: migrated.gridSettings,
+        states: migrated.states
     };
 };
 
@@ -253,13 +252,12 @@ export const extractSlideAsLegacy = (doc: SlideDocument, slideIndex: number = 0)
     }
 
     return {
-        elements: slide.elements,
-        layers: slide.layers,
-        viewState: slide.viewState,
-        gridSettings: slide.gridSettings,
+        elements: doc.elements,
+        layers: doc.layers,
+        viewState: { scale: 1, panX: -slide.spatialPosition.x, panY: -slide.spatialPosition.y },
+        gridSettings: doc.gridSettings,
         globalSettings: doc.globalSettings,
         canvasBackgroundColor: slide.backgroundColor || '#ffffff',
-        states: slide.states,
-        initialStateId: slide.initialStateId
+        states: doc.states
     };
 };

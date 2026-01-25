@@ -1,4 +1,4 @@
-import { type Component, Show, onMount, onCleanup, createEffect } from "solid-js";
+import { type Component, Show, onCleanup, createEffect } from "solid-js";
 import { X, ExternalLink, Github, Youtube, Bug } from "lucide-solid";
 import "./help-dialog.css";
 
@@ -7,7 +7,7 @@ interface Props {
     onClose: () => void;
 }
 
-const HelpDialog: Component<Props> = (props) => {
+export default function HelpDialog(props: Props) {
     // Handle Escape key to close dialog
     createEffect(() => {
         if (props.isOpen) {
@@ -431,4 +431,3 @@ const HelpDialog: Component<Props> = (props) => {
     );
 };
 
-export default HelpDialog;

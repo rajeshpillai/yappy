@@ -1,7 +1,7 @@
 import { type Component, onMount, onCleanup, Show } from 'solid-js';
 import {
   undo, redo, store, deleteElements, togglePropertyPanel, toggleLayerPanel,
-  toggleMinimap, toggleZenMode, toggleStatePanel, toggleCommandPalette, moveSelectedElements,
+  toggleMinimap, toggleZenMode, toggleCommandPalette, moveSelectedElements,
   switchLayerByIndex, cycleStrokeStyle, cycleFillStyle,
   addChildNode, addSiblingNode, toggleCollapseSelection, togglePresentationMode,
   applyNextState, applyPreviousState, applyDisplayState,

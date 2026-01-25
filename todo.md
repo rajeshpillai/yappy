@@ -952,10 +952,14 @@
 ---
 
 
-## Phase 66: Toolbar Dark Mode Fix
-- [x] Update `toolbar.css` to use theme variables
-- [x] Update `pen-tool-group.css` to use theme variables
-- [x] Verify dark mode visual consistency
+## Phase 67: Draggable UI Components
+- [x] Implement dragging logic for Toolbar, Menu, and Actions
+- [x] Add visual drag handles and hover states
+- [x] Ensure interaction stability after dragging
+
+## Phase 68: Fix Toolbar Centering
+- [x] Resolve centering conflict in `toolbar.css`
+- [x] Verify initial state alignment
 
  ## Active Branches
  - main (before slides)

@@ -6,7 +6,7 @@
 import { store, setViewState, setStore } from '../../store/app-store';
 import { animationEngine, generateAnimationId } from './animation-engine';
 import { lerp, getEasing } from './animation-types';
-import type { Slide, SlideTransition, SlideTransitionType } from '../../types/slide-types';
+import type { Slide, SlideTransition } from '../../types/slide-types';
 import { DEFAULT_SLIDE_TRANSITION } from '../../types/slide-types';
 
 export interface TransitionContext {

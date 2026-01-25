@@ -1,4 +1,4 @@
-import { type Component, createSignal, onMount, Show } from "solid-js";
+import { type Component, createSignal, onMount, onCleanup, Show } from "solid-js";
 import { showToast } from "./toast";
 import { storage } from "../storage/file-system-storage";
 import {
@@ -187,7 +187,71 @@ const Menu: Component = () => {
         (e.target as HTMLInputElement).value = '';
     };
 
+    const [leftPos, setLeftPos] = createSignal({ x: 0, y: 0 });
+    const [leftDragging, setLeftDragging] = createSignal(false);
+    const [leftDragStart, setLeftDragStart] = createSignal({ x: 0, y: 0 });
+
+    const [rightPos, setRightPos] = createSignal({ x: 0, y: 0 });
+    const [rightDragging, setRightDragging] = createSignal(false);
+    const [rightDragStart, setRightDragStart] = createSignal({ x: 0, y: 0 });
+
+    const onLeftMouseDown = (e: MouseEvent) => {
+        const target = e.target as HTMLElement;
+        if (target.closest('.menu-container') || target.classList.contains('app-title') || target.classList.contains('drag-handle')) {
+            // Don't drag if clicking buttons inside
+            if (target.tagName === 'BUTTON' || target.closest('button')) return;
+
+            setLeftDragging(true);
+            setLeftDragStart({
+                x: e.clientX - leftPos().x,
+                y: e.clientY - leftPos().y
+            });
+            e.preventDefault();
+        }
+    };
+
+    const onRightMouseDown = (e: MouseEvent) => {
+        const target = e.target as HTMLElement;
+        if (target.closest('.menu-container') || target.classList.contains('drag-handle')) {
+            if (target.tagName === 'BUTTON' || target.closest('button')) return;
+
+            setRightDragging(true);
+            setRightDragStart({
+                x: e.clientX - rightPos().x,
+                y: e.clientY - rightPos().y
+            });
+            e.preventDefault();
+        }
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+        if (leftDragging()) {
+            setLeftPos({
+                x: e.clientX - leftDragStart().x,
+                y: e.clientY - leftDragStart().y
+            });
+        }
+        if (rightDragging()) {
+            setRightPos({
+                x: e.clientX - rightDragStart().x,
+                y: e.clientY - rightDragStart().y
+            });
+        }
+    };
+
+    const onMouseUp = () => {
+        setLeftDragging(false);
+        setRightDragging(false);
+    };
+
     onMount(() => {
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+        onCleanup(() => {
+            window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('mouseup', onMouseUp);
+        });
+
         const params = new URLSearchParams(window.location.search);
         const id = params.get('id');
         if (id) {
@@ -251,15 +315,39 @@ const Menu: Component = () => {
             />
 
             <Show when={!store.zenMode}>
-                <div class="app-title">
+                <div
+                    class="app-title"
+                    onMouseDown={onLeftMouseDown}
+                    style={{
+                        transform: `translate(${leftPos().x}px, ${leftPos().y}px)`
+                    }}
+                >
+                    <div class="drag-handle sm">
+                        <div class="drag-dots"></div>
+                    </div>
                     {drawingId()}
                 </div>
             </Show>
 
             <Show when={!store.zenMode}>
                 <>
-                    <div style={{ position: 'fixed', top: '12px', left: '12px', "z-index": 1001 }}>
-                        <div class="menu-container" style={{ position: 'relative' }}>
+                    <div
+                        style={{
+                            position: 'fixed',
+                            top: '12px',
+                            left: '12px',
+                            "z-index": 1001,
+                            transform: `translate(${leftPos().x}px, ${leftPos().y}px)`
+                        }}
+                    >
+                        <div
+                            class="menu-container"
+                            style={{ position: 'relative' }}
+                            onMouseDown={onLeftMouseDown}
+                        >
+                            <div class="drag-handle sm">
+                                <div class="drag-dots"></div>
+                            </div>
                             <button class={`menu-btn ${isMenuOpen() ? 'active' : ''}`} title="Menu" onClick={() => setIsMenuOpen(!isMenuOpen())}>
                                 <MenuIcon size={20} />
                             </button>
@@ -337,8 +425,19 @@ const Menu: Component = () => {
                         </div>
                     </div>
 
-                    <div style={{ position: 'fixed', top: '12px', right: '12px', "z-index": 100 }}>
-                        <div class="menu-container">
+                    <div
+                        style={{
+                            position: 'fixed',
+                            top: '12px',
+                            right: '12px',
+                            "z-index": 100,
+                            transform: `translate(${rightPos().x}px, ${rightPos().y}px)`
+                        }}
+                    >
+                        <div class="menu-container" onMouseDown={onRightMouseDown}>
+                            <div class="drag-handle sm">
+                                <div class="drag-dots"></div>
+                            </div>
                             <button class="menu-btn" onClick={() => sequenceAnimator.playAll('programmatic')} title="Play All Animations">
                                 <Play size={18} color="#10b981" fill="#10b981" />
                                 <span style={{ "margin-left": "4px", color: '#10b981', "font-weight": "bold" }}>Play All</span>
