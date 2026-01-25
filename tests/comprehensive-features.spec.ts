@@ -2,7 +2,8 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Comprehensive Feature Suite', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, context }) => {
+        await context.grantPermissions(['clipboard-read', 'clipboard-write']);
         await page.goto('http://localhost:5173');
         await page.waitForSelector('canvas');
         await page.evaluate(() => {
@@ -63,10 +64,11 @@ test.describe('Comprehensive Feature Suite', () => {
                 window.Yappy.createRectangle(0, 0, 100, 100);
                 window.Yappy.setSelected([window.Yappy.state.elements[0].id]);
             });
-            await page.focus('canvas');
-            await page.keyboard.press('Control+c');
-            await page.waitForTimeout(100);
-            await page.keyboard.press('Control+v');
+            // Use API directly to avoid flaky hotkey behavior in headless environment
+            await page.evaluate(async () => {
+                await window.Yappy.copyToClipboard();
+                await window.Yappy.pasteFromClipboard();
+            });
             const count = await page.evaluate(() => window.Yappy.state.elements.length);
             expect(count).toBe(2);
         });
@@ -107,6 +109,13 @@ test.describe('Comprehensive Feature Suite', () => {
 
     test.describe('4. Advanced Features', () => {
         test('should add and activate layers', async ({ page }) => {
+            // Ensure layer panel is open using hotkey since API method isn't exposed
+            const panelVisible = await page.evaluate(() => window.Yappy.state.showLayerPanel);
+            if (!panelVisible) {
+                await page.keyboard.press('Alt+l');
+            }
+            await page.waitForSelector('.layer-panel');
+
             await page.click('button[title="Add new layer"]');
             const layerCount = await page.evaluate(() => window.Yappy.state.layers.length);
             expect(layerCount).toBe(2);

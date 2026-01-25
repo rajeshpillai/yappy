@@ -56,9 +56,8 @@ const App: Component = () => {
       const code = e.code;
       const key = e.key.toLowerCase();
 
-      // Allow Alt/Ctrl shortcuts (Commands) even if focused on inputs
-      if ((e.altKey || e.ctrlKey) && !e.metaKey) {
-
+      // Alt + Key shortcuts (Commands that work even if focused on inputs)
+      if (e.altKey && !e.ctrlKey && !e.metaKey) {
         if (code === 'Enter' || key === 'enter') {
           e.preventDefault();
           togglePropertyPanel();
@@ -72,7 +71,6 @@ const App: Component = () => {
           e.preventDefault();
           const nextZen = !store.zenMode;
           toggleZenMode(nextZen);
-          // Hide navigator in Zen mode too
           toggleSlideNavigator(!nextZen);
         } else if (code === 'KeyP' || key === 'p') {
           e.preventDefault();
@@ -99,7 +97,6 @@ const App: Component = () => {
           e.preventDefault();
           handleNew();
         } else if (key >= '1' && key <= '9') {
-          // Layer Switching: Alt + 1-9
           e.preventDefault();
           const index = parseInt(key) - 1;
           switchLayerByIndex(index);
@@ -111,6 +108,8 @@ const App: Component = () => {
           applyPreviousState();
         }
       }
+
+      if (e.defaultPrevented) return;
 
       // Ignore hotkeys when typing in input fields, textareas, or contenteditable elements
       const target = e.target as HTMLElement;

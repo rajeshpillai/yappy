@@ -43,7 +43,7 @@ export const handleSaveRequest = (intent: 'workspace' | 'disk') => {
 export const handleNew = (docType: 'infinite' | 'slides' = 'slides') => {
     if (confirm(`Start new ${docType === 'slides' ? 'presentation' : 'sketch'}? Unsaved changes will be lost.`)) {
         resetToNewDocument(docType);
-        setDrawingId('untitled');
+        setDrawingId('default');
     }
 };
 
@@ -322,9 +322,6 @@ const Menu: Component = () => {
                         transform: `translate(${leftPos().x}px, ${leftPos().y}px)`
                     }}
                 >
-                    <div class="drag-handle sm">
-                        <div class="drag-dots"></div>
-                    </div>
                     {drawingId()}
                 </div>
             </Show>

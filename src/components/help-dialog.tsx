@@ -166,6 +166,12 @@ export default function HelpDialog(props: Props) {
                                                 <span class="keycap">I</span>
                                             </div>
                                         </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Pan Mode</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">H</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -205,32 +211,10 @@ export default function HelpDialog(props: Props) {
                                             <div class="shortcut-keys"><span class="keycap">Space</span></div>
                                         </div>
                                         <div class="shortcut-item">
-                                            <span class="shortcut-label">Toggle Selection</span>
+                                            <span class="shortcut-label">Duplicate</span>
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Ctrl</span>
-                                                <span class="keycap">Click</span>
-                                            </div>
-                                        </div>
-                                        <div class="shortcut-item">
-                                            <span class="shortcut-label">Open File</span>
-                                            <div class="shortcut-keys">
-                                                <span class="keycap">Ctrl</span>
-                                                <span class="keycap">O</span>
-                                            </div>
-                                        </div>
-                                        <div class="shortcut-item">
-                                            <span class="shortcut-label">Save File</span>
-                                            <div class="shortcut-keys">
-                                                <span class="keycap">Ctrl</span>
-                                                <span class="keycap">S</span>
-                                            </div>
-                                        </div>
-                                        <div class="shortcut-item">
-                                            <span class="shortcut-label">Export Image/Video</span>
-                                            <div class="shortcut-keys">
-                                                <span class="keycap">Ctrl</span>
-                                                <span class="keycap">Shift</span>
-                                                <span class="keycap">E</span>
+                                                <span class="keycap">D</span>
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
@@ -238,27 +222,6 @@ export default function HelpDialog(props: Props) {
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Ctrl</span>
                                                 <span class="keycap">A</span>
-                                            </div>
-                                        </div>
-                                        <div class="shortcut-item">
-                                            <span class="shortcut-label">Copy</span>
-                                            <div class="shortcut-keys">
-                                                <span class="keycap">Ctrl</span>
-                                                <span class="keycap">C</span>
-                                            </div>
-                                        </div>
-                                        <div class="shortcut-item">
-                                            <span class="shortcut-label">Paste</span>
-                                            <div class="shortcut-keys">
-                                                <span class="keycap">Ctrl</span>
-                                                <span class="keycap">V</span>
-                                            </div>
-                                        </div>
-                                        <div class="shortcut-item">
-                                            <span class="shortcut-label">Duplicate</span>
-                                            <div class="shortcut-keys">
-                                                <span class="keycap">Ctrl</span>
-                                                <span class="keycap">D</span>
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
@@ -276,25 +239,23 @@ export default function HelpDialog(props: Props) {
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
-                                            <span class="shortcut-label">Group selection</span>
+                                            <span class="shortcut-label">Group / Ungroup</span>
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Ctrl</span>
                                                 <span class="keycap">G</span>
-                                            </div>
-                                        </div>
-                                        <div class="shortcut-item">
-                                            <span class="shortcut-label">Ungroup selection</span>
-                                            <div class="shortcut-keys">
-                                                <span class="keycap">Ctrl</span>
+                                                <span class="key-or">/</span>
                                                 <span class="keycap">Shift</span>
                                                 <span class="keycap">G</span>
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
-                                            <span class="shortcut-label">New Sketch</span>
+                                            <span class="shortcut-label">Copy / Paste Style</span>
                                             <div class="shortcut-keys">
+                                                <span class="keycap">Ctrl</span>
                                                 <span class="keycap">Alt</span>
-                                                <span class="keycap">N</span>
+                                                <span class="keycap">C</span>
+                                                <span class="key-or">/</span>
+                                                <span class="keycap">V</span>
                                             </div>
                                         </div>
                                     </div>
@@ -345,6 +306,38 @@ export default function HelpDialog(props: Props) {
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
+                                            <span class="shortcut-label">Reorder Layer</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Alt</span>
+                                                <span class="keycap">[</span>
+                                                <span class="key-or">/</span>
+                                                <span class="keycap">]</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">New Slide</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Ctrl</span>
+                                                <span class="keycap">M</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Next State / Slide</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">→</span>
+                                                <span class="key-or">or</span>
+                                                <span class="keycap">PgDn</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Prev State / Slide</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">←</span>
+                                                <span class="key-or">or</span>
+                                                <span class="keycap">PgUp</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
                                             <span class="shortcut-label">Zen Mode</span>
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Alt</span>
@@ -359,13 +352,6 @@ export default function HelpDialog(props: Props) {
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
-                                            <span class="shortcut-label">Snap to Grid</span>
-                                            <div class="shortcut-keys">
-                                                <span class="keycap">Shift</span>
-                                                <span class="keycap">;</span>
-                                            </div>
-                                        </div>
-                                        <div class="shortcut-item">
                                             <span class="shortcut-label">Toggle Minimap</span>
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Alt</span>
@@ -377,28 +363,6 @@ export default function HelpDialog(props: Props) {
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Alt</span>
                                                 <span class="keycap">\</span>
-                                            </div>
-                                        </div>
-                                        <div class="shortcut-item">
-                                            <span class="shortcut-label">Display State Panel</span>
-                                            <div class="shortcut-keys">
-                                                <span class="keycap">Alt</span>
-                                                <span class="keycap">S</span>
-                                            </div>
-                                        </div>
-                                        <div class="shortcut-item">
-                                            <span class="shortcut-label">Next / Prev State</span>
-                                            <div class="shortcut-keys">
-                                                <span class="keycap">Alt</span>
-                                                <span class="keycap">→</span>
-                                                <span class="keycap">Alt</span>
-                                                <span class="keycap">←</span>
-                                            </div>
-                                        </div>
-                                        <div class="shortcut-item">
-                                            <span class="shortcut-label">Reset to 1st State</span>
-                                            <div class="shortcut-keys">
-                                                <span class="keycap">Home</span>
                                             </div>
                                         </div>
                                         <div class="shortcut-item">
