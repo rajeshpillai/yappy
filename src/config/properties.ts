@@ -459,6 +459,39 @@ export const properties: PropertyConfig[] = [
         defaultValue: 1
     },
     {
+        key: 'smoothing',
+        label: 'Smoothing',
+        type: 'slider',
+        min: 0,
+        max: 20,
+        step: 1,
+        group: 'stroke',
+        applicableTo: ['fineliner', 'inkbrush', 'marker'],
+        defaultValue: 3
+    },
+    {
+        key: 'taperAmount',
+        label: 'Tapering',
+        type: 'slider',
+        min: 0,
+        max: 1,
+        step: 0.05,
+        group: 'stroke',
+        applicableTo: ['inkbrush'],
+        defaultValue: 0.15
+    },
+    {
+        key: 'velocitySensitivity',
+        label: 'Speed Sensitivity',
+        type: 'slider',
+        min: 0,
+        max: 1,
+        step: 0.05,
+        group: 'stroke',
+        applicableTo: ['inkbrush'],
+        defaultValue: 0.5
+    },
+    {
         key: 'strokeStyle',
         label: 'Stroke Style',
         type: 'select',

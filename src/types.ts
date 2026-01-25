@@ -214,6 +214,11 @@ export interface DrawingElement {
     orbitSpeed?: number;
     orbitDirection?: 'cw' | 'ccw';
     ttl?: number; // Expiry timestamp (ms)
+
+    // Pen Specific
+    smoothing?: number;
+    taperAmount?: number;
+    velocitySensitivity?: number;
 }
 
 

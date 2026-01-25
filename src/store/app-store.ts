@@ -109,7 +109,10 @@ const initialState: AppState = {
         shadowOffsetY: 5,
         gradientStart: '#ffffff',
         gradientEnd: '#000000',
-        gradientDirection: 45
+        gradientDirection: 45,
+        smoothing: 3,
+        taperAmount: 0.15,
+        velocitySensitivity: 0.5
     },
     theme: (localStorage.getItem('theme') as 'light' | 'dark') || 'light',
     globalSettings: {
