@@ -235,7 +235,7 @@ const ColorControl: Component<{ prop: PropertyConfig, value: any, onChange: (val
     );
 };
 
-const GradientEditor: Component<{ target: any, onChange: (key: string, val: any, history?: boolean) => void }> = (props) => {
+const GradientEditor: Component<{ target: any, onChange: (key: string, val: any, targetType?: string, targetId?: string, history?: boolean) => void }> = (props) => {
 
     // Helper to get current stops or defaults
     const stops = createMemo(() => {
@@ -262,7 +262,8 @@ const GradientEditor: Component<{ target: any, onChange: (key: string, val: any,
     let barRef: HTMLDivElement | undefined;
 
     const updateStops = (newStops: any[], recordHistory = true) => {
-        props.onChange('gradientStops', newStops, recordHistory);
+        const target = props.target;
+        props.onChange('gradientStops', newStops, target?.type, target?.type === 'element' ? target.data.id : undefined, recordHistory);
     };
 
     const handleBarMouseDown = (e: MouseEvent) => {
@@ -513,9 +514,19 @@ const PropertyPanel: Component = () => {
         });
     });
 
-    const handleChange = (key: string, value: any, recordHistory = true) => {
+    const handleChange = (key: string, value: any, targetType?: string, targetId?: string, history = true) => {
         const target = activeTarget();
         if (!target) return;
+
+        // If targetId is provided, ensure it matches current target
+        if (targetId && target.type === 'element' && target.data.id !== targetId) {
+            return;
+        }
+
+        // If targetType is provided, ensure it matches current target's type
+        if (targetType && target.type !== targetType) {
+            return;
+        }
 
         // Roundness conversion (boolean -> object or null)
         let finalValue = value;
@@ -524,7 +535,7 @@ const PropertyPanel: Component = () => {
         }
 
         if (target.type === 'element') {
-            updateElement(target.data.id!, { [key]: finalValue }, recordHistory);
+            updateElement(targetId || target.data.id!, { [key]: finalValue }, history);
         } else if (target.type === 'canvas') {
             if (key === 'canvasBackgroundColor') setCanvasBackgroundColor(value);
             else if (key === 'gridEnabled') updateGridSettings({ enabled: value });
@@ -601,7 +612,7 @@ const PropertyPanel: Component = () => {
                     <ColorControl
                         prop={prop}
                         value={getPropertyValue(prop)}
-                        onChange={(val) => handleChange(prop.key, val)}
+                        onChange={(val) => handleChange(prop.key, val, activeTarget()?.type, activeTarget()?.type === 'element' ? activeTarget()?.data?.id : undefined)}
                     />
                 );
             case 'slider':
@@ -614,7 +625,7 @@ const PropertyPanel: Component = () => {
                                     type="range"
                                     min={prop.min} max={prop.max} step={prop.step}
                                     value={getPropertyValue(prop) ?? prop.defaultValue}
-                                    onInput={(e) => handleChange(prop.key, Number(e.currentTarget.value))}
+                                    onInput={(e) => handleChange(prop.key, Number(e.currentTarget.value), activeTarget()?.type, activeTarget()?.type === 'element' ? activeTarget()?.data?.id : undefined)}
                                 />
                             </div>
                             <input
@@ -622,7 +633,7 @@ const PropertyPanel: Component = () => {
                                 class="precise-number-input"
                                 min={prop.min} max={prop.max} step={prop.step}
                                 value={getPropertyValue(prop) ?? prop.defaultValue}
-                                onInput={(e) => handleChange(prop.key, Number(e.currentTarget.value))}
+                                onInput={(e) => handleChange(prop.key, Number(e.currentTarget.value), activeTarget()?.type, activeTarget()?.type === 'element' ? activeTarget()?.data?.id : undefined)}
                             />
                         </div>
                     </div>
@@ -637,7 +648,7 @@ const PropertyPanel: Component = () => {
                                 const val = e.currentTarget.value;
                                 // Try to parse number if options are numbers
                                 const isNum = prop.options?.some(o => typeof o.value === 'number');
-                                handleChange(prop.key, isNum ? Number(val) : val);
+                                handleChange(prop.key, isNum ? Number(val) : val, activeTarget()?.type, activeTarget()?.type === 'element' ? activeTarget()?.data?.id : undefined);
                             }}
                         >
                             <For each={prop.options}>
@@ -653,7 +664,7 @@ const PropertyPanel: Component = () => {
                         <input
                             type="checkbox"
                             checked={!!getPropertyValue(prop)}
-                            onChange={(e) => handleChange(prop.key, e.currentTarget.checked)}
+                            onChange={(e) => handleChange(prop.key, e.currentTarget.checked, activeTarget()?.type, activeTarget()?.type === 'element' ? activeTarget()?.data?.id : undefined)}
                         />
                     </div>
                 );
@@ -664,7 +675,7 @@ const PropertyPanel: Component = () => {
                         <input
                             type="text"
                             value={getPropertyValue(prop) || ''}
-                            onInput={(e) => handleChange(prop.key, e.currentTarget.value)}
+                            onInput={(e) => handleChange(prop.key, e.currentTarget.value, activeTarget()?.type, activeTarget()?.type === 'element' ? activeTarget()?.data?.id : undefined)}
                         />
                     </div>
                 );
@@ -675,7 +686,7 @@ const PropertyPanel: Component = () => {
                         <div class="textarea-wrapper">
                             <textarea
                                 value={getPropertyValue(prop) || ''}
-                                onInput={(e) => handleChange(prop.key, e.currentTarget.value)}
+                                onInput={(e) => handleChange(prop.key, e.currentTarget.value, activeTarget()?.type, activeTarget()?.type === 'element' ? activeTarget()?.data?.id : undefined)}
                                 rows={3}
                             />
                         </div>
@@ -688,7 +699,7 @@ const PropertyPanel: Component = () => {
                         <input
                             type="number"
                             value={getPropertyValue(prop) ?? 0}
-                            onInput={(e) => handleChange(prop.key, Number(e.currentTarget.value))}
+                            onInput={(e) => handleChange(prop.key, Number(e.currentTarget.value), activeTarget()?.type, activeTarget()?.type === 'element' ? activeTarget()?.data?.id : undefined)}
                         />
                     </div>
                 );

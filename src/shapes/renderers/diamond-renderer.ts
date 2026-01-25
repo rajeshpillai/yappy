@@ -10,6 +10,14 @@ export class DiamondRenderer extends ShapeRenderer {
 
         this.drawDiamondArch(ctx, el.x, el.y, el.width, el.height, radius, el.strokeWidth, options.stroke!, options.fill);
 
+        if (el.drawInnerBorder) {
+            const dist = el.innerBorderDistance || 5;
+            if (el.width > dist * 2 && el.height > dist * 2) {
+                const innerR = Math.max(0, radius - dist);
+                this.drawDiamondArch(ctx, el.x + dist, el.y + dist, el.width - dist * 2, el.height - dist * 2, innerR, el.strokeWidth, el.innerBorderColor || options.stroke!, 'none');
+            }
+        }
+
         RenderPipeline.renderText(context, cx, cy);
     }
 
@@ -31,6 +39,32 @@ export class DiamondRenderer extends ShapeRenderer {
                 [el.x, el.y + h2]
             ];
             rc.polygon(points, options);
+        }
+
+        if (el.drawInnerBorder) {
+            const dist = el.innerBorderDistance || 5;
+            if (el.width > dist * 2 && el.height > dist * 2) {
+                const innerR = Math.max(0, radius - dist);
+                const innerOpts = { ...options, stroke: el.innerBorderColor || options.stroke, fill: 'none' };
+                if (innerR > 0) {
+                    const innerPath = this.getRoundedDiamondPath(el.x + dist, el.y + dist, el.width - dist * 2, el.height - dist * 2, innerR);
+                    rc.path(innerPath, innerOpts);
+                } else {
+                    const w2 = (el.width - dist * 2) / 2;
+                    const h2 = (el.height - dist * 2) / 2;
+                    const ix = el.x + dist;
+                    const iy = el.y + dist;
+                    const iw = el.width - dist * 2;
+                    const ih = el.height - dist * 2;
+                    const innerPoints: [number, number][] = [
+                        [ix + w2, iy],
+                        [ix + iw, iy + h2],
+                        [ix + w2, iy + ih],
+                        [ix, iy + h2]
+                    ];
+                    rc.polygon(innerPoints, innerOpts);
+                }
+            }
         }
 
         RenderPipeline.renderText(context, cx, cy);

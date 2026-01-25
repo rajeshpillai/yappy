@@ -1,4 +1,4 @@
-import { type Component, Show, onCleanup, createEffect } from "solid-js";
+import { Show, onCleanup, createEffect } from "solid-js";
 import { X, ExternalLink, Github, Youtube, Bug } from "lucide-solid";
 import "./help-dialog.css";
 

@@ -31,6 +31,21 @@ export class SpecialtyShapeRenderer extends ShapeRenderer {
         RenderPipeline.renderGeometry(ctx, geometry);
         ctx.stroke();
 
+        if (el.drawInnerBorder) {
+            const dist = el.innerBorderDistance || 5;
+            const sx = (el.width - dist * 2) / el.width;
+            const sy = (el.height - dist * 2) / el.height;
+            if (sx > 0 && sy > 0) {
+                ctx.save();
+                ctx.scale(sx, sy);
+                ctx.strokeStyle = el.innerBorderColor || strokeColor;
+                ctx.beginPath();
+                RenderPipeline.renderGeometry(ctx, geometry);
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+
         ctx.restore();
         RenderPipeline.renderText(context, cx, cy);
     }
@@ -46,6 +61,19 @@ export class SpecialtyShapeRenderer extends ShapeRenderer {
         ctx.translate(cx, cy);
 
         this.renderSketchGeometry(rc, geometry, options);
+
+        if (el.drawInnerBorder) {
+            const dist = el.innerBorderDistance || 5;
+            const sx = (el.width - dist * 2) / el.width;
+            const sy = (el.height - dist * 2) / el.height;
+            if (sx > 0 && sy > 0) {
+                const innerOptions = { ...options, stroke: el.innerBorderColor || options.stroke, fill: 'none' };
+                ctx.save();
+                ctx.scale(sx, sy);
+                this.renderSketchGeometry(rc, geometry, innerOptions);
+                ctx.restore();
+            }
+        }
 
         ctx.restore();
         RenderPipeline.renderText(context, cx, cy);
