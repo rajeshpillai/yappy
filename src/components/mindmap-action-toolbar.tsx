@@ -99,7 +99,12 @@ const ToolbarContent: Component<{
                 const y = () => {
                     const baseState = getElementPreviewBaseState(el().id);
                     const elY = baseState ? baseState.y : el().y;
-                    return (elY - 60) * store.viewState.scale + store.viewState.panY;
+                    // Position toolbar above element with 70px gap (accounts for toolbar height ~50px + 20px margin)
+                    const toolbarHeight = 50;
+                    const margin = 20;
+                    const calculated = elY * store.viewState.scale + store.viewState.panY - toolbarHeight - margin;
+                    // Ensure minimum margin from top (60px for main toolbar)
+                    return Math.max(calculated, 60);
                 };
 
                 return (

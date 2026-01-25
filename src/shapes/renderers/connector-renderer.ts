@@ -299,8 +299,22 @@ export class ConnectorRenderer extends ShapeRenderer {
         }
 
         if (el.curveType === 'bezier') {
-            const cp1 = el.controlPoints?.[0] || start;
-            const cp2 = el.controlPoints?.[1] || cp1;
+            // Calculate control points - same logic as definePath
+            let cp1, cp2;
+            if (el.controlPoints && el.controlPoints.length > 0) {
+                cp1 = el.controlPoints[0];
+                cp2 = el.controlPoints.length > 1 ? el.controlPoints[1] : cp1;
+            } else {
+                // Calculate implicit control points based on width/height (same as definePath)
+                const w = el.width, h = el.height;
+                if (Math.abs(w) > Math.abs(h)) {
+                    cp1 = { x: start.x + w / 2, y: start.y };
+                    cp2 = { x: end.x - w / 2, y: end.y };
+                } else {
+                    cp1 = { x: start.x, y: start.y + h / 2 };
+                    cp2 = { x: end.x, y: end.y - h / 2 };
+                }
+            }
 
             // Approximation of length
             const chord = Math.sqrt((end.x - start.x) ** 2 + (end.y - start.y) ** 2);

@@ -1,5 +1,18 @@
 import type { Point } from "../types";
 
+export const isPointInPolygon = (p: Point, polygon: Point[]): boolean => {
+    let inside = false;
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+        const xi = polygon[i].x, yi = polygon[i].y;
+        const xj = polygon[j].x, yj = polygon[j].y;
+        if (((yi > p.y) !== (yj > p.y)) &&
+            (p.x < (xj - xi) * (p.y - yi) / (yj - yi) + xi)) {
+            inside = !inside;
+        }
+    }
+    return inside;
+};
+
 export const distanceToSegment = (p: Point, a: Point, b: Point): number => {
     const x = p.x;
     const y = p.y;
@@ -42,6 +55,39 @@ export const distanceToSegment = (p: Point, a: Point, b: Point): number => {
 const cubicBezier = (p0: number, p1: number, p2: number, p3: number, t: number) => {
     const k = 1 - t;
     return k * k * k * p0 + 3 * k * k * t * p1 + 3 * k * t * t * p2 + t * t * t * p3;
+};
+
+const cubicBezierAngle = (p0: Point, p1: Point, p2: Point, p3: Point, t: number) => {
+    const dx = 3 * (1 - t) * (1 - t) * (p1.x - p0.x) + 6 * (1 - t) * t * (p2.x - p1.x) + 3 * t * t * (p3.x - p2.x);
+    const dy = 3 * (1 - t) * (1 - t) * (p1.y - p0.y) + 6 * (1 - t) * t * (p2.y - p1.y) + 3 * t * t * (p3.y - p2.y);
+    return Math.atan2(dy, dx);
+};
+
+export const getOrganicBranchPolygon = (
+    start: Point, end: Point, cp1: Point, cp2: Point, strokeWidth: number
+): Point[] => {
+    const segments = 20;
+    const startWidth = Math.max(strokeWidth * 8, 4);
+    const endWidth = Math.max(strokeWidth * 2, 2);
+    const pointsTop: Point[] = [];
+    const pointsBottom: Point[] = [];
+
+    for (let i = 0; i <= segments; i++) {
+        const t = i / segments;
+        const x = cubicBezier(start.x, cp1.x, cp2.x, end.x, t);
+        const y = cubicBezier(start.y, cp1.y, cp2.y, end.y, t);
+        const angle = cubicBezierAngle(start, cp1, cp2, end, t);
+
+        const currentWidth = startWidth + (endWidth - startWidth) * t;
+        const halfWidth = currentWidth / 2;
+        const offsetX = Math.cos(angle + Math.PI / 2) * halfWidth;
+        const offsetY = Math.sin(angle + Math.PI / 2) * halfWidth;
+
+        pointsTop.push({ x: x + offsetX, y: y + offsetY });
+        pointsBottom.push({ x: x - offsetX, y: y - offsetY });
+    }
+
+    return [...pointsTop, ...pointsBottom.reverse()];
 };
 
 export const getBezierPoints = (start: Point, cp1: Point, cp2: Point, end: Point, segments: number = 20) => {

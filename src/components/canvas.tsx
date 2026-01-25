@@ -6,7 +6,7 @@ import { renderElement, normalizePoints } from "../utils/render-element";
 import { getAnchorPoints, findClosestAnchor } from "../utils/anchor-points";
 import { calculateSmartElbowRoute } from "../utils/routing";
 import type { DrawingElement } from "../types";
-import { distanceToSegment, isPointOnPolyline, isPointInEllipse, intersectElementWithLine, isPointOnBezier } from "../utils/geometry";
+import { distanceToSegment, isPointOnPolyline, isPointInEllipse, intersectElementWithLine, isPointOnBezier, isPointInPolygon, getOrganicBranchPolygon } from "../utils/geometry";
 import ContextMenu, { type MenuItem } from "./context-menu";
 import { snapPoint } from "../utils/snap-helpers";
 import { setImageLoadCallback } from "../utils/image-cache";
@@ -654,6 +654,26 @@ const Canvas: Component = () => {
                     // Only draw bounding box for non-linear elements
                     if (el.type !== 'line' && el.type !== 'arrow' && el.type !== 'bezier' && el.type !== 'organicBranch') {
                         ctx.strokeRect(hX - padding, hY - padding, hW + padding * 2, hH + padding * 2);
+                    } else if (el.type === 'organicBranch' && el.points && el.points.length >= 2 && el.controlPoints && el.controlPoints.length >= 2) {
+                        // Draw curved selection outline for organicBranch
+                        const pts = normalizePoints(el.points);
+                        if (pts.length >= 2) {
+                            const start = { x: el.x + pts[0].x, y: el.y + pts[0].y };
+                            const end = { x: el.x + pts[pts.length - 1].x, y: el.y + pts[pts.length - 1].y };
+                            const polygon = getOrganicBranchPolygon(start, end, el.controlPoints[0], el.controlPoints[1], el.strokeWidth);
+
+                            ctx.save();
+                            ctx.strokeStyle = '#3b82f6';
+                            ctx.lineWidth = 2 / scale;
+                            ctx.beginPath();
+                            ctx.moveTo(polygon[0].x, polygon[0].y);
+                            for (let i = 1; i < polygon.length; i++) {
+                                ctx.lineTo(polygon[i].x, polygon[i].y);
+                            }
+                            ctx.closePath();
+                            ctx.stroke();
+                            ctx.restore();
+                        }
                     }
 
                     // Handles (Only if single selection)
@@ -663,12 +683,23 @@ const Canvas: Component = () => {
                         ctx.strokeStyle = '#3b82f6';
                         ctx.lineWidth = 2 / scale;
 
-                        if (el.type === 'line' || el.type === 'arrow' || el.type === 'organicBranch') {
-                            // Line/Arrow/OrganicBranch Specific Handles (Start and End only)
-                            const startX = hX;
-                            const startY = hY;
-                            const endX = hX + hW;
-                            const endY = hY + hH;
+                        if (el.type === 'line' || el.type === 'arrow' || el.type === 'bezier' || el.type === 'organicBranch') {
+                            // Line/Arrow/Bezier/OrganicBranch Specific Handles (Start and End only)
+                            let startX = hX;
+                            let startY = hY;
+                            let endX = hX + hW;
+                            let endY = hY + hH;
+
+                            // For organicBranch, use actual start/end points from points array
+                            if (el.type === 'organicBranch' && el.points && el.points.length >= 2) {
+                                const pts = normalizePoints(el.points);
+                                if (pts.length >= 2) {
+                                    startX = el.x + pts[0].x;
+                                    startY = el.y + pts[0].y;
+                                    endX = el.x + pts[pts.length - 1].x;
+                                    endY = el.y + pts[pts.length - 1].y;
+                                }
+                            }
 
                             const handles = [
                                 { x: startX, y: startY }, // Start (TL)
@@ -1605,6 +1636,16 @@ const Canvas: Component = () => {
                 }
                 return distanceToSegment(p, { x: el.x, y: el.y }, { x: el.x + el.width, y: el.y + el.height }) <= threshold;
             }
+        } else if (el.type === 'organicBranch') {
+            const pts = normalizePoints(el.points);
+            const controls = el.controlPoints || [];
+            if (pts.length < 2 || controls.length < 2) return false;
+
+            const start = { x: el.x + pts[0].x, y: el.y + pts[0].y };
+            const end = { x: el.x + pts[pts.length - 1].x, y: el.y + pts[pts.length - 1].y };
+            const polygon = getOrganicBranchPolygon(start, end, controls[0], controls[1], el.strokeWidth);
+
+            return isPointInPolygon(p, polygon);
         } else if ((el.type === 'fineliner' || el.type === 'inkbrush' || el.type === 'marker') && el.points) {
             // For pen types, points are now relative to el.x, el.y
             // The point p is in local unrotated space matches el.x/y system.
@@ -2831,10 +2872,24 @@ const Canvas: Component = () => {
                 finalY = snapped.y;
             }
 
-            updateElement(currentId, {
+            const updates: Partial<DrawingElement> = {
                 width: finalX - startX,
                 height: finalY - startY
-            });
+            };
+
+            // For organicBranch, provide temporary points and controlPoints for live preview
+            if (store.selectedTool === 'organicBranch') {
+                const w = finalX - startX;
+                const h = finalY - startY;
+                // Relative start and end points (start at origin, end at width/height)
+                updates.points = [0, 0, w, h];
+                // Calculate control points for S-curve
+                const cp1 = { x: startX + w * 0.5, y: startY };
+                const cp2 = { x: finalX - w * 0.5, y: finalY };
+                updates.controlPoints = [cp1, cp2];
+            }
+
+            updateElement(currentId, updates);
         }
 
         // Auto-Scroll Check
