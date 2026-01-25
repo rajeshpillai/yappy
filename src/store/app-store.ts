@@ -762,6 +762,8 @@ export const setDocType = (type: 'infinite' | 'slides') => {
 
 // --- State Morphing Actions ---
 
+
+
 export const toggleStatePanel = (visible?: boolean) => {
     setStore("showStatePanel", visible ?? !store.showStatePanel);
 };
@@ -1354,7 +1356,13 @@ export const setMaxLayers = (count: number) => {
 
 // Panel Management
 export const togglePropertyPanel = (visible?: boolean) => {
-    setStore('showPropertyPanel', (v) => visible ?? !v);
+    // If currently minimized and we are toggling on (or toggling), expand it
+    if (store.isPropertyPanelMinimized && (visible === undefined || visible === true)) {
+        setStore("isPropertyPanelMinimized", false);
+        setStore("showPropertyPanel", true);
+    } else {
+        setStore("showPropertyPanel", visible ?? !store.showPropertyPanel);
+    }
 };
 
 export const toggleLayerPanel = (visible?: boolean) => {

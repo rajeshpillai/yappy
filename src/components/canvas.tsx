@@ -652,7 +652,7 @@ const Canvas: Component = () => {
                     const padding = 2 / scale;
 
                     // Only draw bounding box for non-linear elements
-                    if (el.type !== 'line' && el.type !== 'arrow' && el.type !== 'organicBranch') {
+                    if (el.type !== 'line' && el.type !== 'arrow' && el.type !== 'bezier' && el.type !== 'organicBranch') {
                         ctx.strokeRect(hX - padding, hY - padding, hW + padding * 2, hH + padding * 2);
                     }
 
