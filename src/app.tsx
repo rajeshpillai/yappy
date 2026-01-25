@@ -110,7 +110,6 @@ const App: Component = () => {
           e.preventDefault();
           applyPreviousState();
         }
-        return; // Handle Alt and exit
       }
 
       // Ignore hotkeys when typing in input fields, textareas, or contenteditable elements
