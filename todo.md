@@ -910,8 +910,45 @@
 
 
 
+## Phase 63: Universal PropertyPanel & Slide UX Improvements
+**Status**: ✅ Complete
+**Branch**: feat/slides-transition
+
+- [x] **Universal PropertyPanel for Slides**
+  - [x] Add 'slide' as 5th target type (alongside element, multi, canvas, defaults)
+  - [x] Show slide properties when in slide mode with no selection
+  - [x] Slide transition controls (type, duration, easing)
+  - [x] Slide background color property
+  - [x] SlideActions component with Preview button
+  - [x] Panel header shows "Slide X" for slide context
+- [x] **Property Filtering Fix**
+  - [x] Slides/canvas require explicit `applicableTo` array inclusion
+  - [x] No longer inherit from `applicableTo: 'all'`
+  - [x] Fixed: Text Highlight, Drop Shadow no longer appear for slides
+- [x] **Escape Key Fixes**
+  - [x] help-dialog.tsx - Escape closes dialog
+  - [x] export-dialog.tsx - Escape closes dialog
+  - [x] load-export-dialog.tsx - Escape closes dialog
+  - [x] slide-transition-picker.tsx - Escape closes picker
+- [x] **Visual Slide Frame Indicators**
+  - [x] Dashed blue borders for slide boundaries in infinite canvas mode
+  - [x] Slide number labels at top-left of each frame
+  - [x] Only shown when `slides.length > 1` (not for fresh infinite canvas)
+
+**Files Modified**:
+- `src/config/properties.ts` - Added slide properties configuration
+- `src/components/property-panel.tsx` - Slide target type, SlideActions, filtering
+- `src/store/app-store.ts` - Added `updateSlideBackground()` action
+- `src/components/canvas.tsx` - Slide frame visualization
+- `src/components/help-dialog.tsx` - Escape key handler
+- `src/components/export-dialog.tsx` - Escape key handler
+- `src/components/load-export-dialog.tsx` - Escape key handler
+- `src/components/slide-transition-picker.tsx` - Escape key handler
+
+---
+
  ## Active Branches
  - main (before slides)
  - dev
  - feat/slides-canvas -> Slides implementation
- - feat/slides-transition -> inprogress
+ - feat/slides-transition -> Complete (ready to merge)
