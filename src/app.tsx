@@ -169,8 +169,9 @@ const App: Component = () => {
         } else if (key === 's') {
           e.preventDefault();
           handleSaveRequest('workspace');
-        } else if (key === 'e' && e.shiftKey) {
+        } else if ((key === 'e' || code === 'KeyE') && e.shiftKey) {
           e.preventDefault();
+          console.log('[DEBUG] Ctrl+Shift+E detected, opening export dialog');
           setIsExportOpen(true);
         } else if (key === 'g') {
           e.preventDefault();

@@ -9,7 +9,7 @@ import {
 import {
     Menu as MenuIcon, FolderOpen, Share2, FilePlus, Trash2, Maximize,
     Moon, Sun, Download, Layout,
-    Layers, Check, Play, Square, Camera
+    Layers, Check, Play, Square, Camera, Video
 } from "lucide-solid";
 import { sequenceAnimator } from "../utils/animation/sequence-animator";
 import HelpDialog from "./help-dialog";
@@ -358,6 +358,13 @@ const Menu: Component = () => {
                                     <button class="menu-item" onClick={() => { setLoadExportInitialTab('save'); setIsLoadExportOpen(true); setIsMenuOpen(false); }}>
                                         <Download size={16} />
                                         <span class="label">Export / Save...</span>
+                                    </button>
+                                    <button class="menu-item" onClick={() => { setIsExportOpen(true); setIsMenuOpen(false); }}>
+                                        <Video size={16} />
+                                        <span class="label">Export Animation</span>
+                                        <div class="menu-item-right">
+                                            <span class="shortcut">Ctrl+Shift+E</span>
+                                        </div>
                                     </button>
                                     <div class="menu-separator"></div>
                                     <div class="menu-item" onClick={() => { togglePropertyPanel(); setIsMenuOpen(false); }}>
