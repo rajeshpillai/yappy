@@ -1053,3 +1053,44 @@ for (const segment of segments) {
 }
 ctx.stroke();
 ```
+
+---
+
+## Pen Rendering & Smoothing
+
+### High-Fidelity Freehand Strokes
+
+**Problem**: Raw pointer points often contain jitter and "aliasing" artifacts, especially on lower-end devices or when drawing quickly.
+
+**Solution**: Implement a moving-average filter and dynamic tapering logic in the `FreehandRenderer`.
+
+```typescript
+// Smoothing helper
+private smoothPoints(pts: any[], intensity: number): any[] {
+    if (pts.length < 3) return pts;
+    const smoothed = [pts[0]];
+    const windowSize = Math.floor(intensity / 2) || 1;
+    
+    for (let i = 1; i < pts.length - 1; i++) {
+        let sumX = 0, sumY = 0, count = 0;
+        for (let j = Math.max(0, i - windowSize); j <= Math.min(pts.length - 1, i + windowSize); j++) {
+            sumX += pts[j].x;
+            sumY += pts[j].y;
+            count++;
+        }
+        smoothed.push({ x: sumX / count, y: sumY / count });
+    }
+    smoothed.push(pts[pts.length - 1]);
+    return smoothed;
+}
+```
+
+**Key Insights**:
+1. **Adaptive Smoothing**: Allowing users to control the window size for the moving average via a `smoothing` property (0-20) provides a balance between responsiveness and neatness.
+2. **Velocity Normalization**: In `renderInkbrush`, calculating velocity per segment and normalizing by the `maxVelocity` of the entire stroke ensures that the thickness variation is consistent within a single draw action.
+3. **Proportional Tapering**: Scaling the taper length (`taperLength`) as a percentage of the total number of points in the stroke (using a configurable `taperAmount`) results in more natural-looking ends for both short flicks and long lines.
+4. **Speed Sensitivity**: The `velocitySensitivity` property allows for a wide range of artistic styles—from uniform technical lines to highly dynamic calligraphy.
+
+**Impact**: Significant improvement in the professional feel of the pen tools, correcting for hardware jitter and providing an expressive, hand-drawn aesthetic.
+
+**Location**: `src/shapes/renderers/freehand-renderer.ts`

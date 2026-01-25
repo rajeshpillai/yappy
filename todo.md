@@ -935,15 +935,19 @@
   - [x] Slide number labels at top-left of each frame
   - [x] Only shown when `slides.length > 1` (not for fresh infinite canvas)
 
+## Phase 64: Pen Property Customization
+**Status**: ✅ Complete
+- [x] Implement configurable **Smoothing** (0-20) for all pen tools (fineliner, inkbrush, marker)
+- [x] Implement configurable **Tapering** for Ink Brush
+- [x] Implement configurable **Speed Sensitivity** for Ink Brush
+- [x] Update `FreehandRenderer` with moving-average point smoothing engine
+- [x] Update `PropertyPanel` with specialized pen controls
+
 **Files Modified**:
-- `src/config/properties.ts` - Added slide properties configuration
-- `src/components/property-panel.tsx` - Slide target type, SlideActions, filtering
-- `src/store/app-store.ts` - Added `updateSlideBackground()` action
-- `src/components/canvas.tsx` - Slide frame visualization
-- `src/components/help-dialog.tsx` - Escape key handler
-- `src/components/export-dialog.tsx` - Escape key handler
-- `src/components/load-export-dialog.tsx` - Escape key handler
-- `src/components/slide-transition-picker.tsx` - Escape key handler
+- `src/types.ts` - Added smoothing, taperAmount, velocitySensitivity
+- `src/config/properties.ts` - Added pen property definitions
+- `src/store/app-store.ts` - Set default pen style values
+- `src/shapes/renderers/freehand-renderer.ts` - Implemented smoothing and dynamic tapering logic
 
 ---
 
