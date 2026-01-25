@@ -20,8 +20,29 @@
 .property-panel-container.minimized {
     height: 48px;
     overflow: hidden;
-    width: 200px;
-    /* Slimmer when minimized? */
+    width: 48px;
+    /* Square when minimized */
+    border-radius: 8px;
+    margin: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--border-color);
+}
+
+.property-panel-container.minimized .property-panel {
+    align-items: center;
+    justify-content: center;
+}
+
+.property-panel-container.minimized .panel-header {
+    padding: 0;
+    border: none;
+    height: 100%;
+    width: 100%;
+    justify-content: center;
+}
+
+.property-panel-container.minimized .header-actions {
+    display: none;
 }
 
 .property-header {
@@ -88,13 +109,28 @@
 }
 
 .panel-header {
-    padding: 16px;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
     background: var(--bg-secondary);
     flex-shrink: 0;
+}
+
+.burger-menu {
+    color: var(--text-primary) !important;
+    transition: transform 0.2s ease;
+}
+
+.burger-menu:hover {
+    transform: scale(1.1);
+}
+
+.property-panel-container.minimized .burger-menu {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
 }
 
 .panel-header h3 {

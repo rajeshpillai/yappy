@@ -1,5 +1,5 @@
 import { type Component, createSignal, Show, createEffect } from "solid-js";
-import { store, setSelectedTool, setSelectedTechnicalType } from "../store/app-store";
+import { store, setSelectedTool, setSelectedTechnicalType, setStore } from "../store/app-store";
 import type { ElementType } from "../types";
 import {
     Box, Database, ChevronDown, Binary, HardDrive, Circle, CircleDot, Minus, GripVertical, Layers
@@ -34,6 +34,12 @@ const TechnicalToolGroup: Component = () => {
         setIsOpen(false);
     };
 
+    const handleRightClick = (e: MouseEvent) => {
+        e.preventDefault();
+        setStore("showPropertyPanel", true);
+        setStore("isPropertyPanelMinimized", false);
+    };
+
     const toggleMenu = () => {
         setIsOpen(!isOpen());
     };
@@ -53,6 +59,7 @@ const TechnicalToolGroup: Component = () => {
             <button
                 class={`toolbar-btn ${isActive() ? 'active' : ''}`}
                 onClick={toggleMenu}
+                onContextMenu={handleRightClick}
                 title={activeTool().label}
             >
                 <div class="tool-icon-wrapper">

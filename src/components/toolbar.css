@@ -9,11 +9,11 @@
     align-items: center;
     gap: 4px;
     padding: 4px;
-    background: white;
+    background: var(--bg-panel);
     border-radius: 8px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--shadow-sm);
     z-index: 100;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-color);
     user-select: none;
 }
 
@@ -60,21 +60,21 @@
     border-radius: 6px;
     border: 1px solid transparent;
     background-color: transparent;
-    color: #4b5563;
+    color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.2s;
     user-select: none;
 }
 
 .toolbar-btn:hover {
-    background-color: #f3f4f6;
-    color: #1f2937;
+    background-color: var(--btn-hover);
+    color: var(--text-primary);
 }
 
 .toolbar-btn.active {
-    background-color: #eff6ff;
-    color: #3b82f6;
-    border-color: #bfdbfe;
+    background-color: rgba(59, 130, 246, 0.1);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
 }
 
 /* Mobile Property Panel Toggle - always visible, provides quick access */

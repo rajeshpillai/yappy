@@ -1,5 +1,5 @@
 import { type Component, createSignal, Show, For, createEffect } from "solid-js";
-import { store, setSelectedTool, setSelectedPenType } from "../store/app-store";
+import { store, setSelectedTool, setSelectedPenType, setStore } from "../store/app-store";
 import type { ElementType } from "../types";
 import { Pen, Brush, ChevronDown } from "lucide-solid";
 import { clickOutside } from "../utils/click-outside";
@@ -50,6 +50,13 @@ const PenToolGroup: Component = () => {
         setIsOpen(false);
     };
 
+    const handleRightClick = (e: MouseEvent) => {
+        e.preventDefault();
+        store.showPropertyPanel ? () => { } : setSelectedTool(store.selectedTool); // Dummy for context, actual trigger:
+        setStore("showPropertyPanel", true);
+        setStore("isPropertyPanelMinimized", false);
+    };
+
     const toggleMenu = () => {
         setIsOpen(!isOpen());
     };
@@ -66,6 +73,7 @@ const PenToolGroup: Component = () => {
             <button
                 class={`toolbar-btn ${isPenToolActive() ? 'active' : ''}`}
                 onClick={toggleMenu}
+                onContextMenu={handleRightClick}
                 title={`${getCurrentPenTool().label} (Click for more)`}
             >
                 <div class="tool-icon-wrapper">

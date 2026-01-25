@@ -1,5 +1,5 @@
 import { type Component, createSignal, Show, createEffect } from "solid-js";
-import { store, setSelectedTool, setSelectedWireframeType } from "../store/app-store";
+import { store, setSelectedTool, setSelectedWireframeType, setStore } from "../store/app-store";
 import type { ElementType } from "../types";
 import {
     ChevronDown
@@ -61,6 +61,12 @@ const WireframeToolGroup: Component = () => {
         setIsOpen(false);
     };
 
+    const handleRightClick = (e: MouseEvent) => {
+        e.preventDefault();
+        setStore("showPropertyPanel", true);
+        setStore("isPropertyPanelMinimized", false);
+    };
+
     const toggleMenu = () => {
         setIsOpen(!isOpen());
     };
@@ -80,6 +86,7 @@ const WireframeToolGroup: Component = () => {
             <button
                 class={`toolbar-btn ${isActive() ? 'active' : ''}`}
                 onClick={toggleMenu}
+                onContextMenu={handleRightClick}
                 title={activeTool().label}
             >
                 <div class="tool-icon-wrapper">

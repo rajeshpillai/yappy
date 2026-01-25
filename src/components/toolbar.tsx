@@ -67,6 +67,12 @@ const Toolbar: Component = () => {
         }
     };
 
+    const handleRightClick = (e: MouseEvent) => {
+        e.preventDefault();
+        setStore("showPropertyPanel", true);
+        setStore("isPropertyPanelMinimized", false);
+    };
+
     const handleImageUpload = (e: Event) => {
         const file = (e.target as HTMLInputElement).files?.[0];
         if (!file) return;
@@ -155,7 +161,7 @@ const Toolbar: Component = () => {
     const bezierIndex = tools.findIndex(t => t.type === 'bezier');
 
     return (
-        <div class="toolbar-container">
+        <div class="toolbar-container" onContextMenu={(e) => e.preventDefault()}>
             <input
                 type="file"
                 ref={el => fileInputRef = el}
@@ -169,6 +175,7 @@ const Toolbar: Component = () => {
                     <button
                         class={`toolbar-btn ${store.selectedTool === tool.type ? 'active' : ''}`}
                         onClick={() => handleToolClick(tool.type)}
+                        onContextMenu={handleRightClick}
                         title={tool.label}
                     >
                         <tool.icon size={20} />
@@ -185,6 +192,7 @@ const Toolbar: Component = () => {
                     <button
                         class={`toolbar-btn ${store.selectedTool === tool.type ? 'active' : ''}`}
                         onClick={() => handleToolClick(tool.type)}
+                        onContextMenu={handleRightClick}
                         title={tool.label}
                     >
                         <tool.icon size={20} />
@@ -219,6 +227,7 @@ const Toolbar: Component = () => {
                     <button
                         class={`toolbar-btn ${store.selectedTool === tool.type ? 'active' : ''}`}
                         onClick={() => handleToolClick(tool.type)}
+                        onContextMenu={handleRightClick}
                         title={tool.label}
                     >
                         <tool.icon size={20} />
@@ -233,6 +242,7 @@ const Toolbar: Component = () => {
                     <button
                         class={`toolbar-btn ${store.selectedTool === tool.type ? 'active' : ''}`}
                         onClick={() => handleToolClick(tool.type)}
+                        onContextMenu={handleRightClick}
                         title={tool.label}
                     >
                         <tool.icon size={20} />

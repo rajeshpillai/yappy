@@ -951,6 +951,12 @@
 
 ---
 
+
+## Phase 66: Toolbar Dark Mode Fix
+- [x] Update `toolbar.css` to use theme variables
+- [x] Update `pen-tool-group.css` to use theme variables
+- [x] Verify dark mode visual consistency
+
  ## Active Branches
  - main (before slides)
  - dev

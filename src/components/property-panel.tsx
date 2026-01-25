@@ -8,7 +8,7 @@ import {
     AlignStartVertical, AlignCenterVertical, AlignEndVertical,
     AlignHorizontalDistributeCenter, AlignVerticalDistributeCenter,
     Plus, ArrowDown, LayoutGrid, LayoutList, Target,
-    Minus, X, Play
+    X, Play, Menu
 } from "lucide-solid";
 import "./property-panel.css";
 import { properties, type PropertyConfig } from "../config/properties";
@@ -709,21 +709,25 @@ const PropertyPanel: Component = () => {
     });
 
     return (
-        <Show when={store.showPropertyPanel && activeTarget()}>
+        <Show when={store.showPropertyPanel && (activeTarget() || store.isPropertyPanelMinimized)}>
             <div
                 class="property-panel-container"
                 classList={{ minimized: store.isPropertyPanelMinimized }}
             >
-                <Show when={activeTarget()} fallback={<div class="property-panel empty"><div class="panel-header"><h3>Properties</h3></div><div class="panel-content">No Selection</div></div>}>
+                <Show when={activeTarget() || store.isPropertyPanelMinimized} fallback={<div class="property-panel empty"><div class="panel-header"><h3>Properties</h3></div><div class="panel-content">No Selection</div></div>}>
                     <div class="property-panel">
                         <div class="panel-header">
                             <div style={{ display: 'flex', 'align-items': 'center', gap: '8px' }}>
-                                <Show when={store.isPropertyPanelMinimized}>
-                                    <button class="minimize-btn" onClick={() => minimizePropertyPanel(false)} title="Expand">
-                                        <ChevronUp size={16} />
-                                    </button>
+                                <button
+                                    class="minimize-btn burger-menu"
+                                    onClick={() => minimizePropertyPanel()}
+                                    title={store.isPropertyPanelMinimized ? "Expand" : "Collapse"}
+                                >
+                                    <Menu size={18} />
+                                </button>
+                                <Show when={!store.isPropertyPanelMinimized}>
+                                    <h3>{activeTarget()?.type === 'element' ? 'Properties' : activeTarget()?.type === 'canvas' ? 'Canvas' : activeTarget()?.type === 'slide' ? `Slide ${store.activeSlideIndex + 1}` : activeTarget()?.type === 'multi' ? 'Selection' : activeTarget()?.type === 'defaults' ? 'Defaults' : 'Properties'}</h3>
                                 </Show>
-                                <h3>{activeTarget()?.type === 'element' ? 'Properties' : activeTarget()?.type === 'canvas' ? 'Canvas' : activeTarget()?.type === 'slide' ? `Slide ${store.activeSlideIndex + 1}` : activeTarget()?.type === 'multi' ? 'Selection' : 'Defaults'}</h3>
                             </div>
 
                             <div class="header-actions">
@@ -735,12 +739,6 @@ const PropertyPanel: Component = () => {
                                         <Trash2 size={16} />
                                     </button>
                                     <div class="vertical-separator"></div>
-                                </Show>
-
-                                <Show when={!store.isPropertyPanelMinimized}>
-                                    <button onClick={() => minimizePropertyPanel(true)} title="Minimize">
-                                        <Minus size={16} />
-                                    </button>
                                 </Show>
 
                                 <button class="close-btn" onClick={() => togglePropertyPanel(false)} title="Close">

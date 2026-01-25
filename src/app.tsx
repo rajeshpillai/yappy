@@ -6,7 +6,7 @@ import {
   addChildNode, addSiblingNode, toggleCollapseSelection, togglePresentationMode,
   applyNextState, applyPreviousState, applyDisplayState,
   setSelectedTool, setStore, groupSelected, ungroupSelected,
-  bringToFront, sendToBack, reorderLayers, toggleGrid, toggleSnapToGrid, addLayer
+  bringToFront, sendToBack, reorderLayers, toggleGrid, toggleSnapToGrid, addLayer, toggleSlideNavigator
 } from './store/app-store';
 import Canvas from './components/canvas';
 import Toolbar from './components/toolbar';
@@ -56,8 +56,8 @@ const App: Component = () => {
       const code = e.code;
       const key = e.key.toLowerCase();
 
-      // Allow Alt shortcuts (Commands) even if focused on inputs
-      if (e.altKey && !e.ctrlKey && !e.metaKey) {
+      // Allow Alt/Ctrl shortcuts (Commands) even if focused on inputs
+      if ((e.altKey || e.ctrlKey) && !e.metaKey) {
 
         if (code === 'Enter' || key === 'enter') {
           e.preventDefault();
