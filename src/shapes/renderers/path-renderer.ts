@@ -27,7 +27,74 @@ export class PathRenderer extends ShapeRenderer {
             const cp2 = controls[1];
 
             this.drawOrganicBranch(ctx, start, end, cp1, cp2, color, el.strokeWidth, el.text || "", color);
+            this.renderFlow(context, start, end, cp1, cp2);
         }
+    }
+
+    private renderFlow(context: RenderContext, start: { x: number, y: number }, end: { x: number, y: number }, cp1: { x: number, y: number }, cp2: { x: number, y: number }) {
+        const { ctx, element: el, isDarkMode } = context;
+        if (!el.flowAnimation) return;
+
+        const time = (window as any).yappyGlobalTime || performance.now();
+        const speed = (el.flowSpeed ?? 2) * 50;
+        const offset = (time / 1000 * speed);
+        const color = RenderPipeline.adjustColor(el.flowColor || el.strokeColor, isDarkMode);
+        const pulseSize = Math.max(2, el.strokeWidth * 1.5);
+        const gap = 100 / (el.flowDensity || 3);
+
+        ctx.save();
+        ctx.fillStyle = color;
+        ctx.shadowBlur = el.flowStyle === 'pulse' ? pulseSize : 0;
+        ctx.shadowColor = color;
+
+        // Approximation of curve length
+        const chord = Math.sqrt((end.x - start.x) ** 2 + (end.y - start.y) ** 2);
+        const contNet = Math.sqrt((cp1.x - start.x) ** 2 + (cp1.y - start.y) ** 2) +
+            Math.sqrt((cp2.x - cp1.x) ** 2 + (cp2.y - cp1.y) ** 2) +
+            Math.sqrt((end.x - cp2.x) ** 2 + (end.y - cp2.y) ** 2);
+        const approxLen = (chord + contNet) / 2;
+
+        const steps = Math.ceil(approxLen / 5);
+        for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            const d = t * approxLen;
+            if ((d + offset) % gap < speed / 10) {
+                const px = this.cubicBezier(start.x, cp1.x, cp2.x, end.x, t);
+                const py = this.cubicBezier(start.y, cp1.y, cp2.y, end.y, t);
+
+                // Calculate tangent angle
+                const tNext = Math.min(1, t + 0.01);
+                const pNextX = this.cubicBezier(start.x, cp1.x, cp2.x, end.x, tNext);
+                const pNextY = this.cubicBezier(start.y, cp1.y, cp2.y, end.y, tNext);
+                const angle = Math.atan2(pNextY - py, pNextX - px);
+
+                this.drawPulse(ctx, px, py, pulseSize, el.flowStyle, angle);
+            }
+        }
+
+        ctx.restore();
+    }
+
+    private drawPulse(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, style?: string, angle: number = 0) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+
+        if (style === 'dashes') {
+            ctx.fillRect(-size, -size / 2, size * 2, size);
+        } else if (style === 'pulse') {
+            ctx.beginPath();
+            ctx.arc(0, 0, size * 1.5, 0, Math.PI * 2);
+            const alpha = 0.5 + 0.5 * Math.sin(performance.now() / 100);
+            ctx.globalAlpha *= alpha;
+            ctx.fill();
+        } else {
+            // Default: dots
+            ctx.beginPath();
+            ctx.arc(0, 0, size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.restore();
     }
 
     private cubicBezier(p0: number, p1: number, p2: number, p3: number, t: number) {
