@@ -1,4 +1,4 @@
-import { type Component, createSignal, Show, createEffect } from "solid-js";
+import { type Component, createSignal, Show, createEffect, onCleanup } from "solid-js";
 import { X } from "lucide-solid";
 import { store } from "../store/app-store";
 import { exportToPng, exportToSvg } from "../utils/export";
@@ -22,6 +22,20 @@ const ExportDialog: Component<ExportDialogProps> = (props) => {
             if (store.selection.length > 0) {
                 setOnlySelected(true);
             }
+        }
+    });
+
+    // Handle Escape key to close dialog
+    createEffect(() => {
+        if (props.isOpen) {
+            const handleKeyDown = (e: KeyboardEvent) => {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    props.onClose();
+                }
+            };
+            window.addEventListener('keydown', handleKeyDown);
+            onCleanup(() => window.removeEventListener('keydown', handleKeyDown));
         }
     });
 

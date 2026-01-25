@@ -1,4 +1,4 @@
-import { type Component, Show } from "solid-js";
+import { type Component, Show, onMount, onCleanup, createEffect } from "solid-js";
 import { X, ExternalLink, Github, Youtube, Bug } from "lucide-solid";
 import "./help-dialog.css";
 
@@ -8,6 +8,20 @@ interface Props {
 }
 
 const HelpDialog: Component<Props> = (props) => {
+    // Handle Escape key to close dialog
+    createEffect(() => {
+        if (props.isOpen) {
+            const handleKeyDown = (e: KeyboardEvent) => {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    props.onClose();
+                }
+            };
+            window.addEventListener('keydown', handleKeyDown);
+            onCleanup(() => window.removeEventListener('keydown', handleKeyDown));
+        }
+    });
+
     return (
         <Show when={props.isOpen}>
             <div class="help-modal-overlay" onClick={props.onClose}>

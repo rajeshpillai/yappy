@@ -1,4 +1,4 @@
-import { createSignal, onMount } from "solid-js";
+import { createSignal, onMount, onCleanup } from "solid-js";
 import { Portal } from "solid-js/web";
 import { store, updateSlideTransition } from "../store/app-store";
 import { slideTransitionManager } from "../utils/animation";
@@ -15,6 +15,22 @@ interface SlideTransitionPickerProps {
 export const SlideTransitionPicker = (props: SlideTransitionPickerProps) => {
     const slide = () => store.slides[props.index];
     const transition = () => slide()?.transition || { type: 'none', duration: 500, easing: 'easeInOutQuad' as const };
+
+    // Handle Escape key to close picker
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            props.onClose();
+        }
+    };
+
+    onMount(() => {
+        window.addEventListener('keydown', handleKeyDown);
+    });
+
+    onCleanup(() => {
+        window.removeEventListener('keydown', handleKeyDown);
+    });
 
     const handleTypeChange = (e: Event) => {
         const type = (e.currentTarget as HTMLSelectElement).value as SlideTransitionType;

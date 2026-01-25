@@ -8,9 +8,9 @@ export interface PropertyConfig {
     min?: number;
     max?: number;
     step?: number;
-    applicableTo: (ElementType | 'canvas')[] | 'all';
+    applicableTo: (ElementType | 'canvas' | 'slide')[] | 'all';
     defaultValue?: any;
-    group: 'style' | 'stroke' | 'background' | 'text' | 'dimensions' | 'advanced' | 'canvas' | 'shadow' | 'gradient' | 'motion';
+    group: 'style' | 'stroke' | 'background' | 'text' | 'dimensions' | 'advanced' | 'canvas' | 'shadow' | 'gradient' | 'motion' | 'slide';
     dependsOn?: string | { key: string; value: any | any[] }; // Key of property that must be truthy for this to show
 }
 
@@ -285,6 +285,71 @@ export const properties: PropertyConfig[] = [
         group: 'canvas',
         applicableTo: ['canvas'],
         defaultValue: 0.5
+    },
+
+    // Slide Properties
+    {
+        key: 'transitionType',
+        label: 'Transition',
+        type: 'select',
+        options: [
+            { label: 'None', value: 'none' },
+            { label: 'Fade', value: 'fade' },
+            { label: 'Slide Left', value: 'slide-left' },
+            { label: 'Slide Right', value: 'slide-right' },
+            { label: 'Slide Up', value: 'slide-up' },
+            { label: 'Slide Down', value: 'slide-down' },
+            { label: 'Zoom In', value: 'zoom-in' },
+            { label: 'Zoom Out', value: 'zoom-out' }
+        ],
+        group: 'slide',
+        applicableTo: ['slide'],
+        defaultValue: 'none'
+    },
+    {
+        key: 'transitionDuration',
+        label: 'Duration (ms)',
+        type: 'slider',
+        min: 100,
+        max: 3000,
+        step: 100,
+        group: 'slide',
+        applicableTo: ['slide'],
+        defaultValue: 500
+    },
+    {
+        key: 'transitionEasing',
+        label: 'Easing',
+        type: 'select',
+        options: [
+            { label: 'Linear', value: 'linear' },
+            { label: 'Quad In', value: 'easeInQuad' },
+            { label: 'Quad Out', value: 'easeOutQuad' },
+            { label: 'Quad InOut', value: 'easeInOutQuad' },
+            { label: 'Cubic In', value: 'easeInCubic' },
+            { label: 'Cubic Out', value: 'easeOutCubic' },
+            { label: 'Cubic InOut', value: 'easeInOutCubic' },
+            { label: 'Back Out', value: 'easeOutBack' },
+            { label: 'Spring', value: 'easeSpring' }
+        ],
+        group: 'slide',
+        applicableTo: ['slide'],
+        defaultValue: 'easeInOutQuad'
+    },
+    {
+        key: 'slideBackground',
+        label: 'Background',
+        type: 'color',
+        options: [
+            { label: 'White', value: '#ffffff' },
+            { label: 'Light Gray', value: '#fafafa' },
+            { label: 'Paper', value: '#fdf6e3' },
+            { label: 'Dark Gray', value: '#121212' },
+            { label: 'Deep Black', value: '#000000' }
+        ],
+        group: 'slide',
+        applicableTo: ['slide'],
+        defaultValue: '#ffffff'
     },
 
     // Style

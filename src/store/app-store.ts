@@ -642,6 +642,20 @@ export const updateSlideTransition = (slideIndex: number, transition: Partial<Sl
     });
 };
 
+/**
+ * Update the background color for a specific slide
+ */
+export const updateSlideBackground = (slideIndex: number, color: string) => {
+    if (slideIndex < 0 || slideIndex >= store.slides.length) return;
+
+    setStore("slides", slideIndex, "backgroundColor", color);
+
+    // Also update current canvas background if this is the active slide
+    if (slideIndex === store.activeSlideIndex) {
+        setStore("canvasBackgroundColor", color);
+    }
+};
+
 export const loadDocument = (doc: any) => {
     batch(() => {
         // Version Migration Logic

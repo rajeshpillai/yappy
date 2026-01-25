@@ -1,5 +1,7 @@
 import { type Component, Show, createMemo, For, createSignal, createEffect, Index } from "solid-js";
-import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, updateGlobalSettings, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, alignSelectedElements, distributeSelectedElements, togglePropertyPanel, minimizePropertyPanel, setMaxLayers, setCanvasTexture, pushToHistory, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, toggleCollapse, setDocType } from "../store/app-store";
+import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, updateGlobalSettings, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, alignSelectedElements, distributeSelectedElements, togglePropertyPanel, minimizePropertyPanel, setMaxLayers, setCanvasTexture, pushToHistory, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, toggleCollapse, setDocType, updateSlideTransition, updateSlideBackground } from "../store/app-store";
+import { slideTransitionManager } from "../utils/animation";
+import type { Slide } from "../types/slide-types";
 import {
     Copy, ChevronsDown, ChevronDown, ChevronUp, ChevronsUp, Trash2, Palette,
     AlignLeft, AlignCenterHorizontal, AlignRight,
@@ -108,6 +110,23 @@ const MindmapActions: Component<{ elementId: string }> = (props) => {
                 </div>
             </div>
         </Show>
+    );
+};
+
+const SlideActions: Component = () => {
+    const handlePreviewTransition = async () => {
+        await slideTransitionManager.previewTransition(store.activeSlideIndex);
+    };
+
+    return (
+        <div class="property-group">
+            <div class="group-title">ACTIONS</div>
+            <div class="alignment-row">
+                <button class="icon-btn" onClick={handlePreviewTransition} title="Preview Transition">
+                    <Play size={18} />
+                </button>
+            </div>
+        </div>
     );
 };
 
@@ -401,6 +420,15 @@ const PropertyPanel: Component = () => {
         if (store.showCanvasProperties) {
             return { type: 'canvas' as const, data: null };
         }
+
+        // Slide context - when in slide mode with no selection
+        if (store.docType === 'slides') {
+            const activeSlide = store.slides[store.activeSlideIndex];
+            if (activeSlide) {
+                return { type: 'slide' as const, data: activeSlide as Slide };
+            }
+        }
+
         // Show defaults for the current tool
         const tool = store.selectedTool;
         if (tool === 'selection' || tool === 'pan' || tool === 'eraser') {
@@ -418,6 +446,8 @@ const PropertyPanel: Component = () => {
         let targetType: string;
         if (target.type === 'canvas') {
             targetType = 'canvas';
+        } else if (target.type === 'slide') {
+            targetType = 'slide';
         } else if (target.type === 'defaults') {
             const tool = store.selectedTool;
             // If selection/pan/eraser, show generic "shape" defaults (approx. rectangle)
@@ -439,7 +469,12 @@ const PropertyPanel: Component = () => {
                 if (['locked', 'link', 'angle', 'containerText', 'text', 'shadowOffsetX', 'shadowOffsetY'].includes(p.key)) return false;
             }
 
-            if (p.applicableTo !== 'all') {
+            // Slides and canvas require explicit applicableTo - don't inherit from 'all'
+            if (target.type === 'slide' || target.type === 'canvas') {
+                if (!Array.isArray(p.applicableTo) || !p.applicableTo.includes(targetType as any)) {
+                    return false;
+                }
+            } else if (p.applicableTo !== 'all') {
                 if (Array.isArray(p.applicableTo) && !p.applicableTo.includes(targetType as any)) {
                     return false;
                 }
@@ -503,6 +538,12 @@ const PropertyPanel: Component = () => {
             else if (key === 'renderStyle') updateGlobalSettings({ renderStyle: value });
             else if (key === 'showMindmapToolbar') updateGlobalSettings({ showMindmapToolbar: value });
             else if (key === 'docType') setDocType(value);
+        } else if (target.type === 'slide') {
+            const slideIndex = store.activeSlideIndex;
+            if (key === 'transitionType') updateSlideTransition(slideIndex, { type: value });
+            else if (key === 'transitionDuration') updateSlideTransition(slideIndex, { duration: value });
+            else if (key === 'transitionEasing') updateSlideTransition(slideIndex, { easing: value });
+            else if (key === 'slideBackground') updateSlideBackground(slideIndex, value);
         } else {
             updateDefaultStyles({ [key]: finalValue });
         }
@@ -524,6 +565,14 @@ const PropertyPanel: Component = () => {
             if (prop.key === 'showMindmapToolbar') return store.globalSettings.showMindmapToolbar;
             if (prop.key === 'docType') return store.docType;
             return (store as any)[prop.key];
+        }
+        if (target.type === 'slide') {
+            const slide = target.data as Slide;
+            if (prop.key === 'transitionType') return slide.transition?.type || 'none';
+            if (prop.key === 'transitionDuration') return slide.transition?.duration || 500;
+            if (prop.key === 'transitionEasing') return slide.transition?.easing || 'easeInOutQuad';
+            if (prop.key === 'slideBackground') return slide.backgroundColor || '#ffffff';
+            return undefined;
         }
         if (target.type === 'element') {
             const val = (target.data as any)[prop.key];
@@ -674,7 +723,7 @@ const PropertyPanel: Component = () => {
                                         <ChevronUp size={16} />
                                     </button>
                                 </Show>
-                                <h3>{activeTarget()?.type === 'element' ? 'Properties' : activeTarget()?.type === 'canvas' ? 'Canvas' : activeTarget()?.type === 'multi' ? 'Selection' : 'Defaults'}</h3>
+                                <h3>{activeTarget()?.type === 'element' ? 'Properties' : activeTarget()?.type === 'canvas' ? 'Canvas' : activeTarget()?.type === 'slide' ? `Slide ${store.activeSlideIndex + 1}` : activeTarget()?.type === 'multi' ? 'Selection' : 'Defaults'}</h3>
                             </div>
 
                             <div class="header-actions">
@@ -707,6 +756,9 @@ const PropertyPanel: Component = () => {
                                 </Show>
                                 <Show when={activeTarget()?.type === 'element'}>
                                     <MindmapActions elementId={activeTarget()!.data!.id} />
+                                </Show>
+                                <Show when={activeTarget()?.type === 'slide'}>
+                                    <SlideActions />
                                 </Show>
                                 <For each={Object.keys(groupedProperties())}>
                                     {(group) => (

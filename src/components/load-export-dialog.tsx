@@ -1,4 +1,4 @@
-import { type Component, createSignal, Show, createEffect } from "solid-js";
+import { type Component, createSignal, Show, createEffect, onCleanup } from "solid-js";
 import {
     X, Upload, Download, FolderOpen, Save,
     Image as ImageIcon, HelpCircle, AlertTriangle
@@ -22,6 +22,20 @@ const LoadExportDialog: Component<LoadExportDialogProps> = (props) => {
     createEffect(() => {
         if (props.isOpen) {
             setActiveTab(props.initialTab);
+        }
+    });
+
+    // Handle Escape key to close dialog
+    createEffect(() => {
+        if (props.isOpen) {
+            const handleKeyDown = (e: KeyboardEvent) => {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    props.onClose();
+                }
+            };
+            window.addEventListener('keydown', handleKeyDown);
+            onCleanup(() => window.removeEventListener('keydown', handleKeyDown));
         }
     });
 
