@@ -339,20 +339,51 @@ const Canvas: Component = () => {
                 ctx.fillStyle = slideBg;
                 ctx.fillRect(sX, sY, sW, sH);
             }
-        } else if (store.docType === 'infinite') {
-            // Wide Mode: Render ALL slide frames as spatial landmarks
-            store.slides.forEach((slide) => {
+        } else if (store.docType === 'infinite' && store.slides.length > 1) {
+            // Wide Mode: Render slide frames only if there are multiple slides
+            // Single-slide infinite canvas should be clean and boundless
+            store.slides.forEach((slide, index) => {
                 const { width: sW, height: sH } = slide.dimensions;
                 const { x: sX, y: sY } = slide.spatialPosition;
 
-                // Simple grey frame for landmarks in infinite mode
-                ctx.strokeStyle = isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
+                // Dashed frame for slide boundaries
+                ctx.save();
+                ctx.strokeStyle = isDarkMode ? "rgba(100,149,237,0.4)" : "rgba(70,130,180,0.3)"; // Cornflower blue
                 ctx.lineWidth = 2;
+                ctx.setLineDash([10, 5]);
                 ctx.strokeRect(sX, sY, sW, sH);
+                ctx.setLineDash([]);
+                ctx.restore();
 
-                // Optional: very light background
-                ctx.fillStyle = isDarkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)";
+                // Very light background tint
+                ctx.fillStyle = isDarkMode ? "rgba(100,149,237,0.03)" : "rgba(70,130,180,0.02)";
                 ctx.fillRect(sX, sY, sW, sH);
+
+                // Slide number label in top-left corner
+                ctx.save();
+                const labelText = `Slide ${index + 1}`;
+                const fontSize = Math.max(14, 16 / scale); // Scale-aware font size
+                ctx.font = `${fontSize}px Inter, sans-serif`;
+                ctx.fillStyle = isDarkMode ? "rgba(100,149,237,0.6)" : "rgba(70,130,180,0.5)";
+
+                const padding = 8;
+                const textMetrics = ctx.measureText(labelText);
+                const labelHeight = fontSize + padding * 2;
+                const labelWidth = textMetrics.width + padding * 2;
+
+                // Label background
+                ctx.fillStyle = isDarkMode ? "rgba(30,30,30,0.8)" : "rgba(255,255,255,0.9)";
+                ctx.fillRect(sX, sY, labelWidth, labelHeight);
+
+                // Label border
+                ctx.strokeStyle = isDarkMode ? "rgba(100,149,237,0.4)" : "rgba(70,130,180,0.3)";
+                ctx.lineWidth = 1;
+                ctx.strokeRect(sX, sY, labelWidth, labelHeight);
+
+                // Label text
+                ctx.fillStyle = isDarkMode ? "rgba(100,149,237,0.8)" : "rgba(70,130,180,0.7)";
+                ctx.fillText(labelText, sX + padding, sY + fontSize + padding / 2);
+                ctx.restore();
             });
         }
         ctx.restore();
