@@ -1441,9 +1441,25 @@ const Canvas: Component = () => {
             ];
 
             if (el.type === 'line' || el.type === 'arrow' || el.type === 'organicBranch') {
+                let startX = el.x;
+                let startY = el.y;
+                let endX = el.x + el.width;
+                let endY = el.y + el.height;
+
+                // For organicBranch, use actual start/end points from points array
+                if (el.type === 'organicBranch' && el.points && el.points.length >= 2) {
+                    const pts = normalizePoints(el.points);
+                    if (pts.length >= 2) {
+                        startX = el.x + pts[0].x;
+                        startY = el.y + pts[0].y;
+                        endX = el.x + pts[pts.length - 1].x;
+                        endY = el.y + pts[pts.length - 1].y;
+                    }
+                }
+
                 handles = [
-                    { type: 'tl', x: el.x, y: el.y },
-                    { type: 'br', x: el.x + el.width, y: el.y + el.height }
+                    { type: 'tl', x: startX, y: startY },
+                    { type: 'br', x: endX, y: endY }
                 ];
             }
 
@@ -2718,6 +2734,23 @@ const Canvas: Component = () => {
 
                             if (el.type === 'line' || el.type === 'arrow' || el.type === 'bezier') {
                                 updates.points = refreshLinePoints(el, newX, newY, newX + newWidth, newY + newHeight);
+                            }
+
+                            if (el.type === 'organicBranch') {
+                                // Update points (relative to x, y)
+                                updates.points = [0, 0, newWidth, newHeight];
+
+                                // Recalculate control points for natural S-curve
+                                const newStartX = newX;
+                                const newStartY = newY;
+                                const newEndX = newX + newWidth;
+                                const newEndY = newY + newHeight;
+
+                                // Same formula as initial creation
+                                const newCp1 = { x: newStartX + newWidth * 0.5, y: newStartY };
+                                const newCp2 = { x: newEndX - newWidth * 0.5, y: newEndY };
+
+                                updates.controlPoints = [newCp1, newCp2];
                             }
 
                             updateElement(id, updates, false);

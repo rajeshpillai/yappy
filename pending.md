@@ -1,25 +1,32 @@
-Currently pen tools have these properties:
+# Completed Features
 
-strokeColor (all elements) ✅
-strokeWidth (fineliner, inkbrush) ✅
-opacity (all) ✅
-pressureEnabled (fineliner, inkbrush) ✅
-We could add more pen-specific properties like:
+## Organic Branch Improvements
+- [x] Live preview while drawing organic branch (visible immediately as you drag)
+- [x] Curved selection outline for organic branch (follows tapered polygon shape)
+- [x] Circular endpoint handles for organic branch selection
+- [x] Point-in-polygon hit testing for organic branch
+- [x] Flow animation support for organic branch connectors
+- [x] Flow animation properties visible in property panel for organic branch
 
-Smoothing - how much to smooth the stroke curve
-Taper Amount - intensity of start/end tapering (for inkbrush)
-Velocity Sensitivity - how much speed affects thickness
-Would you like me to add these configurable properties for the pen tools?
+## Bezier Curve Flow Animation Fix
+- [x] Flow animation now follows bezier curve path (was going in straight line)
+- [x] Implicit control points calculated correctly for flow animation
 
-AskUserQuestion
-OUT
-User has answered your questions: "Which pen properties would you like to add?"="All three (Recommended)". You can now continue with the user's answers in mind.
-Update Todos
+- [x] Minimum top margin (60px) to avoid overlapping main toolbar
 
-Add pen smoothing property to properties.ts
+## Pen Tool Properties
+- [x] Smoothing - how much to smooth the stroke curve
+- [x] Taper Amount - intensity of start/end tapering (for inkbrush)
+- [x] Velocity Sensitivity - how much speed affects thickness
 
-Add taper amount property for inkbrush
+## Organic Branch Selection
+- [x] Verify curved selection outline is visible when selecting organic branch
+- [x] Verified selection state via automated tests
 
-Add velocity sensitivity property for inkbrush
+---
 
-Update inkbrush renderer to use configurable properties
+# Pending Features
+
+## Organic Branch Selection (Needs Visual Verification)
+- [ ] Test selection with different zoom levels (Manual Visual Check)
+
