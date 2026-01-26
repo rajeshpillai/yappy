@@ -3633,55 +3633,10 @@ const Canvas: Component = () => {
 
             if (hitTestElement(el, x, y, threshold)) {
 
-                // Check for control handles (Star, Burst, Speech Bubble, Isometric Cube)
-                if (el.type === 'star' || el.type === 'burst' || el.type === 'speechBubble' || el.type === 'isometricCube') {
-                    const handleSize = 10 / store.viewState.scale;
-                    // For isometricCube, compute handle position dynamically if not stored
-                    // Actually, let's just use a virtual handle position logic here or relies on render loop to draw it.
-                    // The render loop draws it. We just need to hit test it.
-                    // BUT, getHandleAtPosition needs to know where it is.
-
-                    // ... logic to calculate handle position ...
-                    let handleX = 0, handleY = 0;
-
-                    if (el.type === 'isometricCube') {
-                        // Top corner of top face
-                        const ratio = (el.shapeRatio !== undefined ? el.shapeRatio : 25) / 100;
-                        const dy = el.height * ratio;
-                        // In local unrotated coords relative to center:
-                        // Top center is at (0, -height/2).
-                        // Wait, our geometry is (x, y) relative to center.
-                        // x = -w/2, y = -h/2.
-                        // Top face top point is x + w/2 + ... wait.
-                        // Geometry: { type: 'points', points: [{ x: midX, y: y }, { x: x + w, y: y + dy } ...] }
-                        // Point 0 is { x: 0, y: -h/2 }. This is the top-center point.
-                        // Let's place handle there? No, that's fixed.
-                        // The dy point is the one determining the slope.
-                        // Point 3 is { x: x, y: y + dy } -> Left corner of top face.
-                        // Point 1 is { x: x + w, y: y + dy } -> Right corner of top face.
-                        // Let's put handle at Point 3?
-                        // Actually, dragging Y of the side vertex changes dy.
-                        // Let's put handle at { x: x, y: y + dy } (Left-Bottom of top face)
-                        // x = -w/2, y = -h/2 + dy
-
-                        handleX = el.x + el.width / 2 + (-el.width / 2); // left edge
-                        handleY = el.y + el.height / 2 + (-el.height / 2 + dy);
-
-                    } else if (el.type === 'speechBubble') {
-                        // The tail control point for speech bubble
-                        handleX = el.x + el.width * (el.tailX || 0.5);
-                        handleY = el.y + el.height * (el.tailY || 1);
-                    } else if (el.type === 'star') {
-                        // The inner radius control point for star
-                        handleX = el.x + el.width / 2;
-                        handleY = el.y + el.height * (el.innerRadius || 0.38);
-                    } else if (el.type === 'burst') {
-                        // The inner radius control point for burst
-                        handleX = el.x + el.width / 2;
-                        handleY = el.y + el.height * (el.innerRadius || 0.3);
-                    }
-
-                    if (Math.abs(x - handleX) < handleSize && Math.abs(y - handleY) < handleSize) {
+                // Check for control handles (Star, Burst, Speech Bubble, Isometric Cube, Solid Block, Perspective Block)
+                if (['star', 'burst', 'speechBubble', 'isometricCube', 'solidBlock', 'perspectiveBlock'].includes(el.type)) {
+                    const hitHandle = getHandleAtPosition(x, y);
+                    if (hitHandle && hitHandle.handle.startsWith('control-')) {
                         // Hit a control handle, don't open text editor
                         return;
                     }
@@ -3710,7 +3665,7 @@ const Canvas: Component = () => {
                 }
 
                 // Only allow editing containerText for shapes and lines
-                const shapeTypes = ['rectangle', 'circle', 'diamond', 'line', 'arrow', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'starPerson', 'scroll', 'wavyDivider', 'doubleBanner', 'lightbulb', 'signpost', 'burstBlob', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'dfdProcess', 'dfdDataStore', 'isometricCube', 'cylinder', 'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity', 'umlClass', 'umlInterface', 'umlActor', 'umlUseCase', 'umlNote', 'umlPackage'];
+                const shapeTypes = ['rectangle', 'circle', 'diamond', 'line', 'arrow', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'starPerson', 'scroll', 'wavyDivider', 'doubleBanner', 'lightbulb', 'signpost', 'burstBlob', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'dfdProcess', 'dfdDataStore', 'isometricCube', 'solidBlock', 'perspectiveBlock', 'cylinder', 'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity', 'umlClass', 'umlInterface', 'umlActor', 'umlUseCase', 'umlNote', 'umlPackage'];
                 if (shapeTypes.includes(el.type)) {
                     setEditingId(el.id);
 
