@@ -168,8 +168,9 @@ export interface DrawingElement {
     polygonSides?: number; // Number of sides for polygon shapes (3-20, default: 6)
     borderRadius?: number; // Corner radius percentage (0-50, default: 0)
     burstPoints?: number; // Number of points for burst shapes (8-32, default: 16)
+    shapeRatio?: number; // 0-100 (Vertical ratio for cube, inner radius for star)
+    sideRatio?: number; // 0-100 (Horizontal skew for isometricCube)
     tailPosition?: number; // Tail position percentage (0-100, default: 20)
-    shapeRatio?: number; // Inner/Outer radius ratio percentage (10-90, default: var)
     drawInnerBorder?: boolean; // Toggle for double border
     innerBorderColor?: string; // Optional color (defaults to strokeColor if null)
     innerBorderDistance?: number; // Distance from outer border (padding)

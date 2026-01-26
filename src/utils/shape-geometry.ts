@@ -336,17 +336,134 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
         }
 
         case 'isometricCube': {
-            const dy = h * 0.25;
-            const midX = 0;
-            const midY = 0;
+            // Vertical Ratio (Height of top face) - Default 25%
+            const vRatio = (el.shapeRatio !== undefined ? el.shapeRatio : 25) / 100;
+            const dy = h * vRatio;
+
+            // Horizontal Ratio (Skew/Rotation) - Default 50%
+            const hRatio = (el.sideRatio !== undefined ? el.sideRatio : 50) / 100;
+            const spineX = x + w * hRatio;
+
+            // Vertices
+            const topY = y;
+            const midY = y + dy;
+            const bottomY = y + h;
+            const sideY = y + h - dy; // Bottom of side faces
+
+            /*
+               Points Layout:
+               Top Face:
+                 Top: (spineX, topY)
+                 Right: (x+w, midY)
+                 Bottom: (spineX, midY + dy)? No.
+                 Let's rethink based on standard isometric projection logic.
+                 
+                 If spineX is the center vertical axis X.
+                 Top Vertex: (spineX, y)
+                 Left Corner: (x, y + dy/2?) No, dy is face height.
+                 
+                 Let's stick to the previous simple logic but skewed.
+                 Old logic:
+                 Top Face: (midX, y), (x+w, y+dy), (midX, y+2*dy?!), (x, y+dy)
+                 Wait, the old logic had midX = 0? That seems buggy in the view_file output.
+                 Ah, lines 342: midX = 0; midY = 0; was suspicious in previous view.
+                 It probably relied on relative coordinates? No, x and y are absolute.
+                 Let's rewrite properly.
+            */
+
+            // Revised Logic:
+            // 1. Center internal vertex (meeting point of 3 faces): (spineX, y + h * vRatio)
+            //    Actually, let's define dy as the offset from top/bottom.
+
+            // Top Vertex of the whole bounds: (spineX, y)
+            // Center Vertex (Inner): (spineX, y + h * vRatio)
+            // Left Vertex: (x, y + h * vRatio / 2)?
+            // Right Vertex: (x + w, y + h * vRatio / 2)?
+
+            // To keep it filling the bounding box (x,y,w,h):
+            // Top Vertex: (spineX, y)
+            // Bottom Vertex: (spineX, y + h)
+            // Left Vertex: (x, y + h * vRatio)  <-- This determines the "slope" of top-left edge
+            // Right Vertex: (x + w, y + h * vRatio)
+
+            // Actually, if we want a "cube" look, the side edges should be vertical.
+            // So Left Face is: Left Vertex -> Center Vertex -> Bottom Vertex -> Left Bottom?
+
+            // Let's use the standard "Y" shape for the inner lines.
+            // Top Vertex: (spineX, y)
+            // Center (inner): (spineX, y + h * vRatio)
+            // Bottom Vertex: (spineX, y + h)
+
+            // Left Edge X: x
+            // Right Edge X: x + w
+
+            // The "Shoulders" (Left and Right corners of top face):
+            // They need to be at some Y. 
+            // If we want the top face to be 2*dy height. centerY = y + dy.
+            // Shoulder Y = y + dy / 2.
+
+            // Let's simplify:
+            // Top Face is a quad.
+            // Top point: T (spineX, y)
+            // Bottom point: C (spineX, y + h * vRatio)
+            // Left point: L (x, y + h * vRatio / 2)
+            // Right point: R (x + w, y + h * vRatio / 2)
+
+            // This ensures Top Face is contained in top portion.
+            // And vertical sides go down.
+            // Side Bottom Left: (x, y + h - (h * vRatio / 2))
+            // Side Bottom Right: (x+w, y + h - (h * vRatio / 2))
+
+            // Wait, if it's a cube, vertical lines should be parallel.
+            // L -> L_bottom
+            // R -> R_bottom
+            // C -> Bottom Vertex (spineX, y+h)
+
+            // To maximize usage of bounding box:
+            // L_bottom.y should be y + h - (difference between C.y and T.y)? No.
+
+            // Let's assume the "Front vertical edge" (C to Bottom) has length L_v.
+            // And "Side vertical edges" (L to L_bottom) have length L_v.
+            // C.y = y + faceHeight.
+            // Bottom.y = y + h.
+            // So L_v = h - faceHeight.
+
+            // Then L_bottom.y = L.y + L_v = (y + faceHeight/2) + (h - faceHeight) = y + h - faceHeight/2.
+
+            const faceHeight = h * vRatio;
+            const cy = y + faceHeight; // Center Y
+
+            const shoulderY = y + faceHeight / 2;
+
             return {
                 type: 'multi', shapes: [
-                    // Top face
-                    { type: 'points', points: [{ x: midX, y: y }, { x: x + w, y: y + dy }, { x: midX, y: midY }, { x: x, y: y + dy }] },
-                    // Left face
-                    { type: 'points', points: [{ x: x, y: y + dy }, { x: midX, y: midY }, { x: midX, y: y + h }, { x: x, y: y + h - dy }] },
-                    // Right face
-                    { type: 'points', points: [{ x: midX, y: midY }, { x: x + w, y: y + dy }, { x: x + w, y: y + h - dy }, { x: midX, y: y + h }] }
+                    // Top Face
+                    {
+                        type: 'points', points: [
+                            { x: spineX, y: y }, // Top
+                            { x: x + w, y: shoulderY }, // Right
+                            { x: spineX, y: cy }, // Center
+                            { x: x, y: shoulderY } // Left
+                        ]
+                    },
+                    // Left Face
+                    {
+                        type: 'points', points: [
+                            { x: x, y: shoulderY }, // Top Left
+                            { x: spineX, y: cy }, // Center
+                            { x: spineX, y: y + h }, // Bottom Center
+                            { x: x, y: y + h - faceHeight / 2 } // Bottom Left
+                        ]
+                    },
+                    // Right Face
+                    {
+                        type: 'points', points: [
+                            { x: spineX, y: cy }, // Center
+                            { x: x + w, y: shoulderY }, // Top Right
+                            { x: x + w, y: y + h - faceHeight / 2 }, // Bottom Right
+                            { x: spineX, y: y + h } // Bottom Center
+                        ]
+                    }
                 ]
             };
         }

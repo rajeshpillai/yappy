@@ -797,6 +797,33 @@ const Canvas: Component = () => {
                     ctx.restore();
                 }
 
+                // Custom Control Handles (Isometric Cube, Star, Burst)
+                if (store.selection.includes(el.id) && (el.type === 'isometricCube' || el.type === 'star' || el.type === 'burst')) {
+                    const cpSize = 10 / scale;
+                    let cx = 0, cy = 0;
+
+                    if (el.type === 'isometricCube') {
+                        const shapeRatio = (el.shapeRatio !== undefined ? el.shapeRatio : 25) / 100;
+                        const sideRatio = (el.sideRatio !== undefined ? el.sideRatio : 50) / 100;
+                        const faceHeight = el.height * shapeRatio;
+                        cy = el.y + faceHeight;
+                        cx = el.x + el.width * sideRatio;
+                    } else if (el.type === 'star' || el.type === 'burst') {
+                        const ratio = (el.shapeRatio !== undefined ? el.shapeRatio : 25) / 100;
+                        cx = el.x + el.width / 2;
+                        cy = el.y + el.height * ratio;
+                    }
+
+                    ctx.fillStyle = '#f59e0b'; // Amber-500
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 1.5 / scale;
+                    ctx.beginPath();
+                    // Diamond shape for 2D handle? Or just circle? Circle is fine.
+                    ctx.arc(cx, cy, cpSize / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                }
+
                 // Selection-dependent UI (Control points, Connectors)
                 if (store.selection.includes(el.id)) {
                     if ((el.type === 'line' || el.type === 'arrow' || el.type === 'bezier' || el.type === 'organicBranch') && el.controlPoints && store.selectedTool === 'selection') {
@@ -1474,6 +1501,31 @@ const Canvas: Component = () => {
             const rotH = { x: el.x + el.width / 2, y: el.y - padding - 20 / scale };
             if (Math.abs(local.x - rotH.x) <= handleSize && Math.abs(local.y - rotH.y) <= handleSize / 2) {
                 return { id: el.id, handle: 'rotate' };
+            }
+
+            // Custom Control Handles (Star, Burst, Isometric Cube)
+            if (el.type === 'isometricCube') {
+                const shapeRatio = (el.shapeRatio !== undefined ? el.shapeRatio : 25) / 100;
+                const sideRatio = (el.sideRatio !== undefined ? el.sideRatio : 50) / 100;
+
+                // Calculate handle position (Center Vertex)
+                const faceHeight = el.height * shapeRatio;
+                const cy = el.y + faceHeight;
+                const cx = el.x + el.width * sideRatio;
+
+                if (Math.abs(local.x - cx) <= handleSize && Math.abs(local.y - cy) <= handleSize) {
+                    return { id: el.id, handle: 'control-1' };
+                }
+            } else if (el.type === 'star' || el.type === 'burst') {
+                const ratio = (el.shapeRatio !== undefined ? el.shapeRatio : 25) / 100;
+                const cx = el.x + el.width / 2;
+                const cy = el.y + el.height * ratio; // Simple approx for top inner point? 
+
+                // Actually star logic usually puts handle at inner radius top position
+                // For now let's assume it's just a vertical slider handle relative to bounds
+                if (Math.abs(local.x - cx) <= handleSize && Math.abs(local.y - cy) <= handleSize) {
+                    return { id: el.id, handle: 'control-1' };
+                }
             }
 
             // Check Control Points for Bezier/SmartElbow
@@ -2614,7 +2666,9 @@ const Canvas: Component = () => {
                                     newX = (initialElementX + initialElementWidth) - newWidth;
                                 }
                             }
-                        } else if (draggingHandle && draggingHandle.startsWith('control-')) {
+                        }
+
+                        if (draggingHandle && draggingHandle.startsWith('control-')) {
                             // DRAGGING CONTROL POINT
                             const index = parseInt(draggingHandle.replace('control-', ''), 10);
                             const element = store.elements.find(e => e.id === id);
@@ -2628,142 +2682,160 @@ const Canvas: Component = () => {
                                 }
 
                                 if (element.controlPoints && element.controlPoints.length === 1 && index === 0) {
-                                    // Dragging the Curve Handle (Quadratic t=0.5)
-                                    // Inverse math: CP = 2*mouse - 0.5*start - 0.5*end
+                                    // Curve Handle Logic
                                     let start = { x: element.x, y: element.y };
                                     let end = { x: element.x + element.width, y: element.y + element.height };
                                     if (element.points && element.points.length >= 2) {
-                                        if (element.points && element.points.length >= 2) {
-                                            const pts = normalizePoints(element.points);
-                                            if (pts.length > 0) {
-                                                start = { x: element.x + pts[0].x, y: element.y + pts[0].y };
-                                                end = { x: element.x + pts[pts.length - 1].x, y: element.y + pts[pts.length - 1].y };
-                                            }
+                                        const pts = normalizePoints(element.points);
+                                        if (pts.length > 0) {
+                                            start = { x: element.x + pts[0].x, y: element.y + pts[0].y };
+                                            end = { x: element.x + pts[pts.length - 1].x, y: element.y + pts[pts.length - 1].y };
                                         }
                                     }
-
                                     const cpX = 2 * x - 0.5 * start.x - 0.5 * end.x;
                                     const cpY = 2 * y - 0.5 * start.y - 0.5 * end.y;
-
                                     newControlPoints[0] = { x: cpX, y: cpY };
                                 } else {
                                     newControlPoints[index] = { x: x, y: y };
                                 }
-
-                                updateElement(id, { controlPoints: newControlPoints }, false);
-                                requestAnimationFrame(draw);
-                                return; // Skip resize logic
+                                updateElement(element.id, { controlPoints: newControlPoints });
                             }
-                        }
 
-                        if (isMulti) {
-                            // GROUP RESIZING
-                            const scaleX = initialElementWidth === 0 ? 1 : newWidth / initialElementWidth;
-                            const scaleY = initialElementHeight === 0 ? 1 : newHeight / initialElementHeight;
+                            // Handle Custom Control Handles (Virtual handles like Top Control for Cube)
+                            if (draggingHandle === 'control-1') {
+                                const el = store.elements.find(e => e.id === id);
+                                if (el) {
+                                    if (el.type === 'isometricCube') {
+                                        // Vertical Drag -> shapeRatio (Height of top face)
+                                        let newVRatio = (y - el.y) / el.height;
+                                        newVRatio = Math.max(0.1, Math.min(0.9, newVRatio));
+                                        const shapeRatio = Math.round(newVRatio * 100);
 
-                            store.selection.forEach(selId => {
-                                const init = initialPositions.get(selId);
-                                if (!init) return;
+                                        // Horizontal Drag -> sideRatio (Skew)
+                                        let newHRatio = (x - el.x) / el.width;
+                                        newHRatio = Math.max(0.1, Math.min(0.9, newHRatio));
+                                        const sideRatio = Math.round(newHRatio * 100);
 
-                                const relX = init.x - initialElementX;
-                                const relY = init.y - initialElementY;
-
-                                const updates: any = {
-                                    x: newX + relX * scaleX,
-                                    y: newY + relY * scaleY,
-                                    width: init.width * scaleX,
-                                    height: init.height * scaleY
-                                };
-
-                                if (init.points) {
-                                    if (typeof init.points[0] === 'number') {
-                                        const pts = init.points as number[];
-                                        const newPts = [];
-                                        for (let i = 0; i < pts.length; i += 2) {
-                                            newPts.push(pts[i] * scaleX, pts[i + 1] * scaleY);
-                                        }
-                                        updates.points = newPts;
-                                    } else {
-                                        updates.points = (init.points as any[]).map((p: any) => ({
-                                            x: p.x * scaleX,
-                                            y: p.y * scaleY
-                                        }));
+                                        updateElement(el.id, { shapeRatio, sideRatio });
+                                    } else if (el.type === 'star' || el.type === 'burst') {
+                                        let newRatio = (y - el.y) / el.height;
+                                        newRatio = Math.max(0.1, Math.min(0.9, newRatio));
+                                        const shapeRatio = Math.round(newRatio * 100);
+                                        updateElement(el.id, { shapeRatio });
+                                    } else if (el.type === 'speechBubble') {
+                                        let newTailX = (x - el.x) / el.width;
+                                        let newTailY = (y - el.y) / el.height;
+                                        newTailX = Math.max(-0.5, Math.min(1.5, newTailX));
+                                        newTailY = Math.max(-0.5, Math.min(1.5, newTailY));
+                                        updateElement(el.id, { tailX: newTailX, tailY: newTailY });
                                     }
                                 }
-
-                                const element = store.elements.find(e => e.id === selId);
-                                if (element && element.type === 'text') {
-                                    updates.fontSize = Math.max(8, (init.fontSize || 20) * scaleY);
-                                }
-
-                                // Update without history push during drag
-                                updateElement(selId, updates, false);
-                            });
+                            }
                         } else {
-                            // SINGLE ELEMENT RESIZING
-                            const id = store.selection[0];
-                            const el = store.elements.find(e => e.id === id);
-                            if (!el) return;
+                            // APPLY RESIZE (Single or Group)
+                            // This runs if it's NOT a control handle (i.e. normal corner/side resize)
 
-                            const updates: any = { x: newX, y: newY, width: newWidth, height: newHeight };
+                            if (isMulti) {
+                                // GROUP RESIZING
+                                const scaleX = initialElementWidth === 0 ? 1 : newWidth / initialElementWidth;
+                                const scaleY = initialElementHeight === 0 ? 1 : newHeight / initialElementHeight;
 
-                            // Scale factors for points/content
-                            const scaleX = initialElementWidth === 0 ? 1 : newWidth / initialElementWidth;
-                            const scaleY = initialElementHeight === 0 ? 1 : newHeight / initialElementHeight;
+                                store.selection.forEach(selId => {
+                                    const init = initialPositions.get(selId);
+                                    if (!init) return;
 
-                            // Scale font size for text
-                            if (el.type === 'text') {
-                                if (scaleY > 0) {
-                                    let newFontSize = initialElementFontSize * scaleY;
-                                    newFontSize = Math.max(newFontSize, 8);
-                                    updates.fontSize = newFontSize;
-                                }
-                            }
+                                    const relX = init.x - initialElementX;
+                                    const relY = init.y - initialElementY;
 
-                            // Scale points for pen tools
-                            if ((el.type === 'fineliner' || el.type === 'inkbrush' || el.type === 'marker') && el.points) {
-                                const init = initialPositions.get(id);
-                                if (init && init.points) {
-                                    if (el.pointsEncoding === 'flat' || (init.points.length > 0 && typeof init.points[0] === 'number')) {
-                                        const pts = init.points as number[];
-                                        const newPts = [];
-                                        for (let i = 0; i < pts.length; i += 2) {
-                                            newPts.push(pts[i] * scaleX, pts[i + 1] * scaleY);
+                                    const updates: any = {
+                                        x: newX + relX * scaleX,
+                                        y: newY + relY * scaleY,
+                                        width: init.width * scaleX,
+                                        height: init.height * scaleY
+                                    };
+
+                                    if (init.points) {
+                                        if (typeof init.points[0] === 'number') {
+                                            const pts = init.points as number[];
+                                            const newPts = [];
+                                            for (let i = 0; i < pts.length; i += 2) {
+                                                newPts.push(pts[i] * scaleX, pts[i + 1] * scaleY);
+                                            }
+                                            updates.points = newPts;
+                                        } else {
+                                            updates.points = (init.points as any[]).map((p: any) => ({
+                                                x: p.x * scaleX,
+                                                y: p.y * scaleY
+                                            }));
                                         }
-                                        updates.points = newPts;
-                                    } else {
-                                        updates.points = (init.points as any[]).map((p: any) => ({
-                                            x: p.x * scaleX,
-                                            y: p.y * scaleY,
-                                            // Handle pressure if exists in old object format
-                                            ...(p.p !== undefined ? { p: p.p } : {})
-                                        }));
                                     }
+
+                                    const element = store.elements.find(e => e.id === selId);
+                                    if (element && element.type === 'text') {
+                                        updates.fontSize = Math.max(8, (init.fontSize || 20) * scaleY);
+                                    }
+
+                                    updateElement(selId, updates, false);
+                                });
+                            } else {
+                                // SINGLE ELEMENT RESIZING
+                                const id = store.selection[0];
+                                const el = store.elements.find(e => e.id === id);
+                                if (el) {
+                                    const updates: any = { x: newX, y: newY, width: newWidth, height: newHeight };
+
+                                    // Scale factors for points/content
+                                    const scaleX = initialElementWidth === 0 ? 1 : newWidth / initialElementWidth;
+                                    const scaleY = initialElementHeight === 0 ? 1 : newHeight / initialElementHeight;
+
+                                    // Scale font size for text
+                                    if (el.type === 'text') {
+                                        if (scaleY > 0) {
+                                            let newFontSize = initialElementFontSize * scaleY;
+                                            newFontSize = Math.max(newFontSize, 8);
+                                            updates.fontSize = newFontSize;
+                                        }
+                                    }
+
+                                    // Scale points for pen tools
+                                    if ((el.type === 'fineliner' || el.type === 'inkbrush' || el.type === 'marker') && el.points) {
+                                        const init = initialPositions.get(id);
+                                        if (init && init.points) {
+                                            if (el.pointsEncoding === 'flat' || (init.points.length > 0 && typeof init.points[0] === 'number')) {
+                                                const pts = init.points as number[];
+                                                const newPts = [];
+                                                for (let i = 0; i < pts.length; i += 2) {
+                                                    newPts.push(pts[i] * scaleX, pts[i + 1] * scaleY);
+                                                }
+                                                updates.points = newPts;
+                                            } else {
+                                                updates.points = (init.points as any[]).map((p: any) => ({
+                                                    x: p.x * scaleX,
+                                                    y: p.y * scaleY,
+                                                    ...(p.p !== undefined ? { p: p.p } : {})
+                                                }));
+                                            }
+                                        }
+                                    }
+
+                                    if (el.type === 'line' || el.type === 'arrow' || el.type === 'bezier') {
+                                        updates.points = refreshLinePoints(el, newX, newY, newX + newWidth, newY + newHeight);
+                                    }
+
+                                    if (el.type === 'organicBranch') {
+                                        updates.points = [0, 0, newWidth, newHeight];
+                                        const newStartX = newX;
+                                        const newStartY = newY;
+                                        const newEndX = newX + newWidth;
+                                        const newEndY = newY + newHeight;
+                                        const newCp1 = { x: newStartX + newWidth * 0.5, y: newStartY };
+                                        const newCp2 = { x: newEndX - newWidth * 0.5, y: newEndY };
+                                        updates.controlPoints = [newCp1, newCp2];
+                                    }
+
+                                    updateElement(id, updates, false);
                                 }
                             }
-
-                            if (el.type === 'line' || el.type === 'arrow' || el.type === 'bezier') {
-                                updates.points = refreshLinePoints(el, newX, newY, newX + newWidth, newY + newHeight);
-                            }
-
-                            if (el.type === 'organicBranch') {
-                                // Update points (relative to x, y)
-                                updates.points = [0, 0, newWidth, newHeight];
-
-                                // Recalculate control points for natural S-curve
-                                const newStartX = newX;
-                                const newStartY = newY;
-                                const newEndX = newX + newWidth;
-                                const newEndY = newY + newHeight;
-
-                                // Same formula as initial creation
-                                const newCp1 = { x: newStartX + newWidth * 0.5, y: newStartY };
-                                const newCp2 = { x: newEndX - newWidth * 0.5, y: newEndY };
-
-                                updates.controlPoints = [newCp1, newCp2];
-                            }
-
-                            updateElement(id, updates, false);
                         }
                     }
                 } else {
@@ -3314,6 +3386,60 @@ const Canvas: Component = () => {
             if (!canInteractWithElement(el)) continue;
 
             if (hitTestElement(el, x, y, threshold)) {
+
+                // Check for control handles (Star, Burst, Speech Bubble, Isometric Cube)
+                if (el.type === 'star' || el.type === 'burst' || el.type === 'speechBubble' || el.type === 'isometricCube') {
+                    const handleSize = 10 / store.viewState.scale;
+                    // For isometricCube, compute handle position dynamically if not stored
+                    // Actually, let's just use a virtual handle position logic here or relies on render loop to draw it.
+                    // The render loop draws it. We just need to hit test it.
+                    // BUT, getHandleAtPosition needs to know where it is.
+
+                    // ... logic to calculate handle position ...
+                    let handleX = 0, handleY = 0;
+
+                    if (el.type === 'isometricCube') {
+                        // Top corner of top face
+                        const ratio = (el.shapeRatio !== undefined ? el.shapeRatio : 25) / 100;
+                        const dy = el.height * ratio;
+                        // In local unrotated coords relative to center:
+                        // Top center is at (0, -height/2).
+                        // Wait, our geometry is (x, y) relative to center.
+                        // x = -w/2, y = -h/2.
+                        // Top face top point is x + w/2 + ... wait.
+                        // Geometry: { type: 'points', points: [{ x: midX, y: y }, { x: x + w, y: y + dy } ...] }
+                        // Point 0 is { x: 0, y: -h/2 }. This is the top-center point.
+                        // Let's place handle there? No, that's fixed.
+                        // The dy point is the one determining the slope.
+                        // Point 3 is { x: x, y: y + dy } -> Left corner of top face.
+                        // Point 1 is { x: x + w, y: y + dy } -> Right corner of top face.
+                        // Let's put handle at Point 3?
+                        // Actually, dragging Y of the side vertex changes dy.
+                        // Let's put handle at { x: x, y: y + dy } (Left-Bottom of top face)
+                        // x = -w/2, y = -h/2 + dy
+
+                        handleX = el.x + el.width / 2 + (-el.width / 2); // left edge
+                        handleY = el.y + el.height / 2 + (-el.height / 2 + dy);
+
+                    } else if (el.type === 'speechBubble') {
+                        // The tail control point for speech bubble
+                        handleX = el.x + el.width * (el.tailX || 0.5);
+                        handleY = el.y + el.height * (el.tailY || 1);
+                    } else if (el.type === 'star') {
+                        // The inner radius control point for star
+                        handleX = el.x + el.width / 2;
+                        handleY = el.y + el.height * (el.innerRadius || 0.38);
+                    } else if (el.type === 'burst') {
+                        // The inner radius control point for burst
+                        handleX = el.x + el.width / 2;
+                        handleY = el.y + el.height * (el.innerRadius || 0.3);
+                    }
+
+                    if (Math.abs(x - handleX) < handleSize && Math.abs(y - handleY) < handleSize) {
+                        // Hit a control handle, don't open text editor
+                        return;
+                    }
+                }
 
                 // Add Control Point for Bezier/Arrow
                 if ((el.type === 'line' || el.type === 'arrow' || el.type === 'bezier')) {

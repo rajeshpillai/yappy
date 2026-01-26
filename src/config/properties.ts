@@ -938,14 +938,14 @@ export const properties: PropertyConfig[] = [
     },
     {
         key: 'shapeRatio',
-        label: 'Sharpness',
+        label: 'Depth/Ratio',
         type: 'slider',
         min: 10,
         max: 90,
-        step: 5,
+        step: 1,
         group: 'dimensions',
-        applicableTo: ['star', 'burst'],
-        defaultValue: 50 // Varied defaults handled in render, but slider needs start.
+        applicableTo: ['star', 'burst', 'speechBubble', 'isometricCube'],
+        defaultValue: 38 // Varied defaults handled in render, but slider needs start.
     }
 ];
 
