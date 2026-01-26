@@ -1779,7 +1779,7 @@ const Canvas: Component = () => {
             el.type === 'doubleBanner' || el.type === 'lightbulb' || el.type === 'signpost' ||
             el.type === 'burstBlob' || el.type === 'browserWindow' || el.type === 'mobilePhone' ||
             el.type === 'ghostButton' || el.type === 'inputField' || el.type === 'polygon' ||
-            el.type === 'dfdProcess' || el.type === 'dfdDataStore' || el.type === 'isometricCube' || el.type === 'solidBlock' ||
+            el.type === 'dfdProcess' || el.type === 'dfdDataStore' ||
             el.type === 'cylinder' || el.type === 'stateStart' || el.type === 'stateEnd' ||
             el.type === 'stateSync' || el.type === 'activationBar' || el.type === 'externalEntity' ||
             el.type === 'umlClass' || el.type === 'umlInterface' || el.type === 'umlActor' ||
