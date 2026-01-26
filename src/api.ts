@@ -164,7 +164,7 @@ export const YappyAPI = {
             height,
             strokeColor: options?.strokeColor ?? defaults.strokeColor ?? '#000000',
             backgroundColor: options?.backgroundColor ?? defaults.backgroundColor ?? 'transparent',
-            fillStyle: options?.fillStyle ?? defaults.fillStyle ?? 'hachure',
+            fillStyle: options?.fillStyle ?? defaults.fillStyle ?? 'solid',
             strokeWidth: options?.strokeWidth ?? defaults.strokeWidth ?? 1,
             strokeStyle: options?.strokeStyle ?? defaults.strokeStyle ?? 'solid',
             opacity: options?.opacity ?? defaults.opacity ?? 100,

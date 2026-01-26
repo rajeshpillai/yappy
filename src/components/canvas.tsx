@@ -2711,9 +2711,9 @@ const Canvas: Component = () => {
                                         newVRatio = Math.max(0.1, Math.min(0.9, newVRatio));
                                         const shapeRatio = Math.round(newVRatio * 100);
 
-                                        // Horizontal Drag -> sideRatio (Skew)
+                                        // Horizontal Drag -> sideRatio (Perspective/Rotation)
                                         let newHRatio = (x - el.x) / el.width;
-                                        newHRatio = Math.max(0.1, Math.min(0.9, newHRatio));
+                                        newHRatio = Math.max(0, Math.min(1, newHRatio));
                                         const sideRatio = Math.round(newHRatio * 100);
 
                                         updateElement(el.id, { shapeRatio, sideRatio });

@@ -433,7 +433,7 @@ export const properties: PropertyConfig[] = [
             { label: 'Conic Gradient', value: 'conic' }
         ],
         applicableTo: ['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'starPerson', 'lightbulb', 'signpost', 'burstBlob', 'scroll', 'wavyDivider', 'doubleBanner', 'dfdProcess', 'dfdDataStore', 'isometricCube', 'cylinder', 'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity', 'umlClass', 'umlInterface', 'umlActor', 'umlUseCase', 'umlNote', 'umlPackage'],
-        defaultValue: 'hachure'
+        defaultValue: 'solid'
     },
     {
         key: 'fillDensity',
@@ -946,6 +946,17 @@ export const properties: PropertyConfig[] = [
         group: 'dimensions',
         applicableTo: ['star', 'burst', 'speechBubble', 'isometricCube'],
         defaultValue: 38 // Varied defaults handled in render, but slider needs start.
+    },
+    {
+        key: 'sideRatio',
+        label: 'Perspective', // Horizontal rotation
+        type: 'slider',
+        min: 0,
+        max: 100,
+        step: 5,
+        group: 'dimensions',
+        applicableTo: ['isometricCube'],
+        defaultValue: 50
     }
 ];
 

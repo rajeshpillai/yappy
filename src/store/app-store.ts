@@ -85,7 +85,7 @@ const initialState: AppState = {
     defaultElementStyles: {
         strokeColor: '#000000',
         backgroundColor: 'transparent',
-        fillStyle: 'hachure',
+        fillStyle: 'solid',
         strokeWidth: 2,
         strokeStyle: 'solid',
         roughness: 1,
