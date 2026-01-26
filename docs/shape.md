@@ -29,7 +29,7 @@ This document describes the supported properties, attributes, and implementation
 | `innerBorderDistance`| ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | Distance from outer border |
 | `innerBorderColor`| ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | Color of inner border |
 
-> ¹ **Polygons** include: Hexagon, Octagon, Star, Cloud, Heart, Arrow (Left/Right/Up/Down), Capsule, Sticky Note, Speech Bubble, Database, Document, etc.
+> ¹ **Polygons / Complex Shapes** include: Hexagon, Octagon, Star, Cloud, Heart, Arrow (Left/Right/Up/Down), Capsule, Sticky Note, Speech Bubble, Database, Document, Component, State, Lifeline, Fragment, Signal Send/Receive, etc.
 
 ## Attribute Matrix: Linear & Pen Tools
 
