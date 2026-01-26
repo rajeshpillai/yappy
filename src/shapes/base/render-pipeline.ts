@@ -16,18 +16,43 @@ export class RenderPipeline {
         // Return transparent as is
         if (color === 'transparent' || color === 'none' || !color) return color;
 
-        // Simple HEX shading
-        let R = parseInt(color.substring(1, 3), 16);
-        let G = parseInt(color.substring(3, 5), 16);
-        let B = parseInt(color.substring(5, 7), 16);
+        let R: number, G: number, B: number;
 
-        R = Math.min(255, Math.floor(R * percent));
-        G = Math.min(255, Math.floor(G * percent));
-        B = Math.min(255, Math.floor(B * percent));
+        if (color.startsWith('#')) {
+            const hex = color.slice(1);
+            if (hex.length === 3 || hex.length === 4) {
+                // Shorthand #RGB or #RGBA
+                R = parseInt(hex[0] + hex[0], 16);
+                G = parseInt(hex[1] + hex[1], 16);
+                B = parseInt(hex[2] + hex[2], 16);
+            } else {
+                R = parseInt(hex.substring(0, 2), 16);
+                G = parseInt(hex.substring(2, 4), 16);
+                B = parseInt(hex.substring(4, 6), 16);
+            }
+        } else if (color.startsWith('rgb')) {
+            // rgb(R, G, B) or rgba(R, G, B, A)
+            const match = color.match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+            if (match) {
+                R = parseInt(match[1]);
+                G = parseInt(match[2]);
+                B = parseInt(match[3]);
+            } else {
+                return color; // Can't parse, return as-is
+            }
+        } else {
+            return color; // Named color or unknown format, return as-is
+        }
 
-        const RR = ((R.toString(16).length === 1) ? "0" + R.toString(16) : R.toString(16));
-        const GG = ((G.toString(16).length === 1) ? "0" + G.toString(16) : G.toString(16));
-        const BB = ((B.toString(16).length === 1) ? "0" + B.toString(16) : B.toString(16));
+        if (isNaN(R!) || isNaN(G!) || isNaN(B!)) return color;
+
+        R = Math.min(255, Math.floor(R! * percent));
+        G = Math.min(255, Math.floor(G! * percent));
+        B = Math.min(255, Math.floor(B! * percent));
+
+        const RR = R.toString(16).padStart(2, '0');
+        const GG = G.toString(16).padStart(2, '0');
+        const BB = B.toString(16).padStart(2, '0');
 
         return "#" + RR + GG + BB;
     }

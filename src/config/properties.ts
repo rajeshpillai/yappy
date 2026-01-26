@@ -64,7 +64,7 @@ export const properties: PropertyConfig[] = [
         label: 'Flow Animation',
         type: 'toggle',
         group: 'motion',
-        applicableTo: ['arrow', 'line', 'organicBranch'],
+        applicableTo: 'all',
         defaultValue: false
     },
     {
@@ -75,7 +75,7 @@ export const properties: PropertyConfig[] = [
         max: 10,
         step: 0.1,
         group: 'motion',
-        applicableTo: ['arrow', 'line', 'organicBranch'],
+        applicableTo: 'all',
         defaultValue: 1,
         dependsOn: 'flowAnimation'
     },
@@ -89,7 +89,7 @@ export const properties: PropertyConfig[] = [
             { label: 'Energy Pulse', value: 'pulse' }
         ],
         group: 'motion',
-        applicableTo: ['arrow', 'line', 'organicBranch'],
+        applicableTo: 'all',
         defaultValue: 'dots',
         dependsOn: 'flowAnimation'
     },
@@ -98,7 +98,7 @@ export const properties: PropertyConfig[] = [
         label: 'Flow Color',
         type: 'color',
         group: 'motion',
-        applicableTo: ['arrow', 'line', 'organicBranch'],
+        applicableTo: 'all',
         defaultValue: undefined, // Defaults to stroke color
         dependsOn: 'flowAnimation'
     },
@@ -110,7 +110,7 @@ export const properties: PropertyConfig[] = [
         max: 10,
         step: 1,
         group: 'motion',
-        applicableTo: ['arrow', 'line', 'organicBranch'],
+        applicableTo: 'all',
         defaultValue: 3,
         dependsOn: 'flowAnimation'
     },

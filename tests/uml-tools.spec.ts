@@ -9,7 +9,7 @@ test.describe('UML Tools', () => {
         // Locate UML Tool Group (should be present now)
         const umlGroupBtn = page.locator('button[title="UML: Class"]').first();
         await expect(umlGroupBtn).toBeVisible();
-        umlGroupBtn.click();
+        await umlGroupBtn.click();
 
         // Select Actor
         await page.click('button[title="Actor"]');

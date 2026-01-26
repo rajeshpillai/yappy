@@ -42,7 +42,7 @@ export abstract class ShapeRenderer {
         const offset = (time / 20) * speed;
 
         ctx.save();
-        ctx.strokeStyle = RenderPipeline.adjustColor(el.strokeColor, isDarkMode);
+        ctx.strokeStyle = RenderPipeline.adjustColor(el.flowColor || el.strokeColor, isDarkMode);
         ctx.lineWidth = Math.max(1, el.strokeWidth * 0.8);
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';

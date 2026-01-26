@@ -101,7 +101,8 @@ export class SpecialtyShapeRenderer extends ShapeRenderer {
 
         this.renderSketchGeometry(rc, geometry, options);
 
-        if (el.drawInnerBorder) {
+        const is3D = ['solidBlock', 'cylinder', 'isometricCube', 'perspectiveBlock'].includes(el.type);
+        if (el.drawInnerBorder && !is3D) {
             const dist = el.innerBorderDistance || 5;
             const sx = (el.width - dist * 2) / el.width;
             const sy = (el.height - dist * 2) / el.height;
