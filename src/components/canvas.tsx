@@ -21,7 +21,7 @@ import {
 } from '../utils/object-context-actions';
 import { showToast } from "./toast";
 import { perfMonitor } from "../utils/performance-monitor";
-import { fitShapeToText } from "../utils/text-utils";
+import { fitShapeToText, measureContainerText } from "../utils/text-utils";
 import { changeElementType, getTransformOptions, getShapeIcon, getShapeTooltip, getCurveTypeOptions, getCurveTypeIcon, getCurveTypeTooltip } from "../utils/element-transforms";
 import { getGroupsSortedByPriority, isPointInGroupBounds } from "../utils/group-utils";
 import { exportToPng, exportToSvg } from "../utils/export";
@@ -205,6 +205,7 @@ const Canvas: Component = () => {
 
     // Text Editing State
     const [editingId, setEditingId] = createSignal<string | null>(null);
+    const [editingProperty, setEditingProperty] = createSignal<'text' | 'containerText' | 'attributesText' | 'methodsText'>('containerText');
     const [editText, setEditText] = createSignal("");
     let textInputRef: HTMLTextAreaElement | undefined;
 
@@ -1671,7 +1672,8 @@ const Canvas: Component = () => {
             return isPointOnPolyline(localP, pts, threshold);
         } else if (el.type === 'text' || el.type === 'image') {
             return true; // Box check passed
-        } else if (el.type === 'triangle' || el.type === 'hexagon' || el.type === 'octagon' ||
+        } else if (
+            el.type === 'triangle' || el.type === 'hexagon' || el.type === 'octagon' ||
             el.type === 'parallelogram' || el.type === 'star' || el.type === 'cloud' ||
             el.type === 'heart' || el.type === 'cross' || el.type === 'checkmark' ||
             el.type === 'arrowLeft' || el.type === 'arrowRight' || el.type === 'arrowUp' || el.type === 'arrowDown' ||
@@ -1679,15 +1681,23 @@ const Canvas: Component = () => {
             el.type === 'burst' || el.type === 'speechBubble' || el.type === 'ribbon' ||
             el.type === 'bracketLeft' || el.type === 'bracketRight' ||
             el.type === 'database' || el.type === 'document' || el.type === 'predefinedProcess' || el.type === 'internalStorage' ||
-            el.type === 'server' || el.type === 'loadBalancer' || el.type === 'firewall' || el.type === 'user' || el.type === 'messageQueue' || el.type === 'lambda' || el.type === 'router' || el.type === 'browser' ||
+            el.type === 'server' || el.type === 'loadBalancer' || el.type === 'firewall' ||
+            el.type === 'user' || el.type === 'messageQueue' || el.type === 'lambda' ||
+            el.type === 'router' || el.type === 'browser' ||
             el.type === 'trapezoid' || el.type === 'rightTriangle' || el.type === 'pentagon' || el.type === 'septagon' ||
-            el.type === 'starPerson' || el.type === 'scroll' || el.type === 'wavyDivider' || el.type === 'doubleBanner' ||
-            el.type === 'lightbulb' || el.type === 'signpost' || el.type === 'burstBlob' ||
-            el.type === 'browserWindow' || el.type === 'mobilePhone' || el.type === 'ghostButton' || el.type === 'inputField' ||
-            el.type === 'dfdProcess' || el.type === 'dfdDataStore' || el.type === 'isometricCube' || el.type === 'cylinder' ||
-            el.type === 'stateStart' || el.type === 'stateEnd' || el.type === 'stateSync' || el.type === 'activationBar' || el.type === 'externalEntity') {
-            // For new shapes, use bounding box hit test (simple and effective)
-            return true; // Box check already passed above
+            el.type === 'starPerson' || el.type === 'scroll' || el.type === 'wavyDivider' ||
+            el.type === 'doubleBanner' || el.type === 'lightbulb' || el.type === 'signpost' ||
+            el.type === 'burstBlob' || el.type === 'browserWindow' || el.type === 'mobilePhone' ||
+            el.type === 'ghostButton' || el.type === 'inputField' || el.type === 'polygon' ||
+            el.type === 'dfdProcess' || el.type === 'dfdDataStore' || el.type === 'isometricCube' ||
+            el.type === 'cylinder' || el.type === 'stateStart' || el.type === 'stateEnd' ||
+            el.type === 'stateSync' || el.type === 'activationBar' || el.type === 'externalEntity' ||
+            el.type === 'umlClass' || el.type === 'umlInterface' || el.type === 'umlActor' ||
+            el.type === 'umlUseCase' || el.type === 'umlNote' || el.type === 'umlPackage'
+        ) {
+            // For these shapes, rely on bounding box hit test (passed above)
+            // or implement detailed geometry check if needed
+            return true;
         }
 
         return false;
@@ -3267,20 +3277,22 @@ const Canvas: Component = () => {
         } else {
             // For shapes with containerText
             const isLine = el.type === 'line' || el.type === 'arrow' || el.type === 'organicBranch';
-            if (el.autoResize && canvasRef && !isLine) {
+            const prop = editingProperty();
+
+            if (el.autoResize && canvasRef && !isLine && prop === 'containerText') {
                 const ctx = canvasRef.getContext("2d");
                 if (ctx) {
                     const dims = fitShapeToText(ctx, el, newText);
                     updateElement(id, {
-                        containerText: newText,
+                        [prop]: newText,
                         width: dims.width,
                         height: dims.height,
                     }, true);
                 } else {
-                    updateElement(id, { containerText: newText }, true);
+                    updateElement(id, { [prop]: newText }, true);
                 }
             } else {
-                updateElement(id, { containerText: newText }, true);
+                updateElement(id, { [prop]: newText }, true);
             }
         }
 
@@ -3326,10 +3338,41 @@ const Canvas: Component = () => {
                 }
 
                 // Only allow editing containerText for shapes and lines
-                const shapeTypes = ['rectangle', 'circle', 'diamond', 'line', 'arrow', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'starPerson', 'scroll', 'wavyDivider', 'doubleBanner', 'lightbulb', 'signpost', 'burstBlob', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'dfdProcess', 'dfdDataStore', 'isometricCube', 'cylinder', 'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity'];
+                const shapeTypes = ['rectangle', 'circle', 'diamond', 'line', 'arrow', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'starPerson', 'scroll', 'wavyDivider', 'doubleBanner', 'lightbulb', 'signpost', 'burstBlob', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'dfdProcess', 'dfdDataStore', 'isometricCube', 'cylinder', 'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity', 'umlClass', 'umlInterface', 'umlActor', 'umlUseCase', 'umlNote', 'umlPackage'];
                 if (shapeTypes.includes(el.type)) {
                     setEditingId(el.id);
-                    setEditText(el.containerText || '');
+
+                    if (el.type === 'umlClass') {
+                        // Determine which section was clicked
+                        const clickYRelativeToShape = y - el.y;
+                        const ctx = canvasRef.getContext("2d");
+                        let headerHeight = 30;
+                        if (el.containerText && ctx) {
+                            const metrics = measureContainerText(ctx, el, el.containerText, el.width - 10);
+                            headerHeight = Math.max(30, metrics.textHeight + 20);
+                        }
+
+                        let attrHeight = 20;
+                        if (el.attributesText && ctx) {
+                            const metrics = measureContainerText(ctx, { ...el, fontSize: (el.fontSize || 20) * 0.9 }, el.attributesText, el.width - 10);
+                            attrHeight = Math.max(20, metrics.textHeight + 10);
+                        }
+
+                        if (clickYRelativeToShape < headerHeight) {
+                            setEditingProperty('containerText');
+                            setEditText(el.containerText || '');
+                        } else if (clickYRelativeToShape < headerHeight + attrHeight) {
+                            setEditingProperty('attributesText');
+                            setEditText(el.attributesText || '');
+                        } else {
+                            setEditingProperty('methodsText');
+                            setEditText(el.methodsText || '');
+                        }
+                    } else {
+                        setEditingProperty('containerText');
+                        setEditText(el.containerText || '');
+                    }
+
                     setTimeout(() => textInputRef?.focus(), 0);
                     return;
                 }
@@ -3791,9 +3834,45 @@ const Canvas: Component = () => {
                     const elH = baseState ? baseState.height : el.height;
                     const { scale, panX, panY } = store.viewState;
 
-                    // Center the textarea in the shape
-                    const centerX = (elX + elW / 2) * scale + panX;
-                    const centerY = (elY + elH / 2) * scale + panY;
+                    // Calculate Center based on Editing Property
+                    let centerX = (elX + elW / 2) * scale + panX;
+                    let centerY = (elY + elH / 2) * scale + panY;
+                    let textAlign = 'center';
+                    let fontSizeVal = el.fontSize || 20;
+
+                    if (el.type === 'umlClass') {
+                        const prop = editingProperty();
+                        if (prop === 'attributesText' || prop === 'methodsText') {
+                            textAlign = 'left';
+                            fontSizeVal = fontSizeVal * 0.9;
+
+                            // Re-calculate layout to find Y position
+                            const ctx = canvasRef ? canvasRef.getContext("2d") : null;
+                            let headerHeight = 30;
+                            if (el.containerText && ctx) {
+                                const metrics = measureContainerText(ctx, el, el.containerText, el.width - 10);
+                                headerHeight = Math.max(30, metrics.textHeight + 20);
+                            }
+
+                            let attrOffsetY = headerHeight;
+                            let attrHeight = 20;
+                            if (el.attributesText && ctx) {
+                                const metrics = measureContainerText(ctx, { ...el, fontSize: fontSizeVal }, el.attributesText, el.width - 10);
+                                attrHeight = Math.max(20, metrics.textHeight + 10);
+                            }
+
+                            if (prop === 'attributesText') {
+                                centerY = (elY + attrOffsetY + attrHeight / 2) * scale + panY;
+                                centerX = (elX + elW / 2) * scale + panX; // Keep X center but align text left
+                            } else if (prop === 'methodsText') {
+                                // Methods start after attributes
+                                const methodOffsetY = attrOffsetY + attrHeight;
+                                // We don't verify methods height, just start it below
+                                centerY = (elY + methodOffsetY + 20) * scale + panY;
+                                centerX = (elX + elW / 2) * scale + panX;
+                            }
+                        }
+                    }
 
                     return (
                         <textarea
@@ -3813,7 +3892,7 @@ const Canvas: Component = () => {
                                 top: `${centerY}px`,
                                 left: `${centerX}px`,
                                 transform: 'translate(-50%, -50%)',
-                                font: `${(el.fontSize || 20) * scale}px ${el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
+                                font: `${fontSizeVal * scale}px ${el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
                                     el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
                                         'Handlee, cursive'
                                     }`,
@@ -3827,7 +3906,7 @@ const Canvas: Component = () => {
                                 overflow: 'hidden',
                                 'min-width': '50px',
                                 'min-height': '1em',
-                                'text-align': 'center'
+                                'text-align': textAlign
                             }}
                         />
                     );

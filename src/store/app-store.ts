@@ -59,6 +59,7 @@ interface AppState {
     activeStateId?: string;
     showStatePanel: boolean;
     showSlideNavigator: boolean;
+    selectedUmlType: 'umlClass' | 'umlInterface' | 'umlActor' | 'umlUseCase' | 'umlNote' | 'umlPackage';
 }
 
 const initialDoc = createSlideDocument();
@@ -77,6 +78,7 @@ const initialState: AppState = {
 
     canvasTexture: 'none',
     selectedTool: 'selection',
+    selectedUmlType: 'umlClass',
     selection: [],
     flowTick: 0,
     isRecording: false,
@@ -1467,6 +1469,11 @@ export const togglePresentationMode = (visible?: boolean) => {
 export const setSelectedTechnicalType = (type: AppState['selectedTechnicalType']) => {
     setStore('selectedTechnicalType', type);
 };
+
+export const setSelectedUmlType = (type: AppState['selectedUmlType']) => {
+    setStore('selectedUmlType', type);
+};
+
 
 export const toggleCommandPalette = (visible?: boolean) => {
     setStore('showCommandPalette', (v) => visible ?? !v);

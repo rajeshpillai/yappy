@@ -15,6 +15,8 @@ import { WireframeRenderer } from "./renderers/wireframe-renderer";
 import { ConnectorRenderer } from "./renderers/connector-renderer";
 import { FreehandRenderer } from "./renderers/freehand-renderer";
 import { SpecialtyShapeRenderer } from "./renderers/specialty-shape-renderer";
+import { UmlClassRenderer } from "./renderers/uml-class-renderer";
+import { UmlGeneralRenderer } from "./renderers/uml-general-renderer";
 
 export function registerShapes() {
     console.log('Registering all shapes including specialty...');
@@ -75,4 +77,11 @@ export function registerShapes() {
         'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity'
     ] as const;
     specialtyTypes.forEach(type => shapeRegistry.register(type, specialtyRenderer));
+
+    const umlClassRenderer = new UmlClassRenderer();
+    shapeRegistry.register('umlClass', umlClassRenderer);
+
+    const umlGeneralRenderer = new UmlGeneralRenderer();
+    const umlTypes = ['umlInterface', 'umlActor', 'umlUseCase', 'umlNote', 'umlPackage'] as const;
+    umlTypes.forEach(type => shapeRegistry.register(type, umlGeneralRenderer));
 }

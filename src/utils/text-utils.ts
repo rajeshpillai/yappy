@@ -69,7 +69,18 @@ export const measureContainerText = (
         wrapWidth = availableWidth * 0.6; // Inner radius
     }
 
-    const lines = wrapText(ctx, text, wrapWidth);
+    const paragraphs = text.split('\n');
+    const lines: string[] = [];
+
+    paragraphs.forEach(paragraph => {
+        if (paragraph === '') {
+            lines.push(''); // Preserve empty lines
+        } else {
+            const wrapped = wrapText(ctx, paragraph, wrapWidth);
+            lines.push(...wrapped);
+        }
+    });
+
     const lineHeight = fontSize * 1.2;
 
     let maxLineWidth = 0;

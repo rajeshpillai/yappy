@@ -11,6 +11,7 @@ import MathToolGroup from "./math-tool-group";
 import WireframeToolGroup from "./wireframe-tool-group";
 import MindmapToolGroup from "./mindmap-tool-group";
 import TechnicalToolGroup from "./technical-tool-group";
+import UmlToolGroup from "./uml-tool-group";
 import "./toolbar.css";
 
 // Tools that are NOT pens or grouped shapes
@@ -268,6 +269,9 @@ const Toolbar: Component = () => {
 
             {/* Technical Diagramming Group (DFD, Isometric Cube, Cylinder) */}
             <TechnicalToolGroup />
+
+            {/* UML Tool Group (Class, Actor, UseCase) */}
+            <UmlToolGroup />
 
             {/* Arrow, Line, Bezier */}
             <For each={tools.slice(diamondIndex + 1, bezierIndex + 1)}>

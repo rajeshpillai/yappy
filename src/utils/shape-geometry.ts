@@ -23,7 +23,15 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
         case 'rectangle':
         case 'image':
         case 'text':
+
+        case 'umlClass':
+        case 'umlNote':
+        case 'umlPackage':
+        case 'umlActor': // Approximate as rect for now
             return { type: 'rect', x: x, y: y, w: w, h: h, r: el.roundness ? 10 : 0 };
+
+        case 'umlInterface':
+        case 'umlUseCase':
 
         case 'circle':
             return { type: 'ellipse', cx: 0, cy: 0, rx: w / 2, ry: h / 2 };
