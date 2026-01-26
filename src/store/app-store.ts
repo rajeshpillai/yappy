@@ -284,7 +284,7 @@ export const addChildNode = (parentId: string) => {
         opacity: 100,
         renderStyle: parent.renderStyle,
         strokeColor: parent.strokeColor,
-        backgroundColor: parent.backgroundColor,
+        backgroundColor: 'transparent', // Connectors shouldn't inherit parent fill
         fillStyle: parent.fillStyle,
         strokeStyle: parent.strokeStyle,
         strokeWidth: parent.strokeWidth,
@@ -319,7 +319,7 @@ export const addSiblingNode = (siblingId: string) => {
         ...store.defaultElementStyles,
         // Inherit styles from sibling
         strokeColor: sibling.strokeColor,
-        backgroundColor: sibling.backgroundColor,
+        backgroundColor: 'transparent', // Connectors shouldn't inherit sibling fill
         fillStyle: sibling.fillStyle,
         strokeWidth: sibling.strokeWidth,
         roughness: sibling.roughness,
@@ -364,7 +364,7 @@ export const addSiblingNode = (siblingId: string) => {
         opacity: 100,
         renderStyle: sibling.renderStyle,
         strokeColor: sibling.strokeColor,
-        backgroundColor: sibling.backgroundColor,
+        backgroundColor: 'transparent', // Connectors shouldn't inherit sibling fill
         fillStyle: sibling.fillStyle,
         strokeStyle: sibling.strokeStyle,
         strokeWidth: sibling.strokeWidth,

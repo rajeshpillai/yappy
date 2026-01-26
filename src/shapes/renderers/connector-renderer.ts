@@ -86,6 +86,7 @@ export class ConnectorRenderer extends ShapeRenderer {
     }
 
     private renderBezier(context: RenderContext, options: any) {
+        options = { ...options, fill: undefined }; // Connectors should never have background fill
         const { rc, element: el } = context;
         const endX = el.x + el.width;
         const endY = el.y + el.height;
@@ -130,6 +131,7 @@ export class ConnectorRenderer extends ShapeRenderer {
     }
 
     private renderElbow(context: RenderContext, options: any) {
+        options = { ...options, fill: undefined }; // Connectors should never have background fill
         const { rc, element: el } = context;
         const pts = normalizePoints(el.points);
         const drawPoints: [number, number][] = (pts && pts.length > 0)
@@ -154,6 +156,7 @@ export class ConnectorRenderer extends ShapeRenderer {
     }
 
     private renderStraight(context: RenderContext, options: any) {
+        options = { ...options, fill: undefined }; // Connectors should never have background fill
         const { rc, element: el } = context;
         const pts = normalizePoints(el.points);
         let start, end;
