@@ -2634,6 +2634,8 @@ const Canvas: Component = () => {
             points: (tool === 'fineliner' || tool === 'inkbrush' || tool === 'marker') ? [0, 0] : undefined,
             pointsEncoding: (tool === 'fineliner' || tool === 'inkbrush' || tool === 'marker') ? 'flat' : undefined,
             startBinding: startBindingData,
+            // Ensure geometric shapes default to solid stroke unless explicitly changed
+            strokeStyle: (['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'pentagon', 'septagon', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout', 'speechBubble', 'database', 'document', 'cylinder', 'isometricCube', 'solidBlock', 'perspectiveBlock', 'umlClass', 'umlInterface', 'umlActor', 'umlComponent', 'umlState', 'umlLifeline', 'umlFragment', 'umlSignalSend', 'umlSignalReceive'].includes(actualType)) ? 'solid' : store.defaultElementStyles.strokeStyle,
         } as DrawingElement;
 
         // Apply specific defaults for Sticky Note

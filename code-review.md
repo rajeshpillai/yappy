@@ -19,10 +19,15 @@ This document records the observations and recommendations from the code review 
 
 ## ⚡ Performance
 
-### 🚀 Canvas Creation in Render Loop
-- **Observation**: `UmlStateRenderer.renderSketch` (Line 47) creates a new `HTMLCanvasElement` on every render call to measure text for layout calculations.
-- **Risk**: High garbage collection pressure during rapid zoom/pan operations.
-- **Recommendation**: Use a persistent `OffscreenCanvas` or a single shared helper canvas for measurements.
+### 🚀 Canvas Creation in Render Loop (RESOLVED)
+- **Observation**: `UmlStateRenderer.renderSketch` was creating a new `HTMLCanvasElement` on every render call.
+- **Resolution**: Implemented `getMeasurementContext()` in `text-utils.ts` to provide a singleton `CanvasRenderingContext2D`. Refactored `UmlStateRenderer` to use this shared context.
+- **Result**: Elimination of GC pressure from temporary canvas allocation.
+
+### ⚡ Render Loop Complexity (OPTIMIZED)
+- **Problem**: `draw` function and hit-testing in `Canvas.tsx` relied on `store.elements.find()` inside loops, leading to O(N²) complexity.
+- **Resolution**: Introduced `elementMap` (Map<id, element>) at the start of the render/interaction frames for O(1) lookups.
+- **Result**: Significant CPU reduction for hierarchy checks and connector binding lookups in large diagrams (1000+ elements).
 
 ### 🎨 Rendering Efficiency
 - **Observation**: `UmlGeneralRenderer` (Component tabs) uses multiple `beginPath()` calls.
@@ -52,6 +57,6 @@ This document records the observations and recommendations from the code review 
 | Area | Rating | Key takeaway |
 | :--- | :---: | :--- |
 | **Architecture** | 🟢 | Solid pattern usage, clear separation of concerns. |
-| **Performance** | 🟡 | Canvas instantiation in loop is a minor red flag. |
+| **Performance** | � | Loop lookup optimized to O(1). Allocation/GC pressure reduced. |
 | **Correctness** | 🟢 | Hit testing and geometry are accurate. |
 | **Maintainability** | 🟡 | Logic duplication in renderers and interaction layer. |
