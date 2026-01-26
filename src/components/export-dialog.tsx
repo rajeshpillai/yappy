@@ -1,7 +1,7 @@
 import { type Component, createSignal, Show, createEffect, onCleanup } from "solid-js";
 import { X } from "lucide-solid";
 import { store } from "../store/app-store";
-import { exportToPng, exportToSvg, exportToPdf } from "../utils/export";
+import { exportToPng, exportToSvg, exportToPdf, exportToPptx } from "../utils/export";
 import { setRequestRecording } from "./canvas";
 import "./export-dialog.css";
 
@@ -11,7 +11,7 @@ interface ExportDialogProps {
 }
 
 const ExportDialog: Component<ExportDialogProps> = (props) => {
-    const [format, setFormat] = createSignal<'png' | 'svg' | 'pdf' | 'webm' | 'mp4'>('png');
+    const [format, setFormat] = createSignal<'png' | 'svg' | 'pdf' | 'pptx' | 'webm' | 'mp4'>('png');
     const [scale, setScale] = createSignal<number>(2);
     const [hasBackground, setHasBackground] = createSignal(true);
     const [onlySelected, setOnlySelected] = createSignal(store.selection.length > 0);
@@ -46,6 +46,8 @@ const ExportDialog: Component<ExportDialogProps> = (props) => {
             exportToSvg(onlySelected());
         } else if (format() === 'pdf') {
             exportToPdf(scale(), hasBackground(), onlySelected());
+        } else if (format() === 'pptx') {
+            exportToPptx(scale(), hasBackground(), onlySelected());
         } else if (format() === 'webm' || format() === 'mp4') {
             const videoFormat = format() as 'webm' | 'mp4';
             setRequestRecording({ start: true, format: videoFormat });
@@ -81,6 +83,10 @@ const ExportDialog: Component<ExportDialogProps> = (props) => {
                                     PDF
                                 </label>
                                 <label class="radio-label">
+                                    <input type="radio" name="format" checked={format() === 'pptx'} onChange={() => setFormat('pptx')} />
+                                    PPTX
+                                </label>
+                                <label class="radio-label">
                                     <input type="radio" name="format" checked={format() === 'webm'} onChange={() => setFormat('webm')} />
                                     WebM Monitor
                                 </label>
@@ -104,7 +110,7 @@ const ExportDialog: Component<ExportDialogProps> = (props) => {
                             </label>
                         </div>
 
-                        <Show when={format() === 'png' || format() === 'pdf'}>
+                        <Show when={format() === 'png' || format() === 'pdf' || format() === 'pptx'}>
                             <div class="option-group">
                                 <label>Scale</label>
                                 <div class="scale-group">
