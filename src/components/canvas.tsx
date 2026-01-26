@@ -3345,7 +3345,7 @@ const Canvas: Component = () => {
                     if (el.type === 'umlClass') {
                         // Determine which section was clicked
                         const clickYRelativeToShape = y - el.y;
-                        const ctx = canvasRef.getContext("2d");
+                        const ctx = canvasRef?.getContext("2d");
                         let headerHeight = 30;
                         if (el.containerText && ctx) {
                             const metrics = measureContainerText(ctx, el, el.containerText, el.width - 10);
@@ -3906,7 +3906,7 @@ const Canvas: Component = () => {
                                 overflow: 'hidden',
                                 'min-width': '50px',
                                 'min-height': '1em',
-                                'text-align': textAlign
+                                'text-align': textAlign as any
                             }}
                         />
                     );
