@@ -61,6 +61,9 @@ const UmlToolGroup: Component = () => {
     };
 
     const toggleMenu = () => {
+        if (!isActive()) {
+            setSelectedTool(store.selectedUmlType);
+        }
         setIsOpen(!isOpen());
     };
 

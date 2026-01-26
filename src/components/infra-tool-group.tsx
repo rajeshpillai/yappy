@@ -54,6 +54,9 @@ const InfraToolGroup: Component = () => {
     };
 
     const toggleMenu = () => {
+        if (!isActive()) {
+            setSelectedTool(store.selectedInfraType);
+        }
         setIsOpen(!isOpen());
     };
 

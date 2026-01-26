@@ -71,6 +71,9 @@ const PenToolGroup: Component = () => {
     };
 
     const toggleMenu = () => {
+        if (!isPenToolActive()) {
+            setSelectedTool(store.selectedPenType as ElementType);
+        }
         setIsOpen(!isOpen());
     };
 

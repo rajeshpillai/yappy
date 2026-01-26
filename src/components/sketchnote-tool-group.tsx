@@ -108,6 +108,9 @@ const SketchnoteToolGroup: Component = () => {
     };
 
     const toggleMenu = () => {
+        if (!isActive()) {
+            setSelectedTool(store.selectedSketchnoteType);
+        }
         setIsOpen(!isOpen());
     };
 

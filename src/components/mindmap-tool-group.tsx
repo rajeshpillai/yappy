@@ -55,6 +55,9 @@ const MindmapToolGroup: Component = () => {
     };
 
     const toggleMenu = () => {
+        if (!isActive()) {
+            setSelectedTool(getActiveMindmapTool().type as ElementType);
+        }
         setIsOpen(!isOpen());
     };
 

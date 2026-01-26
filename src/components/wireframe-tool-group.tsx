@@ -81,6 +81,9 @@ const WireframeToolGroup: Component = () => {
     };
 
     const toggleMenu = () => {
+        if (!isActive()) {
+            setSelectedTool(store.selectedWireframeType);
+        }
         setIsOpen(!isOpen());
     };
 

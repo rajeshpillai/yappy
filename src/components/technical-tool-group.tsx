@@ -56,6 +56,9 @@ const TechnicalToolGroup: Component = () => {
     };
 
     const toggleMenu = () => {
+        if (!isActive()) {
+            setSelectedTool(store.selectedTechnicalType);
+        }
         setIsOpen(!isOpen());
     };
 

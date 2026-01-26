@@ -95,6 +95,9 @@ const MathToolGroup: Component = () => {
     };
 
     const toggleMenu = () => {
+        if (!isActive()) {
+            setSelectedTool(store.selectedMathType);
+        }
         setIsOpen(!isOpen());
     };
 

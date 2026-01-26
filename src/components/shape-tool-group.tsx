@@ -76,6 +76,9 @@ const ShapeToolGroup: Component = () => {
     };
 
     const toggleMenu = () => {
+        if (!isActive()) {
+            setSelectedTool(store.selectedShapeType);
+        }
         setIsOpen(!isOpen());
     };
 
