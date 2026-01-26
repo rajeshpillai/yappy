@@ -987,3 +987,10 @@
 - [x] Updated Property Panel for UML-specific attributes (actions, guards)
 - [x] Fixed `Component` name collision in toolbar
 - [x] Verified Architectural and Sketch rendering modes
+
+## Phase 71: Canvas Performance Optimizations
+- [x] Implement Map-based O(1) lookups in render loop <!-- id: 120 -->
+- [x] Optimize `isElementHiddenByHierarchy` for large trees
+- [x] Implement singleton text measurement context
+- [x] Refactor specialized renderers to avoid redundant canvas creation
+- [x] Enhance hit-testing performance for interactions

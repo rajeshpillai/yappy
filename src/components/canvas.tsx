@@ -548,6 +548,12 @@ const Canvas: Component = () => {
         const sortedLayers = [...store.layers].sort((a, b) => a.order - b.order);
         let totalRendered = 0;
 
+        // OPTIMIZATION: Create O(1) lookup map for elements at start of frame
+        const elementMap = new Map<string, DrawingElement>();
+        for (const el of store.elements) {
+            elementMap.set(el.id, el);
+        }
+
         // OPTIMIZATION: Create RoughJS instance ONCE per render frame, reuse across all layers
         const rc = rough.canvas(canvasRef);
 
@@ -577,17 +583,17 @@ const Canvas: Component = () => {
                 if (el.id === currentId) return true;
 
                 // Mindmap Visibility Check
-                if (isElementHiddenByHierarchy(el, store.elements)) return false;
+                if (isElementHiddenByHierarchy(el, store.elements, elementMap)) return false;
 
                 // Hide connectors if their bound elements are hidden
                 if (el.type === 'line' || el.type === 'arrow' || el.type === 'bezier') {
                     if (el.startBinding) {
-                        const startEl = store.elements.find(e => e.id === el.startBinding?.elementId);
-                        if (startEl && isElementHiddenByHierarchy(startEl, store.elements)) return false;
+                        const startEl = elementMap.get(el.startBinding.elementId);
+                        if (startEl && isElementHiddenByHierarchy(startEl, store.elements, elementMap)) return false;
                     }
                     if (el.endBinding) {
-                        const endEl = store.elements.find(e => e.id === el.endBinding?.elementId);
-                        if (endEl && isElementHiddenByHierarchy(endEl, store.elements)) return false;
+                        const endEl = elementMap.get(el.endBinding.elementId);
+                        if (endEl && isElementHiddenByHierarchy(endEl, store.elements, elementMap)) return false;
                     }
                 }
 
@@ -1733,8 +1739,8 @@ const Canvas: Component = () => {
     };
 
 
-    const hitTestElement = (el: DrawingElement, x: number, y: number, threshold: number): boolean => {
-        if (isElementHiddenByHierarchy(el, store.elements)) return false;
+    const hitTestElement = (el: DrawingElement, x: number, y: number, threshold: number, elementMap?: Map<string, DrawingElement>): boolean => {
+        if (isElementHiddenByHierarchy(el, store.elements, elementMap)) return false;
         // Transform point to local non-rotated space
         const cx = el.x + el.width / 2;
         const cy = el.y + el.height / 2;
@@ -2352,9 +2358,9 @@ const Canvas: Component = () => {
                 }
             }
 
-            // STEP 2: Fall back to individual element hit testing
-            // Sort elements by visual order (Top to Bottom) for hit testing
-            // Visual Order = Highest Layer Order -> Highest Array Index
+            const elementMap = new Map<string, DrawingElement>();
+            for (const el of store.elements) elementMap.set(el.id, el);
+
             const sortedElements = store.elements.map((el, index) => {
                 const layer = store.layers.find(l => l.id === el.layerId);
                 return { el, index, layerOrder: layer?.order ?? 999, layerVisible: isLayerVisible(el.layerId) };
@@ -2370,7 +2376,7 @@ const Canvas: Component = () => {
                 // Skip elements on locked layers or locked elements
                 if (!canInteractWithElement(el)) continue;
 
-                if (hitTestElement(el, x, y, threshold)) {
+                if (hitTestElement(el, x, y, threshold, elementMap)) {
                     hitId = el.id;
                     break;
                 }
@@ -2550,9 +2556,14 @@ const Canvas: Component = () => {
         if (store.selectedTool === 'eraser') {
             isDrawing = true; // Enable drag
             const threshold = 10 / store.viewState.scale;
+            const elementMap = new Map<string, DrawingElement>();
+            for (const el of store.elements) elementMap.set(el.id, el);
+
             for (let i = store.elements.length - 1; i >= 0; i--) {
                 const el = store.elements[i];
-                if (hitTestElement(el, x, y, threshold)) {
+                if (!canInteractWithElement(el)) continue;
+                if (!isLayerVisible(el.layerId)) continue;
+                if (hitTestElement(el, x, y, threshold, elementMap)) {
                     deleteElements([el.id]);
                 }
             }
@@ -3176,9 +3187,14 @@ const Canvas: Component = () => {
         if (!isDrawing || !currentId) {
             if (isDrawing && store.selectedTool === 'eraser') {
                 const threshold = 10 / store.viewState.scale;
+                const elementMap = new Map<string, DrawingElement>();
+                for (const el of store.elements) elementMap.set(el.id, el);
+
                 for (let i = store.elements.length - 1; i >= 0; i--) {
                     const el = store.elements[i];
-                    if (hitTestElement(el, x, y, threshold)) {
+                    if (!canInteractWithElement(el)) continue;
+                    if (!isLayerVisible(el.layerId)) continue;
+                    if (hitTestElement(el, x, y, threshold, elementMap)) {
                         deleteElements([el.id]);
                     }
                 }
@@ -3453,7 +3469,7 @@ const Canvas: Component = () => {
                     if (el.height < 0) {
                         updateElement(currentId, { y: el.y + el.height, height: Math.abs(el.height) });
                     }
-                } else if (el.type === 'fineliner' || el.type === 'marker' || el.type === 'inkbrush' || el.type === 'ink') {
+                } else if (el.type === 'fineliner' || el.type === 'inkbrush' || el.type === 'marker' || el.type === 'ink') {
                     // Flush any buffered points before normalization
                     flushPenPoints();
                     // Re-fetch element after flush
@@ -3627,11 +3643,15 @@ const Canvas: Component = () => {
         const threshold = 10 / store.viewState.scale;
 
         // Find element under cursor
+        const elementMap = new Map<string, DrawingElement>();
+        for (const el of store.elements) elementMap.set(el.id, el);
+
         for (let i = store.elements.length - 1; i >= 0; i--) {
             const el = store.elements[i];
             if (!canInteractWithElement(el)) continue;
+            if (!isLayerVisible(el.layerId)) continue;
 
-            if (hitTestElement(el, x, y, threshold)) {
+            if (hitTestElement(el, x, y, threshold, elementMap)) {
 
                 // Check for control handles (Star, Burst, Speech Bubble, Isometric Cube, Solid Block, Perspective Block)
                 if (['star', 'burst', 'speechBubble', 'isometricCube', 'solidBlock', 'perspectiveBlock'].includes(el.type)) {

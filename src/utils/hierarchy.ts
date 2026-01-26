@@ -3,11 +3,16 @@ import type { DrawingElement } from "../types";
 /**
  * Returns true if an element's parent (or any ancestor) is collapsed.
  */
-export const isElementHiddenByHierarchy = (el: DrawingElement, elements: readonly DrawingElement[]): boolean => {
+export const isElementHiddenByHierarchy = (
+    el: DrawingElement,
+    elements: readonly DrawingElement[],
+    elementMap?: Map<string, DrawingElement>
+): boolean => {
     // If it's a bound line/arrow, hide it if its target node is hidden
     if ((el.type === 'line' || el.type === 'arrow') && el.endBinding) {
-        const target = elements.find(e => e.id === el.endBinding!.elementId);
-        if (target && isElementHiddenByHierarchy(target, elements)) return true;
+        const targetId = el.endBinding.elementId;
+        const target = elementMap ? elementMap.get(targetId) : elements.find(e => e.id === targetId);
+        if (target && isElementHiddenByHierarchy(target, elements, elementMap)) return true;
     }
 
     if (!el.parentId) return false;
@@ -20,7 +25,7 @@ export const isElementHiddenByHierarchy = (el: DrawingElement, elements: readonl
         visited.add(currentParentId);
 
         const targetId: string = currentParentId;
-        const parent = elements.find(e => e.id === targetId);
+        const parent = elementMap ? elementMap.get(targetId) : elements.find(e => e.id === targetId);
         if (!parent) break;
 
         if (parent.isCollapsed) return true;

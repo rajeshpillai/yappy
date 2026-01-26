@@ -1,7 +1,7 @@
 import { ShapeRenderer } from "../base/shape-renderer";
 import { RenderPipeline } from "../base/render-pipeline";
 import type { RenderContext } from "../base/types";
-import { getFontString, measureContainerText } from "../../utils/text-utils";
+import { getFontString, measureContainerText, getMeasurementContext } from "../../utils/text-utils";
 import type { DrawingElement } from "../../types";
 
 export class UmlStateRenderer extends ShapeRenderer {
@@ -44,8 +44,7 @@ export class UmlStateRenderer extends ShapeRenderer {
         }
 
         // Layout
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d')!;
+        const ctx = getMeasurementContext();
         const layout = this.calculateLayout(ctx, el);
 
         this.drawDivider(null, el, layout, options.stroke || '#000000', true, rc, options);

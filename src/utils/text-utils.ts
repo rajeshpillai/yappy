@@ -12,9 +12,19 @@ export const getFontString = (el: Partial<DrawingElement>) => {
     const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
         el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
             'Handlee, cursive';
-    const fontWeight = el.fontWeight ? 'bold ' : '';
-    const fontStyle = el.fontStyle ? 'italic ' : '';
+    const fontWeight = el.fontWeight ? (typeof el.fontWeight === 'string' ? el.fontWeight + ' ' : 'bold ') : '';
+    const fontStyle = el.fontStyle ? (typeof el.fontStyle === 'string' ? el.fontStyle + ' ' : 'italic ') : '';
     return `${fontStyle}${fontWeight}${fontSize}px ${fontFamily}`;
+};
+
+// Singleton context for text measurements to avoid DOM overhead in render loops
+let sharedMeasurer: CanvasRenderingContext2D | null = null;
+export const getMeasurementContext = (): CanvasRenderingContext2D => {
+    if (!sharedMeasurer) {
+        const canvas = document.createElement('canvas');
+        sharedMeasurer = canvas.getContext('2d')!;
+    }
+    return sharedMeasurer;
 };
 
 export const wrapText = (
