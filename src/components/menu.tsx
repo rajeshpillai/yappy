@@ -361,7 +361,7 @@ const Menu: Component = () => {
                                     </button>
                                     <button class="menu-item" onClick={() => { setIsExportOpen(true); setIsMenuOpen(false); }}>
                                         <Video size={16} />
-                                        <span class="label">Export Animation</span>
+                                        <span class="label">Export</span>
                                         <div class="menu-item-right">
                                             <span class="shortcut">Ctrl+Shift+E</span>
                                         </div>

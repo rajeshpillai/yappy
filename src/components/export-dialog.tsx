@@ -60,7 +60,7 @@ const ExportDialog: Component<ExportDialogProps> = (props) => {
             <div class="export-modal-overlay" onClick={props.onClose}>
                 <div class="export-modal" onClick={(e) => e.stopPropagation()}>
                     <div class="export-header">
-                        <h3>Export Image</h3>
+                        <h3>Export</h3>
                         <button class="close-btn" onClick={props.onClose}>
                             <X size={20} />
                         </button>
