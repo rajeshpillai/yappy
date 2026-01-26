@@ -220,71 +220,73 @@ const App: Component = () => {
         return;
       }
 
-      // Tool Cycling and Single Key Shortcuts
-      if (key === 's') {
-        e.preventDefault();
-        cycleStrokeStyle();
-      } else if (key === 'f') {
-        e.preventDefault();
-        cycleFillStyle();
-      } else if (key === '?' && e.shiftKey) {
-        e.preventDefault();
-        setShowHelp(true);
-      } else if (key === '"' || (key === "'" && e.shiftKey)) {
-        e.preventDefault();
-        toggleGrid();
-      } else if (key === ':' || (key === ';' && e.shiftKey)) {
-        e.preventDefault();
-        toggleSnapToGrid();
-      } else if (key === 'delete' || key === 'backspace') {
-        e.preventDefault();
-        if (store.selection.length > 0) deleteElements(store.selection);
-      } else if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
-        if (store.selection.length > 0) {
+      // Tool Cycling and Single Key Shortcuts (Only if no modifiers and not handled)
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.defaultPrevented) {
+        if (key === 's') {
           e.preventDefault();
-          const nudgeAmount = e.shiftKey ? 10 : 1;
-          let dx = 0, dy = 0;
-          if (key === 'arrowup') dy = -nudgeAmount;
-          else if (key === 'arrowdown') dy = nudgeAmount;
-          else if (key === 'arrowleft') dx = -nudgeAmount;
-          else if (key === 'arrowright') dx = nudgeAmount;
-          moveSelectedElements(dx, dy, true);
-        }
-      } else if (key === 'tab') {
-        if (store.selection.length === 1) {
+          cycleStrokeStyle();
+        } else if (key === 'f') {
           e.preventDefault();
-          addChildNode(store.selection[0]);
-        }
-      } else if (key === 'enter') {
-        if (store.selection.length === 1) {
+          cycleFillStyle();
+        } else if (key === '?' && e.shiftKey) {
           e.preventDefault();
-          addSiblingNode(store.selection[0]);
-        }
-      } else if (key === ' ') {
-        if (store.selection.length > 0) {
+          setShowHelp(true);
+        } else if (key === '"' || (key === "'" && e.shiftKey)) {
           e.preventDefault();
-          toggleCollapseSelection();
+          toggleGrid();
+        } else if (key === ':' || (key === ';' && e.shiftKey)) {
+          e.preventDefault();
+          toggleSnapToGrid();
+        } else if (key === 'delete' || key === 'backspace') {
+          e.preventDefault();
+          if (store.selection.length > 0) deleteElements(store.selection);
+        } else if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
+          if (store.selection.length > 0) {
+            e.preventDefault();
+            const nudgeAmount = e.shiftKey ? 10 : 1;
+            let dx = 0, dy = 0;
+            if (key === 'arrowup') dy = -nudgeAmount;
+            else if (key === 'arrowdown') dy = nudgeAmount;
+            else if (key === 'arrowleft') dx = -nudgeAmount;
+            else if (key === 'arrowright') dx = nudgeAmount;
+            moveSelectedElements(dx, dy, true);
+          }
+        } else if (key === 'tab') {
+          if (store.selection.length === 1) {
+            e.preventDefault();
+            addChildNode(store.selection[0]);
+          }
+        } else if (key === 'enter') {
+          if (store.selection.length === 1) {
+            e.preventDefault();
+            addSiblingNode(store.selection[0]);
+          }
+        } else if (key === ' ') {
+          if (store.selection.length > 0) {
+            e.preventDefault();
+            toggleCollapseSelection();
+          }
+        } else if (e.shiftKey && key === 'n') {
+          e.preventDefault();
+          addLayer();
         }
-      } else if (e.shiftKey && key === 'n') {
-        e.preventDefault();
-        addLayer();
-      }
-      // Tool selection shortcuts
-      else {
-        if (key === 'v' || key === '1') setSelectedTool('selection');
-        else if (key === 'r' || key === '2') setSelectedTool('rectangle');
-        else if (key === 'o' || key === '3') setSelectedTool('circle');
-        else if (key === 'l' || key === '4') setSelectedTool('line');
-        else if (key === 'a' || key === '5') setSelectedTool('arrow');
-        else if (key === 't' || key === '6') setSelectedTool('text');
-        else if (key === 'e' || key === '7') setSelectedTool('eraser');
-        else if (key === 'p' || key === '8') setSelectedTool('fineliner');
-        else if (key === '9' || key === 'i') {
-          (window as any).triggerImageUpload?.();
+        // Tool selection shortcuts
+        else {
+          if (key === 'v' || key === '1') setSelectedTool('selection');
+          else if (key === 'r' || key === '2') setSelectedTool('rectangle');
+          else if (key === 'o' || key === '3') setSelectedTool('circle');
+          else if (key === 'l' || key === '4') setSelectedTool('line');
+          else if (key === 'a' || key === '5') setSelectedTool('arrow');
+          else if (key === 't' || key === '6') setSelectedTool('text');
+          else if (key === 'e' || key === '7') setSelectedTool('eraser');
+          else if (key === 'p' || key === '8') setSelectedTool('fineliner');
+          else if (key === '9' || key === 'i') {
+            (window as any).triggerImageUpload?.();
+          }
+          else if (key === 'b' || key === '0') setSelectedTool('bezier');
+          else if (key === 'd') setSelectedTool('diamond');
+          else if (key === 'h') setSelectedTool('pan');
         }
-        else if (key === 'b' || key === '0') setSelectedTool('bezier');
-        else if (key === 'd') setSelectedTool('diamond');
-        else if (key === 'h') setSelectedTool('pan');
       }
     };
     window.addEventListener('keydown', handleKeyDown);

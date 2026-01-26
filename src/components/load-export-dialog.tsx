@@ -1,6 +1,6 @@
 import { type Component, createSignal, Show, createEffect, onCleanup } from "solid-js";
 import {
-    X, Upload, Download, FolderOpen, Save,
+    X, Upload, Download, FolderOpen, Save, FileText,
     Image as ImageIcon, HelpCircle, AlertTriangle
 } from "lucide-solid";
 import "./load-export-dialog.css";
@@ -13,6 +13,7 @@ interface LoadExportDialogProps {
     onLoadDisk: () => void;
     onSaveWorkspace: () => void;
     onSaveDisk: () => void;
+    onSaveDiskJson: () => void;
     onExportImage: () => void;
 }
 
@@ -122,6 +123,17 @@ const LoadExportDialog: Component<LoadExportDialogProps> = (props) => {
                                         <p>Export your drawing to a file for backup</p>
                                     </div>
                                     <button class="action-trigger secondary">Save to disk</button>
+                                </div>
+
+                                <div class="option-card compact" onClick={props.onSaveDiskJson}>
+                                    <div class="option-icon disk">
+                                        <FileText size={24} />
+                                    </div>
+                                    <div class="option-info">
+                                        <h4>Save as JSON</h4>
+                                        <p>Export uncompressed legacy format</p>
+                                    </div>
+                                    <button class="action-trigger secondary">Save JSON</button>
                                 </div>
 
                                 <div class="option-card compact" onClick={props.onSaveWorkspace}>

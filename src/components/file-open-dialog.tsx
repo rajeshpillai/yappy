@@ -24,7 +24,7 @@ const FileOpenDialog: Component<FileOpenDialogProps> = (props) => {
             const list = await storage.listDrawings();
             const fileObjects = list
                 .map(f => {
-                    const name = f.replace(/\.json$/i, '');
+                    const name = f.replace(/\.(json|yappy)$/i, '');
                     return { id: name, name };
                 })
                 .sort((a, b) => a.name.localeCompare(b.name));

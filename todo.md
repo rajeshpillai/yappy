@@ -994,3 +994,10 @@
 - [x] Implement singleton text measurement context
 - [x] Refactor specialized renderers to avoid redundant canvas creation
 - [x] Enhance hit-testing performance for interactions
+
+## Phase 72: File Compression
+- [x] Save as GZIP compressed `.yappy` files
+- [x] Support automatic decompression on load
+- [x] Maintain legacy `.json` support
+- [x] Server-side storage support (binary/.yappy)
+- [x] "Save as JSON" export option

@@ -32,8 +32,8 @@ export const [isLoadExportOpen, setIsLoadExportOpen] = createSignal(false);
 export const [showHelp, setShowHelp] = createSignal(false);
 
 // Exported handlers for App.tsx integration
-let sharedSetSaveIntent: (intent: 'workspace' | 'disk') => void = () => { };
-export const handleSaveRequest = (intent: 'workspace' | 'disk') => {
+let sharedSetSaveIntent: (intent: 'workspace' | 'disk' | 'disk-json') => void = () => { };
+export const handleSaveRequest = (intent: 'workspace' | 'disk' | 'disk-json') => {
     if (typeof sharedSetSaveIntent === 'function') {
         sharedSetSaveIntent(intent);
         setIsSaveOpen(true);
@@ -52,7 +52,7 @@ const Menu: Component = () => {
     const [loadExportInitialTab, setLoadExportInitialTab] = createSignal<'load' | 'save'>('load');
     let fileInputRef: HTMLInputElement | undefined;
 
-    const [saveIntent, setSaveIntent] = createSignal<'workspace' | 'disk'>('workspace');
+    const [saveIntent, setSaveIntent] = createSignal<'workspace' | 'disk' | 'disk-json'>('workspace');
     sharedSetSaveIntent = setSaveIntent;
     const [isTemplateBrowserOpen, setIsTemplateBrowserOpen] = createSignal(false);
 
@@ -85,18 +85,37 @@ const Menu: Component = () => {
                 await storage.saveDrawing(filename, slideDoc);
                 showToast(`Drawing saved as "${filename}"!`, 'success');
             } else {
-                const data = JSON.stringify(slideDoc, null, 2);
+                const jsonString = JSON.stringify(slideDoc, null, 2);
 
-                const blob = new Blob([data], { type: 'application/json' });
-                const fileNameWithExt = `${filename}.json`;
-                const file = new File([blob], fileNameWithExt, { type: 'application/json' });
+                let blob: Blob;
+                let fileNameWithExt: string;
+                let mimeType: string;
+
+                if (saveIntent() === 'disk-json') {
+                    // Save as uncompressed JSON
+                    blob = new Blob([jsonString], { type: 'application/json' });
+                    fileNameWithExt = `${filename}.json`;
+                    mimeType = 'application/json';
+                } else {
+                    // Compress using GZIP (.yappy)
+                    const stream = new Blob([jsonString]).stream().pipeThrough(new CompressionStream('gzip'));
+                    const compressedResponse = new Response(stream);
+                    blob = await compressedResponse.blob();
+                    fileNameWithExt = `${filename}.yappy`;
+                    mimeType = 'application/gzip';
+                }
+
+                // For sharing, we might need a file object
+                // Note: .yappy mime type is technically application/octet-stream or application/gzip
+                // but let's stick to generic binary for now or custom
+                const file = new File([blob], fileNameWithExt, { type: mimeType });
 
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     try {
                         await navigator.share({
                             files: [file],
                             title: 'Yappy Drawing',
-                            text: 'Save your drawing JSON'
+                            text: saveIntent() === 'disk-json' ? 'Save your drawing JSON' : 'Save your compressed drawing'
                         });
                         return;
                     } catch (err) {
@@ -161,28 +180,42 @@ const Menu: Component = () => {
         showToast(`Template "${template.metadata.name}" loaded`, 'success');
     };
 
-    const handleOpenJson = (e: Event) => {
+    const handleOpenJson = async (e: Event) => {
         const file = (e.target as HTMLInputElement).files?.[0];
         if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            try {
-                const json = JSON.parse(event.target?.result as string);
+        try {
+            let jsonString: string;
 
-                // Ensure data is in SlideDocument format (migrate if v2)
-                const doc = isSlideDocument(json) ? json : migrateToSlideFormat(json);
-                loadDocument(doc);
-
-                const name = file.name.replace(/\.json$/i, '');
-                setDrawingId(name);
-                showToast('File loaded successfully', 'success');
-            } catch (err) {
-                console.error(err);
-                showToast('Failed to parse JSON', 'error');
+            // Try to decompress if extension is .yappy OR detection fails
+            if (file.name.endsWith('.yappy') || file.type === 'application/gzip' || file.type === 'application/x-gzip') {
+                try {
+                    const ds = new DecompressionStream('gzip');
+                    const decompressedStream = file.stream().pipeThrough(ds);
+                    const decompressedResponse = new Response(decompressedStream);
+                    jsonString = await decompressedResponse.text();
+                } catch (decompressErr) {
+                    console.warn('Decompression failed, trying as plain text...', decompressErr);
+                    jsonString = await file.text();
+                }
+            } else {
+                jsonString = await file.text();
             }
-        };
-        reader.readAsText(file);
+
+            const json = JSON.parse(jsonString);
+
+            // Ensure data is in SlideDocument format (migrate if v2)
+            const doc = isSlideDocument(json) ? json : migrateToSlideFormat(json);
+            loadDocument(doc);
+
+            const name = file.name.replace(/\.(json|yappy)$/i, '');
+            setDrawingId(name);
+            showToast('File loaded successfully', 'success');
+        } catch (err) {
+            console.error(err);
+            showToast('Failed to load file. It might be corrupted or invalid format.', 'error');
+        }
+
         setIsMenuOpen(false);
         (e.target as HTMLInputElement).value = '';
     };
@@ -270,7 +303,7 @@ const Menu: Component = () => {
                 type="file"
                 ref={fileInputRef}
                 style={{ display: 'none' }}
-                accept=".json"
+                accept=".json,.yappy"
                 onChange={handleOpenJson}
             />
 
@@ -305,6 +338,7 @@ const Menu: Component = () => {
                 onLoadDisk={() => { setIsLoadExportOpen(false); fileInputRef?.click(); }}
                 onSaveWorkspace={() => { setIsLoadExportOpen(false); handleSaveRequest('workspace'); }}
                 onSaveDisk={() => { setIsLoadExportOpen(false); handleSaveRequest('disk'); }}
+                onSaveDiskJson={() => { setIsLoadExportOpen(false); handleSaveRequest('disk-json'); }}
                 onExportImage={() => { setIsLoadExportOpen(false); setIsExportOpen(true); }}
             />
 

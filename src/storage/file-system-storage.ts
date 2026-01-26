@@ -56,12 +56,18 @@ export class FileSystemStorage implements StorageInterface {
             });
         }
 
+        // Compress using GZIP for storage
+        const jsonString = JSON.stringify(payload);
+        const stream = new Blob([jsonString]).stream().pipeThrough(new CompressionStream('gzip'));
+        const compressedResponse = new Response(stream);
+        const blob = await compressedResponse.blob();
+
         const response = await fetch(`${this.baseUrl}/${id}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/gzip',
             },
-            body: JSON.stringify(payload),
+            body: blob,
         });
 
         if (!response.ok) {
@@ -73,7 +79,26 @@ export class FileSystemStorage implements StorageInterface {
     async loadDrawing(id: string): Promise<DocumentData | null> {
         const response = await fetch(`${this.baseUrl}/${id}`);
         if (!response.ok) return null;
-        return await response.json();
+
+        const contentType = response.headers.get('content-type');
+        let jsonString: string;
+
+        if (contentType && (contentType.includes('application/gzip') || contentType.includes('application/x-gzip') || contentType.includes('application/octet-stream'))) {
+            try {
+                // Decompress
+                const ds = new DecompressionStream('gzip');
+                const decompressedStream = response.body!.pipeThrough(ds);
+                const decompressedResponse = new Response(decompressedStream);
+                jsonString = await decompressedResponse.text();
+            } catch (e) {
+                console.warn('Decompression failed, falling back to text', e);
+                jsonString = await response.text();
+            }
+        } else {
+            jsonString = await response.text();
+        }
+
+        return JSON.parse(jsonString);
     }
 
     async listDrawings(): Promise<string[]> {

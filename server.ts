@@ -19,10 +19,13 @@ if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR);
 }
 
+// Enable raw body parsing for compressed uploads
+app.use(express.raw({ type: ['application/octet-stream', 'application/gzip', 'application/x-gzip'], limit: '50mb' }));
+
 // Routes
 app.get('/api/drawings', (req, res) => {
     try {
-        const files = fs.readdirSync(DATA_DIR).filter(f => f.endsWith('.json'));
+        const files = fs.readdirSync(DATA_DIR).filter(f => f.endsWith('.json') || f.endsWith('.yappy'));
         res.json(files);
     } catch (error) {
         res.status(500).json({ error: 'Failed to read directory' });
@@ -30,9 +33,15 @@ app.get('/api/drawings', (req, res) => {
 });
 
 app.get('/api/drawings/:id', (req, res) => {
-    const filePath = path.join(DATA_DIR, `${req.params.id}.json`);
-    if (fs.existsSync(filePath)) {
-        const content = fs.readFileSync(filePath, 'utf-8');
+    const jsonPath = path.join(DATA_DIR, `${req.params.id}.json`);
+    const yappyPath = path.join(DATA_DIR, `${req.params.id}.yappy`);
+
+    if (fs.existsSync(yappyPath)) {
+        const content = fs.readFileSync(yappyPath);
+        res.setHeader('Content-Type', 'application/gzip');
+        res.send(content);
+    } else if (fs.existsSync(jsonPath)) {
+        const content = fs.readFileSync(jsonPath, 'utf-8');
         res.json(JSON.parse(content));
     } else {
         res.status(404).json({ error: 'Drawing not found' });
@@ -40,9 +49,23 @@ app.get('/api/drawings/:id', (req, res) => {
 });
 
 app.post('/api/drawings/:id', (req, res) => {
-    const filePath = path.join(DATA_DIR, `${req.params.id}.json`);
+    // Determine extension based on content type or just default to .yappy for new saves if it's binary
+    const isBinary = req.is('application/octet-stream') || req.is('application/gzip') || req.is('application/x-gzip');
+    const ext = isBinary ? '.yappy' : '.json';
+    const filePath = path.join(DATA_DIR, `${req.params.id}${ext}`);
+
+    // If saving as .yappy, remove potential .json duplicate to avoid confusion
+    if (isBinary) {
+        const jsonPath = path.join(DATA_DIR, `${req.params.id}.json`);
+        if (fs.existsSync(jsonPath)) fs.unlinkSync(jsonPath);
+    }
+
     try {
-        fs.writeFileSync(filePath, JSON.stringify(req.body, null, 2));
+        if (isBinary) {
+            fs.writeFileSync(filePath, req.body);
+        } else {
+            fs.writeFileSync(filePath, JSON.stringify(req.body, null, 2));
+        }
         res.json({ success: true });
     } catch (error) {
         res.status(500).json({ error: 'Failed to save drawing' });
@@ -50,10 +73,20 @@ app.post('/api/drawings/:id', (req, res) => {
 });
 
 app.delete('/api/drawings/:id', (req, res) => {
-    const filePath = path.join(DATA_DIR, `${req.params.id}.json`);
+    const jsonPath = path.join(DATA_DIR, `${req.params.id}.json`);
+    const yappyPath = path.join(DATA_DIR, `${req.params.id}.yappy`);
     try {
-        if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
+        let deleted = false;
+        if (fs.existsSync(yappyPath)) {
+            fs.unlinkSync(yappyPath);
+            deleted = true;
+        }
+        if (fs.existsSync(jsonPath)) {
+            fs.unlinkSync(jsonPath);
+            deleted = true;
+        }
+
+        if (deleted) {
             res.json({ success: true });
         } else {
             res.status(404).json({ error: 'Drawing not found' });
