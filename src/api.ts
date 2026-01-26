@@ -2,11 +2,25 @@ import {
     store, addElement, updateElement, deleteElements, setViewState, pushToHistory, setStore, zoomToFit,
     undo, redo, groupSelected, ungroupSelected, duplicateElement, toggleTheme,
     addLayer, deleteLayer, setActiveLayer, mergeLayerDown, flattenLayers, isolateLayer, showAllLayers,
+    updateLayer, duplicateLayer, reorderLayers, moveElementsToLayer, createLayerGroup, toggleLayerGroupExpansion,
+    isLayerVisible, isLayerLocked,
     toggleGrid, toggleSnapToGrid, toggleCommandPalette, togglePropertyPanel, togglePresentationMode,
+    toggleLayerPanel, toggleMinimap, toggleZenMode, toggleSlideNavigator,
     addDisplayState, updateDisplayState, deleteDisplayState, applyDisplayState, toggleStatePanel,
-    addChildNode, addSiblingNode, toggleCollapseSelection, toggleCollapse
+    applyNextState, applyPreviousState,
+    addChildNode, addSiblingNode, toggleCollapseSelection, toggleCollapse,
+    setParent, reorderMindmap, applyMindmapStyling,
+    addSlide, deleteSlide, setActiveSlide, reorderSlides,
+    updateSlideTransition, updateSlideBackground, setDocType, loadDocument, resetToNewDocument,
+    bringToFront, sendToBack, moveElementZIndex,
+    alignSelectedElements, distributeSelectedElements,
+    setCanvasBackgroundColor, setCanvasTexture, zoomToFitSlide,
+    setSelectedTool, loadTemplate, moveSelectedElements
 } from "./store/app-store";
-import type { ElementType, DrawingElement, FillStyle, StrokeStyle, FontFamily, TextAlign, ArrowHead, VerticalAlign, Point, GradientStop, GradientType } from "./types";
+import type { ElementType, DrawingElement, FillStyle, StrokeStyle, FontFamily, TextAlign, ArrowHead, VerticalAlign, Point, GradientStop, GradientType, Layer } from "./types";
+import type { SlideTransition } from "./types/slide-types";
+import type { AlignmentType, DistributionType } from "./utils/alignment";
+import type { LayoutDirection } from "./utils/mindmap-layout";
 import {
     animateElement,
     animateElements,
@@ -508,6 +522,14 @@ export const YappyAPI = {
     flattenLayers() { flattenLayers(); },
     isolateLayer(id: string) { isolateLayer(id); },
     showAllLayers() { showAllLayers(); },
+    updateLayer(id: string, updates: Partial<Layer>) { updateLayer(id, updates); },
+    duplicateLayer(id: string) { duplicateLayer(id); },
+    reorderLayers(fromIndex: number, toIndex: number) { reorderLayers(fromIndex, toIndex); },
+    moveElementsToLayer(elementIds: string[], targetLayerId: string) { moveElementsToLayer(elementIds, targetLayerId); },
+    createLayerGroup(name?: string) { createLayerGroup(name); },
+    toggleLayerGroupExpansion(groupId: string) { toggleLayerGroupExpansion(groupId); },
+    isLayerVisible(layerId: string) { return isLayerVisible(layerId); },
+    isLayerLocked(layerId: string) { return isLayerLocked(layerId); },
 
     // Grid & Snapping
     toggleGrid() { toggleGrid(); },
@@ -519,17 +541,58 @@ export const YappyAPI = {
     deleteDisplayState(id: string) { deleteDisplayState(id); },
     applyDisplayState(id: string, animate: boolean = true) { applyDisplayState(id, animate); },
     toggleStatePanel(visible?: boolean) { toggleStatePanel(visible); },
+    applyNextState() { applyNextState(); },
+    applyPreviousState() { applyPreviousState(); },
 
     // Hierarchy / Mindmap actions
     addChildNode(parentId: string) { addChildNode(parentId); },
     addSiblingNode(siblingId: string) { addSiblingNode(siblingId); },
     toggleCollapseSelection() { toggleCollapseSelection(); },
     toggleCollapse(id: string) { toggleCollapse(id); },
+    setParent(childId: string, parentId: string | null) { setParent(childId, parentId); },
+    reorderMindmap(rootId: string, direction: LayoutDirection) { reorderMindmap(rootId, direction); },
+    applyMindmapStyling(rootId: string) { applyMindmapStyling(rootId); },
 
     // UI Panels
     toggleCommandPalette(visible?: boolean) { toggleCommandPalette(visible); },
     togglePropertyPanel(visible?: boolean) { togglePropertyPanel(visible); },
     togglePresentationMode(visible?: boolean) { togglePresentationMode(visible); },
+    toggleLayerPanel(visible?: boolean) { toggleLayerPanel(visible); },
+    toggleMinimap(visible?: boolean) { toggleMinimap(visible); },
+    toggleZenMode(visible?: boolean) { toggleZenMode(visible); },
+    toggleSlideNavigator(visible?: boolean) { toggleSlideNavigator(visible); },
+
+    // Slides
+    addSlide() { addSlide(); },
+    deleteSlide(index: number) { deleteSlide(index); },
+    setActiveSlide(index: number) { setActiveSlide(index); },
+    reorderSlides(fromIndex: number, toIndex: number) { reorderSlides(fromIndex, toIndex); },
+    updateSlideTransition(slideIndex: number, transition: Partial<SlideTransition>) { updateSlideTransition(slideIndex, transition); },
+    updateSlideBackground(slideIndex: number, color: string) { updateSlideBackground(slideIndex, color); },
+    setDocType(type: 'infinite' | 'slides') { setDocType(type); },
+    loadDocument(doc: any) { loadDocument(doc); },
+    resetToNewDocument(docType: 'infinite' | 'slides' = 'slides') { resetToNewDocument(docType); },
+
+    // Z-Order
+    bringToFront(ids: string[]) { bringToFront(ids); },
+    sendToBack(ids: string[]) { sendToBack(ids); },
+    moveElementZIndex(id: string, direction: 'front' | 'back' | 'forward' | 'backward') { moveElementZIndex(id, direction); },
+
+    // Alignment & Distribution
+    alignSelectedElements(type: AlignmentType) { alignSelectedElements(type); },
+    distributeSelectedElements(type: DistributionType) { distributeSelectedElements(type); },
+
+    // Canvas
+    setCanvasBackgroundColor(color: string) { setCanvasBackgroundColor(color); },
+    setCanvasTexture(texture: 'none' | 'dots' | 'grid' | 'graph' | 'paper') { setCanvasTexture(texture); },
+    zoomToFitSlide() { zoomToFitSlide(); },
+
+    // Tool Selection
+    setSelectedTool(tool: ElementType | 'selection') { setSelectedTool(tool); },
+    moveSelectedElements(dx: number, dy: number) { moveSelectedElements(dx, dy, true); },
+
+    // Template
+    loadTemplate(templateData: any) { loadTemplate(templateData); },
 
     // Animation
     animateElement,
