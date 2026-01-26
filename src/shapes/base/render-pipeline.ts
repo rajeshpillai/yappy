@@ -12,6 +12,26 @@ export class RenderPipeline {
         return color;
     }
 
+    static shadeColor(color: string, percent: number) {
+        // Return transparent as is
+        if (color === 'transparent' || color === 'none' || !color) return color;
+
+        // Simple HEX shading
+        let R = parseInt(color.substring(1, 3), 16);
+        let G = parseInt(color.substring(3, 5), 16);
+        let B = parseInt(color.substring(5, 7), 16);
+
+        R = Math.min(255, Math.floor(R * percent));
+        G = Math.min(255, Math.floor(G * percent));
+        B = Math.min(255, Math.floor(B * percent));
+
+        const RR = ((R.toString(16).length === 1) ? "0" + R.toString(16) : R.toString(16));
+        const GG = ((G.toString(16).length === 1) ? "0" + G.toString(16) : G.toString(16));
+        const BB = ((B.toString(16).length === 1) ? "0" + B.toString(16) : B.toString(16));
+
+        return "#" + RR + GG + BB;
+    }
+
     /**
      * Applies standard transformations (opacity, blend mode, rotation) to the context.
      * Returns the center coordinates (cx, cy) for further use.

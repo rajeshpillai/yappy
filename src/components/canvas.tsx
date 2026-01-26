@@ -797,8 +797,8 @@ const Canvas: Component = () => {
                     ctx.restore();
                 }
 
-                // Custom Control Handles (Isometric Cube, Star, Burst, Solid Block)
-                if (store.selection.includes(el.id) && (el.type === 'isometricCube' || el.type === 'star' || el.type === 'burst' || el.type === 'solidBlock')) {
+                // Custom Control Handles (Isometric Cube, Star, Burst, Solid Block, Perspective Block)
+                if (store.selection.includes(el.id) && (el.type === 'isometricCube' || el.type === 'star' || el.type === 'burst' || el.type === 'solidBlock' || el.type === 'perspectiveBlock')) {
                     const cpSize = 10 / scale;
                     let cx = 0, cy = 0;
 
@@ -818,6 +818,57 @@ const Canvas: Component = () => {
 
                         cx = centerX + depth * Math.cos(angle);
                         cy = centerY + depth * Math.sin(angle);
+                    } else if (el.type === 'perspectiveBlock') {
+                        const depth = el.depth !== undefined ? el.depth : 50;
+                        const angle = (el.viewAngle !== undefined ? el.viewAngle : 45) * Math.PI / 180;
+                        const bTaper = el.taper !== undefined ? el.taper : 0;
+                        const skewX = (el.skewX !== undefined ? el.skewX : 0) * el.width;
+                        const skewY = (el.skewY !== undefined ? el.skewY : 0) * el.height;
+
+                        const centerX = el.x + el.width / 2;
+                        const centerY = el.y + el.height / 2;
+
+                        const dx = depth * Math.cos(angle) + skewX;
+                        const dy = depth * Math.sin(angle) + skewY;
+
+                        const bScale = 1 - bTaper;
+                        const bw = (el.width / 2) * bScale;
+                        const bh = (el.height / 2) * bScale;
+
+                        const fScale = 1 - (el.frontTaper || 0);
+                        const fw = (el.width / 2) * fScale;
+                        const fh = (el.height / 2) * fScale;
+                        const fsX = (el.frontSkewX || 0) * el.width;
+                        const fsY = (el.frontSkewY || 0) * el.height;
+
+                        // Draw 9 handles
+                        const handles = [
+                            { x: centerX + dx, y: centerY + dy, type: 'depth' },   // Back Center
+                            // Back Vertices
+                            { x: centerX + dx - bw, y: centerY + dy - bh, type: 'bTL' },
+                            { x: centerX + dx + bw, y: centerY + dy - bh, type: 'bTR' },
+                            { x: centerX + dx + bw, y: centerY + dy + bh, type: 'bBR' },
+                            { x: centerX + dx - bw, y: centerY + dy + bh, type: 'bBL' },
+                            // Front Vertices
+                            { x: centerX + fsX - fw, y: centerY + fsY - fh, type: 'fTL' },
+                            { x: centerX + fsX + fw, y: centerY + fsY - fh, type: 'fTR' },
+                            { x: centerX + fsX + fw, y: centerY + fsY + fh, type: 'fBR' },
+                            { x: centerX + fsX - fw, y: centerY + fsY + fh, type: 'fBL' }
+                        ];
+
+                        ctx.strokeStyle = '#ffffff';
+                        ctx.lineWidth = 1.5 / scale;
+                        for (const h of handles) {
+                            if (h.type === 'depth') ctx.fillStyle = '#f59e0b'; // Amber
+                            else if (h.type.startsWith('b')) ctx.fillStyle = '#3b82f6'; // Blue
+                            else ctx.fillStyle = '#10b981'; // Green
+
+                            ctx.beginPath();
+                            ctx.arc(h.x, h.y, cpSize / 2, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.stroke();
+                        }
+                        return; // Already drawn handles
                     } else if (el.type === 'star' || el.type === 'burst') {
                         const ratio = (el.shapeRatio !== undefined ? el.shapeRatio : 25) / 100;
                         cx = el.x + el.width / 2;
@@ -1258,6 +1309,8 @@ const Canvas: Component = () => {
             e.sideRatio; // Track side ratio (perspective)
             e.depth; // Track depth for 3D shapes
             e.viewAngle; // Track viewing angle for 3D shapes
+            e.taper; e.skewX; e.skewY;
+            e.frontTaper; e.frontSkewX; e.frontSkewY;
             e.drawInnerBorder; // Track double border toggle
             e.innerBorderDistance; // Track double border distance
             e.strokeLineJoin; // Track corner style
@@ -1542,6 +1595,51 @@ const Canvas: Component = () => {
                 if (Math.abs(local.x - cx) <= handleSize && Math.abs(local.y - cy) <= handleSize) {
                     return { id: el.id, handle: 'control-1' };
                 }
+                if (Math.abs(local.x - cx) <= handleSize && Math.abs(local.y - cy) <= handleSize) {
+                    return { id: el.id, handle: 'control-1' };
+                }
+            } else if (el.type === 'perspectiveBlock') {
+                const depth = el.depth !== undefined ? el.depth : 50;
+                const angle = (el.viewAngle !== undefined ? el.viewAngle : 45) * Math.PI / 180;
+                const taper = el.taper !== undefined ? el.taper : 0;
+                const skewX = (el.skewX !== undefined ? el.skewX : 0) * el.width;
+                const skewY = (el.skewY !== undefined ? el.skewY : 0) * el.height;
+
+                const centerX = el.x + el.width / 2;
+                const centerY = el.y + el.height / 2;
+
+                const dx = depth * Math.cos(angle) + skewX;
+                const dy = depth * Math.sin(angle) + skewY;
+
+                const scale = 1 - taper;
+                const bw = (el.width / 2) * scale;
+                const bh = (el.height / 2) * scale;
+
+                const fScale = 1 - (el.frontTaper || 0);
+                const fw = (el.width / 2) * fScale;
+                const fh = (el.height / 2) * fScale;
+                const fsX = (el.frontSkewX || 0) * el.width;
+                const fsY = (el.frontSkewY || 0) * el.height;
+
+                const handles = [
+                    { x: centerX + dx, y: centerY + dy, handle: 'control-1' },   // Back Center
+                    // Back Vertices
+                    { x: centerX + dx - bw, y: centerY + dy - bh, handle: 'control-2' },
+                    { x: centerX + dx + bw, y: centerY + dy - bh, handle: 'control-3' },
+                    { x: centerX + dx + bw, y: centerY + dy + bh, handle: 'control-4' },
+                    { x: centerX + dx - bw, y: centerY + dy + bh, handle: 'control-5' },
+                    // Front Vertices
+                    { x: centerX + fsX - fw, y: centerY + fsY - fh, handle: 'control-6' },
+                    { x: centerX + fsX + fw, y: centerY + fsY - fh, handle: 'control-7' },
+                    { x: centerX + fsX + fw, y: centerY + fsY + fh, handle: 'control-8' },
+                    { x: centerX + fsX - fw, y: centerY + fsY + fh, handle: 'control-9' }
+                ];
+
+                for (const h of handles) {
+                    if (Math.abs(local.x - h.x) <= handleSize && Math.abs(local.y - h.y) <= handleSize) {
+                        return { id: el.id, handle: h.handle };
+                    }
+                }
             } else if (el.type === 'star' || el.type === 'burst') {
                 const ratio = (el.shapeRatio !== undefined ? el.shapeRatio : 25) / 100;
                 const cx = el.x + el.width / 2;
@@ -1658,10 +1756,31 @@ const Canvas: Component = () => {
             const angle = (el.viewAngle !== undefined ? el.viewAngle : 45) * Math.PI / 180;
             const dx = depth * Math.cos(angle);
             const dy = depth * Math.sin(angle);
-            x1 = Math.min(x1, x1 + dx);
-            x2 = Math.max(x2, x2 + dx);
-            y1 = Math.min(y1, y1 + dy);
-            y2 = Math.max(y2, y2 + dy);
+            x1 = Math.min(x1, x1 + dx, x2 + dx);
+            x2 = Math.max(x2, x1 + dx, x2 + dx);
+            y1 = Math.min(y1, y1 + dy, y2 + dy);
+            y2 = Math.max(y2, y1 + dy, y2 + dy);
+        } else if (el.type === 'perspectiveBlock') {
+            const depth = el.depth !== undefined ? el.depth : 50;
+            const angle = (el.viewAngle !== undefined ? el.viewAngle : 45) * Math.PI / 180;
+            const skewX = (el.skewX || 0) * el.width;
+            const skewY = (el.skewY || 0) * el.height;
+            const dx = depth * Math.cos(angle) + skewX;
+            const dy = depth * Math.sin(angle) + skewY;
+            const taper = el.taper || 0;
+            const bw = (el.width / 2) * (1 - taper);
+            const bh = (el.height / 2) * (1 - taper);
+            const centerX = el.x + el.width / 2;
+            const centerY = el.y + el.height / 2;
+            const bX1 = centerX + dx - bw;
+            const bX2 = centerX + dx + bw;
+            const bY1 = centerY + dy - bh;
+            const bY2 = centerY + dy + bh;
+
+            x1 = Math.min(x1, bX1, bX2);
+            x2 = Math.max(x2, bX1, bX2);
+            y1 = Math.min(y1, bY1, bY2);
+            y2 = Math.max(y2, bY1, bY2);
         }
 
         if (p.x < x1 - threshold || p.x > x2 + threshold ||
@@ -1669,7 +1788,7 @@ const Canvas: Component = () => {
             return false;
         }
 
-        if (el.type === 'rectangle' || el.type === 'solidBlock' || el.type === 'isometricCube') {
+        if (el.type === 'rectangle' || el.type === 'solidBlock' || el.type === 'isometricCube' || el.type === 'perspectiveBlock') {
             // Check if inside expanded bounding box (passed broad-phase check above)
             return true;
         } else if (el.type === 'diamond') {
@@ -2741,10 +2860,10 @@ const Canvas: Component = () => {
                             }
 
                             // Handle Custom Control Handles (Virtual handles like Top Control for Cube)
-                            if (draggingHandle === 'control-1') {
+                            if (draggingHandle && draggingHandle.startsWith('control-')) {
                                 const el = store.elements.find(e => e.id === id);
                                 if (el) {
-                                    if (el.type === 'isometricCube') {
+                                    if (el.type === 'isometricCube' && draggingHandle === 'control-1') {
                                         // Vertical Drag -> shapeRatio (Height of top face)
                                         let newVRatio = (y - el.y) / el.height;
                                         newVRatio = Math.max(0.1, Math.min(0.9, newVRatio));
@@ -2756,7 +2875,7 @@ const Canvas: Component = () => {
                                         const sideRatio = Math.round(newHRatio * 100);
 
                                         updateElement(el.id, { shapeRatio, sideRatio }, false);
-                                    } else if (el.type === 'solidBlock') {
+                                    } else if (el.type === 'solidBlock' && draggingHandle === 'control-1') {
                                         // Handle drag adjusts Depth and View Angle
                                         const centerX = el.x + el.width / 2;
                                         const centerY = el.y + el.height / 2;
@@ -2774,12 +2893,82 @@ const Canvas: Component = () => {
                                         if (angleDeg < 0) angleDeg += 360;
 
                                         updateElement(el.id, { depth: newDepth, viewAngle: angleDeg }, false);
-                                    } else if (el.type === 'star' || el.type === 'burst') {
+                                    } else if (el.type === 'perspectiveBlock') {
+                                        if (draggingHandle === 'control-1') {
+                                            const centerX = el.x + el.width / 2;
+                                            const centerY = el.y + el.height / 2;
+                                            const dx = x - centerX - (el.skewX || 0) * el.width;
+                                            const dy = y - centerY - (el.skewY || 0) * el.height;
+
+                                            let newDepth = Math.sqrt(dx * dx + dy * dy);
+                                            let angleRad = Math.atan2(dy, dx);
+                                            let angleDeg = Math.round((angleRad * 180) / Math.PI);
+                                            if (angleDeg < 0) angleDeg += 360;
+
+                                            updateElement(el.id, { depth: Math.round(newDepth), viewAngle: angleDeg }, false);
+                                        } else if (draggingHandle === 'control-2' || draggingHandle === 'control-3' || draggingHandle === 'control-4' || draggingHandle === 'control-5') {
+                                            // Back Vertices (TL, TR, BR, BL)
+                                            const mw = el.width / 2;
+                                            const mh = el.height / 2;
+                                            const centerX = el.x + mw;
+                                            const centerY = el.y + mh;
+                                            const angle = (el.viewAngle || 45) * Math.PI / 180;
+                                            const depth = el.depth || 50;
+                                            const baseBackCenterX = centerX + depth * Math.cos(angle);
+                                            const baseBackCenterY = centerY + depth * Math.sin(angle);
+
+                                            // Mouse in local space relative to predicted base center
+                                            const imx = x - baseBackCenterX;
+                                            const imy = y - baseBackCenterY;
+
+                                            // Determine signs based on handle
+                                            const sx = (draggingHandle === 'control-3' || draggingHandle === 'control-4') ? 1 : -1;
+                                            const sy = (draggingHandle === 'control-4' || draggingHandle === 'control-5') ? 1 : -1;
+
+                                            // We want to solve for new skew and taper
+                                            // mx = skewX + sx * mw * (1-taper)
+                                            // my = skewY + sy * mh * (1-taper)
+                                            // This is underdetermined. Let's fix Taper based on distance or scale, and Skew as the shift.
+                                            // Simple direct mapping: 
+                                            // Dragging a corner adjusts both skew and taper.
+                                            // Taper = 1 - (distance from mouse to back center / predicted distance)
+                                            const distToCenter = Math.sqrt(imx * imx + imy * imy);
+                                            const predictedDist = Math.sqrt((mw * mw) + (mh * mh));
+                                            const newTaper = Math.max(0, Math.min(1, 1 - (distToCenter / predictedDist)));
+
+                                            // Skew is the offset of the "face center"
+                                            const newSkewX = (imx - sx * mw * (1 - newTaper)) / el.width;
+                                            const newSkewY = (imy - sy * mh * (1 - newTaper)) / el.height;
+
+                                            updateElement(el.id, { taper: newTaper, skewX: newSkewX, skewY: newSkewY }, false);
+                                        } else if (draggingHandle === 'control-6' || draggingHandle === 'control-7' || draggingHandle === 'control-8' || draggingHandle === 'control-9') {
+                                            // Front Vertices (TL, TR, BR, BL)
+                                            const mw = el.width / 2;
+                                            const mh = el.height / 2;
+                                            const centerX = el.x + mw;
+                                            const centerY = el.y + mh;
+
+                                            const imx = x - centerX;
+                                            const imy = y - centerY;
+
+                                            const sx = (draggingHandle === 'control-7' || draggingHandle === 'control-8') ? 1 : -1;
+                                            const sy = (draggingHandle === 'control-8' || draggingHandle === 'control-9') ? 1 : -1;
+
+                                            const distToCenter = Math.sqrt(imx * imx + imy * imy);
+                                            const predictedDist = Math.sqrt((mw * mw) + (mh * mh));
+                                            const newTaper = Math.max(0, Math.min(1, 1 - (distToCenter / predictedDist)));
+
+                                            const newSkewX = (imx - sx * mw * (1 - newTaper)) / el.width;
+                                            const newSkewY = (imy - sy * mh * (1 - newTaper)) / el.height;
+
+                                            updateElement(el.id, { frontTaper: newTaper, frontSkewX: newSkewX, frontSkewY: newSkewY }, false);
+                                        }
+                                    } else if ((el.type === 'star' || el.type === 'burst') && draggingHandle === 'control-1') {
                                         let newRatio = (y - el.y) / el.height;
                                         newRatio = Math.max(0.1, Math.min(0.9, newRatio));
                                         const shapeRatio = Math.round(newRatio * 100);
                                         updateElement(el.id, { shapeRatio }, false);
-                                    } else if (el.type === 'speechBubble') {
+                                    } else if (el.type === 'speechBubble' && draggingHandle === 'control-1') {
                                         let newTailX = (x - el.x) / el.width;
                                         let newTailY = (y - el.y) / el.height;
                                         newTailX = Math.max(-0.5, Math.min(1.5, newTailX));

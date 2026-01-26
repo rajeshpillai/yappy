@@ -18,7 +18,7 @@ export class SpecialtyShapeRenderer extends ShapeRenderer {
 
         // Painter's Algorithm for 3D solids (solidBlock, cylinder) to ensure proper occlusion
         // We render each face fully (Fill then Stroke) in order.
-        const is3D = ['solidBlock', 'cylinder', 'isometricCube'].includes(el.type);
+        const is3D = ['solidBlock', 'cylinder', 'isometricCube', 'perspectiveBlock'].includes(el.type);
 
         if (is3D && geometry.type === 'multi') {
             const fillVisible = options.fill && options.fill !== 'transparent' && options.fill !== 'none';
@@ -26,7 +26,7 @@ export class SpecialtyShapeRenderer extends ShapeRenderer {
             geometry.shapes.forEach((s: any) => {
                 // 1. Fill
                 if (fillVisible && backgroundColor) {
-                    ctx.fillStyle = backgroundColor;
+                    ctx.fillStyle = s.shade ? RenderPipeline.shadeColor(backgroundColor, s.shade) : backgroundColor;
                     ctx.beginPath();
                     RenderPipeline.renderGeometry(ctx, s);
                     ctx.fill();
@@ -119,22 +119,27 @@ export class SpecialtyShapeRenderer extends ShapeRenderer {
     }
 
     private renderSketchGeometry(rc: any, geo: any, options: any) {
+        // Apply face shading if available
+        const localOptions = geo.shade && options.fill && options.fill !== 'transparent' && options.fill !== 'none'
+            ? { ...options, fill: RenderPipeline.shadeColor(options.fill, geo.shade) }
+            : options;
+
         if (geo.type === 'rect') {
-            rc.rectangle(geo.x, geo.y, geo.w, geo.h, options);
+            rc.rectangle(geo.x, geo.y, geo.w, geo.h, localOptions);
         } else if (geo.type === 'ellipse') {
-            rc.ellipse(geo.cx, geo.cy, geo.rx * 2, geo.ry * 2, options);
+            rc.ellipse(geo.cx, geo.cy, geo.rx * 2, geo.ry * 2, localOptions);
         } else if (geo.type === 'points') {
             // Points are already relative to center in geometry
             const points: [number, number][] = geo.points.map((p: any) => [p.x, p.y]);
             if (geo.isClosed === false) {
-                rc.linearPath(points, options);
+                rc.linearPath(points, localOptions);
             } else {
-                rc.polygon(points, options);
+                rc.polygon(points, localOptions);
             }
         } else if (geo.type === 'path') {
-            rc.path(geo.path, options);
+            rc.path(geo.path, localOptions);
         } else if (geo.type === 'multi') {
-            geo.shapes.forEach((s: any) => this.renderSketchGeometry(rc, s, options));
+            geo.shapes.forEach((s: any) => this.renderSketchGeometry(rc, s, localOptions));
         }
     }
 

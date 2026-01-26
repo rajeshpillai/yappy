@@ -1,10 +1,10 @@
 import type { DrawingElement } from "../types";
 
 export type ShapeGeometry =
-    | { type: 'rect', x: number, y: number, w: number, h: number, r?: number }
-    | { type: 'ellipse', cx: number, cy: number, rx: number, ry: number }
-    | { type: 'path', path: string }
-    | { type: 'points', points: { x: number, y: number }[], isClosed?: boolean }
+    | { type: 'rect', x: number, y: number, w: number, h: number, r?: number, shade?: number }
+    | { type: 'ellipse', cx: number, cy: number, rx: number, ry: number, shade?: number }
+    | { type: 'path', path: string, shade?: number }
+    | { type: 'points', points: { x: number, y: number }[], isClosed?: boolean, shade?: number }
     | { type: 'multi', shapes: ShapeGeometry[] };
 
 const getRoundedRectPath = (x: number, y: number, w: number, h: number, r: number) => {
@@ -363,7 +363,8 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
                             { x: x + w, y: shoulderY }, // Right
                             { x: spineX, y: cy }, // Center (Front Corner)
                             { x: x, y: shoulderY } // Left
-                        ]
+                        ],
+                        shade: 1.1
                     },
                     // Left Face
                     {
@@ -372,7 +373,8 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
                             { x: spineX, y: cy }, // Center
                             { x: spineX, y: y + h }, // Bottom Center
                             { x: x, y: y + h - faceHeight / 2 } // Bottom Left (Parallel to Top-Center edge)
-                        ]
+                        ],
+                        shade: 0.9
                     },
                     // Right Face
                     {
@@ -381,7 +383,8 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
                             { x: x + w, y: shoulderY }, // Top Right
                             { x: x + w, y: y + h - faceHeight / 2 }, // Bottom Right (Parallel to Top-Center edge)
                             { x: spineX, y: y + h } // Bottom Center
-                        ]
+                        ],
+                        shade: 0.7
                     }
                 ]
             };
@@ -412,16 +415,63 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
             return {
                 type: 'multi', shapes: [
                     // Back Face (Draw first / Background)
-                    { type: 'points', points: [bTL, bTR, bBR, bBL] },
+                    { type: 'points', points: [bTL, bTR, bBR, bBL], shade: 0.6 },
 
                     // Sides 
-                    { type: 'points', points: [fTL, fTR, bTR, bTL] }, // Top
-                    { type: 'points', points: [fTR, fBR, bBR, bTR] }, // Right
-                    { type: 'points', points: [fBR, fBL, bBL, bBR] }, // Bottom
-                    { type: 'points', points: [fBL, fTL, bTL, bBL] }, // Left
+                    { type: 'points', points: [fTL, fTR, bTR, bTL], shade: 1.1 }, // Top
+                    { type: 'points', points: [fTR, fBR, bBR, bTR], shade: 0.8 }, // Right
+                    { type: 'points', points: [fBR, fBL, bBL, bBR], shade: 0.7 }, // Bottom
+                    { type: 'points', points: [fBL, fTL, bTL, bBL], shade: 0.9 }, // Left
 
                     // Front Face (Draw last / Foreground)
-                    { type: 'points', points: [fTL, fTR, fBR, fBL] }
+                    { type: 'points', points: [fTL, fTR, fBR, fBL], shade: 1.0 }
+                ]
+            };
+        }
+
+        case 'perspectiveBlock': {
+            const depth = el.depth !== undefined ? el.depth : 50;
+            const angleDeg = el.viewAngle !== undefined ? el.viewAngle : 45;
+            const angleRad = (angleDeg * Math.PI) / 180;
+            const taper = el.taper !== undefined ? el.taper : 0; // Back face taper
+            const skewX = (el.skewX !== undefined ? el.skewX : 0) * w;
+            const skewY = (el.skewY !== undefined ? el.skewY : 0) * h;
+
+            const fTaper = el.frontTaper !== undefined ? el.frontTaper : 0;
+            const fSkewX = (el.frontSkewX !== undefined ? el.frontSkewX : 0) * w;
+            const fSkewY = (el.frontSkewY !== undefined ? el.frontSkewY : 0) * h;
+
+            const dx = depth * Math.cos(angleRad) + skewX;
+            const dy = depth * Math.sin(angleRad) + skewY;
+
+            // Front face vertices
+            const fScale = 1 - fTaper;
+            const fw = mw * fScale;
+            const fh = mh * fScale;
+
+            const fTL = { x: -fw + fSkewX, y: -fh + fSkewY };
+            const fTR = { x: fw + fSkewX, y: -fh + fSkewY };
+            const fBR = { x: fw + fSkewX, y: fh + fSkewY };
+            const fBL = { x: -fw + fSkewX, y: fh + fSkewY };
+
+            // Back face vertices
+            const bScale = 1 - taper;
+            const bw = mw * bScale;
+            const bh = mh * bScale;
+
+            const bTL = { x: dx - bw, y: dy - bh };
+            const bTR = { x: dx + bw, y: dy - bh };
+            const bBR = { x: dx + bw, y: dy + bh };
+            const bBL = { x: dx - bw, y: dy + bh };
+
+            return {
+                type: 'multi', shapes: [
+                    { type: 'points', points: [bTL, bTR, bBR, bBL], shade: 0.6 }, // Back
+                    { type: 'points', points: [fTL, fTR, bTR, bTL], shade: 1.1 }, // Top
+                    { type: 'points', points: [fTR, fBR, bBR, bTR], shade: 0.8 }, // Right
+                    { type: 'points', points: [fBR, fBL, bBL, bBR], shade: 0.7 }, // Bottom
+                    { type: 'points', points: [fBL, fTL, bTL, bBL], shade: 0.9 }, // Left
+                    { type: 'points', points: [fTL, fTR, fBR, fBL], shade: 1.0 }  // Front
                 ]
             };
         }

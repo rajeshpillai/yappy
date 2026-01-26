@@ -74,7 +74,7 @@ export function registerShapes() {
         'cross', 'checkmark', 'capsule',
         'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown',
         'dfdProcess', 'dfdDataStore', 'isometricCube', 'solidBlock', 'cylinder',
-        'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity'
+        'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity', 'perspectiveBlock'
     ] as const;
     specialtyTypes.forEach(type => shapeRegistry.register(type, specialtyRenderer));
 
