@@ -1,6 +1,7 @@
 import { store } from "../store/app-store";
 import { renderElement } from "./render-element";
 import rough from 'roughjs/bin/rough';
+import { jsPDF } from "jspdf";
 
 
 export const exportToPng = async (scale: number, background: boolean, onlySelected: boolean) => {
@@ -186,4 +187,125 @@ export const exportToSvg = (onlySelected: boolean) => {
     link.download = 'yappy_drawing.svg';
     link.href = url;
     link.click();
+};
+
+export const exportToPdf = async (scale: number, background: boolean, onlySelected: boolean) => {
+    const allElements = store.elements;
+    if (allElements.length === 0) return;
+
+    const isSlides = store.docType === 'slides' && store.slides.length > 0 && !onlySelected;
+
+    if (isSlides) {
+        // Multi-page: one page per slide
+        const sortedSlides = [...store.slides].sort((a, b) => a.order - b.order);
+        const firstSlide = sortedSlides[0];
+        const { width: pw, height: ph } = firstSlide.dimensions;
+        const orientation = pw >= ph ? 'landscape' : 'portrait';
+
+        const pdf = new jsPDF({
+            orientation,
+            unit: 'px',
+            format: [pw, ph],
+            hotfixes: ['px_scaling'],
+        });
+
+        for (let i = 0; i < sortedSlides.length; i++) {
+            const slide = sortedSlides[i];
+            const { width: sW, height: sH } = slide.dimensions;
+            const { x: sX, y: sY } = slide.spatialPosition;
+
+            // Filter elements whose center falls on this slide
+            const slideElements = allElements.filter(el => {
+                const cx = el.x + el.width / 2;
+                const cy = el.y + el.height / 2;
+                return cx >= sX && cx <= sX + sW && cy >= sY && cy <= sY + sH;
+            });
+
+            // Create offscreen canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = sW * scale;
+            canvas.height = sH * scale;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) continue;
+
+            // Background
+            if (background) {
+                ctx.fillStyle = slide.backgroundColor || '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            ctx.scale(scale, scale);
+            ctx.translate(-sX, -sY);
+
+            // Render elements
+            const rc = rough.canvas(canvas);
+            slideElements.forEach(el => {
+                renderElement(rc, ctx, el);
+            });
+
+            // Add page (first page already exists)
+            if (i > 0) {
+                const slideOrientation = sW >= sH ? 'landscape' : 'portrait';
+                pdf.addPage([sW, sH], slideOrientation);
+            }
+
+            const imgData = canvas.toDataURL('image/jpeg', 0.92);
+            pdf.addImage(imgData, 'JPEG', 0, 0, sW, sH);
+        }
+
+        pdf.save('yappy_drawing.pdf');
+    } else {
+        // Single page: selection or infinite canvas
+        let elements = allElements;
+        if (onlySelected) {
+            if (store.selection.length === 0) return;
+            elements = elements.filter(el => store.selection.includes(el.id));
+        }
+        if (elements.length === 0) return;
+
+        // Calculate bounds
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        elements.forEach(el => {
+            minX = Math.min(minX, el.x);
+            minY = Math.min(minY, el.y);
+            maxX = Math.max(maxX, el.x + el.width);
+            maxY = Math.max(maxY, el.y + el.height);
+        });
+
+        const padding = 20;
+        const width = maxX - minX + padding * 2;
+        const height = maxY - minY + padding * 2;
+
+        // Create offscreen canvas
+        const canvas = document.createElement('canvas');
+        canvas.width = width * scale;
+        canvas.height = height * scale;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        if (background) {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        ctx.scale(scale, scale);
+        ctx.translate(-minX + padding, -minY + padding);
+
+        const rc = rough.canvas(canvas);
+        elements.forEach(el => {
+            renderElement(rc, ctx, el);
+        });
+
+        const orientation = width >= height ? 'landscape' : 'portrait';
+        const pdf = new jsPDF({
+            orientation,
+            unit: 'px',
+            format: [width, height],
+            hotfixes: ['px_scaling'],
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.92);
+        pdf.addImage(imgData, 'JPEG', 0, 0, width, height);
+        pdf.save('yappy_drawing.pdf');
+    }
 };
