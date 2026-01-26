@@ -1647,18 +1647,30 @@ const Canvas: Component = () => {
 
         // Check if inside bounding box (broad phase)
         // Normalize bounds to handle negative width/height
-        const x1 = Math.min(el.x, el.x + el.width);
-        const x2 = Math.max(el.x, el.x + el.width);
-        const y1 = Math.min(el.y, el.y + el.height);
-        const y2 = Math.max(el.y, el.y + el.height);
+        let x1 = Math.min(el.x, el.x + el.width);
+        let x2 = Math.max(el.x, el.x + el.width);
+        let y1 = Math.min(el.y, el.y + el.height);
+        let y2 = Math.max(el.y, el.y + el.height);
+
+        // Adjust broad-phase for extruding shapes
+        if (el.type === 'solidBlock') {
+            const depth = el.depth !== undefined ? el.depth : 50;
+            const angle = (el.viewAngle !== undefined ? el.viewAngle : 45) * Math.PI / 180;
+            const dx = depth * Math.cos(angle);
+            const dy = depth * Math.sin(angle);
+            x1 = Math.min(x1, x1 + dx);
+            x2 = Math.max(x2, x2 + dx);
+            y1 = Math.min(y1, y1 + dy);
+            y2 = Math.max(y2, y2 + dy);
+        }
 
         if (p.x < x1 - threshold || p.x > x2 + threshold ||
             p.y < y1 - threshold || p.y > y2 + threshold) {
             return false;
         }
 
-        if (el.type === 'rectangle') {
-            // Check if inside
+        if (el.type === 'rectangle' || el.type === 'solidBlock' || el.type === 'isometricCube') {
+            // Check if inside expanded bounding box (passed broad-phase check above)
             return true;
         } else if (el.type === 'diamond') {
             const cx = el.x + el.width / 2;
@@ -1767,7 +1779,7 @@ const Canvas: Component = () => {
             el.type === 'doubleBanner' || el.type === 'lightbulb' || el.type === 'signpost' ||
             el.type === 'burstBlob' || el.type === 'browserWindow' || el.type === 'mobilePhone' ||
             el.type === 'ghostButton' || el.type === 'inputField' || el.type === 'polygon' ||
-            el.type === 'dfdProcess' || el.type === 'dfdDataStore' || el.type === 'isometricCube' ||
+            el.type === 'dfdProcess' || el.type === 'dfdDataStore' || el.type === 'isometricCube' || el.type === 'solidBlock' ||
             el.type === 'cylinder' || el.type === 'stateStart' || el.type === 'stateEnd' ||
             el.type === 'stateSync' || el.type === 'activationBar' || el.type === 'externalEntity' ||
             el.type === 'umlClass' || el.type === 'umlInterface' || el.type === 'umlActor' ||
@@ -1776,6 +1788,7 @@ const Canvas: Component = () => {
             // For these shapes, rely on bounding box hit test (passed above)
             // or implement detailed geometry check if needed
             return true;
+
         }
 
         return false;
