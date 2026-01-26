@@ -62,20 +62,11 @@
         display: none;
     }
 
-    /* Ensure dropdowns appear centered and accessible on mobile */
-    .pen-tool-group {
-        position: static;
-    }
-
+    /* Dropdown layout adjustments for mobile (positioning is handled inline via Portal) */
     .pen-tool-dropdown {
-        position: fixed;
-        top: 110px;
-        left: 50%;
-        transform: translateX(-50%);
         width: calc(100vw - 40px);
         max-width: 320px;
         grid-template-columns: repeat(5, 1fr);
-        /* More columns on mobile if narrow icons */
     }
 }
 

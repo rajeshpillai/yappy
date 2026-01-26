@@ -1,8 +1,8 @@
-import { type Component, createSignal, Show, For, createEffect } from "solid-js";
+import { type Component, createSignal, Show, For, createEffect, onCleanup } from "solid-js";
+import { Portal } from "solid-js/web";
 import { store, setSelectedTool, setSelectedPenType, setStore } from "../store/app-store";
 import type { ElementType } from "../types";
 import { Pen, Brush, ChevronDown } from "lucide-solid";
-import { clickOutside } from "../utils/click-outside";
 import "./pen-tool-group.css";
 
 export type PenType = 'fineliner' | 'inkbrush' | 'marker';
@@ -34,7 +34,20 @@ const penTools: { type: PenType; icon: Component<{ size?: number }>; label: stri
 
 const PenToolGroup: Component = () => {
     const [isOpen, setIsOpen] = createSignal(false);
-    let containerRef: HTMLDivElement | undefined;
+    let buttonRef: HTMLButtonElement | undefined;
+    let dropdownRef: HTMLDivElement | undefined;
+
+    createEffect(() => {
+        if (isOpen()) {
+            const handler = (e: MouseEvent) => {
+                const target = e.target as Node;
+                if (buttonRef?.contains(target) || dropdownRef?.contains(target)) return;
+                setIsOpen(false);
+            };
+            document.addEventListener('pointerdown', handler);
+            onCleanup(() => document.removeEventListener('pointerdown', handler));
+        }
+    });
 
     const getCurrentPenTool = () => {
         return penTools.find(t => t.type === store.selectedPenType) || penTools[0];
@@ -61,16 +74,20 @@ const PenToolGroup: Component = () => {
         setIsOpen(!isOpen());
     };
 
-    // Register click outside
-    createEffect(() => {
-        if (isOpen() && containerRef) {
-            clickOutside(containerRef, () => () => setIsOpen(false));
+    const getDropdownPosition = () => {
+        if (!buttonRef) return {};
+        const rect = buttonRef.getBoundingClientRect();
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile) {
+            return { top: `${rect.bottom + 8}px`, left: '50%', transform: 'translateX(-50%)' };
         }
-    });
+        return { top: `${rect.bottom + 4}px`, left: `${rect.left}px` };
+    };
 
     return (
-        <div class="pen-tool-group" ref={containerRef}>
+        <div class="pen-tool-group">
             <button
+                ref={buttonRef}
                 class={`toolbar-btn ${isPenToolActive() ? 'active' : ''}`}
                 onClick={toggleMenu}
                 onContextMenu={handleRightClick}
@@ -89,19 +106,21 @@ const PenToolGroup: Component = () => {
             </button>
 
             <Show when={isOpen()}>
-                <div class="pen-tool-dropdown">
-                    <For each={penTools}>
-                        {(tool) => (
-                            <button
-                                class={`dropdown-item ${store.selectedPenType === tool.type ? 'active' : ''}`}
-                                onClick={() => handleSelectPen(tool.type)}
-                                title={tool.label}
-                            >
-                                <tool.icon size={18} />
-                            </button>
-                        )}
-                    </For>
-                </div>
+                <Portal>
+                    <div ref={dropdownRef} class="pen-tool-dropdown" style={getDropdownPosition()}>
+                        <For each={penTools}>
+                            {(tool) => (
+                                <button
+                                    class={`dropdown-item ${store.selectedPenType === tool.type ? 'active' : ''}`}
+                                    on:click={() => handleSelectPen(tool.type)}
+                                    title={tool.label}
+                                >
+                                    <tool.icon size={18} />
+                                </button>
+                            )}
+                        </For>
+                    </div>
+                </Portal>
             </Show>
         </div>
     );
