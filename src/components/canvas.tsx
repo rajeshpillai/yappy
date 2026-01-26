@@ -798,7 +798,7 @@ const Canvas: Component = () => {
                 }
 
                 // Custom Control Handles (Isometric Cube, Star, Burst, Solid Block, Perspective Block)
-                if (store.selection.includes(el.id) && (el.type === 'isometricCube' || el.type === 'star' || el.type === 'burst' || el.type === 'solidBlock' || el.type === 'perspectiveBlock')) {
+                if (store.selection.includes(el.id) && (el.type === 'isometricCube' || el.type === 'star' || el.type === 'burst' || el.type === 'solidBlock' || el.type === 'perspectiveBlock' || el.type === 'cylinder')) {
                     const cpSize = 10 / scale;
                     let cx = 0, cy = 0;
 
@@ -808,7 +808,7 @@ const Canvas: Component = () => {
                         const faceHeight = el.height * shapeRatio;
                         cy = el.y + faceHeight;
                         cx = el.x + el.width * sideRatio;
-                    } else if (el.type === 'solidBlock') {
+                    } else if (el.type === 'solidBlock' || el.type === 'cylinder') {
                         // Handle at Back Face Center
                         const depth = el.depth !== undefined ? el.depth : 50;
                         const angle = (el.viewAngle !== undefined ? el.viewAngle : 45) * Math.PI / 180;
@@ -1582,7 +1582,7 @@ const Canvas: Component = () => {
                 if (Math.abs(local.x - cx) <= handleSize && Math.abs(local.y - cy) <= handleSize) {
                     return { id: el.id, handle: 'control-1' };
                 }
-            } else if (el.type === 'solidBlock') {
+            } else if (el.type === 'solidBlock' || el.type === 'cylinder') {
                 const depth = el.depth !== undefined ? el.depth : 50;
                 const angle = (el.viewAngle !== undefined ? el.viewAngle : 45) * Math.PI / 180;
 
@@ -1592,9 +1592,6 @@ const Canvas: Component = () => {
                 const cx = centerX + depth * Math.cos(angle);
                 const cy = centerY + depth * Math.sin(angle);
 
-                if (Math.abs(local.x - cx) <= handleSize && Math.abs(local.y - cy) <= handleSize) {
-                    return { id: el.id, handle: 'control-1' };
-                }
                 if (Math.abs(local.x - cx) <= handleSize && Math.abs(local.y - cy) <= handleSize) {
                     return { id: el.id, handle: 'control-1' };
                 }
@@ -2875,7 +2872,7 @@ const Canvas: Component = () => {
                                         const sideRatio = Math.round(newHRatio * 100);
 
                                         updateElement(el.id, { shapeRatio, sideRatio }, false);
-                                    } else if (el.type === 'solidBlock' && draggingHandle === 'control-1') {
+                                    } else if ((el.type === 'solidBlock' || el.type === 'cylinder') && draggingHandle === 'control-1') {
                                         // Handle drag adjusts Depth and View Angle
                                         const centerX = el.x + el.width / 2;
                                         const centerY = el.y + el.height / 2;

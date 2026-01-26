@@ -477,14 +477,50 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
         }
 
         case 'cylinder': {
+            const depth = el.depth !== undefined ? el.depth : 50;
+            const angleDeg = el.viewAngle !== undefined ? el.viewAngle : 45;
+            const angleRad = (angleDeg * Math.PI) / 180;
+
             const rx = w / 2;
-            const ry = h * 0.15;
+            const ry = h / 2;
+
+            const dx = depth * Math.cos(angleRad);
+            const dy = depth * Math.sin(angleRad);
+
+            // Front Ellipse (at center 0,0)
+            // Back Ellipse (at offset dx, dy)
+            const fCx = 0, fCy = 0;
+            const bCx = dx, bCy = dy;
+
+            // Simplified Cylinder rendering:
+            // 1. Back Ellipse
+            // 2. Side Body (using two tangent lines)
+            // 3. Front Ellipse
+
+            // To find tangents correctly for arbitrary extrusion angle:
+            // The tangent points on an axis-aligned ellipse for a vector (dx, dy) are
+            // where the gradient is perpendicular to the tangent. 
+            // For x²/a² + y²/b² = 1, the tangent at (x0, y0) has slope -b²x0 / a²y0.
+            // But we actually just need the extreme points relative to the extrusion vector.
+            // A simpler way: use the angle of the extrusion vector +/- 90 degrees.
+            const tangentAngle = Math.atan2(dy * rx * rx, dx * ry * ry) + Math.PI / 2;
+            const tx = rx * Math.cos(tangentAngle);
+            const ty = ry * Math.sin(tangentAngle);
+
             return {
                 type: 'multi', shapes: [
-                    { type: 'ellipse', cx: 0, cy: y + ry, rx: rx, ry: ry },
-                    { type: 'ellipse', cx: 0, cy: y + h - ry, rx: rx, ry: ry },
-                    { type: 'points', points: [{ x: x, y: y + ry }, { x: x, y: y + h - ry }], isClosed: false },
-                    { type: 'points', points: [{ x: x + w, y: y + ry }, { x: x + w, y: y + h - ry }], isClosed: false }
+                    { type: 'ellipse', cx: bCx, cy: bCy, rx: rx, ry: ry, shade: 0.6 }, // Back Face
+                    {
+                        type: 'points',
+                        points: [
+                            { x: fCx + tx, y: fCy + ty },
+                            { x: bCx + tx, y: bCy + ty },
+                            { x: bCx - tx, y: bCy - ty },
+                            { x: fCx - tx, y: fCy - ty }
+                        ],
+                        shade: 0.8 // Side Body
+                    },
+                    { type: 'ellipse', cx: fCx, cy: fCy, rx: rx, ry: ry, shade: 1.0 } // Front Face
                 ]
             };
         }

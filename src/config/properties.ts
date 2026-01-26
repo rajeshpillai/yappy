@@ -966,7 +966,7 @@ export const properties: PropertyConfig[] = [
         max: 200,
         step: 5,
         group: 'dimensions',
-        applicableTo: ['solidBlock', 'perspectiveBlock'],
+        applicableTo: ['solidBlock', 'perspectiveBlock', 'cylinder'],
         defaultValue: 50
     },
     {
@@ -977,7 +977,7 @@ export const properties: PropertyConfig[] = [
         max: 360,
         step: 5,
         group: 'dimensions',
-        applicableTo: ['solidBlock', 'perspectiveBlock'],
+        applicableTo: ['solidBlock', 'perspectiveBlock', 'cylinder'],
         defaultValue: 45
     },
     {
