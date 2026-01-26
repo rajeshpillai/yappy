@@ -387,6 +387,45 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
             };
         }
 
+        case 'solidBlock': {
+            // 1. Get Params
+            const depth = el.depth !== undefined ? el.depth : 50;
+            const angleDeg = el.viewAngle !== undefined ? el.viewAngle : 45;
+            const angleRad = (angleDeg * Math.PI) / 180;
+
+            // 2. Calculate Offset
+            const dx = depth * Math.cos(angleRad);
+            const dy = depth * Math.sin(angleRad);
+
+            // 3. Front Face Vertices (Rectangle)
+            const fTL = { x: x, y: y };
+            const fTR = { x: x + w, y: y };
+            const fBR = { x: x + w, y: y + h };
+            const fBL = { x: x, y: y + h };
+
+            // 4. Back Face Vertices (Offset)
+            const bTL = { x: x + dx, y: y + dy };
+            const bTR = { x: x + w + dx, y: y + dy };
+            const bBR = { x: x + w + dx, y: y + h + dy };
+            const bBL = { x: x + dx, y: y + h + dy };
+
+            return {
+                type: 'multi', shapes: [
+                    // Back Face (Draw first / Background)
+                    { type: 'points', points: [bTL, bTR, bBR, bBL] },
+
+                    // Sides 
+                    { type: 'points', points: [fTL, fTR, bTR, bTL] }, // Top
+                    { type: 'points', points: [fTR, fBR, bBR, bTR] }, // Right
+                    { type: 'points', points: [fBR, fBL, bBL, bBR] }, // Bottom
+                    { type: 'points', points: [fBL, fTL, bTL, bBL] }, // Left
+
+                    // Front Face (Draw last / Foreground)
+                    { type: 'points', points: [fTL, fTR, fBR, fBL] }
+                ]
+            };
+        }
+
         case 'cylinder': {
             const rx = w / 2;
             const ry = h * 0.15;

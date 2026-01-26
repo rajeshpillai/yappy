@@ -797,8 +797,8 @@ const Canvas: Component = () => {
                     ctx.restore();
                 }
 
-                // Custom Control Handles (Isometric Cube, Star, Burst)
-                if (store.selection.includes(el.id) && (el.type === 'isometricCube' || el.type === 'star' || el.type === 'burst')) {
+                // Custom Control Handles (Isometric Cube, Star, Burst, Solid Block)
+                if (store.selection.includes(el.id) && (el.type === 'isometricCube' || el.type === 'star' || el.type === 'burst' || el.type === 'solidBlock')) {
                     const cpSize = 10 / scale;
                     let cx = 0, cy = 0;
 
@@ -808,6 +808,16 @@ const Canvas: Component = () => {
                         const faceHeight = el.height * shapeRatio;
                         cy = el.y + faceHeight;
                         cx = el.x + el.width * sideRatio;
+                    } else if (el.type === 'solidBlock') {
+                        // Handle at Back Face Center
+                        const depth = el.depth !== undefined ? el.depth : 50;
+                        const angle = (el.viewAngle !== undefined ? el.viewAngle : 45) * Math.PI / 180;
+
+                        const centerX = el.x + el.width / 2;
+                        const centerY = el.y + el.height / 2;
+
+                        cx = centerX + depth * Math.cos(angle);
+                        cy = centerY + depth * Math.sin(angle);
                     } else if (el.type === 'star' || el.type === 'burst') {
                         const ratio = (el.shapeRatio !== undefined ? el.shapeRatio : 25) / 100;
                         cx = el.x + el.width / 2;
@@ -1245,6 +1255,9 @@ const Canvas: Component = () => {
             e.burstPoints; // Track burst points for parametric burst
             e.tailPosition; // Track tail position for speech bubble
             e.shapeRatio; // Track shape ratio (sharpness)
+            e.sideRatio; // Track side ratio (perspective)
+            e.depth; // Track depth for 3D shapes
+            e.viewAngle; // Track viewing angle for 3D shapes
             e.drawInnerBorder; // Track double border toggle
             e.innerBorderDistance; // Track double border distance
             e.strokeLineJoin; // Track corner style
@@ -1503,7 +1516,7 @@ const Canvas: Component = () => {
                 return { id: el.id, handle: 'rotate' };
             }
 
-            // Custom Control Handles (Star, Burst, Isometric Cube)
+            // Custom Control Handles (Star, Burst, Isometric Cube, Solid Block)
             if (el.type === 'isometricCube') {
                 const shapeRatio = (el.shapeRatio !== undefined ? el.shapeRatio : 25) / 100;
                 const sideRatio = (el.sideRatio !== undefined ? el.sideRatio : 50) / 100;
@@ -1512,6 +1525,19 @@ const Canvas: Component = () => {
                 const faceHeight = el.height * shapeRatio;
                 const cy = el.y + faceHeight;
                 const cx = el.x + el.width * sideRatio;
+
+                if (Math.abs(local.x - cx) <= handleSize && Math.abs(local.y - cy) <= handleSize) {
+                    return { id: el.id, handle: 'control-1' };
+                }
+            } else if (el.type === 'solidBlock') {
+                const depth = el.depth !== undefined ? el.depth : 50;
+                const angle = (el.viewAngle !== undefined ? el.viewAngle : 45) * Math.PI / 180;
+
+                const centerX = el.x + el.width / 2;
+                const centerY = el.y + el.height / 2;
+
+                const cx = centerX + depth * Math.cos(angle);
+                const cy = centerY + depth * Math.sin(angle);
 
                 if (Math.abs(local.x - cx) <= handleSize && Math.abs(local.y - cy) <= handleSize) {
                     return { id: el.id, handle: 'control-1' };
@@ -2716,18 +2742,36 @@ const Canvas: Component = () => {
                                         newHRatio = Math.max(0, Math.min(1, newHRatio));
                                         const sideRatio = Math.round(newHRatio * 100);
 
-                                        updateElement(el.id, { shapeRatio, sideRatio });
+                                        updateElement(el.id, { shapeRatio, sideRatio }, false);
+                                    } else if (el.type === 'solidBlock') {
+                                        // Handle drag adjusts Depth and View Angle
+                                        const centerX = el.x + el.width / 2;
+                                        const centerY = el.y + el.height / 2;
+                                        const dx = x - centerX;
+                                        const dy = y - centerY;
+
+                                        // 1. Calculate Depth (Magnitude of vector)
+                                        let newDepth = Math.sqrt(dx * dx + dy * dy);
+                                        newDepth = Math.round(newDepth);
+
+                                        // 2. Calculate Angle (Direction)
+                                        // atan2 returns -PI to PI. Convert to 0-360 deg.
+                                        let angleRad = Math.atan2(dy, dx);
+                                        let angleDeg = Math.round((angleRad * 180) / Math.PI);
+                                        if (angleDeg < 0) angleDeg += 360;
+
+                                        updateElement(el.id, { depth: newDepth, viewAngle: angleDeg }, false);
                                     } else if (el.type === 'star' || el.type === 'burst') {
                                         let newRatio = (y - el.y) / el.height;
                                         newRatio = Math.max(0.1, Math.min(0.9, newRatio));
                                         const shapeRatio = Math.round(newRatio * 100);
-                                        updateElement(el.id, { shapeRatio });
+                                        updateElement(el.id, { shapeRatio }, false);
                                     } else if (el.type === 'speechBubble') {
                                         let newTailX = (x - el.x) / el.width;
                                         let newTailY = (y - el.y) / el.height;
                                         newTailX = Math.max(-0.5, Math.min(1.5, newTailX));
                                         newTailY = Math.max(-0.5, Math.min(1.5, newTailY));
-                                        updateElement(el.id, { tailX: newTailX, tailY: newTailY });
+                                        updateElement(el.id, { tailX: newTailX, tailY: newTailY }, false);
                                     }
                                 }
                             }

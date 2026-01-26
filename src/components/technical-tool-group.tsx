@@ -2,7 +2,7 @@ import { type Component, createSignal, Show, createEffect } from "solid-js";
 import { store, setSelectedTool, setSelectedTechnicalType, setStore } from "../store/app-store";
 import type { ElementType } from "../types";
 import {
-    Box, Database, ChevronDown, Binary, HardDrive, Circle, CircleDot, Minus, GripVertical, Layers
+    Box, Database, ChevronDown, Binary, HardDrive, Circle, CircleDot, Minus, GripVertical, Layers, Cuboid
 } from "lucide-solid";
 import { clickOutside } from "../utils/click-outside";
 import "./pen-tool-group.css"; // Reuse the same CSS
@@ -11,6 +11,7 @@ const technicalTools: { type: ElementType; icon: Component<{ size?: number; colo
     { type: 'dfdProcess', icon: Binary, label: 'DFD Process' },
     { type: 'dfdDataStore', icon: HardDrive, label: 'DFD Data Store' },
     { type: 'isometricCube', icon: Box, label: 'Isometric Cube' },
+    { type: 'solidBlock', icon: Cuboid, label: 'Solid Block' },
     { type: 'cylinder', icon: Database, label: 'Cylinder' },
     { type: 'stateStart', icon: Circle, label: 'Initial State' },
     { type: 'stateEnd', icon: CircleDot, label: 'Final State' },

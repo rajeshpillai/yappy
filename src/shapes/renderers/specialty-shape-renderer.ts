@@ -16,33 +16,72 @@ export class SpecialtyShapeRenderer extends ShapeRenderer {
         ctx.save();
         ctx.translate(cx, cy);
 
-        const fillVisible = options.fill && options.fill !== 'transparent' && options.fill !== 'none';
-        if (fillVisible && backgroundColor) {
-            ctx.fillStyle = backgroundColor;
-            ctx.beginPath();
-            RenderPipeline.renderGeometry(ctx, geometry);
-            ctx.fill();
-        }
+        // Painter's Algorithm for 3D solids (solidBlock, cylinder) to ensure proper occlusion
+        // We render each face fully (Fill then Stroke) in order.
+        const is3D = ['solidBlock', 'cylinder', 'isometricCube'].includes(el.type);
 
-        ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = el.strokeWidth;
-        ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
-        ctx.beginPath();
-        RenderPipeline.renderGeometry(ctx, geometry);
-        ctx.stroke();
+        if (is3D && geometry.type === 'multi') {
+            const fillVisible = options.fill && options.fill !== 'transparent' && options.fill !== 'none';
 
-        if (el.drawInnerBorder) {
-            const dist = el.innerBorderDistance || 5;
-            const sx = (el.width - dist * 2) / el.width;
-            const sy = (el.height - dist * 2) / el.height;
-            if (sx > 0 && sy > 0) {
-                ctx.save();
-                ctx.scale(sx, sy);
-                ctx.strokeStyle = el.innerBorderColor || strokeColor;
+            geometry.shapes.forEach((s: any) => {
+                // 1. Fill
+                if (fillVisible && backgroundColor) {
+                    ctx.fillStyle = backgroundColor;
+                    ctx.beginPath();
+                    RenderPipeline.renderGeometry(ctx, s);
+                    ctx.fill();
+                }
+
+                // 2. Stroke
+                ctx.strokeStyle = strokeColor;
+                ctx.lineWidth = el.strokeWidth;
+                ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
+                ctx.beginPath();
+                RenderPipeline.renderGeometry(ctx, s);
+                ctx.stroke();
+
+                // 3. Inner Border (Per Face)
+                if (el.drawInnerBorder) {
+                    // const dist = el.innerBorderDistance || 5;
+                    // Note: calculating scale for arbitrary polygons is hard. 
+                    // Simple scaling only works well for centered shapes.
+                    // For faces of a 3D object, simple scaling might offset them wrongly relative to their own center.
+                    // For now, we skip inner border on complex 3D faces or accept the artifact.
+                    // Given the complexity, standard inner border logic (scale from center 0,0) is wrong for offset faces.
+                    // We will apply it only if the shape is roughly centered or if we accept the look.
+                    // Let's keep it simple and skip per-face inner border for now unless requested.
+                }
+            });
+        } else {
+            // Standard Merged Rendering (2D shapes)
+            const fillVisible = options.fill && options.fill !== 'transparent' && options.fill !== 'none';
+            if (fillVisible && backgroundColor) {
+                ctx.fillStyle = backgroundColor;
                 ctx.beginPath();
                 RenderPipeline.renderGeometry(ctx, geometry);
-                ctx.stroke();
-                ctx.restore();
+                ctx.fill();
+            }
+
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
+            ctx.beginPath();
+            RenderPipeline.renderGeometry(ctx, geometry);
+            ctx.stroke();
+
+            if (el.drawInnerBorder) {
+                const dist = el.innerBorderDistance || 5;
+                const sx = (el.width - dist * 2) / el.width;
+                const sy = (el.height - dist * 2) / el.height;
+                if (sx > 0 && sy > 0) {
+                    ctx.save();
+                    ctx.scale(sx, sy);
+                    ctx.strokeStyle = el.innerBorderColor || strokeColor;
+                    ctx.beginPath();
+                    RenderPipeline.renderGeometry(ctx, geometry);
+                    ctx.stroke();
+                    ctx.restore();
+                }
             }
         }
 
