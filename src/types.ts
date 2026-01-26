@@ -172,6 +172,9 @@ export interface DrawingElement {
     sideRatio?: number; // 0-100 (Horizontal rotation for isometricCube)
     depth?: number; // 0-200 (Extrusion depth for solidBlock)
     viewAngle?: number; // 0-360 (View angle for solidBlock)
+    tailX?: number;
+    tailY?: number;
+    innerRadius?: number;
     tailPosition?: number; // Tail position percentage (0-100, default: 20)
     drawInnerBorder?: boolean; // Toggle for double border
     innerBorderColor?: string; // Optional color (defaults to strokeColor if null)
