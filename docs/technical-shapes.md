@@ -40,23 +40,34 @@ These shapes utilize advanced geometry types to support internal dividers and si
 - **Activation Bar**: Simple `rect` with sharp corners, designed to be narrow and tall for sequence diagram lifelines.
 - **External Entity**: `multi` shape combining two `rect` paths with an offset to simulate a 3D drop shadow effect.
 
+### UML Expansion (Phase 70)
+- **umlComponent**: Implemented in `UmlGeneralRenderer`. Extends the base rectangle with two small tab rectangles ("ears") on the left edge, providing the standard UML 2.0 component representation.
+- **umlState**: A specialized `UmlStateRenderer` that provides a two-section rounded rectangle. The top section contains the state name (`containerText`), and the bottom section contains state actions (`attributesText`).
+- **umlLifeline**: Implemented in `UmlGeneralRenderer`. Renders an object box at the top (containing `containerText`) and a dashed vertical line extending to the full height of the element.
+- **umlFragment**: Implemented in `UmlGeneralRenderer`. A container rectangle with a polygonal "operator" tab in the top-left corner (e.g., for `alt`, `opt`, `loop`). Double-clicking the tab edits the operator, while the main body edits the guard condition.
+- **UML Signals & Interfaces**:
+  - `umlSignalSend`: A pentagon pointing right (chevron shape).
+  - `umlSignalReceive`: A concave pentagon (notched on the left).
+  - `umlProvidedInterface`: A circle (lollipop) representation.
+  - `umlRequiredInterface`: A semicircle arc (socket) representation.
+
 ## UI & State Management
 
 ### Tool Grouping
-A new `TechnicalToolGroup` component (`src/components/technical-tool-group.tsx`) was created to house these tools. It follows the project's pattern of collapsible toolbar menus.
+A new `TechnicalToolGroup` component (`src/components/technical-tool-group.tsx`) and `UmlToolGroup` (`src/components/uml-tool-group.tsx`) were created to house these tools. They follow the project's pattern of collapsible toolbar menus.
 
 ### Store Integration (`src/store/app-store.ts`)
-- **State**: Added `selectedTechnicalType` to `AppState` to track the last used technical tool.
-- **Actions**: Implemented `setSelectedTechnicalType` to manage tool selection.
+- **State**: Added `selectedTechnicalType` and `selectedUmlType` to `AppState` to track the last used tools.
+- **Actions**: Implemented corresponding setter functions to manage tool selection.
 
 ### Property Configuration (`src/config/properties.ts`)
 The new shapes were added to the `applicableTo` list for all standard style properties, ensuring they support:
 - Drawing Style (Sketch/Architectural)
 - Fills (Hachure, Solid, Gradients)
 - Borders (Rounded, Double, etc.)
-- Typography (Labels and individual text styling)
+- Typography (Labels and multi-section text for States/Fragments)
 
 ## Rendering Pipeline
 
-Technical shapes are registered in `src/shapes/register-shapes.ts` and use the `SpecialtyShapeRenderer`. This renderer correctly handles the `isClosed: false` flag for multi-part paths, ensuring that "rough" sketch lines do not attempt to close open paths (like DFD dividers).
+Technical shapes are registered in `src/shapes/register-shapes.ts`. Simple geometric shapes use the `SpecialtyShapeRenderer`, while more complex structured shapes use `UmlStateRenderer` or `UmlGeneralRenderer`. This architecture ensures that even complex multi-part shapes correctly follow the "Rough" sketch style and architectural style toggles.
 落控制

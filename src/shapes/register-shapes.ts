@@ -17,6 +17,7 @@ import { FreehandRenderer } from "./renderers/freehand-renderer";
 import { SpecialtyShapeRenderer } from "./renderers/specialty-shape-renderer";
 import { UmlClassRenderer } from "./renderers/uml-class-renderer";
 import { UmlGeneralRenderer } from "./renderers/uml-general-renderer";
+import { UmlStateRenderer } from "./renderers/uml-state-renderer";
 
 export function registerShapes() {
     console.log('Registering all shapes including specialty...');
@@ -74,14 +75,18 @@ export function registerShapes() {
         'cross', 'checkmark', 'capsule',
         'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown',
         'dfdProcess', 'dfdDataStore', 'isometricCube', 'solidBlock', 'cylinder',
-        'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity', 'perspectiveBlock'
+        'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity', 'perspectiveBlock',
+        'umlSignalSend', 'umlSignalReceive', 'umlProvidedInterface', 'umlRequiredInterface'
     ] as const;
     specialtyTypes.forEach(type => shapeRegistry.register(type, specialtyRenderer));
 
     const umlClassRenderer = new UmlClassRenderer();
     shapeRegistry.register('umlClass', umlClassRenderer);
 
+    const umlStateRenderer = new UmlStateRenderer();
+    shapeRegistry.register('umlState', umlStateRenderer);
+
     const umlGeneralRenderer = new UmlGeneralRenderer();
-    const umlTypes = ['umlInterface', 'umlActor', 'umlUseCase', 'umlNote', 'umlPackage'] as const;
+    const umlTypes = ['umlInterface', 'umlActor', 'umlUseCase', 'umlNote', 'umlPackage', 'umlComponent', 'umlLifeline', 'umlFragment'] as const;
     umlTypes.forEach(type => shapeRegistry.register(type, umlGeneralRenderer));
 }

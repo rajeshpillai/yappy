@@ -2,7 +2,9 @@ import { type Component, createSignal, Show, createEffect } from "solid-js";
 import { store, setSelectedTool, setSelectedUmlType, setStore } from "../store/app-store";
 import type { ElementType } from "../types";
 import {
-    Layout, Disc, User, Circle, FileText, Folder, ChevronDown
+    Layout, Disc, User, Circle, FileText, Folder, ChevronDown,
+    Component as ComponentIcon, RectangleHorizontal, ArrowDown, Frame,
+    ChevronRight, ChevronLeft, CircleDot, CircleDashed
 } from "lucide-solid";
 import { clickOutside } from "../utils/click-outside";
 import "./pen-tool-group.css"; // Reuse existing styles
@@ -14,6 +16,14 @@ const umlTools: { type: ElementType; icon: Component<{ size?: number; color?: st
     { type: 'umlUseCase', icon: Circle, label: 'Use Case' },
     { type: 'umlNote', icon: FileText, label: 'Note' },
     { type: 'umlPackage', icon: Folder, label: 'Package' },
+    { type: 'umlComponent', icon: ComponentIcon, label: 'Component' },
+    { type: 'umlState', icon: RectangleHorizontal, label: 'State' },
+    { type: 'umlLifeline', icon: ArrowDown, label: 'Lifeline' },
+    { type: 'umlFragment', icon: Frame, label: 'Fragment' },
+    { type: 'umlSignalSend', icon: ChevronRight, label: 'Signal Send' },
+    { type: 'umlSignalReceive', icon: ChevronLeft, label: 'Signal Receive' },
+    { type: 'umlProvidedInterface', icon: CircleDot, label: 'Provided' },
+    { type: 'umlRequiredInterface', icon: CircleDashed, label: 'Required' },
 ];
 
 const UmlToolGroup: Component = () => {

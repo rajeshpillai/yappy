@@ -974,3 +974,16 @@
 - [x] **Keyboard Shortcut Restoration**
   - [x] Fix regression in `App.tsx` global keydown handler
   - [x] Restore Ctrl+C, Ctrl+V, Ctrl+D, Ctrl+S functionality
+
+## Phase 70: UML Shapes Expansion
+- [x] Implement 8 new UML shapes <!-- id: 110 -->
+  - [x] `umlComponent`: Rectangle with side tabs
+  - [x] `umlState`: Rounded rectangle with name/actions sections
+  - [x] `umlLifeline`: Object box with dashed vertical line
+  - [x] `umlFragment`: Container with operator tab (alt/opt/loop)
+  - [x] `umlSignalSend`, `umlSignalReceive`
+  - [x] `umlProvidedInterface`, `umlRequiredInterface`
+- [x] Support multiple text sections for `umlState` and `umlFragment`
+- [x] Updated Property Panel for UML-specific attributes (actions, guards)
+- [x] Fixed `Component` name collision in toolbar
+- [x] Verified Architectural and Sketch rendering modes

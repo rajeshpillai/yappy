@@ -28,13 +28,59 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
         case 'umlNote':
         case 'umlPackage':
         case 'umlActor': // Approximate as rect for now
+        case 'umlComponent':
+        case 'umlLifeline':
+        case 'umlFragment':
             return { type: 'rect', x: x, y: y, w: w, h: h, r: el.roundness ? 10 : 0 };
+
+        case 'umlState':
+            return { type: 'rect', x: x, y: y, w: w, h: h, r: Math.min(Math.abs(w), Math.abs(h)) * 0.15 };
 
         case 'umlInterface':
         case 'umlUseCase':
+        case 'umlProvidedInterface':
 
         case 'circle':
             return { type: 'ellipse', cx: 0, cy: 0, rx: w / 2, ry: h / 2 };
+
+        case 'umlRequiredInterface': {
+            // Semicircle arc (socket) opening to the right
+            const r = Math.min(w, h) / 2;
+            return {
+                type: 'path',
+                path: `M 0 ${-r} A ${r} ${r} 0 0 1 0 ${r}`
+            };
+        }
+
+        case 'umlSignalSend': {
+            // Pentagon pointing right (chevron)
+            const arrowW = w * 0.2;
+            return {
+                type: 'points',
+                points: [
+                    { x: -mw, y: -mh },
+                    { x: mw - arrowW, y: -mh },
+                    { x: mw, y: 0 },
+                    { x: mw - arrowW, y: mh },
+                    { x: -mw, y: mh }
+                ]
+            };
+        }
+
+        case 'umlSignalReceive': {
+            // Concave pentagon (notched on left)
+            const notchW = w * 0.2;
+            return {
+                type: 'points',
+                points: [
+                    { x: -mw + notchW, y: -mh },
+                    { x: mw, y: -mh },
+                    { x: mw, y: mh },
+                    { x: -mw + notchW, y: mh },
+                    { x: -mw, y: 0 }
+                ]
+            };
+        }
 
         case 'triangle':
             return { type: 'points', points: [{ x: 0, y: -mh }, { x: -mw, y: mh }, { x: mw, y: mh }] };

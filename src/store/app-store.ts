@@ -59,7 +59,7 @@ interface AppState {
     activeStateId?: string;
     showStatePanel: boolean;
     showSlideNavigator: boolean;
-    selectedUmlType: 'umlClass' | 'umlInterface' | 'umlActor' | 'umlUseCase' | 'umlNote' | 'umlPackage';
+    selectedUmlType: 'umlClass' | 'umlInterface' | 'umlActor' | 'umlUseCase' | 'umlNote' | 'umlPackage' | 'umlComponent' | 'umlState' | 'umlLifeline' | 'umlFragment' | 'umlSignalSend' | 'umlSignalReceive' | 'umlProvidedInterface' | 'umlRequiredInterface';
 }
 
 const initialDoc = createSlideDocument();

@@ -1899,7 +1899,10 @@ const Canvas: Component = () => {
             el.type === 'cylinder' || el.type === 'stateStart' || el.type === 'stateEnd' ||
             el.type === 'stateSync' || el.type === 'activationBar' || el.type === 'externalEntity' ||
             el.type === 'umlClass' || el.type === 'umlInterface' || el.type === 'umlActor' ||
-            el.type === 'umlUseCase' || el.type === 'umlNote' || el.type === 'umlPackage'
+            el.type === 'umlUseCase' || el.type === 'umlNote' || el.type === 'umlPackage' ||
+            el.type === 'umlComponent' || el.type === 'umlState' || el.type === 'umlLifeline' ||
+            el.type === 'umlFragment' || el.type === 'umlSignalSend' || el.type === 'umlSignalReceive' ||
+            el.type === 'umlProvidedInterface' || el.type === 'umlRequiredInterface'
         ) {
             // For these shapes, rely on bounding box hit test (passed above)
             // or implement detailed geometry check if needed
@@ -3662,7 +3665,7 @@ const Canvas: Component = () => {
                 }
 
                 // Only allow editing containerText for shapes and lines
-                const shapeTypes = ['rectangle', 'circle', 'diamond', 'line', 'arrow', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'starPerson', 'scroll', 'wavyDivider', 'doubleBanner', 'lightbulb', 'signpost', 'burstBlob', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'dfdProcess', 'dfdDataStore', 'isometricCube', 'solidBlock', 'perspectiveBlock', 'cylinder', 'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity', 'umlClass', 'umlInterface', 'umlActor', 'umlUseCase', 'umlNote', 'umlPackage'];
+                const shapeTypes = ['rectangle', 'circle', 'diamond', 'line', 'arrow', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'starPerson', 'scroll', 'wavyDivider', 'doubleBanner', 'lightbulb', 'signpost', 'burstBlob', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'dfdProcess', 'dfdDataStore', 'isometricCube', 'solidBlock', 'perspectiveBlock', 'cylinder', 'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity', 'umlClass', 'umlInterface', 'umlActor', 'umlUseCase', 'umlNote', 'umlPackage', 'umlComponent', 'umlState', 'umlLifeline', 'umlFragment', 'umlSignalSend', 'umlSignalReceive', 'umlProvidedInterface', 'umlRequiredInterface'];
                 if (shapeTypes.includes(el.type)) {
                     setEditingId(el.id);
 
@@ -3691,6 +3694,34 @@ const Canvas: Component = () => {
                         } else {
                             setEditingProperty('methodsText');
                             setEditText(el.methodsText || '');
+                        }
+                    } else if (el.type === 'umlState') {
+                        const clickYRelativeToShape = y - el.y;
+                        const ctx = canvasRef?.getContext("2d");
+                        let headerHeight = 35;
+                        if (el.containerText && ctx) {
+                            const metrics = measureContainerText(ctx, el, el.containerText, el.width - 20);
+                            headerHeight = Math.max(35, metrics.textHeight + 15);
+                        }
+                        if (clickYRelativeToShape < headerHeight) {
+                            setEditingProperty('containerText');
+                            setEditText(el.containerText || '');
+                        } else {
+                            setEditingProperty('attributesText');
+                            setEditText(el.attributesText || '');
+                        }
+                    } else if (el.type === 'umlFragment') {
+                        const clickYRelativeToShape = y - el.y;
+                        const clickXRelativeToShape = x - el.x;
+                        const tabW = Math.min(el.width * 0.3, 60);
+                        const tabH = Math.min(el.height * 0.12, 22) + 5;
+
+                        if (clickXRelativeToShape < tabW && clickYRelativeToShape < tabH) {
+                            setEditingProperty('containerText');
+                            setEditText(el.containerText || '');
+                        } else {
+                            setEditingProperty('attributesText');
+                            setEditText(el.attributesText || '');
                         }
                     } else {
                         setEditingProperty('containerText');
