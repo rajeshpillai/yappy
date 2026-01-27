@@ -63,6 +63,7 @@ interface AppState {
     showSlideToolbar: boolean;
     slideToolbarPosition: { x: number, y: number };
     showExportDialog: boolean;
+    showUtilityToolbar: boolean;
     selectedUmlType: 'umlClass' | 'umlInterface' | 'umlActor' | 'umlUseCase' | 'umlNote' | 'umlPackage' | 'umlComponent' | 'umlState' | 'umlLifeline' | 'umlFragment' | 'umlSignalSend' | 'umlSignalReceive' | 'umlProvidedInterface' | 'umlRequiredInterface';
 }
 
@@ -153,6 +154,7 @@ const initialState: AppState = {
     showSlideToolbar: true,
     slideToolbarPosition: { x: (window.innerWidth / 2) - 100, y: window.innerHeight - 100 },
     showExportDialog: false,
+    showUtilityToolbar: true,
 };
 
 export const [store, setStore] = createStore<AppState>(initialState);
@@ -1521,6 +1523,10 @@ export const setSlideToolbarPosition = (x: number, y: number) => {
 
 export const setIsExportOpen = (open: boolean) => {
     setStore('showExportDialog', open);
+};
+
+export const toggleUtilityToolbar = (visible?: boolean) => {
+    setStore('showUtilityToolbar', (v) => visible ?? !v);
 };
 
 export const minimizePropertyPanel = (minimized?: boolean) => {

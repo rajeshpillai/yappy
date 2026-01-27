@@ -1,12 +1,12 @@
 import { type Component, createSignal, Show } from 'solid-js';
 import {
     store, togglePresentationMode, toggleSlideToolbar,
-    setSlideToolbarPosition, setIsExportOpen
+    setSlideToolbarPosition
 } from '../store/app-store';
 import { sequenceAnimator } from '../utils/animation/sequence-animator';
 import { getElementsOnSlide } from '../utils/slide-utils';
 import {
-    Zap, Share2, GripVertical, X,
+    Zap, GripVertical, X,
     MonitorPlay
 } from 'lucide-solid';
 
@@ -103,15 +103,7 @@ export const SlideControlToolbar: Component = () => {
                         label="Preview Animations"
                         color="#f59e0b"
                     />
-                    <ToolbarButton
-                        onClick={() => setIsExportOpen(true)}
-                        icon={<Share2 size={18} />}
-                        label="Share / Export"
-                        color="#10b981"
-                    />
                 </div>
-
-                <div style={{ width: '1px', height: '20px', background: 'rgba(0,0,0,0.06)', margin: '0 4px' }} />
 
                 {/* Close */}
                 <button

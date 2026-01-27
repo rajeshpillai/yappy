@@ -4,7 +4,7 @@ import { storage } from "../storage/file-system-storage";
 import {
     store, deleteElements, toggleTheme, zoomToFit,
     togglePropertyPanel, toggleLayerPanel, toggleMinimap, toggleStatePanel, toggleSlideToolbar,
-    loadTemplate, loadDocument, resetToNewDocument, saveActiveSlide, setIsExportOpen
+    toggleUtilityToolbar, loadTemplate, loadDocument, resetToNewDocument, saveActiveSlide, setIsExportOpen
 } from "../store/app-store";
 import {
     Menu as MenuIcon, FolderOpen, Share2, FilePlus, Trash2, Maximize,
@@ -162,11 +162,6 @@ const Menu: Component = () => {
         zoomToFit();
     };
 
-    const handleShare = () => {
-        const url = `${window.location.origin}${window.location.pathname}?id=${drawingId()}`;
-        navigator.clipboard.writeText(url);
-        showToast('Link copied to clipboard', 'success');
-    };
 
     const handleTemplateSelect = (template: Template) => {
         if (store.elements.length > 0) {
@@ -431,6 +426,13 @@ const Menu: Component = () => {
                                             <span class="shortcut">Alt+M</span>
                                         </div>
                                     </div>
+                                    <div class="menu-item" onClick={() => { toggleUtilityToolbar(); setIsMenuOpen(false); }}>
+                                        <Layout size={16} />
+                                        <span class="label">Action Toolbar</span>
+                                        <div class="menu-item-right">
+                                            <Show when={store.showUtilityToolbar}><Check size={14} class="check-icon" /></Show>
+                                        </div>
+                                    </div>
                                     <Show when={store.docType === 'slides'}>
                                         <div class="menu-item" onClick={() => { toggleSlideToolbar(); setIsMenuOpen(false); }}>
                                             <Play size={16} />
@@ -471,51 +473,51 @@ const Menu: Component = () => {
                         </div>
                     </div>
 
-                    <div
-                        style={{
-                            position: 'fixed',
-                            top: '12px',
-                            right: '12px',
-                            "z-index": 100,
-                            transform: `translate(${rightPos().x}px, ${rightPos().y}px)`
-                        }}
-                    >
-                        <div class="menu-container" onMouseDown={onRightMouseDown}>
-                            <div class="drag-handle sm">
-                                <div class="drag-dots"></div>
+                    <Show when={store.showUtilityToolbar}>
+                        <div
+                            style={{
+                                position: 'fixed',
+                                top: '12px',
+                                right: '12px',
+                                "z-index": 100,
+                                transform: `translate(${rightPos().x}px, ${rightPos().y}px)`
+                            }}
+                        >
+                            <div class="menu-container" onMouseDown={onRightMouseDown}>
+                                <div class="drag-handle sm">
+                                    <div class="drag-dots"></div>
+                                </div>
+                                <button class="menu-btn" onClick={() => sequenceAnimator.playAll('programmatic')} title="Play All Animations">
+                                    <Play size={18} color="#10b981" fill="#10b981" />
+                                </button>
+                                <button class="menu-btn" onClick={() => sequenceAnimator.stopAll()} title="Stop All Animations">
+                                    <Square size={18} color="#ef4444" fill="#ef4444" />
+                                </button>
+                                <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
+                                <button class="menu-btn primary" onClick={setIsExportOpen.bind(null, true)} title="Share">
+                                    <Share2 size={18} />
+                                </button>
+                                <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
+                                <button class="menu-btn" onClick={() => setShowHelp(true)} title="Help & Shortcuts (?)">
+                                    <div style={{
+                                        width: '20px',
+                                        height: '20px',
+                                        "border-radius": '50%',
+                                        border: '2px solid currentColor',
+                                        display: 'flex',
+                                        "align-items": 'center',
+                                        "justify-content": 'center',
+                                        "font-weight": 'bold',
+                                        "font-size": '14px'
+                                    }}>?</div>
+                                </button>
+                                <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
+                                <button class="menu-btn" onClick={toggleTheme} title="Toggle Theme">
+                                    {store.theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                                </button>
                             </div>
-                            <button class="menu-btn" onClick={() => sequenceAnimator.playAll('programmatic')} title="Play All Animations">
-                                <Play size={18} color="#10b981" fill="#10b981" />
-                                <span style={{ "margin-left": "4px", color: '#10b981', "font-weight": "bold" }}>Play All</span>
-                            </button>
-                            <button class="menu-btn" onClick={() => sequenceAnimator.stopAll()} title="Stop All Animations">
-                                <Square size={18} color="#ef4444" fill="#ef4444" />
-                            </button>
-                            <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
-                            <button class="menu-btn primary" onClick={handleShare} title="Share">
-                                <Share2 size={18} />
-                                <span style={{ "margin-left": "4px" }}>Share</span>
-                            </button>
-                            <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
-                            <button class="menu-btn" onClick={() => setShowHelp(true)} title="Help & Shortcuts (?)">
-                                <div style={{
-                                    width: '20px',
-                                    height: '20px',
-                                    "border-radius": '50%',
-                                    border: '2px solid currentColor',
-                                    display: 'flex',
-                                    "align-items": 'center',
-                                    "justify-content": 'center',
-                                    "font-weight": 'bold',
-                                    "font-size": '14px'
-                                }}>?</div>
-                            </button>
-                            <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
-                            <button class="menu-btn" onClick={toggleTheme} title="Toggle Theme">
-                                {store.theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-                            </button>
                         </div>
-                    </div>
+                    </Show>
                 </>
             </Show>
         </>
