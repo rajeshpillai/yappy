@@ -377,7 +377,8 @@ const App: Component = () => {
           style={{
             position: 'fixed',
             bottom: '8px',
-            left: '12px',
+            left: '50%',
+            transform: 'translateX(-50%)',
             'font-size': '11px',
             color: 'var(--text-muted, #9ca3af)',
             'pointer-events': 'none',
