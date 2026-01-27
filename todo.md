@@ -1055,5 +1055,7 @@
 - [x] Prioritize Ctrl shortcuts (O/S/Z/Y/etc.) over input focus in `app.tsx`
 - [x] Implement P3 Wide-Gamut Color Picker with Drag & Drop support
 - [x] Add mobile-friendly "tap-to-apply" fallback for color selection
+- [x] Implement Advanced OKLCH P3 Color Picker (Triangle & Gamut Visualization)
+
 
 
