@@ -43,31 +43,47 @@ export const calculateAnimatedState = (
     let derivedAngle = el.angle || 0;
 
     // 4. Handle Orbit (Dependency)
-    if (el.orbitEnabled && el.orbitCenterId && el.orbitRadius !== undefined && el.orbitSpeed !== undefined) {
+    // Coerce values to numbers to prevent NaN propagation
+    const orbitSpeed = Number(el.orbitSpeed);
+    const orbitRadius = Number(el.orbitRadius);
+
+    if (el.orbitEnabled && el.orbitCenterId && !isNaN(orbitRadius) && !isNaN(orbitSpeed)) {
         const centerEl = elementMap.get(el.orbitCenterId);
         if (centerEl) {
             // Recursively get the center element's animated state
             const centerState = calculateAnimatedState(centerEl, time, elementMap, cache, visited);
 
-            const cx = centerState.x + centerEl.width / 2;
-            const cy = centerState.y + centerEl.height / 2;
+            // Safety checks for center state
+            const csX = Number(centerState.x) || 0;
+            const csY = Number(centerState.y) || 0;
+            const cW = Number(centerEl.width) || 0;
+            const cH = Number(centerEl.height) || 0;
+
+            const cx = csX + cW / 2;
+            const cy = csY + cH / 2;
 
             // Speed factor: 1 speed = 1 radian per second
-            const t = time * 0.001 * el.orbitSpeed;
+            const t = time * 0.001 * orbitSpeed;
 
-            const orbX = cx + el.orbitRadius * Math.cos(t);
-            const orbY = cy + el.orbitRadius * Math.sin(t);
+            const orbX = cx + orbitRadius * Math.cos(t);
+            const orbY = cy + orbitRadius * Math.sin(t);
 
-            derivedX = orbX - el.width / 2;
-            derivedY = orbY - el.height / 2;
+            derivedX = orbX - (Number(el.width) || 0) / 2;
+            derivedY = orbY - (Number(el.height) || 0) / 2;
         }
     }
 
     // 5. Handle Spin (Independent)
-    if (el.spinEnabled && el.spinSpeed !== undefined) {
-        const t = time * 0.001 * el.spinSpeed;
+    const spinSpeed = Number(el.spinSpeed);
+    if (el.spinEnabled && !isNaN(spinSpeed)) {
+        const t = time * 0.001 * spinSpeed;
         derivedAngle += t * Math.PI * 2;
     }
+
+    // Final NaN guard
+    if (isNaN(derivedX)) derivedX = el.x;
+    if (isNaN(derivedY)) derivedY = el.y;
+    if (isNaN(derivedAngle)) derivedAngle = el.angle || 0;
 
     const state = { x: derivedX, y: derivedY, angle: derivedAngle, opacity: el.opacity || 100 };
 

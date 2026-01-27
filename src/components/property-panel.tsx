@@ -1,5 +1,5 @@
 import { type Component, Show, createMemo, For, createSignal, createEffect, Index } from "solid-js";
-import { store, updateElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, updateGlobalSettings, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, alignSelectedElements, distributeSelectedElements, togglePropertyPanel, minimizePropertyPanel, setMaxLayers, setCanvasTexture, pushToHistory, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, toggleCollapse, setDocType, updateSlideTransition, updateSlideBackground } from "../store/app-store";
+import { store, updateElement, renameElement, deleteElements, duplicateElement, moveElementZIndex, updateDefaultStyles, updateGlobalSettings, moveElementsToLayer, setCanvasBackgroundColor, updateGridSettings, setGridStyle, alignSelectedElements, distributeSelectedElements, togglePropertyPanel, minimizePropertyPanel, setMaxLayers, setCanvasTexture, pushToHistory, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, toggleCollapse, setDocType, updateSlideTransition, updateSlideBackground } from "../store/app-store";
 import { slideTransitionManager } from "../utils/animation";
 import type { Slide } from "../types/slide-types";
 import {
@@ -780,19 +780,26 @@ const PropertyPanel: Component = () => {
                                                 <input
                                                     type="text"
                                                     value={activeTarget()!.data!.id}
-                                                    readonly
-                                                    title="Click to copy ID"
-                                                    onClick={(e) => {
-                                                        e.currentTarget.select();
-                                                        navigator.clipboard.writeText(activeTarget()!.data!.id);
-                                                        showToast({ message: "ID Copied to clipboard", type: "success" });
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            renameElement(activeTarget()!.data!.id, e.currentTarget.value);
+                                                            e.currentTarget.blur();
+                                                        }
                                                     }}
+                                                    onBlur={(e) => {
+                                                        const newId = e.currentTarget.value;
+                                                        if (newId !== activeTarget()!.data!.id) {
+                                                            renameElement(activeTarget()!.data!.id, newId);
+                                                        }
+                                                    }}
+                                                    title="Edit ID (Press Enter to save)"
                                                     style={{
                                                         'font-family': 'monospace',
                                                         'font-size': '10px',
                                                         'background': 'var(--bg-secondary)',
-                                                        'cursor': 'pointer',
-                                                        'text-overflow': 'ellipsis'
+                                                        'cursor': 'text',
+                                                        'text-overflow': 'ellipsis',
+                                                        'width': '100%'
                                                     }}
                                                 />
                                                 <button
@@ -800,7 +807,7 @@ const PropertyPanel: Component = () => {
                                                     title="Copy ID"
                                                     onClick={() => {
                                                         navigator.clipboard.writeText(activeTarget()!.data!.id);
-                                                        showToast({ message: "ID Copied to clipboard", type: "success" });
+                                                        showToast("ID Copied to clipboard", "success");
                                                     }}
                                                 >
                                                     <Copy size={12} />

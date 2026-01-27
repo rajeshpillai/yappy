@@ -1831,3 +1831,43 @@ if (typeof window !== 'undefined') {
         }
     }, 500);
 }
+export const renameElement = (oldId: string, newId: string) => {
+    if (!newId || oldId === newId) return;
+    if (store.elements.some(e => e.id === newId)) {
+        showToast("ID already exists", "error");
+        return;
+    }
+
+    pushToHistory();
+
+    setStore("elements", (els) => els.map(el => {
+        // Update the element itself
+        if (el.id === oldId) {
+            return { ...el, id: newId };
+        }
+
+        // Update references in other elements
+        let changes: Partial<DrawingElement> = {};
+
+        if (el.parentId === oldId) changes.parentId = newId;
+        if (el.orbitCenterId === oldId) changes.orbitCenterId = newId;
+
+        if (el.startBinding?.elementId === oldId) {
+            changes.startBinding = { ...el.startBinding, elementId: newId };
+        }
+        if (el.endBinding?.elementId === oldId) {
+            changes.endBinding = { ...el.endBinding, elementId: newId };
+        }
+
+        if (Object.keys(changes).length > 0) {
+            return { ...el, ...changes };
+        }
+
+        return el;
+    }));
+
+    // Update selection if selected
+    if (store.selection.includes(oldId)) {
+        setStore("selection", (ids) => ids.map(id => id === oldId ? newId : id));
+    }
+};
