@@ -539,17 +539,16 @@ const Menu: Component = () => {
                                     }}>?</div>
                                 </button>
                                 <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
-                                <div style={{ position: 'relative' }}>
+                                <div ref={p3PickerRef} style={{ position: 'relative' }}>
                                     <button
                                         class={`menu-btn ${isP3PickerOpen() ? 'active' : ''}`}
-                                        onClick={(e) => { e.stopPropagation(); setIsP3PickerOpen(!isP3PickerOpen()); }}
+                                        onClick={() => setIsP3PickerOpen(!isP3PickerOpen())}
                                         title="P3 Color Palette"
                                     >
                                         <Palette size={18} color="#f43f5e" />
                                     </button>
                                     <Show when={isP3PickerOpen()}>
                                         <div
-                                            ref={p3PickerRef}
                                             class="menu-dropdown"
                                             style={{
                                                 position: 'absolute',
