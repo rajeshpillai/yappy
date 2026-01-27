@@ -28,7 +28,7 @@ import { changeElementType, getTransformOptions, getShapeIcon, getShapeTooltip, 
 import { getGroupsSortedByPriority, isPointInGroupBounds } from "../utils/group-utils";
 import { exportToPng, exportToSvg } from "../utils/export";
 import { getElementPreviewBaseState } from "../utils/animation/element-animator";
-import { globalTime } from "../utils/animation/animation-engine";
+import { globalTime, effectiveTime } from "../utils/animation/animation-engine";
 import { VideoRecorder } from "../utils/video-recorder";
 import RecordingOverlay from "./recording-overlay";
 import { generateId } from "../utils/id-generator"; // New Import
@@ -298,8 +298,8 @@ const Canvas: Component = () => {
         const ctx = canvasRef.getContext("2d");
         if (!ctx) return;
 
-        // Expose globalTime to window for renderers to access without signal overhead in deep loops
-        const currentTime = globalTime();
+        // Expose effectiveTime to window for renderers to access without signal overhead in deep loops
+        const currentTime = effectiveTime();
         (window as any).yappyGlobalTime = currentTime;
 
         const startTime = performance.now();
@@ -1323,7 +1323,7 @@ const Canvas: Component = () => {
     }
 
     createEffect(() => {
-        globalTime(); // Track global animation clock
+        effectiveTime(); // Track global animation clock
         store.appMode; // Track mode changes explicitly
         store.isPreviewing; // Track preview state
         store.theme; // Track theme changes

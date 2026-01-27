@@ -9,10 +9,11 @@ import { createSignal, batch } from 'solid-js';
 import { store } from '../../store/app-store';
 
 const [globalTime, setGlobalTime] = createSignal(0);
+const [effectiveTime, setEffectiveTime] = createSignal(0);
 const [isGlobalAnimating, setIsGlobalAnimating] = createSignal(false);
 const [isGlobalPlaying, setIsGlobalPlaying] = createSignal(false);
 const [isGlobalPaused, setIsGlobalPaused] = createSignal(false);
-export { globalTime, isGlobalAnimating, isGlobalPlaying, isGlobalPaused };
+export { globalTime, effectiveTime, isGlobalAnimating, isGlobalPlaying, isGlobalPaused };
 
 /**
  * AnimationEngine manages the animation loop and all registered animations
@@ -22,6 +23,7 @@ class AnimationEngine {
     private rafId: number | null = null;
     private isRunning: boolean = false;
     private forceTicker: boolean = false;
+    private lastTickTime: number = 0;
 
     /**
      * Start/Stop the global ticker even when no animations are running
@@ -184,7 +186,16 @@ class AnimationEngine {
      * The main animation tick - called by requestAnimationFrame
      */
     private tick = (timestamp: number): void => {
-        if (!this.isRunning) return;
+        if (!this.isRunning) {
+            this.lastTickTime = 0;
+            return;
+        }
+
+        if (this.lastTickTime === 0) {
+            this.lastTickTime = timestamp;
+        }
+        const deltaTime = timestamp - this.lastTickTime;
+        this.lastTickTime = timestamp;
 
         // Check global animation setting
         const animationsEnabled = store.globalSettings?.animationEnabled ?? true;
@@ -192,6 +203,10 @@ class AnimationEngine {
         let hasRunningAnimations = false;
         batch(() => {
             setGlobalTime(timestamp);
+
+            if (!isGlobalPaused()) {
+                setEffectiveTime(t => t + deltaTime);
+            }
 
             for (const animation of this.animations.values()) {
                 if (animation.state !== 'running') continue;

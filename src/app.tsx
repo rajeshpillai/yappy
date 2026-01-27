@@ -58,7 +58,52 @@ const App: Component = () => {
       const code = e.code;
       const key = e.key.toLowerCase();
 
-      // Alt + Key shortcuts (Commands that work even if focused on inputs)
+      // 1. Ctrl/Meta Shortcuts (Work even if focused on inputs, e.g. Ctrl+S)
+      if (e.ctrlKey || e.metaKey) {
+        if (key === 'z') {
+          e.preventDefault();
+          if (e.shiftKey) redo(); else undo();
+          return;
+        } else if (key === 'y') {
+          e.preventDefault();
+          redo();
+          return;
+        } else if (key === 'k') {
+          e.preventDefault();
+          toggleCommandPalette(true);
+          return;
+        } else if (key === 'a') {
+          e.preventDefault();
+          setStore('selection', store.elements.map(el => el.id));
+          return;
+        } else if (key === 'o') {
+          e.preventDefault();
+          setIsDialogOpen(true);
+          return;
+        } else if (key === 's') {
+          e.preventDefault();
+          handleSaveRequest('workspace');
+          return;
+        } else if (key === 'e' && e.shiftKey) {
+          e.preventDefault();
+          setIsExportOpen(true);
+          return;
+        }
+      }
+
+      if (e.defaultPrevented) return;
+
+      // 2. Ignore hotkeys when typing in input fields, textareas, or contenteditable elements
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable
+      ) {
+        return; // Let the user type normally
+      }
+
+      // 3. Alt + Key shortcuts
       if (e.altKey && !e.ctrlKey && !e.metaKey) {
         if (code === 'Enter' || key === 'enter') {
           e.preventDefault();
@@ -108,67 +153,9 @@ const App: Component = () => {
         }
       }
 
-      if (e.defaultPrevented) return;
-
-      // Ignore hotkeys when typing in input fields, textareas, or contenteditable elements
-      const target = e.target as HTMLElement;
-      if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable
-      ) {
-        return; // Let the user type normally
-      }
-
-      // Shared Global Shortcuts (No Alt)
-      if (!e.altKey && !e.ctrlKey && !e.metaKey) {
-        // Presentation Navigation
-        if (store.appMode === 'presentation') {
-          if (code === 'PageDown' || code === 'Enter' || code === 'NumpadEnter' || code === 'Space' || code === 'ArrowRight') {
-            e.preventDefault();
-            advancePresentation();
-            return;
-          } else if (code === 'ArrowLeft' || code === 'PageUp' || code === 'Backspace') {
-            e.preventDefault();
-            retreatPresentation();
-            return;
-          }
-        }
-
-        if (code === 'Home') {
-          e.preventDefault();
-          if (store.states.length > 0) {
-            applyDisplayState(store.states[0].id);
-          } else {
-            setActiveSlide(0);
-          }
-        }
-      }
-
-      // Ctrl/Meta Shortcuts
+      // 4. Ctrl/Meta but lower priority than inputs (Grouping/Duplicate)
       if (e.ctrlKey || e.metaKey) {
-        if (key === 'z') {
-          e.preventDefault();
-          if (e.shiftKey) redo(); else undo();
-        } else if (key === 'y') {
-          e.preventDefault();
-          redo();
-        } else if (key === 'k') {
-          e.preventDefault();
-          toggleCommandPalette(true);
-        } else if (key === 'a') {
-          e.preventDefault();
-          setStore('selection', store.elements.map(el => el.id));
-        } else if (code === 'KeyO') {
-          e.preventDefault();
-          setIsDialogOpen(true);
-        } else if (code === 'KeyS') {
-          e.preventDefault();
-          handleSaveRequest('workspace');
-        } else if (code === 'KeyE' && e.shiftKey) {
-          e.preventDefault();
-          setIsExportOpen(true);
-        } else if (key === 'g') {
+        if (key === 'g') {
           e.preventDefault();
           if (e.shiftKey) ungroupSelected(); else groupSelected();
         } else if (key === 'm') {
@@ -191,7 +178,6 @@ const App: Component = () => {
           if (store.selection.length > 0) sendToBack(store.selection);
         } else if (key === 'd') {
           e.preventDefault();
-          // Duplicate handled here or via store? Let's keep it here for now as in Menu.tsx
           const selectedElements = store.elements.filter(el => store.selection.includes(el.id));
           if (selectedElements.length > 0) {
             const groupMapping = new Map<string, string>();
@@ -215,8 +201,32 @@ const App: Component = () => {
         return;
       }
 
-      // Tool Cycling and Single Key Shortcuts (Only if no modifiers and not handled)
-      if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.defaultPrevented) {
+      // 5. Shared Global Shortcuts (No Alt/Ctrl)
+      if (!e.altKey && !e.ctrlKey && !e.metaKey) {
+        // Presentation Navigation
+        if (store.appMode === 'presentation') {
+          if (code === 'PageDown' || code === 'Enter' || code === 'NumpadEnter' || code === 'Space' || code === 'ArrowRight') {
+            e.preventDefault();
+            advancePresentation();
+            return;
+          } else if (code === 'ArrowLeft' || code === 'PageUp' || code === 'Backspace') {
+            e.preventDefault();
+            retreatPresentation();
+            return;
+          }
+        }
+
+        if (code === 'Home') {
+          e.preventDefault();
+          if (store.states.length > 0) {
+            applyDisplayState(store.states[0].id);
+          } else {
+            setActiveSlide(0);
+          }
+          return;
+        }
+
+        // Tool Cycling and Single Key Shortcuts
         if (key === 's') {
           e.preventDefault();
           cycleStrokeStyle();
@@ -268,7 +278,6 @@ const App: Component = () => {
           e.preventDefault();
           setSelectedTool('laser');
         }
-        // Tool selection shortcuts
         else {
           if (key === 'v' || key === '1') setSelectedTool('selection');
           else if (key === 'r' || key === '2') setSelectedTool('rectangle');
