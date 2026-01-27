@@ -1,5 +1,5 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show, untrack } from "solid-js";
-import { calculateAllAnimatedStates, calculateAnimatedState } from "../utils/animation-utils";
+import { calculateAllAnimatedStates } from "../utils/animation-utils";
 import { animationEngine } from "../utils/animation/animation-engine";
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
 import { isElementHiddenByHierarchy, getDescendants } from "../utils/hierarchy";
@@ -28,7 +28,7 @@ import { changeElementType, getTransformOptions, getShapeIcon, getShapeTooltip, 
 import { getGroupsSortedByPriority, isPointInGroupBounds } from "../utils/group-utils";
 import { exportToPng, exportToSvg } from "../utils/export";
 import { getElementPreviewBaseState } from "../utils/animation/element-animator";
-import { globalTime, effectiveTime } from "../utils/animation/animation-engine";
+import { effectiveTime } from "../utils/animation/animation-engine";
 import { VideoRecorder } from "../utils/video-recorder";
 import RecordingOverlay from "./recording-overlay";
 import { generateId } from "../utils/id-generator"; // New Import

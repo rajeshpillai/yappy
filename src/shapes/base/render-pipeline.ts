@@ -3,7 +3,6 @@ import type { DrawingElement } from "../../types";
 import { getShapeGeometry } from "../../utils/shape-geometry";
 import { getFontString, measureContainerText } from "../../utils/text-utils";
 import type { RenderContext } from "./types";
-import { store } from "../../store/app-store";
 
 export class RenderPipeline {
     static adjustColor(color: string, isDarkMode: boolean) {
