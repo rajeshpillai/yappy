@@ -73,6 +73,7 @@ export const AdvancedP3Picker: Component<Props> = (props) => {
     });
 
     const handleCanvasMouseDown = (e: MouseEvent) => {
+        e.stopPropagation();
         const update = (ev: MouseEvent) => {
             if (!canvasRef) return;
             const rect = canvasRef.getBoundingClientRect();
@@ -96,6 +97,7 @@ export const AdvancedP3Picker: Component<Props> = (props) => {
     };
 
     const handleHueMouseDown = (e: MouseEvent) => {
+        e.stopPropagation();
         const update = (ev: MouseEvent) => {
             if (!hueSliderRef) return;
             const rect = hueSliderRef.getBoundingClientRect();
