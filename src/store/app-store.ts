@@ -8,8 +8,7 @@ import { showToast } from "../components/toast";
 import { MindmapLayoutEngine, type LayoutDirection } from "../utils/mindmap-layout";
 import { animationEngine } from "../utils/animation/animation-engine";
 import { slideTransitionManager } from "../utils/animation/slide-transition-manager";
-import { sequenceAnimator } from '../utils/animation/sequence-animator';
-import { getElementsOnSlide } from '../utils/slide-utils';
+import { slideBuildManager } from '../utils/animation/slide-build-manager';
 
 interface AppState {
     // Current Active Slide properties (for performance and compatibility)
@@ -566,11 +565,10 @@ export const setActiveSlide = async (index: number, skipAnimation?: boolean) => 
         }
         setStore("dimensions", JSON.parse(JSON.stringify(nextSlide.dimensions)));
 
-        // Trigger Build Animations (on-load) in Presentation Mode
+        // Trigger Build Animations in Presentation Mode
         if (store.presentationMode) {
-            const slideElements = getElementsOnSlide(index, store.elements, store.slides);
-            const slideElementIds = slideElements.map(el => el.id);
-            sequenceAnimator.playAll('on-load', slideElementIds);
+            slideBuildManager.init(index);
+            slideBuildManager.playInitial();
         }
     }
 

@@ -1,5 +1,6 @@
 import { type Component, Show, createSignal, onMount, onCleanup, createMemo } from 'solid-js';
 import { store, setActiveSlide, togglePresentationMode, applyNextState, applyPreviousState } from '../store/app-store';
+import { slideBuildManager } from '../utils/animation/slide-build-manager';
 import { ChevronLeft, ChevronRight, X } from 'lucide-solid';
 
 export const PresentationControls: Component = () => {
@@ -28,13 +29,24 @@ export const PresentationControls: Component = () => {
         return `Slide ${store.activeSlideIndex + 1} of ${store.slides.length}`;
     });
 
-    const handleNext = () => {
+    const handleNext = async () => {
+        // 1. Check for State Transitions
         const currentIndex = store.states.findIndex(s => s.id === store.activeStateId);
         if (currentIndex < store.states.length - 1) {
             applyNextState();
-        } else {
-            setActiveSlide(store.activeSlideIndex + 1);
+            resetHideTimeout();
+            return;
         }
+
+        // 2. Check for Build Animations (On-Click)
+        if (slideBuildManager.hasMoreSteps()) {
+            await slideBuildManager.playNext();
+            resetHideTimeout();
+            return;
+        }
+
+        // 3. Next Slide
+        setActiveSlide(store.activeSlideIndex + 1);
         resetHideTimeout();
     };
 

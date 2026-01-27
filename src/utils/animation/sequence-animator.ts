@@ -149,6 +149,13 @@ export class SequenceAnimator {
         this.executeAnimation(elementId, anim, onComplete);
     }
 
+    /**
+     * Execute a specific animation on an element.
+     */
+    playAnimation(elementId: string, anim: ElementAnimation, onComplete: () => void): void {
+        this.executeAnimation(elementId, anim, onComplete);
+    }
+
     private executeAnimation(elementId: string, anim: ElementAnimation, onComplete: () => void): void {
         const config: ElementAnimationConfig = {
             duration: anim.duration,
