@@ -122,7 +122,8 @@ const App: Component = () => {
 
       // Shared Global Shortcuts (No Alt)
       if (!e.altKey && !e.ctrlKey && !e.metaKey) {
-        if (code === 'ArrowRight' || code === 'PageDown' || code === 'Enter' || code === 'NumpadEnter' || (store.presentationMode && code === 'Space')) {
+        // Presentation Navigation
+        if (code === 'PageDown' || ((code === 'Enter' || code === 'NumpadEnter' || code === 'Space' || code === 'ArrowRight') && store.presentationMode)) {
           e.preventDefault();
           advancePresentation();
         } else if (code === 'ArrowLeft' || code === 'PageUp' || code === 'Backspace') {
