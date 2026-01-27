@@ -1416,7 +1416,7 @@ const Canvas: Component = () => {
     };
 
     const handleWheel = (e: WheelEvent) => {
-        if (store.appMode === 'presentation') return;
+        if (store.appMode === 'presentation' && store.docType === 'slides') return;
         e.preventDefault();
 
         // Normalize delta values based on deltaMode
@@ -2166,11 +2166,22 @@ const Canvas: Component = () => {
     const handlePointerDown = (e: PointerEvent) => {
         // Presentation Mode Navigation (Click to advance)
         if (store.appMode === 'presentation') {
-            // Only advance if left click and not on a control
-            if (e.button === 0) {
-                advancePresentation();
+            if (store.docType === 'slides') {
+                // Only advance if left click and not on a control
+                if (e.button === 0) {
+                    advancePresentation();
+                }
+                return;
+            } else {
+                // For infinite mode, allow panning if left click or middle click
+                if (e.button === 0 || e.button === 1) {
+                    isDragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    (e.currentTarget as Element).setPointerCapture(e.pointerId);
+                    return;
+                }
             }
-            return;
         }
         (e.currentTarget as Element).setPointerCapture(e.pointerId);
         const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
@@ -2714,6 +2725,21 @@ const Canvas: Component = () => {
     };
 
     const handlePointerMove = (e: PointerEvent) => {
+        if (store.appMode === 'presentation') {
+            if (store.docType === 'slides') return;
+
+            // For infinite mode, if dragging, we pan.
+            if (isDragging) {
+                setViewState({
+                    panX: store.viewState.panX + e.movementX,
+                    panY: store.viewState.panY + e.movementY
+                });
+                setCursor('grabbing');
+            } else {
+                setCursor('grab');
+            }
+            return;
+        }
         let { x, y } = getWorldCoordinates(e.clientX, e.clientY);
         // console.log('Move', { tool: store.selectedTool, isDragging, selection: store.selection.length });
 
@@ -3357,6 +3383,13 @@ const Canvas: Component = () => {
 
     const handlePointerUp = (e: PointerEvent) => {
         (e.currentTarget as Element).releasePointerCapture(e.pointerId);
+
+        if (store.appMode === 'presentation') {
+            if (store.docType === 'slides') return;
+            isDragging = false;
+            return;
+        }
+
         if (store.selectedTool === 'pan') {
             isDragging = false;
             setCursor('grab');

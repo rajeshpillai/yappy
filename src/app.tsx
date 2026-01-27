@@ -298,12 +298,14 @@ const App: Component = () => {
           <Menu />
         </Show>
         <Canvas />
-        <Show when={store.appMode !== 'presentation' && !store.zenMode && store.showSlideNavigator} fallback={
-          <Show when={store.appMode === 'presentation'}>
-            <PresentationControls />
+        <Show when={store.docType === 'slides'}>
+          <Show when={store.appMode !== 'presentation' && !store.zenMode && store.showSlideNavigator} fallback={
+            <Show when={store.appMode === 'presentation'}>
+              <PresentationControls />
+            </Show>
+          }>
+            <SlideNavigator />
           </Show>
-        }>
-          <SlideNavigator />
         </Show>
 
         {/* Panels hidden in Presentation Mode */}
