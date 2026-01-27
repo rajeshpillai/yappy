@@ -5,6 +5,7 @@ import { Play, Square, Plus, Trash2, ChevronDown, ChevronRight, ChevronUp } from
 import type { ElementAnimation, PresetAnimation, RotateAnimation } from '../types/motion-types';
 
 const PRESETS = [
+    'drawIn', 'drawOut',
     'fadeIn', 'fadeOut',
     'slideInLeft', 'slideInRight', 'slideInUp', 'slideInDown',
     'zoomIn', 'zoomOut',

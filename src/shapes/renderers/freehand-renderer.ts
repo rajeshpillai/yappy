@@ -239,4 +239,16 @@ export class FreehandRenderer extends ShapeRenderer {
         const last = pts.length - 1;
         ctx.quadraticCurveTo(pts[last - 1].x, pts[last - 1].y, pts[last].x, pts[last].y);
     }
+
+    estimatePathLength(element: any): number {
+        const pts = normalizePoints(element.points);
+        if (pts.length < 2) return 0;
+        let total = 0;
+        for (let i = 1; i < pts.length; i++) {
+            const dx = pts[i].x - pts[i - 1].x;
+            const dy = pts[i].y - pts[i - 1].y;
+            total += Math.sqrt(dx * dx + dy * dy);
+        }
+        return total;
+    }
 }

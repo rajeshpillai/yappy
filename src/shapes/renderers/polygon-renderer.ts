@@ -110,4 +110,17 @@ export class PolygonRenderer extends ShapeRenderer {
         }
         ctx.closePath();
     }
+
+    estimatePathLength(element: any): number {
+        const points = this.getPoints(element, element.x, element.y, element.width, element.height);
+        if (points.length < 2) return 0;
+        let total = 0;
+        for (let i = 0; i < points.length; i++) {
+            const next = points[(i + 1) % points.length];
+            const dx = next[0] - points[i][0];
+            const dy = next[1] - points[i][1];
+            total += Math.sqrt(dx * dx + dy * dy);
+        }
+        return total;
+    }
 }

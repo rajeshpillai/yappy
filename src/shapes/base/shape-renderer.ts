@@ -13,14 +13,21 @@ export abstract class ShapeRenderer {
         // 1. Apply universal transformations (rotation, opacity, shadow)
         const { cx, cy } = RenderPipeline.applyTransformations(ctx, element, layerOpacity);
 
-        // 2. Apply complex fills (gradients, dots) using ShapeGeometry
-        RenderPipeline.applyComplexFills(context, cx, cy);
-
-        // 3. Delegate to specialized rendering methods based on style
-        if (element.renderStyle === 'architectural') {
-            this.renderArchitectural(context, cx, cy);
+        // 2. Check for draw-in/draw-out animation
+        const dp = element.drawProgress;
+        if (dp !== undefined && dp >= 0 && dp < 100) {
+            this.renderDrawProgress(context, cx, cy);
         } else {
-            this.renderSketch(context, cx, cy);
+            // Normal render path
+            // 2b. Apply complex fills (gradients, dots) using ShapeGeometry
+            RenderPipeline.applyComplexFills(context, cx, cy);
+
+            // 3. Delegate to specialized rendering methods based on style
+            if (element.renderStyle === 'architectural') {
+                this.renderArchitectural(context, cx, cy);
+            } else {
+                this.renderSketch(context, cx, cy);
+            }
         }
 
         // 4. Flow Animation (Marching Ants) for all shapes
@@ -30,6 +37,91 @@ export abstract class ShapeRenderer {
 
         // 5. Restore transformations
         RenderPipeline.restoreTransformations(ctx);
+    }
+
+    /**
+     * Renders the element with draw-in progress animation.
+     *
+     * Phases (with slight overlap for organic feel):
+     *   0-70%   progress: Stroke traces progressively
+     *   65-90%  progress: Fill fades in
+     *   85-100% progress: Text fades in
+     */
+    protected renderDrawProgress(context: RenderContext, cx: number, cy: number) {
+        const { ctx, element: el, isDarkMode, layerOpacity } = context;
+        const progress = (el.drawProgress ?? 0) / 100;
+
+        // Override globalAlpha: during drawIn the element's opacity is set to 0
+        // to hide the normal render. We control visibility via phased rendering instead.
+        ctx.globalAlpha = layerOpacity;
+
+        // Phase calculations with overlapping ranges
+        const strokeProgress = Math.min(1, progress / 0.70);
+        const fillProgress = Math.max(0, Math.min(1, (progress - 0.65) / 0.25));
+        const textProgress = Math.max(0, Math.min(1, (progress - 0.85) / 0.15));
+
+        const pathLength = this.estimatePathLength(el);
+        const strokeColor = RenderPipeline.adjustColor(el.strokeColor, isDarkMode);
+
+        // --- Phase 1: Progressive stroke ---
+        if (strokeProgress > 0) {
+            ctx.save();
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = el.strokeWidth;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // Set lineDash to [drawLen, pathLength] to reveal stroke progressively
+            const drawLen = pathLength * strokeProgress;
+            ctx.setLineDash([drawLen, pathLength]);
+            ctx.lineDashOffset = 0;
+
+            ctx.beginPath();
+            this.definePath(ctx, el);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // --- Phase 2: Fill fade-in ---
+        if (fillProgress > 0) {
+            const fill = el.backgroundColor;
+            if (fill && fill !== 'transparent' && fill !== 'none') {
+                ctx.save();
+                ctx.globalAlpha *= fillProgress;
+
+                const fillStyle = el.fillStyle;
+                const useComplexFill = ['linear', 'radial', 'conic', 'dots'].includes(fillStyle as string);
+
+                if (useComplexFill) {
+                    RenderPipeline.applyComplexFills(context, cx, cy);
+                } else {
+                    ctx.fillStyle = RenderPipeline.adjustColor(fill, isDarkMode);
+                    ctx.beginPath();
+                    this.definePath(ctx, el);
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            }
+        }
+
+        // --- Phase 3: Text fade-in ---
+        if (textProgress > 0) {
+            ctx.save();
+            ctx.globalAlpha *= textProgress;
+            RenderPipeline.renderText(context, cx, cy);
+            ctx.restore();
+        }
+    }
+
+    /**
+     * Estimates the total path length for the shape's outline.
+     * Used by drawIn animation to calculate lineDash parameters.
+     *
+     * Default: bounding box perimeter. Subclasses override for accuracy.
+     */
+    estimatePathLength(element: any): number {
+        return 2 * (Math.abs(element.width) + Math.abs(element.height));
     }
 
     /**

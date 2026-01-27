@@ -454,4 +454,48 @@ export class ConnectorRenderer extends ShapeRenderer {
             ctx.lineTo(end.x, end.y);
         }
     }
+
+    estimatePathLength(element: any): number {
+        const pts = normalizePoints(element.points);
+        let start, end;
+        if (pts.length >= 2) {
+            start = { x: element.x + pts[0].x, y: element.y + pts[0].y };
+            end = { x: element.x + pts[pts.length - 1].x, y: element.y + pts[pts.length - 1].y };
+        } else {
+            start = { x: element.x, y: element.y };
+            end = { x: element.x + element.width, y: element.y + element.height };
+        }
+
+        if (element.curveType === 'bezier') {
+            let cp1, cp2;
+            if (element.controlPoints && element.controlPoints.length > 0) {
+                cp1 = element.controlPoints[0];
+                cp2 = element.controlPoints.length > 1 ? element.controlPoints[1] : cp1;
+            } else {
+                const w = element.width, h = element.height;
+                if (Math.abs(w) > Math.abs(h)) {
+                    cp1 = { x: start.x + w / 2, y: start.y };
+                    cp2 = { x: end.x - w / 2, y: end.y };
+                } else {
+                    cp1 = { x: start.x, y: start.y + h / 2 };
+                    cp2 = { x: end.x, y: end.y - h / 2 };
+                }
+            }
+            // Approximate bezier length: average of chord and control polygon
+            const chord = Math.sqrt((end.x - start.x) ** 2 + (end.y - start.y) ** 2);
+            const controlNet = Math.sqrt((cp1.x - start.x) ** 2 + (cp1.y - start.y) ** 2) +
+                Math.sqrt((cp2.x - cp1.x) ** 2 + (cp2.y - cp1.y) ** 2) +
+                Math.sqrt((end.x - cp2.x) ** 2 + (end.y - cp2.y) ** 2);
+            return (chord + controlNet) / 2;
+        } else if (element.curveType === 'elbow' && pts.length >= 2) {
+            let total = 0;
+            const drawPoints = pts.map((p: any) => ({ x: element.x + p.x, y: element.y + p.y }));
+            for (let i = 0; i < drawPoints.length - 1; i++) {
+                total += Math.sqrt((drawPoints[i + 1].x - drawPoints[i].x) ** 2 + (drawPoints[i + 1].y - drawPoints[i].y) ** 2);
+            }
+            return total;
+        } else {
+            return Math.sqrt((end.x - start.x) ** 2 + (end.y - start.y) ** 2);
+        }
+    }
 }

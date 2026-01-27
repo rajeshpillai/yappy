@@ -61,6 +61,8 @@ export type EntranceAnimation = 'none' |
     // Specials
     'rollIn' | 'jackInTheBox' |
     'scaleIn' | // Added for compatibility
+    // Draw effect
+    'drawIn' |
     // Zooming entrances
     'zoomIn' | 'zoomInDown' | 'zoomInLeft' | 'zoomInRight' | 'zoomInUp' |
     // Sliding entrances
@@ -82,6 +84,8 @@ export type ExitAnimation = 'none' |
     // Specials
     'rollOut' | 'hinge' |
     'scaleOut' | // Added for compatibility
+    // Draw effect
+    'drawOut' |
     // Zooming exits
     'zoomOut' | 'zoomOutDown' | 'zoomOutLeft' | 'zoomOutRight' | 'zoomOutUp' |
     // Sliding exits
@@ -205,6 +209,9 @@ export interface DrawingElement {
     blendMode?: BlendMode;
     filter?: string; // CSS filter string (e.g. "blur(5px)")
     isEditing?: boolean;
+
+    // Draw-in animation progress (0-100, undefined = not animating)
+    drawProgress?: number;
 
 
     // NEW: Robust Animation System

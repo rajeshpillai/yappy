@@ -751,14 +751,14 @@
   - [ ] Markdown to Mindmap: paste bulleted lists to generate trees
 
 ## Phase 56: Multi-Slide Presentations & Animations
-- [ ] **Multi-Slide Support** (Different from layers - each slide is a new canvas)
-  - [ ] Implement slide data structure (array of canvases with metadata)
-  - [ ] Add slide navigation UI (sidebar with thumbnails)
-  - [ ] Add/delete/reorder slides functionality
-  - [ ] Slide-specific settings (background, grid, etc.)
-  - [ ] Export presentation as multi-page PDF or image sequence
-  - [ ] Slide transitions and navigation during presentation mode
-  - [ ] Note: Layers work on same canvas; slides are completely separate canvases
+- [x] **Multi-Slide Support** (Different from layers - each slide is a new canvas)
+  - [x] Implement slide data structure (array of canvases with metadata)
+  - [x] Add slide navigation UI (sidebar with thumbnails)
+  - [x] Add/delete/reorder slides functionality
+  - [x] Slide-specific settings (background, grid, etc.)
+  - [x] Export presentation as multi-page PDF or image sequence
+  - [x] Slide transitions and navigation during presentation mode
+  - [x] Note: Layers work on same canvas; slides are completely separate canvases
 - [x] **Micro-Motion Explainer Animations**
   - [x] Element-level animation support (fade in/out, slide, scale)
   - [x] Timeline editor for animation sequences (Implemented engine-level)
@@ -1001,3 +1001,37 @@
 - [x] Maintain legacy `.json` support
 - [x] Server-side storage support (binary/.yappy)
 - [x] "Save as JSON" export option
+
+---
+
+## Phase 73: Slide Feature Enhancements (Assessed)
+### Presentation & Delivery
+- [ ] **Speaker Notes** — Add a per-slide notes field visible only to the presenter.
+- [ ] **Presenter View** — Separate window/display showing current slide, next slide thumbnail, notes, and timer.
+- [ ] **Auto-advance Timer** — Allow slides to auto-advance after a configurable duration.
+- [/] **Click-through / Build Animations** — Sequence element visibility (Foundation exists in State Morphing).
+- [x] **Pointer/Annotation Improvements** — Laser pointer and temporary ink overlays.
+
+### Slide Management
+- [/] **Drag-and-Drop Reordering** — Visual reordering in navigator (`reorderSlides` exists in store).
+- [ ] **Slide Duplication** — Quick duplicate of an existing slide with all its content.
+- [ ] **Slide Layouts / Templates** — Pre-designed slide layouts (Title, Content, etc.).
+- [ ] **Slide Overview / Grid View** — Zoomed-out grid for easy navigation and reordering.
+- [ ] **Slide Search** — Find text content across all slides.
+
+### Visual & Styling
+- [x] **Rich Slide Backgrounds** — Support gradient backgrounds or images (`updateSlideBackground` exists).
+- [ ] **Slide Master / Theme System** — Define a master slide with common elements (logo, footer).
+- [x] **Automatic Slide Numbers/Footer** — Slide number implemented in Navigator.
+- [ ] **Aspect Ratio Options** — Support 16:9, 4:3, and custom aspect ratios.
+
+### Navigation & Interactivity
+- [ ] **Slide Hyperlinks** — Click on an element to jump to a specific slide.
+- [ ] **Table of Contents / Outline View** — Auto-generated from slide names.
+- [x] **Keyboard Shortcut Overlay** — Show available shortcuts (toggled with `Shift+?`).
+
+### Import & Export
+- [ ] **PPTX Import** — Import existing PowerPoint files as slides.
+- [ ] **PDF Import** — Import PDF pages as slide backgrounds or images.
+- [ ] **HTML/Web Export** — Export as a self-contained HTML presentation (like reveal.js).
+- [ ] **Shareable Presentation Link** — Generate a read-only presentation URL.

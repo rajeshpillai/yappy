@@ -63,4 +63,12 @@ export class CircleRenderer extends ShapeRenderer {
         const ry = Math.abs(el.height) / 2;
         ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
     }
+
+    estimatePathLength(element: any): number {
+        const rx = Math.abs(element.width) / 2;
+        const ry = Math.abs(element.height) / 2;
+        // Ramanujan's approximation for ellipse perimeter
+        const h = ((rx - ry) ** 2) / ((rx + ry) ** 2 || 1);
+        return Math.PI * (rx + ry) * (1 + (3 * h) / (10 + Math.sqrt(4 - 3 * h)));
+    }
 }

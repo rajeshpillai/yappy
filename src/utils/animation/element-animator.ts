@@ -40,7 +40,8 @@ export type AnimatableProperty =
     | 'opacity'
     | 'angle'
     | 'strokeWidth'
-    | 'roughness';
+    | 'roughness'
+    | 'drawProgress';
 
 // Color properties that can be animated
 export type AnimatableColorProperty =
@@ -57,6 +58,7 @@ export interface ElementAnimationTarget {
     angle?: number;
     strokeWidth?: number;
     roughness?: number;
+    drawProgress?: number;
     // Color properties
     strokeColor?: string;
     backgroundColor?: string;
@@ -1745,6 +1747,63 @@ export function zoomOutUp(elementId: string, duration: number = 1000, config: El
 }
 
 // ============================================
+// Draw In / Draw Out Effects
+// ============================================
+
+/**
+ * Draw In effect (entrance) - Progressively draws the shape's stroke,
+ * then fades in fill, then reveals text.
+ * Uses drawProgress 0->100 which ShapeRenderer interprets for phased rendering.
+ * Sets opacity to 0 to hide the original element; renderDrawProgress overrides alpha.
+ */
+export function drawIn(elementId: string, duration: number = 1500, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const targetOpacity = element.opacity ?? 100;
+
+    // Hide original element (opacity:0) and set drawProgress to 0.
+    // opacity:0 ensures the normal render path produces nothing,
+    // and also triggers SolidJS reactivity for canvas re-render.
+    updateElement(elementId, { drawProgress: 0, opacity: 0 }, false);
+
+    return animateElement(elementId, { drawProgress: 100 }, {
+        duration,
+        easing: 'easeInOutQuad',
+        ...config,
+        onComplete: () => {
+            // Restore opacity and clear drawProgress so normal render pipeline takes over
+            updateElement(elementId, { drawProgress: undefined, opacity: targetOpacity } as any, false);
+            config.onComplete?.();
+        }
+    });
+}
+
+/**
+ * Draw Out effect (exit) - Reverse of drawIn: stroke progressively disappears,
+ * fill fades out, text disappears first.
+ */
+export function drawOut(elementId: string, duration: number = 1500, config: ElementAnimationConfig = {}): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const targetOpacity = element.opacity ?? 100;
+
+    // Start fully drawn, hide via opacity so normal render produces nothing
+    updateElement(elementId, { drawProgress: 100, opacity: 0 }, false);
+
+    return animateElement(elementId, { drawProgress: 0 }, {
+        duration,
+        easing: 'easeInOutQuad',
+        ...config,
+        onComplete: () => {
+            updateElement(elementId, { drawProgress: undefined, opacity: targetOpacity } as any, false);
+            config.onComplete?.();
+        }
+    });
+}
+
+// ============================================
 // Play Element's Configured Animation
 // ============================================
 
@@ -1781,7 +1840,8 @@ export function playEntranceAnimation(elementId: string, options: { isPreview?: 
             width: element.width,
             height: element.height,
             opacity: element.opacity,
-            angle: element.angle
+            angle: element.angle,
+            drawProgress: undefined
         });
     }
     const originalState = isPreview ? previewBaseStates.get(elementId) : null;
@@ -1893,6 +1953,9 @@ export function playEntranceAnimation(elementId: string, options: { isPreview?: 
         case 'scaleIn':
             return scaleIn(elementId, duration, config);
 
+        case 'drawIn':
+            return drawIn(elementId, duration, config);
+
         default:
             return '';
     }
@@ -1918,7 +1981,8 @@ export function playExitAnimation(elementId: string, options: { isPreview?: bool
             width: element.width,
             height: element.height,
             opacity: element.opacity,
-            angle: element.angle
+            angle: element.angle,
+            drawProgress: undefined
         });
     }
     const originalState = isPreview ? previewBaseStates.get(elementId) : null;
@@ -2009,6 +2073,9 @@ export function playExitAnimation(elementId: string, options: { isPreview?: bool
 
         case 'scaleOut':
             return scaleOut(elementId, duration, config);
+
+        case 'drawOut':
+            return drawOut(elementId, duration, config);
 
         default:
             return '';
