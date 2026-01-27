@@ -281,8 +281,19 @@ const App: Component = () => {
         }
       }
     };
+
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && store.appMode === 'presentation') {
+        togglePresentationMode(false);
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown);
-    onCleanup(() => window.removeEventListener('keydown', handleKeyDown));
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    onCleanup(() => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    });
   });
 
   return (
