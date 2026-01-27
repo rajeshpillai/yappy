@@ -6,7 +6,8 @@ import {
   addChildNode, addSiblingNode, toggleCollapseSelection, togglePresentationMode,
   applyNextState, applyPreviousState, applyDisplayState, advancePresentation, retreatPresentation,
   setSelectedTool, setStore, groupSelected, ungroupSelected,
-  bringToFront, sendToBack, reorderLayers, toggleGrid, toggleSnapToGrid, addLayer, toggleSlideNavigator
+  bringToFront, sendToBack, reorderLayers, toggleGrid, toggleSnapToGrid, addLayer, toggleSlideNavigator,
+  setIsExportOpen, setActiveSlide
 } from './store/app-store';
 import Canvas from './components/canvas';
 import Toolbar from './components/toolbar';
@@ -14,9 +15,8 @@ import {
   copyToClipboard, cutToClipboard, pasteFromClipboard,
   copyStyle, pasteStyle
 } from './utils/object-context-actions';
-import { setActiveSlide } from './store/app-store';
 import Menu, {
-  handleNew, handleSaveRequest, setIsDialogOpen, setIsExportOpen, setShowHelp
+  handleNew, handleSaveRequest, setIsDialogOpen, setShowHelp
 } from './components/menu';
 import ZoomControls from './components/zoom-controls';
 import PropertyPanel from './components/property-panel';
