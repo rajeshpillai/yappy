@@ -1,4 +1,4 @@
-import { type Component, createSignal, onMount, onCleanup, Show, lazy, Suspense } from "solid-js";
+import { type Component, createSignal, onMount, onCleanup, Show, lazy, Suspense, createEffect } from "solid-js";
 import { showToast } from "./toast";
 import { storage } from "../storage/file-system-storage";
 import {
@@ -14,6 +14,7 @@ import {
 import { P3ColorPicker } from "./p3-color-picker";
 import { sequenceAnimator } from "../utils/animation/sequence-animator";
 import { isGlobalPlaying, isGlobalPaused, animationEngine } from "../utils/animation/animation-engine";
+import { clickOutside } from "../utils/click-outside";
 const HelpDialog = lazy(() => import("./help-dialog"));
 const LoadExportDialog = lazy(() => import("./load-export-dialog"));
 const FileOpenDialog = lazy(() => import("./file-open-dialog"));
@@ -57,9 +58,16 @@ const Menu: Component = () => {
     sharedSetSaveIntent = setSaveIntent;
     const [isTemplateBrowserOpen, setIsTemplateBrowserOpen] = createSignal(false);
     const [isP3PickerOpen, setIsP3PickerOpen] = createSignal(false);
+    let p3PickerRef: HTMLDivElement | undefined;
 
+    createEffect(() => {
+        if (isP3PickerOpen() && p3PickerRef) {
+            clickOutside(p3PickerRef, () => () => setIsP3PickerOpen(false));
+        }
+    });
 
     (window as any).triggerImageUpload = () => fileInputRef?.click();
+
 
     const performSave = async (filename: string) => {
         try {
@@ -534,13 +542,14 @@ const Menu: Component = () => {
                                 <div style={{ position: 'relative' }}>
                                     <button
                                         class={`menu-btn ${isP3PickerOpen() ? 'active' : ''}`}
-                                        onClick={() => setIsP3PickerOpen(!isP3PickerOpen())}
+                                        onClick={(e) => { e.stopPropagation(); setIsP3PickerOpen(!isP3PickerOpen()); }}
                                         title="P3 Color Palette"
                                     >
                                         <Palette size={18} color="#f43f5e" />
                                     </button>
                                     <Show when={isP3PickerOpen()}>
                                         <div
+                                            ref={p3PickerRef}
                                             class="menu-dropdown"
                                             style={{
                                                 position: 'absolute',

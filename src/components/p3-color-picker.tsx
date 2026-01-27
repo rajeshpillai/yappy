@@ -56,8 +56,15 @@ export const P3ColorPicker: Component = () => {
                 {(color) => (
                     <div
                         draggable={true}
-                        onDragStart={(e) => handleDragStart(e, color.value)}
-                        onClick={() => applyColor(color.value)}
+                        onDragStart={(e) => {
+                            e.stopPropagation();
+                            handleDragStart(e, color.value);
+                        }}
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            applyColor(color.value);
+                        }}
                         title={`${color.name} (Drag to shape or Click to apply to selection)`}
                         style={{
                             width: '24px',
