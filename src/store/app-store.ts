@@ -585,6 +585,95 @@ export const addSlide = () => {
     showToast('Slide added', 'success');
 };
 
+export const duplicateSlide = (index: number) => {
+    if (index < 0 || index >= store.slides.length) return;
+
+    pushToHistory();
+    saveActiveSlide();
+
+    const sourceSlide = store.slides[index];
+    const { x: sX, y: sY } = sourceSlide.spatialPosition;
+    const { width: sW, height: sH } = sourceSlide.dimensions;
+
+    // 1. Identify source elements (center logic)
+    const sourceElements = store.elements.filter(el => {
+        const cx = el.x + (el.width || 0) / 2;
+        const cy = el.y + (el.height || 0) / 2;
+        return cx >= sX && cx <= sX + sW && cy >= sY && cy <= sY + sH;
+    });
+
+    // 2. Setup new slide position (to the right of all)
+    const lastSlide = store.slides.reduce((prev, current) => {
+        return (prev.spatialPosition.x > current.spatialPosition.x) ? prev : current;
+    });
+    const newX = lastSlide.spatialPosition.x + 2000;
+    const offset = { x: newX - sX, y: 0 };
+
+    // 3. Clone elements with ID mapping
+    const idMap = new Map<string, string>();
+    sourceElements.forEach(el => idMap.set(el.id, crypto.randomUUID()));
+
+    const newElements = sourceElements.map(el => {
+        const newId = idMap.get(el.id)!;
+        // Deep copy
+        const newEl: DrawingElement = JSON.parse(JSON.stringify(el));
+        newEl.id = newId;
+        newEl.x += offset.x;
+        newEl.y += offset.y;
+        newEl.seed = Math.floor(Math.random() * 2147483647);
+
+        // Map internal bindings
+        if (newEl.startBinding && idMap.has(newEl.startBinding.elementId)) {
+            newEl.startBinding.elementId = idMap.get(newEl.startBinding.elementId)!;
+        } else if (newEl.startBinding) {
+            newEl.startBinding = undefined; // Drop external bindings
+        }
+
+        if (newEl.endBinding && idMap.has(newEl.endBinding.elementId)) {
+            newEl.endBinding.elementId = idMap.get(newEl.endBinding.elementId)!;
+        } else if (newEl.endBinding) {
+            newEl.endBinding = undefined;
+        }
+
+        if (newEl.boundElements) {
+            newEl.boundElements = newEl.boundElements
+                .filter(b => idMap.has(b.id))
+                .map(b => ({ ...b, id: idMap.get(b.id)! }));
+        }
+
+        if (newEl.parentId && idMap.has(newEl.parentId)) {
+            newEl.parentId = idMap.get(newEl.parentId)!;
+        } else if (newEl.parentId) {
+            newEl.parentId = undefined;
+        }
+
+        return newEl;
+    });
+
+    // 4. Create new slide frame
+    const newSlide: Slide = {
+        ...JSON.parse(JSON.stringify(sourceSlide)),
+        id: crypto.randomUUID(),
+        name: `${sourceSlide.name} (Copy)`,
+        spatialPosition: { x: newX, y: 0 },
+        order: index + 1,
+        thumbnail: undefined
+    };
+
+    // 5. Update store
+    const newSlides = [...store.slides];
+    newSlides.splice(index + 1, 0, newSlide);
+    newSlides.forEach((s, i) => s.order = i);
+
+    batch(() => {
+        setStore("slides", newSlides);
+        setStore("elements", els => [...els, ...newElements]);
+        setActiveSlide(index + 1);
+    });
+
+    showToast('Slide duplicated', 'success');
+};
+
 export const deleteSlide = (index: number) => {
     if (store.slides.length <= 1) {
         showToast('Cannot delete the last slide', 'error');

@@ -1,6 +1,6 @@
 import { For, Show, createSignal } from "solid-js";
-import { store, setActiveSlide, addSlide, deleteSlide } from "../store/app-store";
-import { X, Zap } from "lucide-solid";
+import { store, setActiveSlide, addSlide, deleteSlide, duplicateSlide } from "../store/app-store";
+import { X, Zap, Copy } from "lucide-solid";
 import { SlideTransitionPicker } from "./slide-transition-picker";
 import "./slide-navigator.css";
 
@@ -54,6 +54,17 @@ export const SlideNavigator = () => {
                                         title="Slide Transition"
                                     >
                                         <Zap size={14} />
+                                    </button>
+
+                                    <button
+                                        class="slide-duplicate-btn"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            duplicateSlide(index());
+                                        }}
+                                        title="Duplicate Slide"
+                                    >
+                                        <Copy size={14} />
                                     </button>
 
                                     <div class="slide-preview">
