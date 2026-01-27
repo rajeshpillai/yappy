@@ -776,7 +776,7 @@
   - [ ] Flow animations (show data/user flow through system)
   - [ ] Process animation (step-by-step workflow visualization)
   - [ ] Data visualization animations (charts, graphs updating)
-  - [ ] Interaction simulations (showing user interactions)
+  - [x] Interaction simulations (showing user interactions)
   - [x] Export as MP4/WebM/GIF for social media sharing
   - [ ] Use cases: LinkedIn posts, Twitter threads, portfolio pieces
 
@@ -784,6 +784,7 @@
   ## IMP
   - [x] Check reactivity of property panel (Fixed: added `renderStyle` tracking)
   - [x] Right properties for shapes (Implemented: removed Roundness/Corner Style from circles)
+  - [x] Implement Element ID Editing (Rename & Update References)
   - [ ] Implement UML Class/Structured shapes (Planned: Template-based vs Structured)
   - [ ] Orthogonal/Elbow routing refinements
  
