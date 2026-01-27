@@ -60,6 +60,13 @@ interface AppState {
     activeStateId?: string;
     showStatePanel: boolean;
     showSlideNavigator: boolean;
+    showSlideToolbar: boolean;
+    slideToolbarPosition: { x: number, y: number };
+    showExportDialog: boolean;
+    minimapVisible: boolean;
+    zenMode: boolean;
+    presentationMode: boolean;
+    showCommandPalette: boolean;
     selectedUmlType: 'umlClass' | 'umlInterface' | 'umlActor' | 'umlUseCase' | 'umlNote' | 'umlPackage' | 'umlComponent' | 'umlState' | 'umlLifeline' | 'umlFragment' | 'umlSignalSend' | 'umlSignalReceive' | 'umlProvidedInterface' | 'umlRequiredInterface';
 }
 
@@ -147,6 +154,9 @@ const initialState: AppState = {
     states: [],
     showStatePanel: false,
     showSlideNavigator: false,
+    showSlideToolbar: true,
+    slideToolbarPosition: { x: (window.innerWidth / 2) - 100, y: window.innerHeight - 100 },
+    showExportDialog: false,
 };
 
 export const [store, setStore] = createStore<AppState>(initialState);
@@ -900,7 +910,25 @@ export const setDocType = (type: 'infinite' | 'slides') => {
 
 // --- State Morphing Actions ---
 
+export const toggleLayerPanel = (visible?: boolean) => {
+    setStore('showLayerPanel', visible ?? !store.showLayerPanel);
+};
 
+export const toggleSlideToolbar = (visible?: boolean) => {
+    setStore('showSlideToolbar', visible ?? !store.showSlideToolbar);
+};
+
+export const setSlideToolbarPosition = (x: number, y: number) => {
+    setStore('slideToolbarPosition', { x, y });
+};
+
+export const setIsExportOpen = (open: boolean) => {
+    setStore('showExportDialog', open);
+};
+
+export const toggleSlideNavigator = (visible?: boolean) => {
+    setStore("showSlideNavigator", visible ?? !store.showSlideNavigator);
+};
 
 export const toggleStatePanel = (visible?: boolean) => {
     setStore("showStatePanel", visible ?? !store.showStatePanel);

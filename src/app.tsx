@@ -29,6 +29,7 @@ import Toast from './components/toast';
 import { MindmapActionToolbar } from './components/mindmap-action-toolbar';
 import { registerShapes } from './shapes/register-shapes';
 import { SlideNavigator } from './components/slide-navigator';
+import { SlideControlToolbar } from './components/slide-control-toolbar';
 import { PresentationControls } from './components/presentation-controls';
 import { addSlide } from './store/app-store';
 
@@ -337,6 +338,7 @@ const App: Component = () => {
         >
           <Settings size={24} />
         </button>
+        <SlideControlToolbar />
         <MindmapActionToolbar />
       </Show>
       <Toast />

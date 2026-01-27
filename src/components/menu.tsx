@@ -3,8 +3,8 @@ import { showToast } from "./toast";
 import { storage } from "../storage/file-system-storage";
 import {
     store, deleteElements, toggleTheme, zoomToFit,
-    togglePropertyPanel, toggleLayerPanel, toggleMinimap, toggleStatePanel, loadTemplate,
-    loadDocument, resetToNewDocument, saveActiveSlide
+    togglePropertyPanel, toggleLayerPanel, toggleMinimap, toggleStatePanel, toggleSlideToolbar,
+    loadTemplate, loadDocument, resetToNewDocument, saveActiveSlide, setIsExportOpen
 } from "../store/app-store";
 import {
     Menu as MenuIcon, FolderOpen, Share2, FilePlus, Trash2, Maximize,
@@ -26,7 +26,6 @@ import "./menu.css";
 // Exported signals for App.tsx integration
 export const [drawingId, setDrawingId] = createSignal('default');
 export const [isDialogOpen, setIsDialogOpen] = createSignal(false);
-export const [isExportOpen, setIsExportOpen] = createSignal(false);
 export const [isSaveOpen, setIsSaveOpen] = createSignal(false);
 export const [isLoadExportOpen, setIsLoadExportOpen] = createSignal(false);
 export const [showHelp, setShowHelp] = createSignal(false);
@@ -317,7 +316,7 @@ const Menu: Component = () => {
             />
 
             <ExportDialog
-                isOpen={isExportOpen()}
+                isOpen={store.showExportDialog}
                 onClose={() => setIsExportOpen(false)}
             />
 
@@ -432,6 +431,15 @@ const Menu: Component = () => {
                                             <span class="shortcut">Alt+M</span>
                                         </div>
                                     </div>
+                                    <Show when={store.docType === 'slides'}>
+                                        <div class="menu-item" onClick={() => { toggleSlideToolbar(); setIsMenuOpen(false); }}>
+                                            <Play size={16} />
+                                            <span class="label">Slide Toolbar</span>
+                                            <div class="menu-item-right">
+                                                <Show when={store.showSlideToolbar}><Check size={14} class="check-icon" /></Show>
+                                            </div>
+                                        </div>
+                                    </Show>
                                     <div class="menu-separator"></div>
                                     <button class="menu-item" onClick={() => { handleNew('slides'); setIsMenuOpen(false); }}>
                                         <FilePlus size={16} />
