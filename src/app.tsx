@@ -380,11 +380,11 @@ const App: Component = () => {
             left: '50%',
             transform: 'translateX(-50%)',
             'font-size': '11px',
-            color: 'var(--text-muted, #9ca3af)',
+            color: 'var(--text-secondary, #6b7280)',
             'pointer-events': 'none',
             'user-select': 'none',
             'z-index': '999',
-            opacity: '0.6'
+            opacity: '0.9'
           }}
         >
           v{pkg.version}
