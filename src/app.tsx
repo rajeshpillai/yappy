@@ -1,4 +1,4 @@
-import { type Component, onMount, onCleanup, Show } from 'solid-js';
+import { type Component, onMount, onCleanup, Show, lazy, Suspense } from 'solid-js';
 import {
   undo, redo, store, deleteElements, togglePropertyPanel, toggleLayerPanel,
   toggleMinimap, toggleZenMode, toggleCommandPalette, moveSelectedElements,
@@ -15,22 +15,23 @@ import {
   copyToClipboard, cutToClipboard, pasteFromClipboard,
   copyStyle, pasteStyle
 } from './utils/object-context-actions';
+const PropertyPanel = lazy(() => import('./components/property-panel'));
+const LayerPanel = lazy(() => import('./components/layer-panel'));
+const CommandPalette = lazy(() => import('./components/command-palette'));
+const StatePanel = lazy(() => import('./components/state-panel').then(m => ({ default: m.StatePanel })));
+const Toast = lazy(() => import('./components/toast'));
+const MindmapActionToolbar = lazy(() => import('./components/mindmap-action-toolbar').then(m => ({ default: m.MindmapActionToolbar })));
+const SlideNavigator = lazy(() => import('./components/slide-navigator').then(m => ({ default: m.SlideNavigator })));
+const SlideControlToolbar = lazy(() => import('./components/slide-control-toolbar').then(m => ({ default: m.SlideControlToolbar })));
+const PresentationControls = lazy(() => import('./components/presentation-controls').then(m => ({ default: m.PresentationControls })));
+
 import Menu, {
   handleNew, handleSaveRequest, setIsDialogOpen, setShowHelp
 } from './components/menu';
 import ZoomControls from './components/zoom-controls';
-import PropertyPanel from './components/property-panel';
-import LayerPanel from './components/layer-panel';
-import CommandPalette from './components/command-palette';
-import { StatePanel } from './components/state-panel';
 import { initAPI } from './api';
 import { Settings } from 'lucide-solid';
-import Toast from './components/toast';
-import { MindmapActionToolbar } from './components/mindmap-action-toolbar';
 import { registerShapes } from './shapes/register-shapes';
-import { SlideNavigator } from './components/slide-navigator';
-import { SlideControlToolbar } from './components/slide-control-toolbar';
-import { PresentationControls } from './components/presentation-controls';
 import { addSlide } from './store/app-store';
 
 const App: Component = () => {
@@ -285,62 +286,64 @@ const App: Component = () => {
 
   return (
     <div>
-      <Show when={!store.presentationMode}>
-        <Toolbar />
-        <Show when={!store.zenMode}>
-          <PropertyPanel />
-          <LayerPanel />
-          <ZoomControls />
+      <Suspense fallback={null}>
+        <Show when={!store.presentationMode}>
+          <Toolbar />
+          <Show when={!store.zenMode}>
+            <PropertyPanel />
+            <LayerPanel />
+            <ZoomControls />
+          </Show>
+          <Menu />
         </Show>
-        <Menu />
-      </Show>
-      <Canvas />
-      <Show when={!store.presentationMode && !store.zenMode && store.showSlideNavigator} fallback={
-        <Show when={store.presentationMode}>
-          <PresentationControls />
+        <Canvas />
+        <Show when={!store.presentationMode && !store.zenMode && store.showSlideNavigator} fallback={
+          <Show when={store.presentationMode}>
+            <PresentationControls />
+          </Show>
+        }>
+          <SlideNavigator />
         </Show>
-      }>
-        <SlideNavigator />
-      </Show>
 
-      {/* Panels hidden in Presentation Mode */}
-      <Show when={!store.presentationMode}>
-        <CommandPalette />
-        <StatePanel />
-      </Show>
+        {/* Panels hidden in Presentation Mode */}
+        <Show when={!store.presentationMode}>
+          <CommandPalette />
+          <StatePanel />
+        </Show>
 
-      {/* Floating Property Panel Toggle (bottom-right corner) */}
-      <Show when={!store.presentationMode}>
-        <button
-          class="floating-settings-btn"
-          classList={{ 'active': store.showPropertyPanel }}
-          onClick={() => togglePropertyPanel()}
-          title="Toggle Properties (Alt+Enter)"
-          style={{
-            position: 'fixed',
-            bottom: '20px',
-            right: '20px',
-            width: '48px',
-            height: '48px',
-            'border-radius': '50%',
-            border: 'none',
-            background: '#ffffff',
-            color: '#4b5563',
-            'box-shadow': '0 4px 12px rgba(0, 0, 0, 0.15)',
-            cursor: 'pointer',
-            display: 'flex',
-            'align-items': 'center',
-            'justify-content': 'center',
-            'z-index': '1000',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          <Settings size={24} />
-        </button>
-        <SlideControlToolbar />
-        <MindmapActionToolbar />
-      </Show>
-      <Toast />
+        {/* Floating Property Panel Toggle (bottom-right corner) */}
+        <Show when={!store.presentationMode}>
+          <button
+            class="floating-settings-btn"
+            classList={{ 'active': store.showPropertyPanel }}
+            onClick={() => togglePropertyPanel()}
+            title="Toggle Properties (Alt+Enter)"
+            style={{
+              position: 'fixed',
+              bottom: '20px',
+              right: '20px',
+              width: '48px',
+              height: '48px',
+              'border-radius': '50%',
+              border: 'none',
+              background: '#ffffff',
+              color: '#4b5563',
+              'box-shadow': '0 4px 12px rgba(0, 0, 0, 0.15)',
+              cursor: 'pointer',
+              display: 'flex',
+              'align-items': 'center',
+              'justify-content': 'center',
+              'z-index': '1000',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <Settings size={24} />
+          </button>
+          <SlideControlToolbar />
+          <MindmapActionToolbar />
+        </Show>
+        <Toast />
+      </Suspense>
     </div>
   );
 };

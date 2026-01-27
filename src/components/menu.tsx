@@ -1,4 +1,4 @@
-import { type Component, createSignal, onMount, onCleanup, Show } from "solid-js";
+import { type Component, createSignal, onMount, onCleanup, Show, lazy, Suspense } from "solid-js";
 import { showToast } from "./toast";
 import { storage } from "../storage/file-system-storage";
 import {
@@ -12,14 +12,14 @@ import {
     Layers, Check, Play, Square, Camera, Video
 } from "lucide-solid";
 import { sequenceAnimator } from "../utils/animation/sequence-animator";
-import HelpDialog from "./help-dialog";
-import LoadExportDialog from "./load-export-dialog";
-import FileOpenDialog from "./file-open-dialog";
-import ExportDialog from "./export-dialog";
-import SaveDialog from "./save-dialog";
+const HelpDialog = lazy(() => import("./help-dialog"));
+const LoadExportDialog = lazy(() => import("./load-export-dialog"));
+const FileOpenDialog = lazy(() => import("./file-open-dialog"));
+const ExportDialog = lazy(() => import("./export-dialog"));
+const SaveDialog = lazy(() => import("./save-dialog"));
+const TemplateBrowser = lazy(() => import("./template-browser"));
 import { migrateToSlideFormat, isSlideDocument } from "../utils/migration";
 import type { SlideDocument } from "../types/slide-types";
-import TemplateBrowser from "./template-browser";
 import type { Template } from "../types/template-types";
 import "./menu.css";
 
@@ -301,46 +301,48 @@ const Menu: Component = () => {
                 onChange={handleOpenJson}
             />
 
-            <FileOpenDialog
-                isOpen={isDialogOpen()}
-                onClose={() => setIsDialogOpen(false)}
-                onSelect={(id) => {
-                    handleLoad(id);
-                    setIsDialogOpen(false);
-                }}
-            />
+            <Suspense fallback={null}>
+                <FileOpenDialog
+                    isOpen={isDialogOpen()}
+                    onClose={() => setIsDialogOpen(false)}
+                    onSelect={(id) => {
+                        handleLoad(id);
+                        setIsDialogOpen(false);
+                    }}
+                />
 
-            <ExportDialog
-                isOpen={store.showExportDialog}
-                onClose={() => setIsExportOpen(false)}
-            />
+                <ExportDialog
+                    isOpen={store.showExportDialog}
+                    onClose={() => setIsExportOpen(false)}
+                />
 
-            <SaveDialog
-                isOpen={isSaveOpen()}
-                onClose={() => setIsSaveOpen(false)}
-                onSave={performSave}
-                initialFilename={drawingId()}
-            />
+                <SaveDialog
+                    isOpen={isSaveOpen()}
+                    onClose={() => setIsSaveOpen(false)}
+                    onSave={performSave}
+                    initialFilename={drawingId()}
+                />
 
-            <HelpDialog isOpen={showHelp()} onClose={() => setShowHelp(false)} />
+                <HelpDialog isOpen={showHelp()} onClose={() => setShowHelp(false)} />
 
-            <LoadExportDialog
-                isOpen={isLoadExportOpen()}
-                initialTab={loadExportInitialTab()}
-                onClose={() => setIsLoadExportOpen(false)}
-                onLoadWorkspace={() => { setIsLoadExportOpen(false); setIsDialogOpen(true); }}
-                onLoadDisk={() => { setIsLoadExportOpen(false); fileInputRef?.click(); }}
-                onSaveWorkspace={() => { setIsLoadExportOpen(false); handleSaveRequest('workspace'); }}
-                onSaveDisk={() => { setIsLoadExportOpen(false); handleSaveRequest('disk'); }}
-                onSaveDiskJson={() => { setIsLoadExportOpen(false); handleSaveRequest('disk-json'); }}
-                onExportImage={() => { setIsLoadExportOpen(false); setIsExportOpen(true); }}
-            />
+                <LoadExportDialog
+                    isOpen={isLoadExportOpen()}
+                    initialTab={loadExportInitialTab()}
+                    onClose={() => setIsLoadExportOpen(false)}
+                    onLoadWorkspace={() => { setIsLoadExportOpen(false); setIsDialogOpen(true); }}
+                    onLoadDisk={() => { setIsLoadExportOpen(false); fileInputRef?.click(); }}
+                    onSaveWorkspace={() => { setIsLoadExportOpen(false); handleSaveRequest('workspace'); }}
+                    onSaveDisk={() => { setIsLoadExportOpen(false); handleSaveRequest('disk'); }}
+                    onSaveDiskJson={() => { setIsLoadExportOpen(false); handleSaveRequest('disk-json'); }}
+                    onExportImage={() => { setIsLoadExportOpen(false); setIsExportOpen(true); }}
+                />
 
-            <TemplateBrowser
-                isOpen={isTemplateBrowserOpen()}
-                onClose={() => setIsTemplateBrowserOpen(false)}
-                onSelectTemplate={handleTemplateSelect}
-            />
+                <TemplateBrowser
+                    isOpen={isTemplateBrowserOpen()}
+                    onClose={() => setIsTemplateBrowserOpen(false)}
+                    onSelectTemplate={handleTemplateSelect}
+                />
+            </Suspense>
 
             <Show when={!store.zenMode}>
                 <div
