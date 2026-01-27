@@ -123,13 +123,19 @@ const App: Component = () => {
       // Shared Global Shortcuts (No Alt)
       if (!e.altKey && !e.ctrlKey && !e.metaKey) {
         // Presentation Navigation
-        if (code === 'PageDown' || ((code === 'Enter' || code === 'NumpadEnter' || code === 'Space' || code === 'ArrowRight') && store.appMode === 'presentation')) {
-          e.preventDefault();
-          advancePresentation();
-        } else if (code === 'ArrowLeft' || code === 'PageUp' || code === 'Backspace') {
-          e.preventDefault();
-          retreatPresentation();
-        } else if (code === 'Home') {
+        if (store.appMode === 'presentation') {
+          if (code === 'PageDown' || code === 'Enter' || code === 'NumpadEnter' || code === 'Space' || code === 'ArrowRight') {
+            e.preventDefault();
+            advancePresentation();
+            return;
+          } else if (code === 'ArrowLeft' || code === 'PageUp' || code === 'Backspace') {
+            e.preventDefault();
+            retreatPresentation();
+            return;
+          }
+        }
+
+        if (code === 'Home') {
           e.preventDefault();
           if (store.states.length > 0) {
             applyDisplayState(store.states[0].id);
