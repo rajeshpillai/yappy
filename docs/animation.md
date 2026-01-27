@@ -21,6 +21,8 @@ Yappy.bounce(id);           // Bounce effect
 Yappy.pulse(id);            // Scale up and back
 Yappy.shake(id);            // Horizontal shake
 Yappy.scaleIn(id);          // Scale up from center
+Yappy.drawIn(id);           // Organic draw-in reveal
+Yappy.drawOut(id);          // Organic draw-out exit
 ```
 
 ## animateElement()
@@ -31,7 +33,7 @@ Animate any numeric or color property:
 Yappy.animateElement(elementId, targetProperties, config);
 ```
 
-**Animatable properties:** `x`, `y`, `width`, `height`, `opacity`, `angle`, `strokeWidth`, `roughness`, `strokeColor`, `backgroundColor`
+**Animatable properties:** `x`, `y`, `width`, `height`, `opacity`, `angle`, `strokeWidth`, `roughness`, `drawProgress`, `strokeColor`, `backgroundColor`
 
 **Config options:**
 | Option | Type | Description |
