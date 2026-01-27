@@ -33,6 +33,7 @@ import { initAPI } from './api';
 import { Settings } from 'lucide-solid';
 import { registerShapes } from './shapes/register-shapes';
 import { addSlide } from './store/app-store';
+import pkg from '../package.json';
 
 const App: Component = () => {
   // Removed showHelp state as it is now in Menu.tsx
@@ -372,6 +373,21 @@ const App: Component = () => {
           <MindmapActionToolbar />
         </Show>
         <Toast />
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '8px',
+            left: '12px',
+            'font-size': '11px',
+            color: 'var(--text-muted, #9ca3af)',
+            'pointer-events': 'none',
+            'user-select': 'none',
+            'z-index': '999',
+            opacity: '0.6'
+          }}
+        >
+          v{pkg.version}
+        </div>
       </Suspense>
     </div>
   );
