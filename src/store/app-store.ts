@@ -881,6 +881,8 @@ export const loadDocument = (doc: any) => {
         const loadedDocType = doc.metadata?.docType || (doc.version >= 3 ? 'slides' : 'infinite');
         setStore("docType", loadedDocType);
         setStore("showSlideNavigator", loadedDocType === 'slides');
+        setStore("showSlideToolbar", true);
+        setStore("showUtilityToolbar", true);
 
         setStore("activeSlideIndex", 0);
         setStore("selection", []);
@@ -1013,6 +1015,8 @@ export const clearHistory = () => {
 export const resetToNewDocument = (docType: 'infinite' | 'slides' = 'slides') => {
     const doc = createSlideDocument('Untitled', docType);
     loadDocument(doc);
+    setStore("showSlideToolbar", true);
+    setStore("showUtilityToolbar", true);
     showToast(`New ${docType === 'slides' ? 'presentation' : 'sketch'} created`, 'info');
 };
 

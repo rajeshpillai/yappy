@@ -347,7 +347,7 @@ const Menu: Component = () => {
                     class="app-title"
                     onMouseDown={onLeftMouseDown}
                     style={{
-                        transform: `translate(${leftPos().x}px, ${leftPos().y}px)`
+                        transform: `translate(calc(-50% + ${leftPos().x}px), ${leftPos().y}px)`
                     }}
                 >
                     {drawingId()}
@@ -361,7 +361,7 @@ const Menu: Component = () => {
                             position: 'fixed',
                             top: '12px',
                             left: '12px',
-                            "z-index": 1001,
+                            "z-index": 10001,
                             transform: `translate(${leftPos().x}px, ${leftPos().y}px)`
                         }}
                     >
@@ -479,7 +479,7 @@ const Menu: Component = () => {
                                 position: 'fixed',
                                 top: '12px',
                                 right: '12px',
-                                "z-index": 100,
+                                "z-index": 10000,
                                 transform: `translate(${rightPos().x}px, ${rightPos().y}px)`
                             }}
                         >
