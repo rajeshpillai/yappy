@@ -12,6 +12,7 @@ import {
 } from "lucide-solid";
 import "./property-panel.css";
 import { properties, type PropertyConfig } from "../config/properties";
+import { showToast } from "./toast";
 import { playSequence } from "../utils/animation/orchestrator";
 import { AnimationPanel } from "./animation-panel";
 
@@ -737,7 +738,16 @@ const PropertyPanel: Component = () => {
                                     <Menu size={18} />
                                 </button>
                                 <Show when={!store.isPropertyPanelMinimized}>
-                                    <h3>{activeTarget()?.type === 'element' ? 'Properties' : activeTarget()?.type === 'canvas' ? 'Canvas' : activeTarget()?.type === 'slide' ? `Slide ${store.activeSlideIndex + 1}` : activeTarget()?.type === 'multi' ? 'Selection' : activeTarget()?.type === 'defaults' ? 'Defaults' : 'Properties'}</h3>
+                                    <div style={{ display: 'flex', 'flex-direction': 'column', gap: '2px' }}>
+                                        <h3 style={{ 'line-height': '1' }}>{activeTarget()?.type === 'element' ? 'Properties' : activeTarget()?.type === 'canvas' ? 'Canvas' : activeTarget()?.type === 'slide' ? `Slide ${store.activeSlideIndex + 1}` : activeTarget()?.type === 'multi' ? 'Selection' : activeTarget()?.type === 'defaults' ? 'Defaults' : 'Properties'}</h3>
+                                        <div
+                                            class="mode-badge"
+                                            classList={{ [store.appMode]: true }}
+                                            style={{ 'width': 'fit-content' }}
+                                        >
+                                            {store.appMode}
+                                        </div>
+                                    </div>
                                 </Show>
                             </div>
 

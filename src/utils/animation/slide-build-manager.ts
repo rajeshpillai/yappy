@@ -81,7 +81,7 @@ class SlideBuildManager {
      * Play all 'on-load' animations for the slide.
      */
     playInitial() {
-        if (!store.presentationMode) return;
+        if (store.appMode !== 'presentation') return;
 
         // Find all initial animations (on-load)
         this.buildSequence.forEach((step, idx) => {

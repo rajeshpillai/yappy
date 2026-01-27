@@ -18,7 +18,8 @@ export const calculateAnimatedState = (
     time: number,
     elementMap: Map<string, DrawingElement>,
     cache: Map<string, AnimatedTransform>,
-    visited: Set<string> = new Set()
+    visited: Set<string> = new Set(),
+    shouldAnimate: boolean = false
 ): AnimatedTransform => {
     // 0. Mode Check: REMOVED to allow static layout in Design Mode
     // We want orbits to calculate their position (spread out) even if time is stopped.
@@ -51,7 +52,7 @@ export const calculateAnimatedState = (
         const centerEl = elementMap.get(el.orbitCenterId);
         if (centerEl) {
             // Recursively get the center element's animated state
-            const centerState = calculateAnimatedState(centerEl, time, elementMap, cache, visited);
+            const centerState = calculateAnimatedState(centerEl, time, elementMap, cache, visited, shouldAnimate);
 
             // Safety checks for center state
             const csX = Number(centerState.x) || 0;
@@ -62,20 +63,23 @@ export const calculateAnimatedState = (
             const cx = csX + cW / 2;
             const cy = csY + cH / 2;
 
-            // Speed factor: 1 speed = 1 radian per second
-            const t = time * 0.001 * orbitSpeed;
+            // Only apply orbit offset if animating
+            if (shouldAnimate) {
+                // Speed factor: 1 speed = 1 radian per second
+                const t = time * 0.001 * orbitSpeed;
 
-            const orbX = cx + orbitRadius * Math.cos(t);
-            const orbY = cy + orbitRadius * Math.sin(t);
+                const orbX = cx + orbitRadius * Math.cos(t);
+                const orbY = cy + orbitRadius * Math.sin(t);
 
-            derivedX = orbX - (Number(el.width) || 0) / 2;
-            derivedY = orbY - (Number(el.height) || 0) / 2;
+                derivedX = orbX - (Number(el.width) || 0) / 2;
+                derivedY = orbY - (Number(el.height) || 0) / 2;
+            }
         }
     }
 
     // 5. Handle Spin (Independent)
     const spinSpeed = Number(el.spinSpeed);
-    if (el.spinEnabled && !isNaN(spinSpeed)) {
+    if (el.spinEnabled && !isNaN(spinSpeed) && shouldAnimate) {
         const t = time * 0.001 * spinSpeed;
         derivedAngle += t * Math.PI * 2;
     }
@@ -99,7 +103,8 @@ export const calculateAnimatedState = (
  */
 export const calculateAllAnimatedStates = (
     elements: DrawingElement[],
-    time: number
+    time: number,
+    shouldAnimate: boolean = false
 ): Map<string, AnimatedTransform> => {
     const elementMap = new Map<string, DrawingElement>();
     elements.forEach(el => elementMap.set(el.id, el));
@@ -108,7 +113,7 @@ export const calculateAllAnimatedStates = (
     const visited = new Set<string>();
 
     elements.forEach(el => {
-        calculateAnimatedState(el, time, elementMap, cache, visited);
+        calculateAnimatedState(el, time, elementMap, cache, visited, shouldAnimate);
     });
 
     return cache;

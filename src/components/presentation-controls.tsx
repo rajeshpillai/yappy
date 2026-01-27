@@ -10,7 +10,7 @@ export const PresentationControls: Component = () => {
         setIsVisible(true);
         window.clearTimeout(hideTimeout);
         hideTimeout = window.setTimeout(() => {
-            if (store.presentationMode) setIsVisible(false);
+            if (store.appMode === 'presentation') setIsVisible(false);
         }, 3000);
     };
 

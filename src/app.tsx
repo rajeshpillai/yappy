@@ -49,7 +49,7 @@ const App: Component = () => {
         togglePresentationMode(true);
         return;
       }
-      if (e.key === 'Escape' && store.presentationMode) {
+      if (e.key === 'Escape' && store.appMode === 'presentation') {
         e.preventDefault();
         togglePresentationMode(false);
         return;
@@ -123,7 +123,7 @@ const App: Component = () => {
       // Shared Global Shortcuts (No Alt)
       if (!e.altKey && !e.ctrlKey && !e.metaKey) {
         // Presentation Navigation
-        if (code === 'PageDown' || ((code === 'Enter' || code === 'NumpadEnter' || code === 'Space' || code === 'ArrowRight') && store.presentationMode)) {
+        if (code === 'PageDown' || ((code === 'Enter' || code === 'NumpadEnter' || code === 'Space' || code === 'ArrowRight') && store.appMode === 'presentation')) {
           e.preventDefault();
           advancePresentation();
         } else if (code === 'ArrowLeft' || code === 'PageUp' || code === 'Backspace') {
@@ -288,7 +288,7 @@ const App: Component = () => {
   return (
     <div>
       <Suspense fallback={null}>
-        <Show when={!store.presentationMode}>
+        <Show when={store.appMode !== 'presentation'}>
           <Toolbar />
           <Show when={!store.zenMode}>
             <PropertyPanel />
@@ -298,8 +298,8 @@ const App: Component = () => {
           <Menu />
         </Show>
         <Canvas />
-        <Show when={!store.presentationMode && !store.zenMode && store.showSlideNavigator} fallback={
-          <Show when={store.presentationMode}>
+        <Show when={store.appMode !== 'presentation' && !store.zenMode && store.showSlideNavigator} fallback={
+          <Show when={store.appMode === 'presentation'}>
             <PresentationControls />
           </Show>
         }>
@@ -307,13 +307,13 @@ const App: Component = () => {
         </Show>
 
         {/* Panels hidden in Presentation Mode */}
-        <Show when={!store.presentationMode}>
+        <Show when={store.appMode !== 'presentation'}>
           <CommandPalette />
           <StatePanel />
         </Show>
 
         {/* Floating Property Panel Toggle (bottom-right corner) */}
-        <Show when={!store.presentationMode}>
+        <Show when={store.appMode !== 'presentation'}>
           <button
             class="floating-settings-btn"
             classList={{ 'active': store.showPropertyPanel }}

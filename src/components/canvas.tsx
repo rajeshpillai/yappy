@@ -94,7 +94,7 @@ const Canvas: Component = () => {
 
     // Monitor Presentation Mode to force animation ticker
     createEffect(() => {
-        if (store.presentationMode) {
+        if (store.appMode === 'presentation') {
             animationEngine.setForceTicker(true);
         } else {
             // Only disable if no flow animations (handled by store usually, but explicit here is safe)
@@ -306,7 +306,8 @@ const Canvas: Component = () => {
 
         // PRE-CALCULATE ANIMATION STATES FOR THIS FRAME
         // This handles nested orbits (Moon > Earth > Sun) correctly
-        const animatedStates = calculateAllAnimatedStates(store.elements, currentTime);
+        // Only run transform animations (Spin/Orbit) if in Presentation Mode
+        const animatedStates = calculateAllAnimatedStates(store.elements, currentTime, store.appMode === 'presentation');
 
         // Reset Transform Matrix to Identity so we don't accumulate translations!
         ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -1412,7 +1413,7 @@ const Canvas: Component = () => {
     };
 
     const handleWheel = (e: WheelEvent) => {
-        if (store.presentationMode) return;
+        if (store.appMode === 'presentation') return;
         e.preventDefault();
 
         // Normalize delta values based on deltaMode
@@ -2160,8 +2161,9 @@ const Canvas: Component = () => {
     };
 
     const handlePointerDown = (e: PointerEvent) => {
-        if (store.presentationMode) {
-            // Standard PPT behavior: Left click to advance
+        // Presentation Mode Navigation (Click to advance)
+        if (store.appMode === 'presentation') {
+            // Only advance if left click and not on a control
             if (e.button === 0) {
                 advancePresentation();
             }

@@ -49,7 +49,7 @@ export const SlideControlToolbar: Component = () => {
     };
 
     return (
-        <Show when={store.docType === 'slides' && store.showSlideToolbar && !store.presentationMode}>
+        <Show when={store.docType === 'slides' && store.showSlideToolbar && store.appMode !== 'presentation'}>
             <div
                 ref={toolbarRef}
                 onPointerDown={handlePointerDown}

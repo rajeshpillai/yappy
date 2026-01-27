@@ -1,6 +1,6 @@
 import { batch } from "solid-js";
 import { createStore } from "solid-js/store";
-import type { DrawingElement, ViewState, ElementType, Layer, GridSettings } from "../types";
+import type { DrawingElement, ViewState, ElementType, Layer, GridSettings, AppMode } from "../types";
 import { createDefaultSlide, createSlideDocument, DEFAULT_SLIDE_TRANSITION } from '../types/slide-types';
 import type { Slide, GlobalSettings, SlideTransition } from '../types/slide-types';
 import type { ElementAnimation, DisplayState } from "../types/motion-types";
@@ -43,7 +43,7 @@ interface AppState {
     isLayerPanelMinimized: boolean;
     minimapVisible: boolean;
     zenMode: boolean;
-    presentationMode: boolean;
+    appMode: AppMode;
     showCommandPalette: boolean;
     selectedPenType: 'fineliner' | 'inkbrush' | 'marker';
     selectedShapeType: 'triangle' | 'hexagon' | 'octagon' | 'parallelogram' | 'star' | 'cloud' | 'heart' | 'cross' | 'checkmark' | 'arrowLeft' | 'arrowRight' | 'arrowUp' | 'arrowDown' | 'capsule' | 'stickyNote' | 'callout' | 'burst' | 'speechBubble' | 'ribbon' | 'bracketLeft' | 'bracketRight' | 'database' | 'document' | 'predefinedProcess' | 'internalStorage';
@@ -134,11 +134,12 @@ const initialState: AppState = {
     redoStackLength: 0,
     showPropertyPanel: false,
     showLayerPanel: false,
+    showLayerPanel: false,
     isPropertyPanelMinimized: false,
     isLayerPanelMinimized: false,
     minimapVisible: false,
     zenMode: false,
-    presentationMode: false,
+    appMode: 'design',
     showCommandPalette: false,
     selectedPenType: 'fineliner',
     selectedShapeType: 'triangle',
@@ -159,6 +160,12 @@ const initialState: AppState = {
 };
 
 export const [store, setStore] = createStore<AppState>(initialState);
+
+// Compatibility Getter (can't add getter to solid store directly easily, need to use helper or property access)
+// For now, we update call sites. But let's add the export helper I forgot.
+export const setAppMode = (mode: AppMode) => {
+    setStore('appMode', mode);
+};
 
 // History Stacks - Now include layers
 interface HistorySnapshot {
@@ -556,7 +563,7 @@ export const setActiveSlide = async (index: number, skipAnimation?: boolean) => 
 
     // Determine if we should animate
     // In presentation mode with transitions enabled, use the transition manager
-    const shouldAnimate = store.presentationMode && !skipAnimation;
+    const shouldAnimate = store.appMode === 'presentation' && !skipAnimation;
 
     if (shouldAnimate) {
         // Use transition manager for animated slide switch
@@ -575,7 +582,7 @@ export const setActiveSlide = async (index: number, skipAnimation?: boolean) => 
         setStore("dimensions", JSON.parse(JSON.stringify(nextSlide.dimensions)));
 
         // Trigger Build Animations in Presentation Mode
-        if (store.presentationMode) {
+        if (store.appMode === 'presentation') {
             slideBuildManager.init(index);
             slideBuildManager.playInitial();
         }
@@ -1609,9 +1616,14 @@ export const zoomToFitSlide = () => {
 };
 
 export const togglePresentationMode = (visible?: boolean) => {
-    const newState = visible ?? !store.presentationMode;
+    const isPresentation = store.appMode === 'presentation';
+    const newState = visible ?? !isPresentation;
+
     batch(() => {
-        setStore('presentationMode', newState);
+        setStore('appMode', newState ? 'presentation' : 'design');
+        // Also toggle animations based on mode?
+        // animationEngine.setForceTicker(newState); - Handled by createEffect in Canvas
+
         if (newState) {
             // Auto fit on enter
             zoomToFitSlide();
