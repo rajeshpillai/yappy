@@ -1,12 +1,13 @@
 import { animateElement, type ElementAnimationTarget, type ElementAnimationConfig } from './element-animator';
 import * as animator from './element-animator';
 import type { ElementAnimation, PropertyAnimation } from '../../types/motion-types';
-import { store, updateElement } from '../../store/app-store';
+import { store, updateElement, setIsPreviewing } from '../../store/app-store';
 
 /**
  * Manages the execution of animation sequences for elements
  */
 export class SequenceAnimator {
+    private activeSequences = new Set<string>();
 
     /**
      * Play the animation sequence for a specific element
@@ -18,6 +19,8 @@ export class SequenceAnimator {
         // For programmatic previews, capture state to restore it after
         let originalState: any = null;
         if (trigger === 'programmatic') {
+            this.activeSequences.add(elementId);
+            setIsPreviewing(true);
             originalState = {
                 x: element.x,
                 y: element.y,
@@ -41,6 +44,12 @@ export class SequenceAnimator {
         if (sequence.length === 0) return;
 
         const onAllComplete = () => {
+            if (trigger === 'programmatic') {
+                this.activeSequences.delete(elementId);
+                if (this.activeSequences.size === 0) {
+                    setIsPreviewing(false);
+                }
+            }
             if (originalState) {
                 // Restore state after a small delay so the user sees the final frame
                 setTimeout(() => {
@@ -76,6 +85,8 @@ export class SequenceAnimator {
      * Stop all animations for all elements in the store
      */
     stopAll(): void {
+        this.activeSequences.clear();
+        setIsPreviewing(false);
         store.elements.forEach(element => {
             this.stopSequence(element.id);
         });

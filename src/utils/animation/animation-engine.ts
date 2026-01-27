@@ -9,7 +9,10 @@ import { createSignal, batch } from 'solid-js';
 import { store } from '../../store/app-store';
 
 const [globalTime, setGlobalTime] = createSignal(0);
-export { globalTime };
+const [isGlobalAnimating, setIsGlobalAnimating] = createSignal(false);
+const [isGlobalPlaying, setIsGlobalPlaying] = createSignal(false);
+const [isGlobalPaused, setIsGlobalPaused] = createSignal(false);
+export { globalTime, isGlobalAnimating, isGlobalPlaying, isGlobalPaused };
 
 /**
  * AnimationEngine manages the animation loop and all registered animations
@@ -247,6 +250,19 @@ class AnimationEngine {
             }
         });
 
+        let hasPausedAnimations = false;
+        if (!hasRunningAnimations) {
+            for (const animation of this.animations.values()) {
+                if (animation.state === 'paused') {
+                    hasPausedAnimations = true;
+                    break;
+                }
+            }
+        }
+
+        setIsGlobalPlaying(hasRunningAnimations);
+        setIsGlobalPaused(hasPausedAnimations);
+
         if (hasRunningAnimations || this.animations.size > 0 || this.forceTicker) {
             this.rafId = requestAnimationFrame(this.tick);
         } else {
@@ -260,6 +276,7 @@ class AnimationEngine {
     private ensureLoopRunning(): void {
         if (!this.isRunning) {
             this.isRunning = true;
+            setIsGlobalAnimating(true);
             this.rafId = requestAnimationFrame(this.tick);
         }
     }
@@ -269,6 +286,7 @@ class AnimationEngine {
      */
     private stopLoop(): void {
         this.isRunning = false;
+        setIsGlobalAnimating(false);
         if (this.rafId !== null) {
             cancelAnimationFrame(this.rafId);
             this.rafId = null;

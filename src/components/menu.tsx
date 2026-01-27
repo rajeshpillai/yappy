@@ -9,9 +9,10 @@ import {
 import {
     Menu as MenuIcon, FolderOpen, Share2, FilePlus, Trash2, Maximize,
     Moon, Sun, Download, Layout,
-    Layers, Check, Play, Square, Camera, Video
+    Layers, Check, Play, Pause, Square, Camera, Video
 } from "lucide-solid";
 import { sequenceAnimator } from "../utils/animation/sequence-animator";
+import { isGlobalPlaying, isGlobalPaused, animationEngine } from "../utils/animation/animation-engine";
 const HelpDialog = lazy(() => import("./help-dialog"));
 const LoadExportDialog = lazy(() => import("./load-export-dialog"));
 const FileOpenDialog = lazy(() => import("./file-open-dialog"));
@@ -489,8 +490,21 @@ const Menu: Component = () => {
                                 <div class="drag-handle sm">
                                     <div class="drag-dots"></div>
                                 </div>
-                                <button class="menu-btn" onClick={() => sequenceAnimator.playAll('programmatic')} title="Play All Animations">
-                                    <Play size={18} color="#10b981" fill="#10b981" />
+                                <button
+                                    class="menu-btn"
+                                    onClick={() => sequenceAnimator.playAll('programmatic')}
+                                    title="Play All Animations"
+                                    disabled={isGlobalPlaying() && !isGlobalPaused()}
+                                >
+                                    <Play size={18} color={isGlobalPlaying() && !isGlobalPaused() ? "#9ca3af" : "#10b981"} fill={isGlobalPlaying() && !isGlobalPaused() ? "#9ca3af" : "#10b981"} />
+                                </button>
+                                <button
+                                    class="menu-btn"
+                                    onClick={() => isGlobalPaused() ? animationEngine.resumeAll() : animationEngine.pauseAll()}
+                                    title={isGlobalPaused() ? "Resume Animations" : "Pause Animations"}
+                                    disabled={!isGlobalPlaying() && !isGlobalPaused()}
+                                >
+                                    <Pause size={18} color={!isGlobalPlaying() && !isGlobalPaused() ? "#9ca3af" : "#f59e0b"} fill={!isGlobalPlaying() && !isGlobalPaused() ? "#9ca3af" : "#f59e0b"} />
                                 </button>
                                 <button class="menu-btn" onClick={() => sequenceAnimator.stopAll()} title="Stop All Animations">
                                     <Square size={18} color="#ef4444" fill="#ef4444" />
