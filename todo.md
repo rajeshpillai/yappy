@@ -1047,3 +1047,10 @@
 - [x] Fix Slide Control Toolbar and Utility Toolbar visibility & z-index issues
 - [x] Restore "Slide Toolbar" toggle in main menu for presentation mode
 - [x] Fix App Title transform centering logic
+
+## Phase 75: Animation Continuity & Priority Shortcuts
+- [x] Fix Animation Toolbar (Play/Pause/Stop reactive state)
+- [x] Fix Continuous Motion (Spin/Orbit) in Preview mode
+- [x] Ensure Pause correctly stops ALL animations using `effectiveTime`
+- [x] Prioritize Ctrl shortcuts (O/S/Z/Y/etc.) over input focus in `app.tsx`
+
