@@ -2,6 +2,7 @@ import { type Component, Show, createSignal, createMemo, createEffect } from "so
 import { store, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, toggleCollapse } from "../store/app-store";
 import { getElementPreviewBaseState, isElementAnimating } from "../utils/animation/element-animator";
 import { Plus, ArrowDown, Wand2, Palette, ChevronUp, ChevronDown, LayoutGrid, LayoutList, Target } from "lucide-solid";
+import { P3ColorPicker } from "./p3-color-picker";
 import { clickOutside } from "../utils/click-outside";
 import "./mindmap-action-toolbar.css";
 
@@ -179,6 +180,10 @@ const ToolbarContent: Component<{
                                 <Palette size={18} />
                             </button>
 
+                            <div class="toolbar-divider" />
+
+                            <P3ColorPicker />
+
                             <Show when={props.hasChildren()}>
                                 <div class="toolbar-divider" />
                                 <button
@@ -196,3 +201,4 @@ const ToolbarContent: Component<{
         </Show>
     );
 };
+

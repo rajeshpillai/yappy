@@ -1053,4 +1053,7 @@
 - [x] Fix Continuous Motion (Spin/Orbit) in Preview mode
 - [x] Ensure Pause correctly stops ALL animations using `effectiveTime`
 - [x] Prioritize Ctrl shortcuts (O/S/Z/Y/etc.) over input focus in `app.tsx`
+- [x] Implement P3 Wide-Gamut Color Picker with Drag & Drop support
+- [x] Add mobile-friendly "tap-to-apply" fallback for color selection
+
 

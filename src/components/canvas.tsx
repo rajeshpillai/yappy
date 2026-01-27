@@ -1415,6 +1415,53 @@ const Canvas: Component = () => {
         };
     };
 
+    const handleDragOver = (e: DragEvent) => {
+        if (e.dataTransfer) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        }
+    };
+
+    const handleDrop = async (e: DragEvent) => {
+        e.preventDefault();
+        const color = e.dataTransfer?.getData('text/plain');
+        if (!color || !color.startsWith('color(display-p3')) return;
+
+        const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
+        const threshold = 10 / store.viewState.scale;
+
+        const elementMap = new Map<string, DrawingElement>();
+        for (const el of store.elements) elementMap.set(el.id, el);
+
+        const sortedElements = store.elements.map((el, index) => {
+            const layer = store.layers.find(l => l.id === el.layerId);
+            return { el, index, layerOrder: layer?.order ?? 999, layerVisible: isLayerVisible(el.layerId) };
+        }).sort((a, b) => {
+            if (a.layerOrder !== b.layerOrder) return b.layerOrder - a.layerOrder;
+            return b.index - a.index;
+        });
+
+        const currentTime = (window as any).yappyGlobalTime || 0;
+        const shouldAnimate = store.appMode === 'presentation' || store.isPreviewing;
+        const animatedStates = calculateAllAnimatedStates(store.elements, currentTime, shouldAnimate);
+
+        let hitId: string | null = null;
+        for (const { el, layerVisible } of sortedElements) {
+            if (!layerVisible || !canInteractWithElement(el)) continue;
+            const animState = animatedStates.get(el.id);
+            const testEl = animState ? { ...el, x: animState.x, y: animState.y, angle: animState.angle } : el;
+            if (hitTestElement(testEl, x, y, threshold, elementMap)) {
+                hitId = el.id;
+                break;
+            }
+        }
+
+        if (hitId) {
+            pushToHistory();
+            updateElement(hitId, { backgroundColor: color, fillStyle: 'solid' });
+        }
+    };
+
     const handleWheel = (e: WheelEvent) => {
         if (store.appMode === 'presentation' && store.docType === 'slides') return;
         e.preventDefault();
@@ -4233,6 +4280,8 @@ const Canvas: Component = () => {
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
                 onDblClick={handleDoubleClick}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
                 onContextMenu={(e) => {
                     e.preventDefault();
                     setContextMenuPos({ x: e.clientX, y: e.clientY });
