@@ -9,7 +9,6 @@ import {
     Zap, GripVertical, X,
     MonitorPlay
 } from 'lucide-solid';
-import { P3ColorPicker } from './p3-color-picker';
 
 export const SlideControlToolbar: Component = () => {
     let toolbarRef: HTMLDivElement | undefined;
@@ -110,11 +109,6 @@ export const SlideControlToolbar: Component = () => {
                         color="#f59e0b"
                     />
                 </div>
-
-                <div class="toolbar-divider" style={{ width: '1px', height: '24px', background: 'rgba(0,0,0,0.1)', margin: '0 4px' }} />
-
-                <P3ColorPicker />
-
 
                 {/* Close */}
                 <button

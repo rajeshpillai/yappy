@@ -9,8 +9,9 @@ import {
 import {
     Menu as MenuIcon, FolderOpen, Share2, FilePlus, Trash2, Maximize,
     Moon, Sun, Download, Layout,
-    Layers, Check, Play, Pause, Square, Camera, Video
+    Layers, Check, Play, Pause, Square, Camera, Video, Palette
 } from "lucide-solid";
+import { P3ColorPicker } from "./p3-color-picker";
 import { sequenceAnimator } from "../utils/animation/sequence-animator";
 import { isGlobalPlaying, isGlobalPaused, animationEngine } from "../utils/animation/animation-engine";
 const HelpDialog = lazy(() => import("./help-dialog"));
@@ -55,6 +56,8 @@ const Menu: Component = () => {
     const [saveIntent, setSaveIntent] = createSignal<'workspace' | 'disk' | 'disk-json'>('workspace');
     sharedSetSaveIntent = setSaveIntent;
     const [isTemplateBrowserOpen, setIsTemplateBrowserOpen] = createSignal(false);
+    const [isP3PickerOpen, setIsP3PickerOpen] = createSignal(false);
+
 
     (window as any).triggerImageUpload = () => fileInputRef?.click();
 
@@ -528,9 +531,36 @@ const Menu: Component = () => {
                                     }}>?</div>
                                 </button>
                                 <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
+                                <div style={{ position: 'relative' }}>
+                                    <button
+                                        class={`menu-btn ${isP3PickerOpen() ? 'active' : ''}`}
+                                        onClick={() => setIsP3PickerOpen(!isP3PickerOpen())}
+                                        title="P3 Color Palette"
+                                    >
+                                        <Palette size={18} color="#f43f5e" />
+                                    </button>
+                                    <Show when={isP3PickerOpen()}>
+                                        <div
+                                            class="menu-dropdown"
+                                            style={{
+                                                position: 'absolute',
+                                                bottom: '100%',
+                                                right: 0,
+                                                margin: '0 0 8px 0',
+                                                padding: '4px',
+                                                width: 'auto',
+                                                'min-width': '180px'
+                                            }}
+                                        >
+                                            <P3ColorPicker />
+                                        </div>
+                                    </Show>
+                                </div>
+                                <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
                                 <button class="menu-btn" onClick={toggleTheme} title="Toggle Theme">
                                     {store.theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                                 </button>
+
                             </div>
                         </div>
                     </Show>

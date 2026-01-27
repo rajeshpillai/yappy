@@ -46,13 +46,10 @@ export const P3ColorPicker: Component = () => {
     return (
         <div
             style={{
-                display: 'flex',
-                gap: '6px',
-                padding: '4px',
-                'overflow-x': 'auto',
-                'max-width': '200px',
-                'scrollbar-width': 'none',
-                '-ms-overflow-style': 'none'
+                display: 'grid',
+                'grid-template-columns': 'repeat(5, 1fr)',
+                gap: '8px',
+                padding: '8px',
             }}
         >
             <For each={P3_COLORS}>
