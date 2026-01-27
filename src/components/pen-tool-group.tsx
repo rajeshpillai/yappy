@@ -27,7 +27,7 @@ const CustomMarkerIcon: Component<{ size?: number }> = (props) => (
 );
 
 const penTools: { type: PenType; icon: Component<{ size?: number }>; label: string }[] = [
-    { type: 'fineliner', icon: Pen, label: 'Fine Liner' },
+    { type: 'fineliner', icon: Pen, label: 'Fine Liner (P or 8)' },
     { type: 'inkbrush', icon: Brush, label: 'Ink Brush' },
     { type: 'marker', icon: CustomMarkerIcon, label: 'Marker' }, // Updated to use custom marker icon
 ];
@@ -94,7 +94,7 @@ const PenToolGroup: Component = () => {
                 class={`toolbar-btn ${isPenToolActive() ? 'active' : ''}`}
                 onClick={toggleMenu}
                 onContextMenu={handleRightClick}
-                title={`${getCurrentPenTool().label} (Click for more)`}
+                title={`${getCurrentPenTool().label} (P or 8 - Click for more)`}
             >
                 <div class="tool-icon-wrapper">
                     {(() => {

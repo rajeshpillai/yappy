@@ -16,21 +16,21 @@ import "./toolbar.css";
 
 // Tools that are NOT pens or grouped shapes
 const tools: { type: ElementType | 'selection' | 'block-text'; icon: Component<{ size?: number; color?: string }>; label: string }[] = [
-    { type: 'pan', icon: Hand, label: 'Pan Tool' },
-    { type: 'selection', icon: MousePointer2, label: 'Selection' },
-    { type: 'rectangle', icon: Square, label: 'Rectangle' },
-    { type: 'circle', icon: Circle, label: 'Circle' },
-    { type: 'diamond', icon: Diamond, label: 'Diamond' },
-    { type: 'arrow', icon: MoveUpRight, label: 'Arrow' },
-    { type: 'line', icon: Minus, label: 'Line' },
-    { type: 'bezier', icon: Activity, label: 'Bezier Curve' },
+    { type: 'pan', icon: Hand, label: 'Pan Tool (H)' },
+    { type: 'selection', icon: MousePointer2, label: 'Selection (V or 1)' },
+    { type: 'rectangle', icon: Square, label: 'Rectangle (R or 2)' },
+    { type: 'circle', icon: Circle, label: 'Circle (O or 3)' },
+    { type: 'diamond', icon: Diamond, label: 'Diamond (D)' },
+    { type: 'arrow', icon: MoveUpRight, label: 'Arrow (A or 5)' },
+    { type: 'line', icon: Minus, label: 'Line (L or 4)' },
+    { type: 'bezier', icon: Activity, label: 'Bezier Curve (B or 0)' },
     // Pens are grouped in PenToolGroup
     // New shapes are grouped in ShapeToolGroup
-    { type: 'text', icon: Type, label: 'Text' },
+    { type: 'text', icon: Type, label: 'Text (T or 6)' },
     { type: 'block-text', icon: CaseUpper, label: 'Block Text (Sketchnote)' },
-    { type: 'image', icon: ImageIcon, label: 'Insert Image' },
-    { type: 'eraser', icon: Eraser, label: 'Eraser' },
-    { type: 'laser', icon: Zap, label: 'Laser Pointer (Alt+P)' },
+    { type: 'image', icon: ImageIcon, label: 'Insert Image (I or 9)' },
+    { type: 'eraser', icon: Eraser, label: 'Eraser (E or 7)' },
+    { type: 'laser', icon: Zap, label: 'Laser Pointer (Shift+P)' },
     { type: 'ink', icon: Highlighter, label: 'Ink Overlay (Alt+I)' },
 ];
 

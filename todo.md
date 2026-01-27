@@ -1009,7 +1009,7 @@
 - [ ] **Speaker Notes** — Add a per-slide notes field visible only to the presenter.
 - [ ] **Presenter View** — Separate window/display showing current slide, next slide thumbnail, notes, and timer.
 - [ ] **Auto-advance Timer** — Allow slides to auto-advance after a configurable duration.
-- [/] **Click-through / Build Animations** — Sequence element visibility (Foundation exists in State Morphing).
+- [x] **Click-through / Build Animations** — Sequence element visibility (Foundation exists in State Morphing).
 - [x] **Pointer/Annotation Improvements** — Laser pointer and temporary ink overlays.
 
 ### Slide Management
@@ -1037,3 +1037,12 @@
 - [ ] **PDF Import** — Import PDF pages as slide backgrounds or images.
 - [ ] **HTML/Web Export** — Export as a self-contained HTML presentation (like reveal.js).
 - [ ] **Shareable Presentation Link** — Generate a read-only presentation URL.
+---
+
+## Phase 74: Reliable Shortcuts & Mobile Refinements
+- [x] Fix `Ctrl+O` and `Ctrl+S` shortcuts (browser-independent handling)
+- [x] Reassign Laser Pointer to `Shift+P` (resolve browser conflict with Alt+P)
+- [x] Make `FileOpenDialog`, `SaveDialog`, and `HelpDialog` mobile-friendly (responsive CSS)
+- [x] Fix Slide Control Toolbar and Utility Toolbar visibility & z-index issues
+- [x] Restore "Slide Toolbar" toggle in main menu for presentation mode
+- [x] Fix App Title transform centering logic

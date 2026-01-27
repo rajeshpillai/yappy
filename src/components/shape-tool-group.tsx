@@ -102,7 +102,7 @@ const ShapeToolGroup: Component = () => {
                 class={`toolbar-btn ${isActive() ? 'active' : ''}`}
                 onClick={toggleMenu}
                 onContextMenu={handleRightClick}
-                title={activeTool().label}
+                title={`${activeTool().label} (Click for more)`}
             >
                 <div class="tool-icon-wrapper">
                     {(() => {
