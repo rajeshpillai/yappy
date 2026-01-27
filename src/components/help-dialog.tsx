@@ -58,6 +58,42 @@ export default function HelpDialog(props: Props) {
                             <h3>Keyboard shortcuts</h3>
 
                             <div class="shortcuts-grid">
+                                {/* File Shortcuts */}
+                                <div class="shortcut-column">
+                                    <h4>File</h4>
+                                    <div class="shortcut-list">
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Open Drawing</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Ctrl</span>
+                                                <span class="keycap">O</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Save Drawing</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Ctrl</span>
+                                                <span class="keycap">S</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Export / Share</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Ctrl</span>
+                                                <span class="keycap">Shift</span>
+                                                <span class="keycap">E</span>
+                                            </div>
+                                        </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Command Palette</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Ctrl</span>
+                                                <span class="keycap">K</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 {/* Tools Shortcuts */}
                                 <div class="shortcut-column">
                                     <h4>Tools</h4>

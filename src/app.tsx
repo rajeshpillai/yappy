@@ -154,15 +154,14 @@ const App: Component = () => {
         } else if (key === 'a') {
           e.preventDefault();
           setStore('selection', store.elements.map(el => el.id));
-        } else if (key === 'o') {
+        } else if (code === 'KeyO') {
           e.preventDefault();
           setIsDialogOpen(true);
-        } else if (key === 's') {
+        } else if (code === 'KeyS') {
           e.preventDefault();
           handleSaveRequest('workspace');
-        } else if ((key === 'e' || code === 'KeyE') && e.shiftKey) {
+        } else if (code === 'KeyE' && e.shiftKey) {
           e.preventDefault();
-          console.log('[DEBUG] Ctrl+Shift+E detected, opening export dialog');
           setIsExportOpen(true);
         } else if (key === 'g') {
           e.preventDefault();

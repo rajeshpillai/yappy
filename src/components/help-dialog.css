@@ -98,7 +98,7 @@
 
 .shortcuts-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 32px;
 }
 
@@ -158,7 +158,25 @@
     margin: 0 2px;
 }
 
+@media (max-width: 1024px) {
+    .shortcuts-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 768px) {
+    .help-modal-content {
+        width: 100vw;
+        height: 100vh;
+        max-width: 100vw;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+
+    .help-modal-body {
+        padding: 16px;
+    }
+
     .shortcuts-grid {
         grid-template-columns: 1fr;
         gap: 24px;
