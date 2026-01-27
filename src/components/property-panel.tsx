@@ -769,6 +769,46 @@ const PropertyPanel: Component = () => {
                                 <Show when={activeTarget()?.type === 'slide'}>
                                     <SlideActions />
                                 </Show>
+
+                                {/* Element ID (Read-only) */}
+                                <Show when={activeTarget()?.type === 'element'}>
+                                    <div class="property-group">
+                                        <div class="group-title">GENERAL</div>
+                                        <div class="control-row">
+                                            <label>ID</label>
+                                            <div style={{ display: 'flex', 'align-items': 'center', gap: '4px', 'flex': 1 }}>
+                                                <input
+                                                    type="text"
+                                                    value={activeTarget()!.data!.id}
+                                                    readonly
+                                                    title="Click to copy ID"
+                                                    onClick={(e) => {
+                                                        e.currentTarget.select();
+                                                        navigator.clipboard.writeText(activeTarget()!.data!.id);
+                                                        showToast({ message: "ID Copied to clipboard", type: "success" });
+                                                    }}
+                                                    style={{
+                                                        'font-family': 'monospace',
+                                                        'font-size': '10px',
+                                                        'background': 'var(--bg-secondary)',
+                                                        'cursor': 'pointer',
+                                                        'text-overflow': 'ellipsis'
+                                                    }}
+                                                />
+                                                <button
+                                                    class="icon-btn small"
+                                                    title="Copy ID"
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(activeTarget()!.data!.id);
+                                                        showToast({ message: "ID Copied to clipboard", type: "success" });
+                                                    }}
+                                                >
+                                                    <Copy size={12} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Show>
                                 <For each={Object.keys(groupedProperties())}>
                                     {(group) => (
                                         <div class="property-group">
