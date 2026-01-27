@@ -575,6 +575,46 @@ export const setActiveSlide = async (index: number, skipAnimation?: boolean) => 
     showToast(`Slide ${index + 1}`, 'info');
 };
 
+/**
+ * Handle the "Next" action in the presentation (states -> builds -> slides)
+ */
+export const advancePresentation = async () => {
+    // 1. Check for State Transitions
+    const currentIndex = store.states.findIndex(s => s.id === store.activeStateId);
+    if (currentIndex < store.states.length - 1) {
+        applyNextState();
+        return;
+    }
+
+    // 2. Check for Build Animations (On-Click)
+    if (slideBuildManager.hasMoreSteps()) {
+        await slideBuildManager.playNext();
+        return;
+    }
+
+    // 3. Next Slide
+    if (store.activeSlideIndex < store.slides.length - 1) {
+        await setActiveSlide(store.activeSlideIndex + 1);
+    }
+};
+
+/**
+ * Handle the "Previous" action in the presentation
+ */
+export const retreatPresentation = async () => {
+    // 1. Check for State Transitions (backwards)
+    const currentIndex = store.states.findIndex(s => s.id === store.activeStateId);
+    if (currentIndex > 0) {
+        applyPreviousState();
+        return;
+    }
+
+    // 2. Previous Slide
+    if (store.activeSlideIndex > 0) {
+        await setActiveSlide(store.activeSlideIndex - 1);
+    }
+};
+
 export const addSlide = () => {
     saveActiveSlide();
 

@@ -1,6 +1,5 @@
 import { type Component, Show, createSignal, onMount, onCleanup, createMemo } from 'solid-js';
-import { store, setActiveSlide, togglePresentationMode, applyNextState, applyPreviousState } from '../store/app-store';
-import { slideBuildManager } from '../utils/animation/slide-build-manager';
+import { store, togglePresentationMode, advancePresentation, retreatPresentation } from '../store/app-store';
 import { ChevronLeft, ChevronRight, X } from 'lucide-solid';
 
 export const PresentationControls: Component = () => {
@@ -30,33 +29,12 @@ export const PresentationControls: Component = () => {
     });
 
     const handleNext = async () => {
-        // 1. Check for State Transitions
-        const currentIndex = store.states.findIndex(s => s.id === store.activeStateId);
-        if (currentIndex < store.states.length - 1) {
-            applyNextState();
-            resetHideTimeout();
-            return;
-        }
-
-        // 2. Check for Build Animations (On-Click)
-        if (slideBuildManager.hasMoreSteps()) {
-            await slideBuildManager.playNext();
-            resetHideTimeout();
-            return;
-        }
-
-        // 3. Next Slide
-        setActiveSlide(store.activeSlideIndex + 1);
+        await advancePresentation();
         resetHideTimeout();
     };
 
-    const handlePrev = () => {
-        const currentIndex = store.states.findIndex(s => s.id === store.activeStateId);
-        if (currentIndex > 0) {
-            applyPreviousState();
-        } else {
-            setActiveSlide(store.activeSlideIndex - 1);
-        }
+    const handlePrev = async () => {
+        await retreatPresentation();
         resetHideTimeout();
     };
 

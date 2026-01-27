@@ -2130,7 +2130,13 @@ const Canvas: Component = () => {
     };
 
     const handlePointerDown = (e: PointerEvent) => {
-        if (store.presentationMode) return;
+        if (store.presentationMode) {
+            // Standard PPT behavior: Left click to advance
+            if (e.button === 0) {
+                advancePresentation();
+            }
+            return;
+        }
         (e.currentTarget as Element).setPointerCapture(e.pointerId);
         const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
 

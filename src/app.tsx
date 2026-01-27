@@ -4,7 +4,7 @@ import {
   toggleMinimap, toggleZenMode, toggleCommandPalette, moveSelectedElements,
   switchLayerByIndex, cycleStrokeStyle, cycleFillStyle,
   addChildNode, addSiblingNode, toggleCollapseSelection, togglePresentationMode,
-  applyNextState, applyPreviousState, applyDisplayState,
+  applyNextState, applyPreviousState, applyDisplayState, advancePresentation, retreatPresentation,
   setSelectedTool, setStore, groupSelected, ungroupSelected,
   bringToFront, sendToBack, reorderLayers, toggleGrid, toggleSnapToGrid, addLayer, toggleSlideNavigator
 } from './store/app-store';
@@ -123,22 +123,12 @@ const App: Component = () => {
 
       // Shared Global Shortcuts (No Alt)
       if (!e.altKey && !e.ctrlKey && !e.metaKey) {
-        if (code === 'ArrowRight' || code === 'PageDown') {
+        if (code === 'ArrowRight' || code === 'PageDown' || code === 'Enter' || code === 'NumpadEnter' || (store.presentationMode && code === 'Space')) {
           e.preventDefault();
-          const currentIndex = store.states.findIndex(s => s.id === store.activeStateId);
-          if (currentIndex < store.states.length - 1) {
-            applyNextState();
-          } else {
-            setActiveSlide(store.activeSlideIndex + 1);
-          }
-        } else if (code === 'ArrowLeft' || code === 'PageUp') {
+          advancePresentation();
+        } else if (code === 'ArrowLeft' || code === 'PageUp' || code === 'Backspace') {
           e.preventDefault();
-          const currentIndex = store.states.findIndex(s => s.id === store.activeStateId);
-          if (currentIndex > 0) {
-            applyPreviousState();
-          } else {
-            setActiveSlide(store.activeSlideIndex - 1);
-          }
+          retreatPresentation();
         } else if (code === 'Home') {
           e.preventDefault();
           if (store.states.length > 0) {
