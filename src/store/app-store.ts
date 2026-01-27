@@ -1589,6 +1589,10 @@ export const togglePresentationMode = (visible?: boolean) => {
             // Auto fit on enter
             zoomToFitSlide();
             setStore('selection', []); // Clear selection
+
+            // Initialize animations
+            slideBuildManager.init(store.activeSlideIndex);
+            slideBuildManager.playInitial();
         }
     });
 

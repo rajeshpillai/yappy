@@ -39,6 +39,9 @@ class SlideBuildManager {
             }
         });
 
+        console.log(`[BuildManager] Initialized for slide ${slideIndex}. Found ${allBuilds.length} total animations.`);
+        allBuilds.forEach(b => console.log(`  - Element ${b.elementId}: ${b.animation.type} (trigger: ${b.animation.trigger})`));
+
         // SORTING LOGIC:
         // For now, we sort by either:
         // 1. Explicit order if we had a z-index/order property on animations (not yet)
@@ -99,13 +102,20 @@ class SlideBuildManager {
      * Play the next 'on-click' animation and its chained consequences.
      */
     async playNext(): Promise<boolean> {
-        if (this.isPlaying) return true; // Block overlapping clicks
+        if (this.isPlaying) {
+            console.log('[BuildManager] Already playing, ignoring click');
+            return true;
+        }
 
         // Find next unplayed 'on-click'
         const nextClickIdx = this.buildSequence.findIndex(step => !step.played && step.animation.trigger === 'on-click');
 
-        if (nextClickIdx === -1) return false; // No more builds
+        if (nextClickIdx === -1) {
+            console.log('[BuildManager] No more on-click steps found');
+            return false;
+        }
 
+        console.log(`[BuildManager] Executing on-click step ${nextClickIdx}`);
         this.isPlaying = true;
         await this.executeStep(nextClickIdx);
         this.isPlaying = false;
