@@ -1,5 +1,6 @@
 
 import type { DrawingElement } from "../types";
+import { generateId } from "./id-generator"; // New Import
 
 export type Stroke =
     | { type: 'line'; x1: number; y1: number; x2: number; y2: number }
@@ -147,7 +148,7 @@ export const generateBlockText = (
     color: string = "#000000"
 ): DrawingElement[] => {
     const elements: DrawingElement[] = [];
-    const groupId = crypto.randomUUID();
+    const groupId = generateId('group');
     const LETTER_GAP = fontSize * 0.4;
     let currentX = startX;
 
@@ -165,7 +166,7 @@ export const generateBlockText = (
         if (!strokes) {
             // Placeholder for unknown chars
             const boxSize = fontSize;
-            const id = crypto.randomUUID();
+            const id = generateId('rectangle');
             const missingEl: any = {
                 id,
                 type: 'rectangle',
@@ -199,7 +200,7 @@ export const generateBlockText = (
         }
 
         strokes.forEach(stroke => {
-            const id = crypto.randomUUID();
+            const id = generateId('line');
             const el: any = {
                 id,
                 strokeColor: color,

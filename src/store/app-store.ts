@@ -9,6 +9,7 @@ import { MindmapLayoutEngine, type LayoutDirection } from "../utils/mindmap-layo
 import { animationEngine } from "../utils/animation/animation-engine";
 import { slideTransitionManager } from "../utils/animation/slide-transition-manager";
 import { slideBuildManager } from '../utils/animation/slide-build-manager';
+import { generateId } from "../utils/id-generator"; // New Import
 
 interface AppState {
     // Current Active Slide properties (for performance and compatibility)
@@ -240,7 +241,7 @@ export const addChildNode = (parentId: string) => {
     if (!parent) return;
 
     pushToHistory();
-    const newId = crypto.randomUUID();
+    const newId = generateId(parent.type);
     const hOffset = 150;
     const vOffset = 0;
 
@@ -275,7 +276,7 @@ export const addChildNode = (parentId: string) => {
 
     const connector: DrawingElement = {
         ...store.defaultElementStyles,
-        id: crypto.randomUUID(),
+        id: generateId('arrow'),
         type: 'arrow',
         x: parent.x + parent.width,
         y: parent.y + parent.height / 2,
@@ -320,7 +321,7 @@ export const addSiblingNode = (siblingId: string) => {
     if (!parentId) return;
 
     pushToHistory();
-    const newId = crypto.randomUUID();
+    const newId = generateId(sibling.type);
     // Dynamic spacing based on sibling height
     const vOffset = sibling.height + 40;
 
@@ -355,7 +356,7 @@ export const addSiblingNode = (siblingId: string) => {
 
     const connector: DrawingElement = {
         ...store.defaultElementStyles,
-        id: crypto.randomUUID(),
+        id: generateId('arrow'),
         type: 'arrow',
         x: sibling.x - 150,
         y: sibling.y + vOffset + sibling.height / 2,
@@ -1025,7 +1026,7 @@ export const duplicateElement = (id: string) => {
     if (!el) return;
 
     pushToHistory();
-    const newId = crypto.randomUUID();
+    const newId = generateId(el.type);
     const offset = 10 / store.viewState.scale;
 
     // Deep copy objects
@@ -1051,7 +1052,7 @@ export const groupSelected = () => {
     if (store.selection.length < 2) return;
 
     pushToHistory();
-    const groupId = crypto.randomUUID();
+    const groupId = generateId('group');
 
     setStore("elements",
         (el) => store.selection.includes(el.id),

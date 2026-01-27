@@ -3,6 +3,7 @@ import {
     deleteElements, updateElement
 } from "../store/app-store";
 import { normalizePoints } from "./render-element";
+import { generateId } from "./id-generator"; // New Import
 
 export const copyToClipboard = async () => {
     if (store.selection.length === 0) return;
@@ -54,7 +55,7 @@ export const pasteFromClipboard = async () => {
             const dy = viewportCY - contentCY;
 
             data.elements.forEach((el: any) => {
-                const newId = crypto.randomUUID();
+                const newId = generateId(el.type);
                 const newEl = {
                     ...el,
                     id: newId,

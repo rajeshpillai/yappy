@@ -31,6 +31,7 @@ import { getElementPreviewBaseState } from "../utils/animation/element-animator"
 import { globalTime } from "../utils/animation/animation-engine";
 import { VideoRecorder } from "../utils/video-recorder";
 import RecordingOverlay from "./recording-overlay";
+import { generateId } from "../utils/id-generator"; // New Import
 
 
 // Export controls for Menu/Dialog access
@@ -2222,7 +2223,9 @@ const Canvas: Component = () => {
                         isDrawing = true;
                         startX = anchorX;
                         startY = anchorY;
-                        currentId = crypto.randomUUID();
+                        startX = anchorX;
+                        startY = anchorY;
+                        currentId = generateId('arrow');
 
                         // Store connector drag state
                         draggingFromConnector = {
@@ -2548,7 +2551,7 @@ const Canvas: Component = () => {
         }
 
         if (store.selectedTool === 'text') {
-            const id = crypto.randomUUID();
+            const id = generateId('text');
             const newElement = {
                 ...store.defaultElementStyles,
                 id,
@@ -2578,7 +2581,7 @@ const Canvas: Component = () => {
             isDrawing = true;
             startX = x;
             startY = y;
-            currentId = crypto.randomUUID();
+            currentId = generateId('ink');
             const newElement = {
                 ...store.defaultElementStyles,
                 id: currentId,
@@ -2640,7 +2643,7 @@ const Canvas: Component = () => {
 
         startX = creationX;
         startY = creationY;
-        currentId = crypto.randomUUID();
+        currentId = generateId(store.selectedTool);
 
         const tool = store.selectedTool;
         const actualType = tool === 'bezier' ? 'line' : tool;
