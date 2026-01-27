@@ -45,8 +45,8 @@ export const calculateAnimatedState = (
 
     // 4. Handle Orbit (Dependency)
     // Coerce values to numbers to prevent NaN propagation
-    const orbitSpeed = Number(el.orbitSpeed);
-    const orbitRadius = Number(el.orbitRadius);
+    const orbitSpeed = el.orbitSpeed !== undefined ? Number(el.orbitSpeed) : 1;
+    const orbitRadius = el.orbitRadius !== undefined ? Number(el.orbitRadius) : 150;
 
     if (el.orbitEnabled && el.orbitCenterId && !isNaN(orbitRadius) && !isNaN(orbitSpeed)) {
         const centerEl = elementMap.get(el.orbitCenterId);
@@ -78,10 +78,13 @@ export const calculateAnimatedState = (
     }
 
     // 5. Handle Spin (Independent)
-    const spinSpeed = Number(el.spinSpeed);
+    const spinSpeed = el.spinSpeed !== undefined ? Number(el.spinSpeed) : 5;
     if (el.spinEnabled && !isNaN(spinSpeed) && shouldAnimate) {
-        const t = time * 0.001 * spinSpeed;
-        derivedAngle += t * Math.PI * 2;
+        // Match old speed: speed was in degrees per frame @ 60fps
+        // (speed * 60) degrees per second = (speed * 60 * Math.PI / 180) radians per second
+        // = (speed * Math.PI / 3) radians per second
+        const t = time * 0.001;
+        derivedAngle += t * (spinSpeed * Math.PI / 3);
     }
 
     // Final NaN guard

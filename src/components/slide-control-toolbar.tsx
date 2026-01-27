@@ -1,7 +1,7 @@
 import { type Component, createSignal, Show } from 'solid-js';
 import {
     store, togglePresentationMode, toggleSlideToolbar,
-    setSlideToolbarPosition
+    setSlideToolbarPosition, setIsPreviewing
 } from '../store/app-store';
 import { sequenceAnimator } from '../utils/animation/sequence-animator';
 import { getElementsOnSlide } from '../utils/slide-utils';
@@ -43,9 +43,14 @@ export const SlideControlToolbar: Component = () => {
     const handlePlayAnimations = () => {
         const slideElements = getElementsOnSlide(store.activeSlideIndex, store.elements, store.slides);
         const elementIds = slideElements.map(el => el.id);
+
+        // Enable persistent animations for the preview
+        setIsPreviewing(true);
         sequenceAnimator.playAll('on-load', elementIds);
-        // Also trigger any that might be 'programmatic' for preview purposes?
-        // Let's stick to on-load for now as it represents the "entrance"
+
+        // Auto-disable preview after a reasonable time (e.g. 10s or when stopped)
+        // For simplicity, let's just allow it until they interact or mode changes
+        setTimeout(() => setIsPreviewing(false), 10000);
     };
 
     return (

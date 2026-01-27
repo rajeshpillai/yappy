@@ -87,31 +87,6 @@ export class RenderPipeline {
         let finalX = el.x;
         let finalY = el.y;
 
-        // Apply Spin (Self-rotation)
-        if (el.spinEnabled) {
-            const speed = el.spinSpeed || 5;
-            const time = (window as any).yappyGlobalTime || performance.now();
-            finalAngle += (time / 1000) * (speed * (Math.PI / 180)) * 60; // Approx 60fps normalization
-        }
-
-        // Apply Orbit
-        if (el.orbitEnabled && el.orbitCenterId) {
-            const centerElement = (store.elements as any[]).find(e => e.id === el.orbitCenterId);
-            if (centerElement) {
-                const speed = el.orbitSpeed || 1;
-                const radius = el.orbitRadius || 150;
-                const direction = el.orbitDirection === 'ccw' ? -1 : 1;
-                const time = (window as any).yappyGlobalTime || performance.now();
-
-                const centerX = centerElement.x + centerElement.width / 2;
-                const centerY = centerElement.y + centerElement.height / 2;
-
-                const orbitAngle = (time / 1000) * speed * direction;
-                finalX = centerX + Math.cos(orbitAngle) * radius - el.width / 2;
-                finalY = centerY + Math.sin(orbitAngle) * radius - el.height / 2;
-            }
-        }
-
         const cx = finalX + el.width / 2;
         const cy = finalY + el.height / 2;
 

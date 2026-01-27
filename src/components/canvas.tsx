@@ -306,8 +306,9 @@ const Canvas: Component = () => {
 
         // PRE-CALCULATE ANIMATION STATES FOR THIS FRAME
         // This handles nested orbits (Moon > Earth > Sun) correctly
-        // Only run transform animations (Spin/Orbit) if in Presentation Mode
-        const animatedStates = calculateAllAnimatedStates(store.elements, currentTime, store.appMode === 'presentation');
+        // Only run transform animations (Spin/Orbit) if in Presentation Mode or Previewing
+        const shouldAnimate = store.appMode === 'presentation' || store.isPreviewing;
+        const animatedStates = calculateAllAnimatedStates(store.elements, currentTime, shouldAnimate);
 
         // Reset Transform Matrix to Identity so we don't accumulate translations!
         ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -1323,6 +1324,8 @@ const Canvas: Component = () => {
 
     createEffect(() => {
         globalTime(); // Track global animation clock
+        store.appMode; // Track mode changes explicitly
+        store.isPreviewing; // Track preview state
         store.theme; // Track theme changes
         store.elements.length;
         store.elements.forEach(e => {
@@ -2411,7 +2414,8 @@ const Canvas: Component = () => {
 
             // Hit Testing must respect Animation
             const currentTime = (window as any).yappyGlobalTime || 0;
-            const animatedStates = calculateAllAnimatedStates(store.elements, currentTime);
+            const shouldAnimate = store.appMode === 'presentation' || store.isPreviewing;
+            const animatedStates = calculateAllAnimatedStates(store.elements, currentTime, shouldAnimate);
 
             for (const { el, layerVisible } of sortedElements) {
                 // Skip invisible layers

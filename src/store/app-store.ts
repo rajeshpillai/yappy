@@ -54,6 +54,7 @@ interface AppState {
     layerGroupingModeEnabled: boolean;
     maxLayers: number;
     canvasTexture: 'none' | 'dots' | 'grid' | 'graph' | 'paper';
+    isPreviewing: boolean;
     isRecording: boolean;
     selectedTechnicalType: 'dfdProcess' | 'dfdDataStore' | 'isometricCube' | 'cylinder' | 'stateStart' | 'stateEnd' | 'stateSync' | 'activationBar' | 'externalEntity';
     // State Morphing
@@ -83,6 +84,7 @@ const initialState: AppState = {
     docType: 'infinite',
 
     canvasTexture: 'none',
+    isPreviewing: false,
     selectedTool: 'selection',
     selectedUmlType: 'umlClass',
     selection: [],
@@ -133,7 +135,6 @@ const initialState: AppState = {
     undoStackLength: 0,
     redoStackLength: 0,
     showPropertyPanel: false,
-    showLayerPanel: false,
     showLayerPanel: false,
     isPropertyPanelMinimized: false,
     isLayerPanelMinimized: false,
@@ -1506,9 +1507,8 @@ export const setGridStyle = (style: 'lines' | 'dots') => {
     setStore('gridSettings', 'style', style);
 };
 
-export const setMaxLayers = (count: number) => {
-    setStore('maxLayers', count);
-};
+export const setMaxLayers = (layers: number) => setStore('maxLayers', layers);
+export const setIsPreviewing = (value: boolean) => setStore('isPreviewing', value);
 
 // Panel Management
 export const togglePropertyPanel = (visible?: boolean) => {
