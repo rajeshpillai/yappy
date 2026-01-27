@@ -138,6 +138,88 @@ export const AnimationPanel: Component = () => {
                 </div>
             </div>
 
+            {/* Continuous / Physics Animations */}
+            <Show when={element()}>
+                <div style={{ 'margin-bottom': '12px', 'padding-bottom': '12px', 'border-bottom': '1px solid var(--border-color)' }}>
+                    <div style={{ 'font-size': '12px', 'font-weight': 600, 'margin-bottom': '8px', 'opacity': 0.8 }}>Continuous Motion</div>
+
+                    {/* Spin Control */}
+                    <div style={{ 'margin-bottom': '8px' }}>
+                        <div style={{ 'display': 'flex', 'align-items': 'center', 'justify-content': 'space-between', 'margin-bottom': '4px' }}>
+                            <div style={{ 'display': 'flex', 'align-items': 'center', 'gap': '6px' }}>
+                                <input
+                                    type="checkbox"
+                                    id="spin-toggle"
+                                    checked={element()?.spinEnabled || false}
+                                    onChange={(e) => updateElement(element()!.id, { spinEnabled: e.currentTarget.checked }, true)}
+                                />
+                                <label for="spin-toggle" style={{ 'font-size': '12px' }}>Auto-Spin</label>
+                            </div>
+                        </div>
+                        <Show when={element()?.spinEnabled}>
+                            <div style={{ 'display': 'flex', 'align-items': 'center', 'justify-content': 'space-between', 'padding-left': '20px' }}>
+                                <label style={{ 'font-size': '11px', 'opacity': 0.7 }}>Speed</label>
+                                <input
+                                    type="number"
+                                    step="0.1"
+                                    value={element()?.spinSpeed ?? 1}
+                                    onInput={(e) => updateElement(element()!.id, { spinSpeed: Number(e.currentTarget.value) }, true)}
+                                    style={{ 'width': '60px', 'font-size': '11px', 'padding': '2px 4px' }}
+                                />
+                            </div>
+                        </Show>
+                    </div>
+
+                    {/* Orbit Control */}
+                    <div>
+                        <div style={{ 'display': 'flex', 'align-items': 'center', 'justify-content': 'space-between', 'margin-bottom': '4px' }}>
+                            <div style={{ 'display': 'flex', 'align-items': 'center', 'gap': '6px' }}>
+                                <input
+                                    type="checkbox"
+                                    id="orbit-toggle"
+                                    checked={element()?.orbitEnabled || false}
+                                    onChange={(e) => updateElement(element()!.id, { orbitEnabled: e.currentTarget.checked }, true)}
+                                />
+                                <label for="orbit-toggle" style={{ 'font-size': '12px' }}>Orbital</label>
+                            </div>
+                        </div>
+                        <Show when={element()?.orbitEnabled}>
+                            <div style={{ 'display': 'flex', 'flex-direction': 'column', 'gap': '4px', 'padding-left': '20px' }}>
+                                <div style={{ 'display': 'flex', 'align-items': 'center', 'justify-content': 'space-between' }}>
+                                    <label style={{ 'font-size': '11px', 'opacity': 0.7 }}>Center ID</label>
+                                    <input
+                                        type="text"
+                                        value={element()?.orbitCenterId ?? ''}
+                                        onInput={(e) => updateElement(element()!.id, { orbitCenterId: e.currentTarget.value }, true)}
+                                        placeholder="Target ID"
+                                        style={{ 'width': '80px', 'font-size': '10px', 'padding': '2px 4px' }}
+                                    />
+                                </div>
+                                <div style={{ 'display': 'flex', 'align-items': 'center', 'justify-content': 'space-between' }}>
+                                    <label style={{ 'font-size': '11px', 'opacity': 0.7 }}>Radius</label>
+                                    <input
+                                        type="number"
+                                        value={element()?.orbitRadius ?? 100}
+                                        onInput={(e) => updateElement(element()!.id, { orbitRadius: Number(e.currentTarget.value) }, true)}
+                                        style={{ 'width': '60px', 'font-size': '11px', 'padding': '2px 4px' }}
+                                    />
+                                </div>
+                                <div style={{ 'display': 'flex', 'align-items': 'center', 'justify-content': 'space-between' }}>
+                                    <label style={{ 'font-size': '11px', 'opacity': 0.7 }}>Speed</label>
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        value={element()?.orbitSpeed ?? 1}
+                                        onInput={(e) => updateElement(element()!.id, { orbitSpeed: Number(e.currentTarget.value) }, true)}
+                                        style={{ 'width': '60px', 'font-size': '11px', 'padding': '2px 4px' }}
+                                    />
+                                </div>
+                            </div>
+                        </Show>
+                    </div>
+                </div>
+            </Show>
+
             <div class="animation-list" style={{ display: 'flex', 'flex-direction': 'column', gap: '8px' }}>
                 <For each={element()?.animations || []}>
                     {(anim, index) => (

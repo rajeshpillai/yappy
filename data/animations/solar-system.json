@@ -1,0 +1,221 @@
+{
+    "version": 3,
+    "metadata": {
+        "title": "Solar System",
+        "description": "A demonstration of the orbital animation system."
+    },
+    "slides": [
+        {
+            "id": "slide-solar-system",
+            "name": "Solar System",
+            "elements": [
+                {
+                    "id": "sun",
+                    "type": "circle",
+                    "x": 400,
+                    "y": 300,
+                    "width": 100,
+                    "height": 100,
+                    "backgroundColor": "#fbbf24",
+                    "strokeColor": "#f59e0b",
+                    "fillStyle": "solid",
+                    "strokeWidth": 2,
+                    "strokeStyle": "solid",
+                    "roughness": 0,
+                    "opacity": 100,
+                    "layerId": "layer-1",
+                    "shadowEnabled": true,
+                    "shadowColor": "#fbbf24",
+                    "shadowBlur": 50,
+                    "gradientType": "radial",
+                    "gradientStops": [
+                        {
+                            "offset": 0,
+                            "color": "#ffffff"
+                        },
+                        {
+                            "offset": 0.2,
+                            "color": "#fef3c7"
+                        },
+                        {
+                            "offset": 0.5,
+                            "color": "#fbbf24"
+                        },
+                        {
+                            "offset": 1,
+                            "color": "#f59e0b"
+                        }
+                    ]
+                },
+                {
+                    "id": "mercury",
+                    "type": "circle",
+                    "x": 400,
+                    "y": 300,
+                    "width": 10,
+                    "height": 10,
+                    "backgroundColor": "#9ca3af",
+                    "strokeColor": "#4b5563",
+                    "fillStyle": "solid",
+                    "strokeWidth": 1,
+                    "opacity": 100,
+                    "layerId": "layer-1",
+                    "orbitEnabled": true,
+                    "orbitCenterId": "sun",
+                    "orbitRadius": 70,
+                    "orbitSpeed": 2.5
+                },
+                {
+                    "id": "venus",
+                    "type": "circle",
+                    "x": 400,
+                    "y": 300,
+                    "width": 18,
+                    "height": 18,
+                    "backgroundColor": "#fdba74",
+                    "strokeColor": "#ea580c",
+                    "fillStyle": "solid",
+                    "strokeWidth": 1,
+                    "opacity": 100,
+                    "layerId": "layer-1",
+                    "orbitEnabled": true,
+                    "orbitCenterId": "sun",
+                    "orbitRadius": 110,
+                    "orbitSpeed": 1.8
+                },
+                {
+                    "id": "earth",
+                    "type": "circle",
+                    "x": 400,
+                    "y": 300,
+                    "width": 20,
+                    "height": 20,
+                    "backgroundColor": "#3b82f6",
+                    "strokeColor": "#1d4ed8",
+                    "fillStyle": "solid",
+                    "strokeWidth": 1,
+                    "opacity": 100,
+                    "layerId": "layer-1",
+                    "spinEnabled": true,
+                    "spinSpeed": 1,
+                    "orbitEnabled": true,
+                    "orbitCenterId": "sun",
+                    "orbitRadius": 160,
+                    "orbitSpeed": 1.2
+                },
+                {
+                    "id": "moon",
+                    "type": "circle",
+                    "x": 400,
+                    "y": 300,
+                    "width": 6,
+                    "height": 6,
+                    "backgroundColor": "#e5e7eb",
+                    "strokeColor": "#9ca3af",
+                    "fillStyle": "solid",
+                    "strokeWidth": 1,
+                    "opacity": 100,
+                    "layerId": "layer-1",
+                    "orbitEnabled": true,
+                    "orbitCenterId": "earth",
+                    "orbitRadius": 25,
+                    "orbitSpeed": 4
+                },
+                {
+                    "id": "mars",
+                    "type": "circle",
+                    "x": 400,
+                    "y": 300,
+                    "width": 14,
+                    "height": 14,
+                    "backgroundColor": "#ef4444",
+                    "strokeColor": "#b91c1c",
+                    "fillStyle": "solid",
+                    "strokeWidth": 1,
+                    "opacity": 100,
+                    "layerId": "layer-1",
+                    "orbitEnabled": true,
+                    "orbitCenterId": "sun",
+                    "orbitRadius": 220,
+                    "orbitSpeed": 0.8
+                },
+                {
+                    "id": "jupiter",
+                    "type": "circle",
+                    "x": 400,
+                    "y": 300,
+                    "width": 50,
+                    "height": 50,
+                    "backgroundColor": "#d97706",
+                    "strokeColor": "#92400e",
+                    "fillStyle": "hachure",
+                    "strokeWidth": 1,
+                    "opacity": 100,
+                    "layerId": "layer-1",
+                    "orbitEnabled": true,
+                    "orbitCenterId": "sun",
+                    "orbitRadius": 320,
+                    "orbitSpeed": 0.4,
+                    "spinEnabled": true,
+                    "spinSpeed": 2
+                },
+                {
+                    "id": "saturn",
+                    "type": "circle",
+                    "x": 400,
+                    "y": 300,
+                    "width": 40,
+                    "height": 40,
+                    "backgroundColor": "#fcd34d",
+                    "strokeColor": "#d97706",
+                    "fillStyle": "solid",
+                    "strokeWidth": 1,
+                    "opacity": 100,
+                    "layerId": "layer-1",
+                    "orbitEnabled": true,
+                    "orbitCenterId": "sun",
+                    "orbitRadius": 420,
+                    "orbitSpeed": 0.25
+                },
+                {
+                    "id": "saturn-ring",
+                    "type": "circle",
+                    "x": 400,
+                    "y": 300,
+                    "width": 70,
+                    "height": 20,
+                    "backgroundColor": "transparent",
+                    "strokeColor": "#d97706",
+                    "fillStyle": "solid",
+                    "strokeWidth": 4,
+                    "opacity": 80,
+                    "layerId": "layer-1",
+                    "orbitEnabled": true,
+                    "orbitCenterId": "saturn",
+                    "orbitRadius": 0,
+                    "orbitSpeed": 0,
+                    "angle": 0.5
+                }
+            ],
+            "layers": [
+                {
+                    "id": "layer-1",
+                    "name": "Space",
+                    "visible": true,
+                    "locked": false,
+                    "opacity": 1,
+                    "order": 1
+                }
+            ],
+            "viewState": {
+                "scale": 0.8,
+                "panX": 200,
+                "panY": 100
+            }
+        }
+    ],
+    "canvasBackgroundColor": "#111827",
+    "globalSettings": {
+        "animationEnabled": true
+    }
+}

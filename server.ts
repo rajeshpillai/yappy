@@ -23,18 +23,50 @@ if (!fs.existsSync(DATA_DIR)) {
 app.use(express.raw({ type: ['application/octet-stream', 'application/gzip', 'application/x-gzip'], limit: '50mb' }));
 
 // Routes
+// Helper to get all files recursively
+const getRecursiveFiles = (dir: string, baseDir: string = ''): string[] => {
+    let results: string[] = [];
+    const list = fs.readdirSync(dir);
+
+    list.forEach(file => {
+        const filePath = path.join(dir, file);
+        const relativePath = path.join(baseDir, file);
+        const stat = fs.statSync(filePath);
+
+        if (stat && stat.isDirectory()) {
+            results = results.concat(getRecursiveFiles(filePath, relativePath));
+        } else {
+            if (file.endsWith('.json') || file.endsWith('.yappy')) {
+                results.push(relativePath);
+            }
+        }
+    });
+    return results;
+};
+
+// Routes
 app.get('/api/drawings', (req, res) => {
     try {
-        const files = fs.readdirSync(DATA_DIR).filter(f => f.endsWith('.json') || f.endsWith('.yappy'));
+        const files = getRecursiveFiles(DATA_DIR);
         res.json(files);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Failed to read directory' });
     }
 });
 
-app.get('/api/drawings/:id', (req, res) => {
-    const jsonPath = path.join(DATA_DIR, `${req.params.id}.json`);
-    const yappyPath = path.join(DATA_DIR, `${req.params.id}.yappy`);
+// Use wildcard matching for nested paths (Regex to avoid path-to-regexp issues)
+app.get(/^\/api\/drawings\/(.+)$/, (req, res) => {
+    // req.params[0] contains the wildcard part
+    const fileId = (req.params as any)[0];
+    const jsonPath = path.join(DATA_DIR, `${fileId}.json`);
+    const yappyPath = path.join(DATA_DIR, `${fileId}.yappy`);
+
+    // Basic path traversal protection
+    if (!jsonPath.startsWith(DATA_DIR) || !yappyPath.startsWith(DATA_DIR)) {
+        res.status(403).json({ error: 'Invalid path' });
+        return;
+    }
 
     if (fs.existsSync(yappyPath)) {
         const content = fs.readFileSync(yappyPath);
@@ -48,15 +80,29 @@ app.get('/api/drawings/:id', (req, res) => {
     }
 });
 
-app.post('/api/drawings/:id', (req, res) => {
+app.post(/^\/api\/drawings\/(.+)$/, (req, res) => {
+    const fileId = (req.params as any)[0];
+
     // Determine extension based on content type or just default to .yappy for new saves if it's binary
     const isBinary = req.is('application/octet-stream') || req.is('application/gzip') || req.is('application/x-gzip');
     const ext = isBinary ? '.yappy' : '.json';
-    const filePath = path.join(DATA_DIR, `${req.params.id}${ext}`);
+    const filePath = path.join(DATA_DIR, `${fileId}${ext}`);
+
+    // Basic path traversal protection
+    if (!filePath.startsWith(DATA_DIR)) {
+        res.status(403).json({ error: 'Invalid path' });
+        return;
+    }
+
+    // Ensure parent directory exists
+    const dirname = path.dirname(filePath);
+    if (!fs.existsSync(dirname)) {
+        fs.mkdirSync(dirname, { recursive: true });
+    }
 
     // If saving as .yappy, remove potential .json duplicate to avoid confusion
     if (isBinary) {
-        const jsonPath = path.join(DATA_DIR, `${req.params.id}.json`);
+        const jsonPath = path.join(DATA_DIR, `${fileId}.json`);
         if (fs.existsSync(jsonPath)) fs.unlinkSync(jsonPath);
     }
 
@@ -68,13 +114,22 @@ app.post('/api/drawings/:id', (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Failed to save drawing' });
     }
 });
 
-app.delete('/api/drawings/:id', (req, res) => {
-    const jsonPath = path.join(DATA_DIR, `${req.params.id}.json`);
-    const yappyPath = path.join(DATA_DIR, `${req.params.id}.yappy`);
+app.delete(/^\/api\/drawings\/(.+)$/, (req, res) => {
+    const fileId = (req.params as any)[0];
+    const jsonPath = path.join(DATA_DIR, `${fileId}.json`);
+    const yappyPath = path.join(DATA_DIR, `${fileId}.yappy`);
+
+    // Basic path traversal protection
+    if (!jsonPath.startsWith(DATA_DIR) || !yappyPath.startsWith(DATA_DIR)) {
+        res.status(403).json({ error: 'Invalid path' });
+        return;
+    }
+
     try {
         let deleted = false;
         if (fs.existsSync(yappyPath)) {
@@ -92,6 +147,7 @@ app.delete('/api/drawings/:id', (req, res) => {
             res.status(404).json({ error: 'Drawing not found' });
         }
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Failed to delete drawing' });
     }
 });

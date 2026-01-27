@@ -1,4 +1,6 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show, untrack } from "solid-js";
+import { calculateAllAnimatedStates, calculateAnimatedState } from "../utils/animation-utils";
+import { animationEngine } from "../utils/animation/animation-engine";
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
 import { isElementHiddenByHierarchy, getDescendants } from "../utils/hierarchy";
 import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit, isLayerVisible, isLayerLocked, toggleCollapse, setParent, clearParent, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, togglePropertyPanel, updateSlideThumbnail, advancePresentation } from "../store/app-store";
@@ -87,6 +89,17 @@ const Canvas: Component = () => {
                 }
             }
         });
+    });
+
+    // Monitor Presentation Mode to force animation ticker
+    createEffect(() => {
+        if (store.presentationMode) {
+            animationEngine.setForceTicker(true);
+        } else {
+            // Only disable if no flow animations (handled by store usually, but explicit here is safe)
+            const hasFlow = store.elements.some(el => el.flowAnimation);
+            animationEngine.setForceTicker(hasFlow);
+        }
     });
 
     let canvasRef: HTMLCanvasElement | undefined;
@@ -285,9 +298,14 @@ const Canvas: Component = () => {
         if (!ctx) return;
 
         // Expose globalTime to window for renderers to access without signal overhead in deep loops
-        (window as any).yappyGlobalTime = globalTime();
+        const currentTime = globalTime();
+        (window as any).yappyGlobalTime = currentTime;
 
         const startTime = performance.now();
+
+        // PRE-CALCULATE ANIMATION STATES FOR THIS FRAME
+        // This handles nested orbits (Moon > Earth > Sun) correctly
+        const animatedStates = calculateAllAnimatedStates(store.elements, currentTime);
 
         // Reset Transform Matrix to Identity so we don't accumulate translations!
         ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -615,8 +633,19 @@ const Canvas: Component = () => {
             totalRendered += layerElements.length;
 
             layerElements.forEach(el => {
-                let cx = el.x + el.width / 2;
-                let cy = el.y + el.height / 2;
+                // Get Animated State if exists
+                const animState = animatedStates.get(el.id);
+
+                // Construct Renderable Element with animated props
+                const renderedEl = animState ? {
+                    ...el,
+                    x: animState.x,
+                    y: animState.y,
+                    angle: animState.angle
+                } : el;
+
+                let cx = renderedEl.x + renderedEl.width / 2;
+                let cy = renderedEl.y + renderedEl.height / 2;
 
                 // Strict isolation in Slide Mode
                 if (store.docType === 'slides') {
@@ -631,19 +660,19 @@ const Canvas: Component = () => {
                     }
                 }
 
-                if (el.type !== 'text' || editingId() !== el.id) {
+                if (renderedEl.type !== 'text' || editingId() !== renderedEl.id) {
                     const layerOpacity = (layer?.opacity ?? 1);
-                    renderElement(rc, ctx, el, isDarkMode, layerOpacity);
+                    renderElement(rc, ctx, renderedEl, isDarkMode, layerOpacity);
                 }
 
                 // Selection highlight & Handles
                 if (store.selection.includes(el.id)) {
-                    const baseState = getElementPreviewBaseState(el.id);
-                    const hX = baseState ? baseState.x : el.x;
-                    const hY = baseState ? baseState.y : el.y;
-                    const hW = baseState ? baseState.width : el.width;
-                    const hH = baseState ? baseState.height : el.height;
-                    const hAngle = baseState ? baseState.angle : el.angle;
+                    // Use RENDERED ELEMENT for selection highlighting so it follows the animation
+                    const hX = renderedEl.x;
+                    const hY = renderedEl.y;
+                    const hW = renderedEl.width;
+                    const hH = renderedEl.height;
+                    const hAngle = renderedEl.angle;
                     const hcx = hX + hW / 2;
                     const hcy = hY + hH / 2;
 
@@ -1803,7 +1832,7 @@ const Canvas: Component = () => {
             // 2*dx/w + 2*dy/h <= 1
             return (2 * dx / el.width) + (2 * dy / el.height) <= 1;
         } else if (el.type === 'circle') {
-            return isPointInEllipse(p, el.x, el.y, el.width, el.height);
+            return isPointInEllipse(p, el.x, el.y, el.width, el.height, threshold);
         } else if (el.type === 'line' || el.type === 'arrow') {
             const endX = el.x + el.width;
             const endY = el.y + el.height;
@@ -2375,6 +2404,10 @@ const Canvas: Component = () => {
                 return b.index - a.index; // Descending
             });
 
+            // Hit Testing must respect Animation
+            const currentTime = (window as any).yappyGlobalTime || 0;
+            const animatedStates = calculateAllAnimatedStates(store.elements, currentTime);
+
             for (const { el, layerVisible } of sortedElements) {
                 // Skip invisible layers
                 if (!layerVisible) continue;
@@ -2382,7 +2415,15 @@ const Canvas: Component = () => {
                 // Skip elements on locked layers or locked elements
                 if (!canInteractWithElement(el)) continue;
 
-                if (hitTestElement(el, x, y, threshold, elementMap)) {
+                const animState = animatedStates.get(el.id);
+                const testEl = animState ? {
+                    ...el,
+                    x: animState.x,
+                    y: animState.y,
+                    angle: animState.angle
+                } : el;
+
+                if (hitTestElement(testEl, x, y, threshold, elementMap)) {
                     hitId = el.id;
                     break;
                 }

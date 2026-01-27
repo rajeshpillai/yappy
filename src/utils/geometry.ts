@@ -117,10 +117,10 @@ export const isPointOnPolyline = (p: Point, points: Point[], threshold: number):
     return false;
 };
 
-export const isPointInEllipse = (p: Point, x: number, y: number, w: number, h: number): boolean => {
+export const isPointInEllipse = (p: Point, x: number, y: number, w: number, h: number, threshold: number = 0): boolean => {
     // Standardize
-    const rx = Math.abs(w / 2);
-    const ry = Math.abs(h / 2);
+    const rx = Math.abs(w / 2) + threshold;
+    const ry = Math.abs(h / 2) + threshold;
     const cx = x + w / 2;
     const cy = y + h / 2;
 

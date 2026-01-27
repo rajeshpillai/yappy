@@ -1,0 +1,169 @@
+{
+    "version": 3,
+    "metadata": {
+        "title": "Hypnotic Vortex",
+        "description": "A mesmerizing display of spinning gradients and blend modes."
+    },
+    "slides": [
+        {
+            "id": "slide-vortex",
+            "name": "Hypnotic Vortex",
+            "elements": [
+                {
+                    "id": "bg-rect",
+                    "type": "rectangle",
+                    "x": 0,
+                    "y": 0,
+                    "width": 800,
+                    "height": 600,
+                    "backgroundColor": "#000000",
+                    "strokeColor": "transparent",
+                    "fillStyle": "solid",
+                    "strokeWidth": 0,
+                    "opacity": 100,
+                    "layerId": "layer-bg",
+                    "locked": true
+                },
+                {
+                    "id": "vortex-outer",
+                    "type": "octagon",
+                    "x": 400,
+                    "y": 300,
+                    "width": 500,
+                    "height": 500,
+                    "backgroundColor": "transparent",
+                    "strokeColor": "#ff00ff",
+                    "fillStyle": "solid",
+                    "strokeWidth": 5,
+                    "opacity": 80,
+                    "layerId": "layer-1",
+                    "spinEnabled": true,
+                    "spinSpeed": 0.5,
+                    "shadowEnabled": true,
+                    "shadowColor": "#ff00ff",
+                    "shadowBlur": 20,
+                    "gradientType": "conic",
+                    "gradientStops": [
+                        {
+                            "offset": 0,
+                            "color": "#ff00ff"
+                        },
+                        {
+                            "offset": 0.5,
+                            "color": "#00ffff"
+                        },
+                        {
+                            "offset": 1,
+                            "color": "#ff00ff"
+                        }
+                    ]
+                },
+                {
+                    "id": "vortex-mid-1",
+                    "type": "hexagon",
+                    "x": 400,
+                    "y": 300,
+                    "width": 350,
+                    "height": 350,
+                    "backgroundColor": "transparent",
+                    "strokeColor": "#00ffff",
+                    "fillStyle": "solid",
+                    "strokeWidth": 4,
+                    "opacity": 80,
+                    "layerId": "layer-1",
+                    "spinEnabled": true,
+                    "spinSpeed": -1,
+                    "blendMode": "screen",
+                    "gradientType": "radial",
+                    "gradientStops": [
+                        {
+                            "offset": 0,
+                            "color": "#ffff00"
+                        },
+                        {
+                            "offset": 1,
+                            "color": "#ff0000"
+                        }
+                    ]
+                },
+                {
+                    "id": "vortex-mid-2",
+                    "type": "star",
+                    "x": 400,
+                    "y": 300,
+                    "width": 250,
+                    "height": 250,
+                    "backgroundColor": "transparent",
+                    "strokeColor": "#ffff00",
+                    "fillStyle": "solid",
+                    "strokeWidth": 3,
+                    "opacity": 90,
+                    "layerId": "layer-1",
+                    "spinEnabled": true,
+                    "spinSpeed": 2,
+                    "starPoints": 8,
+                    "shapeRatio": 40,
+                    "blendMode": "difference",
+                    "gradientType": "linear",
+                    "gradientStops": [
+                        {
+                            "offset": 0,
+                            "color": "#00ff00"
+                        },
+                        {
+                            "offset": 1,
+                            "color": "#0000ff"
+                        }
+                    ]
+                },
+                {
+                    "id": "vortex-inner",
+                    "type": "star",
+                    "x": 400,
+                    "y": 300,
+                    "width": 100,
+                    "height": 100,
+                    "backgroundColor": "#ffffff",
+                    "strokeColor": "#ffffff",
+                    "fillStyle": "solid",
+                    "strokeWidth": 2,
+                    "opacity": 100,
+                    "layerId": "layer-1",
+                    "spinEnabled": true,
+                    "spinSpeed": -4,
+                    "starPoints": 5,
+                    "shadowEnabled": true,
+                    "shadowColor": "#ffffff",
+                    "shadowBlur": 30
+                }
+            ],
+            "layers": [
+                {
+                    "id": "layer-bg",
+                    "name": "Background",
+                    "visible": true,
+                    "locked": true,
+                    "opacity": 1,
+                    "order": 0
+                },
+                {
+                    "id": "layer-1",
+                    "name": "Vortex",
+                    "visible": true,
+                    "locked": false,
+                    "opacity": 1,
+                    "order": 1
+                }
+            ],
+            "viewState": {
+                "scale": 1,
+                "panX": 0,
+                "panY": 0
+            }
+        }
+    ],
+    "canvasBackgroundColor": "#000000",
+    "globalSettings": {
+        "animationEnabled": true
+    }
+}
