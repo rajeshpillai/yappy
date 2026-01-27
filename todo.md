@@ -1015,6 +1015,7 @@
 ### Slide Management
 - [/] **Drag-and-Drop Reordering** — Visual reordering in navigator (`reorderSlides` exists in store).
 - [x] **Slide Duplication** — Quick duplicate of an existing slide with all its content.
+- [x] **Build Animations** — Elements with "On Load" trigger play automatically when their slide enters in presentation mode.
 - [ ] **Slide Layouts / Templates** — Pre-designed slide layouts (Title, Content, etc.).
 - [ ] **Slide Overview / Grid View** — Zoomed-out grid for easy navigation and reordering.
 - [ ] **Slide Search** — Find text content across all slides.

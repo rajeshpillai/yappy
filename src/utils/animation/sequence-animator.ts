@@ -60,10 +60,14 @@ export class SequenceAnimator {
     }
 
     /**
-     * Play all animations for all elements in the store
+     * Play all animations for all elements in the store, or a specific subset
      */
-    playAll(trigger: 'on-load' | 'programmatic' = 'programmatic'): void {
-        store.elements.forEach(element => {
+    playAll(trigger: 'on-load' | 'programmatic' = 'programmatic', elementIds?: string[]): void {
+        const elementsToAnimate = elementIds
+            ? store.elements.filter(el => elementIds.includes(el.id))
+            : store.elements;
+
+        elementsToAnimate.forEach(element => {
             this.playSequence(element.id, trigger);
         });
     }
