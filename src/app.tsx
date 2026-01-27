@@ -73,9 +73,6 @@ const App: Component = () => {
           const nextZen = !store.zenMode;
           toggleZenMode(nextZen);
           toggleSlideNavigator(!nextZen);
-        } else if (code === 'KeyP' || key === 'p') {
-          e.preventDefault();
-          setSelectedTool('laser');
         } else if (code === 'KeyI' || key === 'i') {
           e.preventDefault();
           setSelectedTool('ink');
@@ -259,6 +256,9 @@ const App: Component = () => {
         } else if (e.shiftKey && key === 'n') {
           e.preventDefault();
           addLayer();
+        } else if (e.shiftKey && key === 'p') {
+          e.preventDefault();
+          setSelectedTool('laser');
         }
         // Tool selection shortcuts
         else {

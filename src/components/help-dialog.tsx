@@ -191,7 +191,7 @@ export default function HelpDialog(props: Props) {
                                         <div class="shortcut-item">
                                             <span class="shortcut-label">Laser Pointer</span>
                                             <div class="shortcut-keys">
-                                                <span class="keycap">Alt</span>
+                                                <span class="keycap">Shift</span>
                                                 <span class="keycap">P</span>
                                             </div>
                                         </div>
