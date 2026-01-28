@@ -222,12 +222,21 @@ export const WelcomeScreen: Component = () => {
                     <h1 style={{
                         "font-size": "5rem",
                         "margin": "0",
-                        "background": "linear-gradient(135deg, color(display-p3 0 0.5 1), color(display-p3 1 0.2 0.2))",
-                        "-webkit-background-clip": "text",
-                        "-webkit-text-fill-color": "transparent",
-                        "line-height": "1.2"
+                        "line-height": "1.2",
+                        "display": "flex",
+                        "align-items": "baseline",
+                        "gap": "0.2rem"
                     }}>
-                        Yappy
+                        <span style={{
+                            "background": "linear-gradient(135deg, color(display-p3 0 0.5 1), color(display-p3 0.2 0.6 1))",
+                            "-webkit-background-clip": "text",
+                            "-webkit-text-fill-color": "transparent"
+                        }}>Yappy</span>
+                        <span style={{
+                            "background": "linear-gradient(135deg, color(display-p3 1 0.8 0), color(display-p3 1 0.9 0.2))",
+                            "-webkit-background-clip": "text",
+                            "-webkit-text-fill-color": "transparent"
+                        }}>Draw</span>
                     </h1>
                     <p style={{ "font-size": "1.2rem", "opacity": "0.7" }}>
                         All your data is saved locally in your browser.
