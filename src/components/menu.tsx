@@ -8,7 +8,7 @@ import {
     toggleMainToolbar, toggleSlideNavigator
 } from "../store/app-store";
 import {
-    Menu as MenuIcon, FolderOpen, Share2, FilePlus, Trash2, Maximize,
+    Menu as MenuIcon, FolderOpen, FilePlus, Trash2, Maximize,
     Moon, Sun, Download, Layout,
     Layers, Check, Play, Pause, Square, Camera, Video, Palette
 } from "lucide-solid";

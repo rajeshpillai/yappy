@@ -1086,3 +1086,6 @@
 - [x] **Animation Fixes**
   - [x] Fixed Auto-Spin preview failing when no other animations exist
   - [x] Fixed Global/Panel Play buttons for continuous animations (forced ticker)
+- [x] **Deploy Fixes**
+  - [x] Resolved unused 'e' parameter in App.tsx
+  - [x] Removed unused 'Share2' import in Menu.tsx

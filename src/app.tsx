@@ -317,7 +317,7 @@ const App: Component = () => {
       }
     };
 
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    const handleBeforeUnload = (_e: BeforeUnloadEvent) => {
       // Prevent accidental feedback navigation?
       // For now, no-op or simple confirmation if needed.
     };
