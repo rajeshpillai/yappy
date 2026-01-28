@@ -1,7 +1,7 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show, untrack } from "solid-js";
 import { calculateAllAnimatedStates } from "../utils/animation-utils";
 import { animationEngine } from "../utils/animation/animation-engine";
-import rough from 'roughjs/bin/rough'; // Hand-drawn style
+import rough from 'roughjs'; // Hand-drawn style
 import { isElementHiddenByHierarchy, getDescendants } from "../utils/hierarchy";
 import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit, isLayerVisible, isLayerLocked, toggleCollapse, setParent, clearParent, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, togglePropertyPanel, updateSlideThumbnail, advancePresentation, updateSlideBackground } from "../store/app-store";
 import { renderElement, normalizePoints } from "../utils/render-element";
@@ -230,7 +230,7 @@ const Canvas: Component = () => {
         // Background
         const isDarkMode = store.theme === 'dark';
         const rc = rough.canvas(thumbCanvas);
-        renderSlideBackground(tCtx!, rc, slide, 0, 0, thumbW, thumbH, isDarkMode);
+        renderSlideBackground(tCtx!, rc, slide, spatialX, spatialY, sW, sH, isDarkMode);
 
         // Render elements
         const sortedLayers = [...store.layers].sort((a, b) => a.order - b.order);
@@ -1478,6 +1478,8 @@ const Canvas: Component = () => {
         store.canvasBackgroundColor;
         store.canvasTexture;
         snappingGuides();
+        snappingGuides();
+        // Redraw on reactive changes
         requestAnimationFrame(draw);
     });
 

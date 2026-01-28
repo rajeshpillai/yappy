@@ -443,6 +443,7 @@ const PropertyPanel: Component = () => {
         const target = activeTarget();
         if (!target) return [];
 
+        let targetType: string;
         if (target.type === 'multi') {
             targetType = 'all';
         } else if (target.type === 'canvas') {
@@ -478,18 +479,19 @@ const PropertyPanel: Component = () => {
             }
 
             if (target.type === 'slide' || target.type === 'canvas') {
-                if (!Array.isArray(p.applicableTo) || !p.applicableTo.includes(targetType as any)) {
+                if (!Array.isArray(p.applicableTo) || !(p.applicableTo as any).includes(targetType as any)) {
                     return false;
                 }
             } else if (target.type === 'multi') {
-                // For multi-selection, we show properties if they are 'all'
-                // OR if they are applicable to a broad set of types.
-                // To be safe, if p is an array, we'll allow it if it's not strictly for slides/canvas
+                // For multi-selection, show 'all' properties OR any array properties not exclusive to slides/canvas
+                if (p.applicableTo === 'all') return true;
                 if (Array.isArray(p.applicableTo)) {
-                    const isSlideSpecific = p.applicableTo.length === 1 && p.applicableTo[0] === 'slide';
-                    if (isSlideSpecific) return false;
+                    const isExclusiveToSlides = p.applicableTo.every(t => t === 'slide' || t === 'canvas');
+                    if (isExclusiveToSlides) return false;
+                    return true;
                 }
-            } else if (Array.isArray(p.applicableTo) && !p.applicableTo.includes(targetType as any)) {
+                return false;
+            } else if (Array.isArray(p.applicableTo) && !(p.applicableTo as any[]).includes(targetType as any)) {
                 return false;
             }
 
