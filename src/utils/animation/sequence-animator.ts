@@ -69,10 +69,25 @@ export class SequenceAnimator {
                 }
             }
             if (originalState) {
-                // Restore state after a small delay so the user sees the final frame
-                setTimeout(() => {
-                    updateElement(elementId, originalState, false);
-                }, 500);
+                // Check if the last animation in the sequence wants to persist check state
+                // If restoreAfter is false, we should NOT restore the original state, 
+                // effectively leaving the element at its final position.
+                const lastAnim = sequence[sequence.length - 1];
+                const shouldRestore = lastAnim?.restoreAfter ?? true; // Default to true if undefined
+
+                if (shouldRestore) {
+                    // Restore state after a small delay so the user sees the final frame
+                    setTimeout(() => {
+                        updateElement(elementId, originalState, false);
+                    }, 500);
+                } else {
+                    // If we don't restore, we should probably commit the final state to the store
+                    // to ensure it stays there physically? 
+                    // The animation engine modifies the element in real-time updates (store),
+                    // so the store *should* already have the final values if the animation completed.
+                    // However, `programmatic` mode often implies a temporary preview. 
+                    // If the user wants to keep the position, we just don't revert.
+                }
             }
         };
 
