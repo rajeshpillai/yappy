@@ -1,0 +1,341 @@
+{
+    "version": 4,
+    "metadata": {
+        "name": "From Todo to Systems – Architecting Software in the LLM Era",
+        "createdAt": "2026-01-28T10:00:00.000Z",
+        "updatedAt": "2026-01-28T10:00:00.000Z",
+        "docType": "slides"
+    },
+    "globalSettings": {
+        "theme": "light",
+        "renderStyle": "sketch",
+        "animationEnabled": true
+    },
+    "slides": [
+        {
+            "id": "s-1",
+            "name": "Title",
+            "order": 0,
+            "backgroundColor": "#ffffff"
+        },
+        {
+            "id": "s-2",
+            "name": "Why This Talk",
+            "order": 1,
+            "backgroundColor": "#ffffff"
+        },
+        {
+            "id": "s-3",
+            "name": "The Core Thesis",
+            "order": 2,
+            "backgroundColor": "#ffffff"
+        },
+        {
+            "id": "s-4",
+            "name": "Everything Begins With Todo",
+            "order": 3,
+            "backgroundColor": "#ffffff"
+        },
+        {
+            "id": "s-5",
+            "name": "What Todo Really Teaches",
+            "order": 4,
+            "backgroundColor": "#ffffff"
+        },
+        {
+            "id": "s-6",
+            "name": "The Belt System",
+            "order": 5,
+            "backgroundColor": "#ffffff"
+        },
+        {
+            "id": "s-7",
+            "name": "Auth Changes Everything",
+            "order": 6,
+            "backgroundColor": "#ffffff"
+        },
+        {
+            "id": "s-8",
+            "name": "Relationships Are the Core",
+            "order": 7,
+            "backgroundColor": "#ffffff"
+        },
+        {
+            "id": "s-9",
+            "name": "Frontend Meta Mindset",
+            "order": 8,
+            "backgroundColor": "#ffffff"
+        },
+        {
+            "id": "s-10",
+            "name": "Backend Meta Model",
+            "order": 9,
+            "backgroundColor": "#ffffff"
+        },
+        {
+            "id": "s-11",
+            "name": "Backend Building Blocks",
+            "order": 10,
+            "backgroundColor": "#ffffff"
+        },
+        {
+            "id": "s-12",
+            "name": "Rule Engine",
+            "order": 11,
+            "backgroundColor": "#ffffff"
+        },
+        {
+            "id": "s-13",
+            "name": "Messaging & Events",
+            "order": 12,
+            "backgroundColor": "#ffffff"
+        },
+        {
+            "id": "s-14",
+            "name": "Instrumentation",
+            "order": 13,
+            "backgroundColor": "#ffffff"
+        },
+        {
+            "id": "s-15",
+            "name": "Enter AI & LLMs",
+            "order": 14,
+            "backgroundColor": "#ffffff"
+        },
+        {
+            "id": "s-16",
+            "name": "Engineer Role Shift",
+            "order": 15,
+            "backgroundColor": "#ffffff"
+        },
+        {
+            "id": "s-17",
+            "name": "Engineer as Director",
+            "order": 16,
+            "backgroundColor": "#ffffff"
+        },
+        {
+            "id": "s-18",
+            "name": "What to Feed LLMs",
+            "order": 17,
+            "backgroundColor": "#ffffff"
+        },
+        {
+            "id": "s-19",
+            "name": "Unified Mental Model",
+            "order": 18,
+            "backgroundColor": "#ffffff"
+        },
+        {
+            "id": "s-20",
+            "name": "Final Thought",
+            "order": 19,
+            "backgroundColor": "#ffffff"
+        }
+    ],
+    "elements": [
+        {
+            "id": "t-1",
+            "type": "text",
+            "x": 200,
+            "y": 200,
+            "width": 1500,
+            "height": 200,
+            "text": "From Todo to Systems\nArchitecting Software in the LLM Era",
+            "fontSize": 64,
+            "fontFamily": "hand-drawn"
+        },
+        {
+            "id": "t-2",
+            "type": "text",
+            "x": 200,
+            "y": 450,
+            "width": 1500,
+            "height": 200,
+            "text": "Code is no longer scarce.\nClarity is.",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn"
+        },
+        {
+            "id": "t-3",
+            "type": "text",
+            "x": 200,
+            "y": 200,
+            "width": 1500,
+            "height": 300,
+            "text": "Why this talk?\n\n• LLMs generate code\n• Engineers read & validate code\n• Architecture becomes the main skill",
+            "fontSize": 36
+        },
+        {
+            "id": "t-4",
+            "type": "text",
+            "x": 200,
+            "y": 200,
+            "width": 1500,
+            "height": 300,
+            "text": "Core Thesis\n\nEngineers are no longer typists.\nEngineers are Architects, Directors, Validators.",
+            "fontSize": 42
+        },
+        {
+            "id": "t-5",
+            "type": "text",
+            "x": 200,
+            "y": 200,
+            "width": 1500,
+            "height": 300,
+            "text": "Everything begins with a Todo.\n\nTwitter, CRM, ERP, SaaS are Todos with metadata.",
+            "fontSize": 40
+        },
+        {
+            "id": "t-6",
+            "type": "text",
+            "x": 200,
+            "y": 200,
+            "width": 1500,
+            "height": 350,
+            "text": "Todo teaches:\n• State transitions\n• UI as projection of data\n• Complexity grows predictably",
+            "fontSize": 36
+        },
+        {
+            "id": "t-7",
+            "type": "text",
+            "x": 200,
+            "y": 200,
+            "width": 1500,
+            "height": 350,
+            "text": "The Belt System\n\nWhite → CRUD\nYellow → Performance\nOrange → Auth\nGreen → Relationships",
+            "fontSize": 38
+        },
+        {
+            "id": "t-8",
+            "type": "text",
+            "x": 200,
+            "y": 200,
+            "width": 1500,
+            "height": 350,
+            "text": "Auth changes everything.\n\nData now has ownership.\nAuthorization becomes contextual.",
+            "fontSize": 38
+        },
+        {
+            "id": "t-9",
+            "type": "text",
+            "x": 200,
+            "y": 200,
+            "width": 1500,
+            "height": 350,
+            "text": "Relationships are the core.\n\nOne-to-one\nOne-to-many\nMany-to-many",
+            "fontSize": 38
+        },
+        {
+            "id": "t-10",
+            "type": "text",
+            "x": 200,
+            "y": 200,
+            "width": 1500,
+            "height": 350,
+            "text": "Frontend mindset:\nUI is a projection of metadata.",
+            "fontSize": 38
+        },
+        {
+            "id": "t-11",
+            "type": "text",
+            "x": 200,
+            "y": 200,
+            "width": 1500,
+            "height": 350,
+            "text": "Backend mindset:\nBehavior is a projection of metadata.",
+            "fontSize": 38
+        },
+        {
+            "id": "t-12",
+            "type": "text",
+            "x": 200,
+            "y": 200,
+            "width": 1500,
+            "height": 400,
+            "text": "Backend building blocks:\n• Domain model\n• Database\n• Rules\n• Messaging\n• Integrations\n• Instrumentation",
+            "fontSize": 36
+        },
+        {
+            "id": "t-13",
+            "type": "text",
+            "x": 200,
+            "y": 200,
+            "width": 1500,
+            "height": 400,
+            "text": "Rules are business logic.\n\nDynamic, versioned, explainable.",
+            "fontSize": 38
+        },
+        {
+            "id": "t-14",
+            "type": "text",
+            "x": 200,
+            "y": 200,
+            "width": 1500,
+            "height": 400,
+            "text": "Messaging enables scale.\n\nAsync workflows\nRetries\nReplays\nDLQ",
+            "fontSize": 36
+        },
+        {
+            "id": "t-15",
+            "type": "text",
+            "x": 200,
+            "y": 200,
+            "width": 1500,
+            "height": 400,
+            "text": "Instrumentation is the nervous system.\n\nEmit system events.\nEmit business events.",
+            "fontSize": 36
+        },
+        {
+            "id": "t-16",
+            "type": "text",
+            "x": 200,
+            "y": 200,
+            "width": 1500,
+            "height": 400,
+            "text": "LLMs write code.\n\nHumans define meaning.",
+            "fontSize": 42
+        },
+        {
+            "id": "t-17",
+            "type": "text",
+            "x": 200,
+            "y": 200,
+            "width": 1500,
+            "height": 400,
+            "text": "Engineer role shift:\n\nFrom coder → Architect → Director",
+            "fontSize": 42
+        },
+        {
+            "id": "t-18",
+            "type": "text",
+            "x": 200,
+            "y": 200,
+            "width": 1500,
+            "height": 400,
+            "text": "Feed LLMs:\n\n• Metadata\n• State machines\n• Rules\n• Events\n• Constraints",
+            "fontSize": 36
+        },
+        {
+            "id": "t-19",
+            "type": "text",
+            "x": 200,
+            "y": 200,
+            "width": 1500,
+            "height": 400,
+            "text": "Unified model:\n\nState + Behavior + Decisions + Events",
+            "fontSize": 42
+        },
+        {
+            "id": "t-20",
+            "type": "text",
+            "x": 200,
+            "y": 200,
+            "width": 1500,
+            "height": 400,
+            "text": "Final thought:\n\nCode is cheap.\nArchitecture is leverage.",
+            "fontSize": 42
+        }
+    ],
+    "states": []
+}

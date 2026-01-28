@@ -107,7 +107,7 @@
         },
         {
             "id": "slide-visuals",
-            "name": "4. Advanced Visuals (Gradients, Shadows, Fills)",
+            "name": "4. Advanced Visuals",
             "spatialPosition": {
                 "x": 6000,
                 "y": 0
@@ -179,6 +179,25 @@
                 "type": "none",
                 "duration": 0,
                 "easing": "linear"
+            }
+        },
+        {
+            "id": "slide-mindmap",
+            "name": "8. Mind Map",
+            "spatialPosition": {
+                "x": 6000,
+                "y": 1200
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            },
+            "order": 7,
+            "backgroundColor": "#ffffff",
+            "transition": {
+                "type": "zoom-out",
+                "duration": 500,
+                "easing": "easeInOutQuad"
             }
         }
     ],
@@ -261,7 +280,7 @@
             "width": 120,
             "height": 100,
             "strokeColor": "#2563eb",
-            "backgroundColor": "#dbeafe",
+            "backgroundColor": "transparent",
             "fillStyle": "zigzag",
             "strokeWidth": 2,
             "strokeStyle": "solid",
@@ -1211,6 +1230,135 @@
                     "duration": 0,
                     "delay": 0,
                     "easing": "linear"
+                }
+            ]
+        },
+        {
+            "id": "title-8",
+            "type": "text",
+            "layerId": "layer-main",
+            "x": 6100,
+            "y": 1250,
+            "width": 600,
+            "height": 80,
+            "text": "Mind Maps",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 800,
+            "locked": false,
+            "link": null
+        },
+        {
+            "id": "mind-root",
+            "type": "rectangle",
+            "layerId": "layer-main",
+            "x": 6400,
+            "y": 1400,
+            "width": 160,
+            "height": 80,
+            "strokeColor": "#be185d",
+            "backgroundColor": "#fce7f3",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 801,
+            "roundness": {
+                "type": 20
+            },
+            "containerText": "Central Idea",
+            "isCollapsed": false,
+            "boundElements": [
+                {
+                    "id": "mind-branch",
+                    "type": "organicBranch"
+                }
+            ]
+        },
+        {
+            "id": "mind-branch",
+            "type": "organicBranch",
+            "layerId": "layer-main",
+            "x": 6560,
+            "y": 1440,
+            "width": 100,
+            "height": 50,
+            "strokeColor": "#be185d",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 802,
+            "points": [
+                0,
+                0,
+                100,
+                50
+            ],
+            "controlPoints": [
+                {
+                    "x": 6610,
+                    "y": 1440
+                },
+                {
+                    "x": 6610,
+                    "y": 1490
+                }
+            ],
+            "curveType": "bezier",
+            "startBinding": {
+                "elementId": "mind-root",
+                "focus": 0,
+                "gap": 5
+            },
+            "endBinding": {
+                "elementId": "mind-child",
+                "focus": 0,
+                "gap": 5
+            }
+        },
+        {
+            "id": "mind-child",
+            "type": "rectangle",
+            "layerId": "layer-main",
+            "x": 6665,
+            "y": 1465,
+            "width": 120,
+            "height": 60,
+            "strokeColor": "#be185d",
+            "backgroundColor": "#ffffff",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 803,
+            "roundness": {
+                "type": 10
+            },
+            "containerText": "Topic A",
+            "boundElements": [
+                {
+                    "id": "mind-branch",
+                    "type": "organicBranch"
                 }
             ]
         }
