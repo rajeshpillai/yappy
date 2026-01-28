@@ -24,6 +24,7 @@ const MindmapActionToolbar = lazy(() => import('./components/mindmap-action-tool
 const SlideNavigator = lazy(() => import('./components/slide-navigator').then(m => ({ default: m.SlideNavigator })));
 const SlideControlToolbar = lazy(() => import('./components/slide-control-toolbar').then(m => ({ default: m.SlideControlToolbar })));
 const PresentationControls = lazy(() => import('./components/presentation-controls').then(m => ({ default: m.PresentationControls })));
+import { WelcomeScreen } from './components/welcome-screen';
 
 import Menu, {
   handleNew, handleSaveRequest, setIsDialogOpen, setShowHelp
@@ -339,9 +340,10 @@ const App: Component = () => {
         <Show when={store.appMode !== 'presentation'}>
           <CommandPalette />
           <StatePanel />
+          <WelcomeScreen />
         </Show>
 
-        {/* Floating Property Panel Toggle (bottom-right corner) */}
+        {/* Floating Property Panel Toggle (bottom-left, next to ZoomControls) */}
         <Show when={store.appMode !== 'presentation'}>
           <button
             class="floating-settings-btn"
@@ -350,8 +352,8 @@ const App: Component = () => {
             title="Toggle Properties (Alt+Enter)"
             style={{
               position: 'fixed',
-              bottom: '20px',
-              right: '20px',
+              bottom: '5px',
+              left: '230px', /* Shifted right to clear ZoomControls */
               width: '48px',
               height: '48px',
               'border-radius': '50%',
@@ -368,6 +370,33 @@ const App: Component = () => {
             }}
           >
             <Settings size={24} />
+          </button>
+          <button
+            class="floating-settings-btn"
+            onClick={() => setShowHelp(true)}
+            title="Shortcuts & Help (?)"
+            style={{
+              position: 'fixed',
+              bottom: '5px',
+              left: '290px',
+              width: '48px',
+              height: '48px',
+              'border-radius': '50%',
+              border: 'none',
+              background: '#ffffff',
+              color: '#4b5563',
+              'box-shadow': '0 4px 12px rgba(0, 0, 0, 0.15)',
+              cursor: 'pointer',
+              display: 'flex',
+              'align-items': 'center',
+              'justify-content': 'center',
+              'z-index': '1000',
+              transition: 'all 0.2s ease',
+              'font-weight': 'bold',
+              'font-size': '20px'
+            }}
+          >
+            ?
           </button>
           <SlideControlToolbar />
           <MindmapActionToolbar />
@@ -390,7 +419,7 @@ const App: Component = () => {
           v{pkg.version}
         </div>
       </Suspense>
-    </div>
+    </div >
   );
 };
 

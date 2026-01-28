@@ -91,6 +91,7 @@
 - [x] Refactor Save Flow (Remove persistent input, Add Save As Dialog, Show Title) <!-- id: 35 -->
 - [x] Implement Local File Support (Save/Load JSON from Disk) <!-- id: 36 -->
 - [x] Fix Canvas Background Color Persistence and UI
+- [x] Implement Welcome Screen with Hints (floating arrows)
 
 ## Phase 12: Layer System (feat-layer branch)
 - [x] Core layer infrastructure (types, store, rendering)
