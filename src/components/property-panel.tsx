@@ -472,14 +472,17 @@ const PropertyPanel: Component = () => {
             }
 
             // Slides and canvas require explicit applicableTo - don't inherit from 'all'
+            // FIX: slides and canvas SHOULD inherit from 'all' if applicable
+            if (p.applicableTo === 'all') {
+                return true;
+            }
+
             if (target.type === 'slide' || target.type === 'canvas') {
                 if (!Array.isArray(p.applicableTo) || !p.applicableTo.includes(targetType as any)) {
                     return false;
                 }
-            } else if (p.applicableTo !== 'all') {
-                if (Array.isArray(p.applicableTo) && !p.applicableTo.includes(targetType as any)) {
-                    return false;
-                }
+            } else if (Array.isArray(p.applicableTo) && !p.applicableTo.includes(targetType as any)) {
+                return false;
             }
 
             // Dependency Check
@@ -493,8 +496,14 @@ const PropertyPanel: Component = () => {
                     currentValue = (target.data as any)[depKey];
                 } else if (target.type === 'defaults') {
                     currentValue = (store.defaultElementStyles as any)[depKey];
-                } else if (target.type === 'canvas') {
-                    // Not handled yet for canvas deps
+                } else if (target.type === 'slide') {
+                    currentValue = (target.data as any)[depKey];
+                }
+
+                // If undefined, use default from property config
+                if (currentValue === undefined) {
+                    const depProp = properties.find(dp => dp.key === depKey);
+                    currentValue = depProp?.defaultValue;
                 }
 
                 // If it depends on a toggle (boolean) and requiredVal is boolean
@@ -592,7 +601,8 @@ const PropertyPanel: Component = () => {
             if (prop.key === 'backgroundImage') return slide.backgroundImage || '';
             if (prop.key === 'backgroundOpacity') return slide.backgroundOpacity ?? 1;
             if (prop.key === 'gradientDirection') return slide.gradientDirection ?? 0;
-            return undefined;
+            if (prop.key === 'gradientStops') return slide.gradientStops || [];
+            return (slide as any)[prop.key];
         }
         if (target.type === 'element') {
             const val = (target.data as any)[prop.key];

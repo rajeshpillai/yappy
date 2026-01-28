@@ -1493,7 +1493,15 @@ const Canvas: Component = () => {
         const data = e.dataTransfer?.getData('text/plain');
         if (!data) return;
 
-        const isColor = data.startsWith('color(') || data.startsWith('#') || data.startsWith('rgba(') || data.startsWith('rgb(') || data.startsWith('oklch(') || data.startsWith('hsl(');
+        // Loosened color detection to be very inclusive for various color strings
+        const isColor = data.startsWith('color(') ||
+            data.startsWith('#') ||
+            data.startsWith('rgba(') ||
+            data.startsWith('rgb(') ||
+            data.startsWith('oklch(') ||
+            data.startsWith('hsl(') ||
+            data.includes('display-p3') ||
+            data.includes('oklch');
         const isImage = data.startsWith('http') || data.startsWith('data:image');
 
         if (!isColor && !isImage) return;
@@ -1536,7 +1544,6 @@ const Canvas: Component = () => {
             }
         } else if (store.docType === 'slides') {
             // Drop anywhere on the canvas (even outside slide bounds) updates the ACTIVE slide background
-            // This is more intuitive for users and bypasses sensitive hit detection
             const activeSlideIndex = store.activeSlideIndex;
             if (activeSlideIndex !== -1) {
                 pushToHistory();
