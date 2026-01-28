@@ -4,7 +4,8 @@ import { storage } from "../storage/file-system-storage";
 import {
     store, deleteElements, toggleTheme, zoomToFit,
     togglePropertyPanel, toggleLayerPanel, toggleMinimap, toggleStatePanel, toggleSlideToolbar,
-    toggleUtilityToolbar, loadTemplate, loadDocument, resetToNewDocument, saveActiveSlide, setIsExportOpen
+    toggleUtilityToolbar, loadTemplate, loadDocument, resetToNewDocument, saveActiveSlide, setIsExportOpen,
+    toggleMainToolbar, toggleSlideNavigator
 } from "../store/app-store";
 import {
     Menu as MenuIcon, FolderOpen, Share2, FilePlus, Trash2, Maximize,
@@ -393,6 +394,15 @@ const Menu: Component = () => {
 
                             <Show when={isMenuOpen()}>
                                 <div class="menu-dropdown">
+                                    <button class="menu-item" onClick={() => { handleNew('infinite'); setIsMenuOpen(false); }}>
+                                        <Maximize size={16} />
+                                        <span class="label">New Infinite Drawing</span>
+                                    </button>
+                                    <button class="menu-item" onClick={() => { handleNew('slides'); setIsMenuOpen(false); }}>
+                                        <FilePlus size={16} />
+                                        <span class="label">New Presentation</span>
+                                    </button>
+                                    <div class="menu-separator"></div>
                                     <button class="menu-item" onClick={() => { setLoadExportInitialTab('load'); setIsLoadExportOpen(true); setIsMenuOpen(false); }}>
                                         <FolderOpen size={16} />
                                         <span class="label">Load Sketch...</span>
@@ -457,14 +467,24 @@ const Menu: Component = () => {
                                         </div>
                                     </Show>
                                     <div class="menu-separator"></div>
-                                    <button class="menu-item" onClick={() => { handleNew('slides'); setIsMenuOpen(false); }}>
-                                        <FilePlus size={16} />
-                                        <span class="label">New Presentation</span>
-                                    </button>
-                                    <button class="menu-item" onClick={() => { handleNew('infinite'); setIsMenuOpen(false); }}>
-                                        <Maximize size={16} />
-                                        <span class="label">New Infinite Drawing</span>
-                                    </button>
+                                    <div class="menu-header">View</div>
+                                    <Show when={store.docType === 'slides'}>
+                                        <div class="menu-item" onClick={() => { toggleSlideNavigator(); setIsMenuOpen(false); }}>
+                                            <Layout size={16} />
+                                            <span class="label">Slide Panel</span>
+                                            <div class="menu-item-right">
+                                                <Show when={store.showSlideNavigator}><Check size={14} class="check-icon" /></Show>
+                                            </div>
+                                        </div>
+                                    </Show>
+                                    <div class="menu-item" onClick={() => { toggleMainToolbar(); setIsMenuOpen(false); }}>
+                                        <Layout size={16} />
+                                        <span class="label">Drawing Toolbar</span>
+                                        <div class="menu-item-right">
+                                            <Show when={store.showMainToolbar}><Check size={14} class="check-icon" /></Show>
+                                        </div>
+                                    </div>
+                                    <div class="menu-separator"></div>
                                     <button class="menu-item" onClick={() => { setIsTemplateBrowserOpen(true); setIsMenuOpen(false); }}>
                                         <Layout size={16} />
                                         <span class="label">Templates</span>
@@ -525,20 +545,6 @@ const Menu: Component = () => {
                                     <Share2 size={18} />
                                 </button>
                                 <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
-                                <button class="menu-btn" onClick={() => setShowHelp(true)} title="Help & Shortcuts (?)">
-                                    <div style={{
-                                        width: '20px',
-                                        height: '20px',
-                                        "border-radius": '50%',
-                                        border: '2px solid currentColor',
-                                        display: 'flex',
-                                        "align-items": 'center',
-                                        "justify-content": 'center',
-                                        "font-weight": 'bold',
-                                        "font-size": '14px'
-                                    }}>?</div>
-                                </button>
-                                <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
                                 <div ref={p3PickerRef} style={{ position: 'relative' }}>
                                     <button
                                         class={`menu-btn ${isP3PickerOpen() ? 'active' : ''}`}
@@ -552,9 +558,9 @@ const Menu: Component = () => {
                                             class="menu-dropdown"
                                             style={{
                                                 position: 'absolute',
-                                                bottom: '100%',
+                                                top: '100%',
                                                 right: 0,
-                                                margin: '0 0 8px 0',
+                                                margin: '8px 0 0 0',
                                                 padding: '4px',
                                                 width: 'auto',
                                                 'min-width': '180px'

@@ -57,6 +57,8 @@ const FileOpenDialog: Component<FileOpenDialogProps> = (props) => {
             if (!props.isOpen) return;
 
             const fileList = files();
+            console.log("FileOpenDialog Key:", e.key, { files: fileList.length, activeId: activeId() });
+
             if (fileList.length === 0) return;
 
             const currentId = activeId();
@@ -107,6 +109,13 @@ const FileOpenDialog: Component<FileOpenDialogProps> = (props) => {
 
     createEffect(() => {
         if (props.isOpen) {
+            // Force focus to window/body to ensure key events are captured immediately
+            if (document.activeElement instanceof HTMLElement) {
+                document.activeElement.blur();
+            }
+            window.focus();
+
+            console.log("FileOpenDialog opened. Fetching files...");
             fetchFiles();
         }
     });

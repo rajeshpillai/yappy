@@ -63,11 +63,12 @@ interface AppState {
     showStatePanel: boolean;
     showSlideNavigator: boolean;
     showSlideToolbar: boolean;
+    showMainToolbar: boolean;
     slideToolbarPosition: { x: number, y: number };
     showExportDialog: boolean;
     showUtilityToolbar: boolean;
     selectedUmlType: 'umlClass' | 'umlInterface' | 'umlActor' | 'umlUseCase' | 'umlNote' | 'umlPackage' | 'umlComponent' | 'umlState' | 'umlLifeline' | 'umlFragment' | 'umlSignalSend' | 'umlSignalReceive' | 'umlProvidedInterface' | 'umlRequiredInterface';
-    
+
     // Tool-specific styles persistence
     toolStyles: Record<string, Partial<DrawingElement>>;
 }
@@ -158,9 +159,10 @@ const initialState: AppState = {
     selectedTechnicalType: 'dfdProcess',
     states: [],
     showStatePanel: false,
-    showSlideNavigator: false,
+    showSlideNavigator: true,
     showSlideToolbar: true,
-    slideToolbarPosition: { x: (window.innerWidth / 2) - 100, y: window.innerHeight - 100 },
+    showMainToolbar: true,
+    slideToolbarPosition: { x: window.innerWidth / 2 - 150, y: window.innerHeight - 80 },
     showExportDialog: false,
     showUtilityToolbar: true,
 };
@@ -1607,8 +1609,12 @@ export const toggleZenMode = (visible?: boolean) => {
     setStore('zenMode', (v) => visible ?? !v);
 };
 
-export const toggleSlideNavigator = (visible?: boolean) => {
-    setStore('showSlideNavigator', (v) => visible ?? !v);
+export const toggleSlideNavigator = (force?: boolean) => {
+    setStore("showSlideNavigator", (prev) => force ?? !prev);
+};
+
+export const toggleMainToolbar = (force?: boolean) => {
+    setStore("showMainToolbar", (prev) => force ?? !prev);
 };
 
 export const zoomToFitSlide = () => {

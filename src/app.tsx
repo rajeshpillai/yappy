@@ -27,7 +27,8 @@ const PresentationControls = lazy(() => import('./components/presentation-contro
 import { WelcomeScreen } from './components/welcome-screen';
 
 import Menu, {
-  handleNew, handleSaveRequest, setIsDialogOpen, setShowHelp
+  handleNew, handleSaveRequest, setIsDialogOpen, setShowHelp,
+  isDialogOpen, isSaveOpen, isLoadExportOpen, showHelp
 } from './components/menu';
 import ZoomControls from './components/zoom-controls';
 import { initAPI } from './api';
@@ -45,6 +46,17 @@ const App: Component = () => {
     initAPI();
 
     const handleKeyDown = async (e: KeyboardEvent) => {
+      // 0. Ignore shortcuts if any Modal Dialog is open
+      if (
+        isDialogOpen() ||
+        isSaveOpen() ||
+        isLoadExportOpen() ||
+        showHelp() ||
+        store.showExportDialog
+      ) {
+        return;
+      }
+
       // Presentation Mode shortcuts (highest priority)
       if (e.key === 'F5') {
         e.preventDefault();
@@ -305,10 +317,17 @@ const App: Component = () => {
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // Prevent accidental feedback navigation?
+      // For now, no-op or simple confirmation if needed.
+    };
+
+    window.addEventListener('keydown', handleKeyDown, true);
+    window.addEventListener('beforeunload', handleBeforeUnload);
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     onCleanup(() => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keydown', handleKeyDown, true);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
     });
   });
@@ -317,7 +336,9 @@ const App: Component = () => {
     <div>
       <Suspense fallback={null}>
         <Show when={store.appMode !== 'presentation'}>
-          <Toolbar />
+          <Show when={store.showMainToolbar}>
+            <Toolbar />
+          </Show>
           <Show when={!store.zenMode}>
             <PropertyPanel />
             <LayerPanel />

@@ -1062,3 +1062,18 @@
 
 
 
+
+## Phase 61: UI Refresh & Fixes
+- [x] **Welcome Screen Overhaul**
+  - [x] Implemented hand-drawn style with RoughJS
+  - [x] Added interactive hints/arrows to UI elements
+  - [x] Refactored to use internal rendering API
+- [x] **UI Enhancements**
+  - [x] Added "View" menu for toggling Slide Panel & Toolbar
+  - [x] Implemented Collapsible Sidebar logic
+  - [x] Reorganized Main Menu (New Infinite Drawing / Presentation at top)
+- [x] **Critical Fixes**
+  - [x] Fixed Global Shortcuts (Ctrl+S, Ctrl+O) failing in Bubble Phase
+  - [x] Fixed File Open Dialog keyboard navigation (Focus management)
+  - [x] Fixed App Crash (Missing handleBeforeUnload)
+  - [x] Fixed P3 Color Picker positioning (off-screen)
