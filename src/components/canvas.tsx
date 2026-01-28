@@ -662,7 +662,7 @@ const Canvas: Component = () => {
         }
 
         // OPTIMIZATION: Create RoughJS instance ONCE per render frame, reuse across all layers
-        const rc = rough.canvas(canvasRef);
+        // (rc is now declared at top of draw function)
 
         sortedLayers.forEach(layer => {
             if (!isLayerVisible(layer.id)) return;
@@ -1499,6 +1499,7 @@ const Canvas: Component = () => {
     };
 
     const getWorldCoordinates = (clientX: number, clientY: number) => {
+        if (!canvasRef) return { x: 0, y: 0 };
         const { scale, panX, panY } = store.viewState;
         const rect = canvasRef.getBoundingClientRect();
         return {

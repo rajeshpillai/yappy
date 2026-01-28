@@ -443,10 +443,9 @@ const PropertyPanel: Component = () => {
         const target = activeTarget();
         if (!target) return [];
 
-        if (target.type === 'multi') return [];
-
-        let targetType: string;
-        if (target.type === 'canvas') {
+        if (target.type === 'multi') {
+            targetType = 'all';
+        } else if (target.type === 'canvas') {
             targetType = 'canvas';
         } else if (target.type === 'slide') {
             targetType = 'slide';
@@ -482,9 +481,18 @@ const PropertyPanel: Component = () => {
                 if (!Array.isArray(p.applicableTo) || !p.applicableTo.includes(targetType as any)) {
                     return false;
                 }
+            } else if (target.type === 'multi') {
+                // For multi-selection, we show properties if they are 'all'
+                // OR if they are applicable to a broad set of types.
+                // To be safe, if p is an array, we'll allow it if it's not strictly for slides/canvas
+                if (Array.isArray(p.applicableTo)) {
+                    const isSlideSpecific = p.applicableTo.length === 1 && p.applicableTo[0] === 'slide';
+                    if (isSlideSpecific) return false;
+                }
             } else if (Array.isArray(p.applicableTo) && !p.applicableTo.includes(targetType as any)) {
                 return false;
             }
+
 
             // Dependency Check
             if (p.dependsOn) {
@@ -547,6 +555,10 @@ const PropertyPanel: Component = () => {
 
         if (target.type === 'element') {
             updateElement(targetId || target.data.id!, { [key]: finalValue }, history);
+        } else if (target.type === 'multi') {
+            store.selection.forEach(id => {
+                updateElement(id, { [key]: finalValue }, history);
+            });
         } else if (target.type === 'canvas') {
             if (key === 'canvasBackgroundColor') setCanvasBackgroundColor(value);
             else if (key === 'gridEnabled') updateGridSettings({ enabled: value });
@@ -605,6 +617,11 @@ const PropertyPanel: Component = () => {
             if (prop.key === 'gradientDirection') return slide.gradientDirection ?? 0;
             if (prop.key === 'gradientStops') return slide.gradientStops || [];
             return (slide as any)[prop.key];
+        }
+        if (target.type === 'multi') {
+            const firstId = store.selection[0];
+            const el = store.elements.find(e => e.id === firstId);
+            return el ? (el as any)[prop.key] : undefined;
         }
         if (target.type === 'element') {
             const val = (target.data as any)[prop.key];
@@ -850,7 +867,7 @@ const PropertyPanel: Component = () => {
                                     {(group) => (
                                         <div class="property-group">
                                             <div class="group-title">{group.toUpperCase()}</div>
-                                            <Show when={group === 'gradient' && (activeTarget()?.type === 'element' || (activeTarget()?.type === 'slide' && ['linear', 'radial', 'conic'].includes((activeTarget()?.data as Slide).fillStyle || '')))}>
+                                            <Show when={group === 'gradient' && (activeTarget()?.type === 'element' || activeTarget()?.type === 'multi' || (activeTarget()?.type === 'slide' && ['linear', 'radial', 'conic'].includes((activeTarget()?.data as Slide).fillStyle || '')))}>
                                                 <GradientEditor
                                                     target={activeTarget()}
                                                     onChange={handleChange}
