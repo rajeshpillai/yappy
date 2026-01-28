@@ -72,8 +72,12 @@ const renderSlideBackground = (ctx: CanvasRenderingContext2D, rc: any, slide: an
             grad = ctx.createLinearGradient(centerX - dx, centerY - dy, centerX + dx, centerY + dy);
         } else {
             // Radial
+            const angleRad = (angle * Math.PI) / 180;
             const radius = Math.max(w, h) / 2;
-            grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+            const focalOffset = radius * 0.4; // 40% offset
+            const fx = centerX + Math.cos(angleRad) * focalOffset;
+            const fy = centerY + Math.sin(angleRad) * focalOffset;
+            grad = ctx.createRadialGradient(fx, fy, 0, centerX, centerY, radius);
         }
 
         stops.forEach((s: any) => grad.addColorStop(s.offset, s.color));

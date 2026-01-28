@@ -183,7 +183,12 @@ export class RenderPipeline {
             const y2 = Math.sin(angleRad) * r;
             grad = ctx.createLinearGradient(x1, y1, x2, y2);
         } else if (gType === 'radial') {
-            grad = ctx.createRadialGradient(0, 0, 0, 0, 0, Math.max(w, h) / 2);
+            const angleRad = (el.gradientDirection || 0) * (Math.PI / 180);
+            const radius = Math.max(w, h) / 2;
+            const focalOffset = radius * 0.4; // 40% offset for focal point
+            const fx = Math.cos(angleRad) * focalOffset;
+            const fy = Math.sin(angleRad) * focalOffset;
+            grad = ctx.createRadialGradient(fx, fy, 0, 0, 0, radius);
         } else if (gType === 'conic') {
             const angleRad = (el.gradientDirection || 0) * (Math.PI / 180);
             grad = (ctx as any).createConicGradient(angleRad, 0, 0);
