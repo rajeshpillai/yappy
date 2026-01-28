@@ -221,9 +221,11 @@ export class SequenceAnimator {
         } else if (anim.type === 'rotate') {
             this.animateRotate(elementId, anim as any, config);
         } else if (anim.type === 'path') {
-            // TODO: Implement path animation logic
-            console.warn('Path animation not yet implemented');
-            onComplete();
+            animator.animateAlongPath(elementId, (anim as any).pathData, {
+                ...config,
+                orientToPath: (anim as any).orientToPath,
+                isRelative: (anim as any).isRelative
+            });
         }
     }
 

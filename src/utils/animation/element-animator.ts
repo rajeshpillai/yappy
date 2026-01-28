@@ -4,6 +4,7 @@
  */
 
 import { animationEngine, generateAnimationId } from './animation-engine';
+import { PathUtils } from '../math/path-utils';
 import type { AnimationConfig } from './animation-types';
 import { lerp, lerpColor } from './animation-types';
 import { store, updateElement } from '../../store/app-store';
@@ -252,11 +253,95 @@ export function pauseElementAnimation(animationId: string): void {
 }
 
 /**
+ * Animate an element along an SVG path
+ */
+export function animateAlongPath(
+    elementId: string,
+    pathData: string,
+    config: ElementAnimationConfig & { orientToPath?: boolean; isRelative?: boolean }
+): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    // Parse path once
+    const commands = PathUtils.parsePath(pathData);
+    if (commands.length === 0) return '';
+
+    const animId = generateAnimationId('path');
+
+    // Stop conflicting
+    stopAllElementAnimations(elementId);
+    if (!activeAnimations.has(elementId)) activeAnimations.set(elementId, new Set());
+    activeAnimations.get(elementId)!.add(animId);
+
+    // Initial state
+    const originalAngle = element.angle;
+    const initialCenterX = element.x + element.width / 2;
+    const initialCenterY = element.y + element.height / 2;
+    const isRelative = config.isRelative ?? true; // Default to relative as it's more useful
+
+    animationEngine.create(
+        animId,
+        (progress: number) => {
+            const point = PathUtils.getPointOnPath(commands, progress);
+
+            let finalX: number;
+            let finalY: number;
+
+            if (isRelative) {
+                // Path (0,0) corresponds to Initial Center
+                finalX = initialCenterX + point.x - element.width / 2;
+                finalY = initialCenterY + point.y - element.height / 2;
+            } else {
+                // Path (0,0) corresponds to Canvas (0,0)
+                finalX = point.x - element.width / 2;
+                finalY = point.y - element.height / 2;
+            }
+
+            const updates: Partial<DrawingElement> = {
+                x: finalX,
+                y: finalY
+            };
+
+            if (config.orientToPath) {
+                updates.angle = point.angle; // Use tangent angle (maybe add to originalAngle?)
+            }
+
+            updateElement(elementId, updates, false);
+
+            // Callback
+            config.onUpdate?.({ x: updates.x, y: updates.y, angle: updates.angle });
+        },
+        {
+            duration: config.duration,
+            easing: config.easing,
+            delay: config.delay,
+            onStart: config.onStart,
+            onComplete: () => {
+                const animIds = activeAnimations.get(elementId);
+                if (animIds) {
+                    animIds.delete(animId);
+                    if (animIds.size === 0) activeAnimations.delete(elementId);
+                }
+                config.onComplete?.();
+            },
+            loop: config.loop,
+            loopCount: config.loopCount,
+            alternate: config.alternate
+        }
+    );
+
+    animationEngine.start(animId);
+    return animId;
+}
+
+/**
  * Resume a paused element animation
  */
 export function resumeElementAnimation(animationId: string): void {
     animationEngine.start(animationId);
 }
+
 
 // ============================================
 // Preset Animations
@@ -859,14 +944,17 @@ export function scaleOut(elementId: string, duration: number = 300, config: Elem
 }
 
 /**
- * Slide in from left
+ * Slide in from left (Smart Fly-In)
  */
 export function slideInLeft(elementId: string, duration: number = 300, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
     const targetX = element.x;
-    updateElement(elementId, { x: -element.width, opacity: 0 }, false);
+    // Start just off-screen left (allowing for some padding)
+    const startX = -element.width - 50;
+
+    updateElement(elementId, { x: startX, opacity: 0 }, false);
 
     return animateElement(elementId, { x: targetX, opacity: 100 }, {
         duration,
@@ -876,14 +964,17 @@ export function slideInLeft(elementId: string, duration: number = 300, config: E
 }
 
 /**
- * Slide in from right
+ * Slide in from right (Smart Fly-In)
  */
 export function slideInRight(elementId: string, duration: number = 300, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
     const targetX = element.x;
-    updateElement(elementId, { x: window.innerWidth + 100, opacity: 0 }, false);
+    // Start just off-screen right
+    const startX = window.innerWidth + 50;
+
+    updateElement(elementId, { x: startX, opacity: 0 }, false);
 
     return animateElement(elementId, { x: targetX, opacity: 100 }, {
         duration,
@@ -893,14 +984,17 @@ export function slideInRight(elementId: string, duration: number = 300, config: 
 }
 
 /**
- * Slide in from top
+ * Slide in from top (Smart Fly-In)
  */
 export function slideInUp(elementId: string, duration: number = 300, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
     const targetY = element.y;
-    updateElement(elementId, { y: -element.height, opacity: 0 }, false);
+    // Start just off-screen top
+    const startY = -element.height - 50;
+
+    updateElement(elementId, { y: startY, opacity: 0 }, false);
 
     return animateElement(elementId, { y: targetY, opacity: 100 }, {
         duration,
@@ -910,14 +1004,17 @@ export function slideInUp(elementId: string, duration: number = 300, config: Ele
 }
 
 /**
- * Slide in from bottom
+ * Slide in from bottom (Smart Fly-In)
  */
 export function slideInDown(elementId: string, duration: number = 300, config: ElementAnimationConfig = {}): string {
     const element = store.elements.find(el => el.id === elementId);
     if (!element) return '';
 
     const targetY = element.y;
-    updateElement(elementId, { y: window.innerHeight + 100, opacity: 0 }, false);
+    // Start just off-screen bottom
+    const startY = window.innerHeight + 50;
+
+    updateElement(elementId, { y: startY, opacity: 0 }, false);
 
     return animateElement(elementId, { y: targetY, opacity: 100 }, {
         duration,

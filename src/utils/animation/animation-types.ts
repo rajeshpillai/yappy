@@ -212,8 +212,24 @@ export interface KeyframeAnimation<T = number> {
     loop?: boolean;
 }
 
-// ============================================
-// Internal Animation Representation
+// 3. Path Animation (Motion Path)
+export interface PathAnimation /* extends BaseAnimation */ { // BaseAnimation is not defined in the provided document
+    type: 'path';
+    pathData: string; // SVG d attribute
+    orientToPath?: boolean; // Auto-rotate element to match path tangent
+    isRelative?: boolean; // If true, path is relative to element's starting center
+    startOffset?: number; // 0-1
+    endOffset?: number; // 0-1
+}
+
+export interface RotateAnimation /* extends BaseAnimation */ { // RotateAnimation and BaseAnimation are not defined in the provided document
+    type: 'rotate';
+    fromAngle?: number;
+    toAngle: number;
+    relative?: boolean; // If true, treat toAngle as delta
+}
+
+export type ElementAnimation = /* PresetAnimation | PropertyAnimation | */ PathAnimation | RotateAnimation; // PresetAnimation and PropertyAnimation are not defined in the provided document
 // ============================================
 
 export interface Animation {

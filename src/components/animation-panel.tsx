@@ -58,6 +58,27 @@ export const AnimationPanel: Component = () => {
         setIsAdding(false);
     };
 
+    const addPathAnimation = () => {
+        const el = element();
+        if (!el) return;
+
+        const newAnim: any = {
+            id: crypto.randomUUID(),
+            type: 'path',
+            pathData: `M 0 0 Q 300 -100 600 0`, // Simple curve default
+            orientToPath: true,
+            isRelative: true,
+            duration: 2000,
+            delay: 0,
+            easing: 'easeInOutQuad',
+            trigger: el.animations?.length ? 'after-prev' : 'on-load'
+        };
+
+        const currentAnims = el.animations || [];
+        updateElement(el.id, { animations: [...currentAnims, newAnim] }, true);
+        setIsAdding(false);
+    };
+
     const addRotateAnimation = () => {
         const el = element();
         if (!el) return;
@@ -306,6 +327,22 @@ export const AnimationPanel: Component = () => {
                         >
                             + Add Rotate
                         </button>
+                        <button
+                            onClick={addPathAnimation}
+                            style={{
+                                'flex': 1,
+                                'padding': '6px',
+                                'border': 'none',
+                                'background': '#8b5cf6',
+                                'color': 'white',
+                                'border-radius': '4px',
+                                'cursor': 'pointer',
+                                'font-size': '11px',
+                                'font-weight': 600
+                            }}
+                        >
+                            + Add Path
+                        </button>
                     </div>
 
                     <button
@@ -508,6 +545,49 @@ const AnimationItem: Component<{
                                 }}
                                 style={{ 'width': '60px', 'font-size': '11px', 'padding': '2px 4px' }}
                             />
+                        </div>
+                    </Show>
+
+                    {/* Specialized Path Settings */}
+                    <Show when={props.animation.type === 'path'}>
+                        <div style={{ 'display': 'flex', 'flex-direction': 'column', 'gap': '4px' }}>
+                            <label style={{ 'font-size': '11px', 'opacity': 0.7 }}>SVG Path Data (d)</label>
+                            <textarea
+                                value={(props.animation as any).pathData || ''}
+                                onInput={(e) => props.onUpdate({ pathData: e.currentTarget.value } as any)}
+                                style={{
+                                    'width': '100%',
+                                    'font-size': '10px',
+                                    'padding': '4px',
+                                    'font-family': 'monospace',
+                                    'border': '1px solid var(--border-color)',
+                                    'border-radius': '4px',
+                                    'height': '60px',
+                                    'resize': 'vertical'
+                                }}
+                            />
+                        </div>
+                        <div style={{ 'display': 'flex', 'align-items': 'center', 'gap': '8px' }}>
+                            <input
+                                type="checkbox"
+                                id={`orient-${props.animation.id}`}
+                                checked={(props.animation as any).orientToPath || false}
+                                onChange={(e) => props.onUpdate({ orientToPath: e.currentTarget.checked } as any)}
+                            />
+                            <label for={`orient-${props.animation.id}`} style={{ 'font-size': '11px', 'opacity': 0.7, 'cursor': 'pointer' }}>
+                                Orient to Path
+                            </label>
+                        </div>
+                        <div style={{ 'display': 'flex', 'align-items': 'center', 'gap': '8px' }}>
+                            <input
+                                type="checkbox"
+                                id={`rel-${props.animation.id}`}
+                                checked={(props.animation as any).isRelative ?? true}
+                                onChange={(e) => props.onUpdate({ isRelative: e.currentTarget.checked } as any)}
+                            />
+                            <label for={`rel-${props.animation.id}`} style={{ 'font-size': '11px', 'opacity': 0.7, 'cursor': 'pointer' }}>
+                                Use Relative Coordinates
+                            </label>
                         </div>
                     </Show>
 
