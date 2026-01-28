@@ -10,6 +10,12 @@ export abstract class ShapeRenderer {
     render(context: RenderContext) {
         const { ctx, element, layerOpacity } = context;
 
+        // MORPH ANIMATION SUPPORT: If element has custom points, render them directly
+        if (element.points && element.points.length > 0) {
+            this.renderCustomPoints(context);
+            return;
+        }
+
         // 1. Apply universal transformations (rotation, opacity, shadow)
         const { cx, cy } = RenderPipeline.applyTransformations(ctx, element, layerOpacity);
 
@@ -122,6 +128,92 @@ export abstract class ShapeRenderer {
      */
     estimatePathLength(element: any): number {
         return 2 * (Math.abs(element.width) + Math.abs(element.height));
+    }
+
+    /**
+     * Renders an element using custom points (for morph animations).
+     * This bypasses normal shape geometry and renders the points directly.
+     */
+    protected renderCustomPoints(context: RenderContext) {
+        const { ctx, element: el, isDarkMode, layerOpacity } = context;
+
+        console.log('[renderCustomPoints] Rendering custom points:', el.id, el.points?.length);
+
+        // Don't apply transformations - points are already in absolute canvas coordinates
+        ctx.save();
+        ctx.globalAlpha = layerOpacity * (el.opacity ?? 1);
+
+        // Normalize points (handle both {x,y} and packed number[] formats)
+        const points = this.normalizePoints(el.points);
+        if (points.length === 0) return;
+
+        // CRITICAL: Points from getShapeGeometry are in LOCAL coordinates (relative to element center)
+        // We need to translate them to ABSOLUTE canvas coordinates by adding element position
+        const cx = el.x + el.width / 2;
+        const cy = el.y + el.height / 2;
+
+        const absolutePoints = points.map(p => ({
+            x: p.x + cx,
+            y: p.y + cy
+        }));
+
+        // DEBUG: Log first few points to see coordinates
+        if (absolutePoints.length >= 3) {
+            console.log('[renderCustomPoints] First 3 absolute points:', [
+                { x: absolutePoints[0].x, y: absolutePoints[0].y },
+                { x: absolutePoints[1].x, y: absolutePoints[1].y },
+                { x: absolutePoints[2].x, y: absolutePoints[2].y }
+            ]);
+        }
+        console.log('[renderCustomPoints] Element center:', { cx, cy });
+
+        // Apply opacity
+        ctx.save();
+        ctx.globalAlpha = layerOpacity * (el.opacity ?? 1);
+
+        // Fill
+        if (el.backgroundColor && el.backgroundColor !== 'transparent' && el.backgroundColor !== 'none') {
+            ctx.fillStyle = RenderPipeline.adjustColor(el.backgroundColor, isDarkMode);
+            ctx.beginPath();
+            ctx.moveTo(absolutePoints[0].x, absolutePoints[0].y);
+            for (let i = 1; i < absolutePoints.length; i++) {
+                ctx.lineTo(absolutePoints[i].x, absolutePoints[i].y);
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Stroke
+        ctx.strokeStyle = RenderPipeline.adjustColor(el.strokeColor, isDarkMode);
+        ctx.lineWidth = el.strokeWidth;
+        ctx.beginPath();
+        ctx.moveTo(absolutePoints[0].x, absolutePoints[0].y);
+        for (let i = 1; i < absolutePoints.length; i++) {
+            ctx.lineTo(absolutePoints[i].x, absolutePoints[i].y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    /**
+     * Normalize points from either {x,y} objects or packed number[] array
+     */
+    private normalizePoints(points: any): { x: number; y: number }[] {
+        if (!points || points.length === 0) return [];
+
+        // Check if it's already in {x,y} format
+        if (typeof points[0] === 'object' && 'x' in points[0]) {
+            return points;
+        }
+
+        // Convert from packed number[] format
+        const result: { x: number; y: number }[] = [];
+        for (let i = 0; i < points.length - 1; i += 2) {
+            result.push({ x: points[i], y: points[i + 1] });
+        }
+        return result;
     }
 
     /**

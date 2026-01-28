@@ -5,9 +5,10 @@
 
 import { animationEngine, generateAnimationId } from './animation-engine';
 import { PathUtils } from '../math/path-utils';
+import { MorphUtils } from '../math/morph-utils';
 import type { AnimationConfig } from './animation-types';
 import { lerp, lerpColor } from './animation-types';
-import { store, updateElement } from '../../store/app-store';
+import { store, updateElement, setStore } from '../../store/app-store';
 import type { DrawingElement } from '../../types';
 
 // Track active animations per element to prevent drift and handle interruptions
@@ -2176,4 +2177,90 @@ export function playExitAnimation(elementId: string, options: { isPreview?: bool
         default:
             return '';
     }
+}
+
+/**
+ * Animate one shape morphing into another
+ */
+export function animateMorph(
+    elementId: string,
+    targetShape: string,
+    config: ElementAnimationConfig
+): string {
+    const element = store.elements.find(el => el.id === elementId);
+    if (!element) return '';
+
+    const animId = generateAnimationId('morph');
+
+    stopAllElementAnimations(elementId);
+    if (!activeAnimations.has(elementId)) activeAnimations.set(elementId, new Set());
+    activeAnimations.get(elementId)!.add(animId);
+
+    // 1. Prepare Start and End Geometry
+    const samples = 120; // High resolution for smoothness
+    const rawStartPoints = MorphUtils.getPointsFromElement(element);
+    const rawEndPoints = MorphUtils.getPointsFromElement(element, targetShape);
+
+    // 2. Resample to equal point counts
+    const startPoints = MorphUtils.resamplePolygon(rawStartPoints, samples);
+    let endPoints = MorphUtils.resamplePolygon(rawEndPoints, samples);
+
+    // 3. Align to minimize rotation/twisting
+    endPoints = MorphUtils.alignPolygons(startPoints, endPoints);
+
+    console.log('[Morph] Starting morph:', { elementId, startPoints: startPoints.length, endPoints: endPoints.length });
+
+    // Store original type to restore later
+    // Store original type for potential rollback
+
+    animationEngine.create(
+        animId,
+        (progress: number) => {
+            // Interpolate
+            const currentPoints = MorphUtils.interpolatePoints(startPoints, endPoints, progress);
+
+            console.log('[Morph] Progress:', progress.toFixed(3));
+
+            // DIFFERENT APPROACH: Render directly to canvas instead of updating store
+            // This bypasses the reactive system entirely
+            // We'll update the element's points at the END, but render live during animation
+
+            // Store the current morph state on the element for the renderer to pick up
+            const idx = store.elements.findIndex(e => e.id === elementId);
+            if (idx !== -1) {
+                // Update the element with current morph points
+                // Force a new object reference to trigger reactivity
+                const newElements = [...store.elements];
+                newElements[idx] = {
+                    ...newElements[idx],
+                    points: [...currentPoints],
+
+                };
+                setStore('elements', newElements);
+            }
+        },
+        {
+            duration: config.duration,
+            easing: config.easing,
+            delay: config.delay,
+            loop: config.loop,
+            loopCount: config.loopCount,
+            alternate: config.alternate,
+            onComplete: () => {
+                activeAnimations.get(elementId)?.delete(animId);
+
+                // Final state: Set to the actual target shape type and clean up
+                updateElement(elementId, {
+                    type: targetShape as any,
+                    points: undefined,
+
+                }, false);
+
+                config.onComplete?.();
+            }
+        }
+    );
+
+    animationEngine.start(animId);
+    return animId;
 }

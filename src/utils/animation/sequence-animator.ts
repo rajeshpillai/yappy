@@ -241,6 +241,8 @@ export class SequenceAnimator {
                 orientToPath: (anim as any).orientToPath,
                 isRelative: (anim as any).isRelative
             });
+        } else if (anim.type === 'morph') {
+            animator.animateMorph(elementId, (anim as any).targetShape, config);
         }
     }
 

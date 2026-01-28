@@ -385,6 +385,7 @@ const Canvas: Component = () => {
     const [contextMenuPos, setContextMenuPos] = createSignal({ x: 0, y: 0 });
 
     function draw() {
+        console.log('[Canvas] draw() called, effectiveTime:', effectiveTime());
         if (!canvasRef) return;
         const ctx = canvasRef.getContext("2d");
         if (!ctx) return;

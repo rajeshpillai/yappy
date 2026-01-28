@@ -61,7 +61,15 @@ export interface RotateAnimation extends BaseAnimation {
     relative?: boolean; // If true, treat toAngle as delta
 }
 
-export type ElementAnimation = PresetAnimation | PropertyAnimation | PathAnimation | RotateAnimation;
+
+export interface MorphAnimation extends BaseAnimation {
+    type: 'morph';
+    targetShape: string; // e.g., 'star', 'circle', 'rectangle'
+    // In future: targetElementId?: string;
+}
+
+export type ElementAnimation = PresetAnimation | PropertyAnimation | PathAnimation | RotateAnimation | MorphAnimation;
+
 
 // Defines what properties can be overridden in a state
 export interface DrawingElementState {

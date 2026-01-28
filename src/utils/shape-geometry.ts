@@ -12,6 +12,12 @@ const getRoundedRectPath = (x: number, y: number, w: number, h: number, r: numbe
 };
 
 export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
+    // If element has custom points (e.g., during morph animation), use them directly
+    if (el.points && el.points.length > 0) {
+        console.log('[getShapeGeometry] Using custom points:', el.id, el.points.length);
+        return { type: 'points', points: el.points as { x: number; y: number }[] };
+    }
+
     const w = el.width;
     const h = el.height;
     const mw = w / 2;

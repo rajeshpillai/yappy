@@ -810,6 +810,12 @@
 - [x] **Auto-Animate (State Morphing)** <!-- id: 102 -->
     - [x] Implement "Magic Move" transitions between two saved diagram states or slides
     - [x] Smoothly interpolate position, size, and color of elements with the same ID
+    - [x] **Shape Morphing**: Smooth transformation between different shape types
+      - [x] Point-based interpolation with resampling for different geometries
+      - [x] Support for all shape types (rectangle, circle, star, etc.)
+      - [x] Configurable duration and easing functions
+      - [x] Custom points rendering path in shape renderers
+      - [x] Documentation: `docs/shape-morphing.md`
 
 ## Phase 61: Advanced Workflow & Presentation
 - [ ] **AI Text-to-Diagram**
@@ -1142,6 +1148,10 @@
   - [x] Added UI toggle for Relative Coordinates in Animation Panel
   - [x] Verified seamless existing path conversion
 - [x] **Visual Path Editor**
+- [x] **Shape Morphing (Magic Morph)**
+  - [x] Implemented `MorphUtils` for polygon resampling and alignment
+  - [x] Added Morph Animation type to Engine and UI
+  - [x] Smooth transition between arbitrary shapes
   - [x] Created `PathEditorOverlay` in `canvas.tsx` for interactive editing
   - [x] Implemented "Edit Path" mode in App Store
   - [x] Bi-directional sync between SVG strings (d) and editable Handles

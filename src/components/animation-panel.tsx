@@ -79,6 +79,26 @@ export const AnimationPanel: Component = () => {
         setIsAdding(false);
     };
 
+    const addMorphAnimation = () => {
+        const el = element();
+        if (!el) return;
+
+        const newAnim: any = {
+            id: crypto.randomUUID(),
+            type: 'morph',
+            targetShape: 'star', // Default
+            duration: 2500,
+            delay: 0,
+            easing: 'easeInOutCubic',
+            trigger: el.animations?.length ? 'after-prev' : 'on-load',
+            restoreAfter: false // Usually morphs are permanent transitions
+        };
+
+        const currentAnims = el.animations || [];
+        updateElement(el.id, { animations: [...currentAnims, newAnim] }, true);
+        setIsAdding(false);
+    };
+
     const addRotateAnimation = () => {
         const el = element();
         if (!el) return;
@@ -345,6 +365,24 @@ export const AnimationPanel: Component = () => {
                             + Add Path
                         </button>
                     </div>
+                    <div style={{ 'margin-top': '4px', 'display': 'flex' }}>
+                        <button
+                            onClick={addMorphAnimation}
+                            style={{
+                                'flex': 1,
+                                'padding': '6px',
+                                'border': 'none',
+                                'background': '#ec4899', // Pink for Magic
+                                'color': 'white',
+                                'border-radius': '4px',
+                                'cursor': 'pointer',
+                                'font-size': '11px',
+                                'font-weight': 600
+                            }}
+                        >
+                            ✨ Magic Morph
+                        </button>
+                    </div>
 
                     <button
                         onClick={() => setIsAdding(false)}
@@ -392,7 +430,9 @@ const AnimationItem: Component<{
                 </div>
                 <div style={{ 'flex': 1, 'font-size': '12px', 'font-weight': 500 }}>
                     {props.animation.type === 'preset' ? (props.animation as PresetAnimation).name :
-                        props.animation.type === 'rotate' ? 'Rotate' : 'Property'}
+                        props.animation.type === 'rotate' ? 'Rotate' :
+                            props.animation.type === 'path' ? 'Motion Path' :
+                                props.animation.type === 'morph' ? 'Magic Morph' : 'Property'}
                     <span style={{ 'margin-left': '6px', 'opacity': 0.5, 'font-size': '10px' }}>
                         {props.animation.duration}ms
                     </span>
@@ -619,6 +659,35 @@ const AnimationItem: Component<{
                             </label>
                         </div>
                     </Show>
+                    {/* Specialized Morph Settings */}
+                    <Show when={props.animation.type === 'morph'}>
+                        <div style={{ 'display': 'flex', 'flex-direction': 'column', 'gap': '4px' }}>
+                            <label style={{ 'font-size': '11px', 'opacity': 0.7 }}>Target Shape</label>
+                            <select
+                                value={(props.animation as any).targetShape || 'rectangle'}
+                                onChange={(e) => props.onUpdate({ targetShape: e.currentTarget.value } as any)}
+                                style={{
+                                    'width': '100%',
+                                    'font-size': '11px',
+                                    'padding': '4px',
+                                    'border': '1px solid var(--border-color)',
+                                    'border-radius': '4px',
+                                    'background': 'var(--bg-input)',
+                                    'color': 'var(--text-primary)'
+                                }}
+                            >
+                                <option value="rectangle">Rectangle</option>
+                                <option value="circle">Circle / Ellipse</option>
+                                <option value="triangle">Triangle</option>
+                                <option value="star">Star</option>
+                                <option value="heart">Heart</option>
+                                <option value="diamond">Diamond</option>
+                                <option value="arrowRight">Arrow</option>
+                                <option value="cloud">Cloud</option>
+                            </select>
+                        </div>
+                    </Show>
+
 
                     {/* Restore State */}
                     <div style={{ 'display': 'flex', 'align-items': 'center', 'gap': '8px', 'margin-top': '4px' }}>
