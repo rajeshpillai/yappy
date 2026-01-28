@@ -1,5 +1,5 @@
 
-import { type Component, Show, createEffect, onCleanup } from 'solid-js';
+import { type Component, Show, createEffect, onCleanup, createSignal } from 'solid-js';
 import { store } from '../store/app-store';
 import rough from 'roughjs';
 import { renderElement } from '../utils/render-element';
@@ -15,6 +15,17 @@ export const WelcomeScreen: Component = () => {
         store.appMode !== 'presentation' &&
         !store.zenMode;
 
+    // Reactive window dimensions
+    const [windowSize, setWindowSize] = createSignal({ width: window.innerWidth, height: window.innerHeight });
+
+    createEffect(() => {
+        const handler = () => {
+            setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+        };
+        window.addEventListener('resize', handler);
+        onCleanup(() => window.removeEventListener('resize', handler));
+    });
+
     createEffect(() => {
         if (!canvasRef || !isVisible()) return;
 
@@ -22,8 +33,8 @@ export const WelcomeScreen: Component = () => {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        const width = window.innerWidth;
-        const height = window.innerHeight;
+        const { width, height } = windowSize();
+        const isMobile = width < 768; // Mobile breakpoint
 
         // Handle High DPI
         const dpr = window.devicePixelRatio || 1;
@@ -84,80 +95,47 @@ export const WelcomeScreen: Component = () => {
             );
         };
 
-        // 1. Menu Arrow (Top Left)
-        // From center-left to top-left
-        const menuArrow = createArrow(
-            [{ x: cx - 200, y: cy - 100 }, { x: 100, y: 60 }], // Start, End
-            [{ x: cx - 250, y: cy - 200 }, { x: 200, y: 150 }] // Control points (cubic bezier: start, cp1, cp2, end in renderer logic diff?)
-            // Wait, ConnectorRenderer expects normalized points usually? 
-            // Let's look at ConnectorRenderer.renderBezier:
-            // "if (el.controlPoints...) path = M start C cp1, cp2, end"
-            // It uses absolute coordinates if we pass them as such?
-            // "pts = normalizePoints(el.points)" -> relative to el.x, el.y
-            // If we set el.x=0, el.y=0, then points are absolute.
-        );
-        // Adjusting control points for smooth curve
-        // Start: (cx-200, cy-100), End: (100, 60)
-        // CP1: (cx-300, cy-150), CP2: (200, 150)
-        menuArrow.controlPoints = [
-            { x: cx - 300, y: cy - 100 },
-            { x: 200, y: 150 }
-        ];
-        renderArrow(menuArrow);
+        // Don't render complex arrows on very small screens to avoid clutter
+        if (!isMobile) {
+            // 1. Menu Arrow (Top Left)
+            // From center-left to top-left
+            const menuArrow = createArrow(
+                [{ x: cx - 200, y: cy - 100 }, { x: 100, y: 60 }], // Start, End
+                [{ x: cx - 250, y: cy - 200 }, { x: 200, y: 150 }] // CP1, CP2
+            );
+            renderArrow(menuArrow);
 
+            // 2. Toolbar Arrow (Top Center)
+            // From center-top to top-center
+            const toolbarArrow = createArrow(
+                [{ x: cx + 50, y: cy - 150 }, { x: cx, y: 80 }],
+                [{ x: cx + 20, y: 150 }, { x: cx + 10, y: 100 }]
+            );
+            renderArrow(toolbarArrow);
 
-        // 2. Toolbar Arrow (Top Center)
-        // From center-top to top-center
-        const toolbarArrow = createArrow(
-            [{ x: cx + 50, y: cy - 150 }, { x: cx, y: 80 }]
-        );
-        toolbarArrow.controlPoints = [
-            { x: cx + 20, y: 150 } // Quadratic if 1 CP? Or need 2? Renderer supports both.
-        ];
-        // Force 2 CPs for cubic bezier consistency just in case
-        toolbarArrow.controlPoints = [
-            { x: cx + 20, y: 150 },
-            { x: cx + 10, y: 100 }
-        ];
-        renderArrow(toolbarArrow);
+            // 4. P3 Color Picker Arrow (Top Right)
+            const p3Arrow = createArrow(
+                [{ x: cx + 250, y: cy - 100 }, { x: width - 100, y: 60 }],
+                [{ x: width - 180, y: 120 }, { x: width - 140, y: 90 }]
+            );
+            renderArrow(p3Arrow);
+        }
 
-        // 3. Help Arrow (Bottom Left)
-        // From center-left-down to bottom-left (290px, height-65px as per previous task)
-        const helpArrow = createArrow(
-            [{ x: cx - 150, y: cy + 100 }, { x: 310, y: height - 65 }]
-        );
-        helpArrow.controlPoints = [
-            { x: 350, y: height - 120 },
-            { x: 320, y: height - 90 }
-        ];
-        renderArrow(helpArrow);
+        // 3. Help Arrow (Bottom Left) - Keep on mobile if space allows, but simplified
+        // From center-left-down to bottom-left (290px, height-65px)
+        const helpTargetX = isMobile ? 60 : 310; // Connect to bottom-left on mobile too? Or hidden?
+        const helpTargetY = height - 65;
 
-        // 4. P3 Color Picker Arrow (Top Right)
-        // From center-right to top-right
-        const p3Arrow = createArrow(
-            [{ x: cx + 250, y: cy - 100 }, { x: width - 100, y: 60 }]
-        );
-        p3Arrow.controlPoints = [
-            { x: width - 180, y: 120 },
-            { x: width - 140, y: 90 }
-        ];
-        renderArrow(p3Arrow);
-    });
-
-
-
-    // Simpler: Just rely on CSS 100% width/height and re-run drawing on resize event
-    createEffect(() => {
-        const handler = () => {
-            // Force redraw - crude but effective: just toggle a signal or re-call render
-            const canvas = canvasRef;
-            if (!canvas) return;
-            // Re-drawing happens automatically if we clear? 
-            // We need to trigger the main effect. 
-            // Let's add a dummy signal.
-        };
-        window.addEventListener('resize', handler);
-        onCleanup(() => window.removeEventListener('resize', handler));
+        // On mobile, the help button might be hidden or moved? 
+        // Assuming sticky UI logic holds, let's keep it but adjust source point.
+        // Actually, let's keep it simple: Show Help arrow only if width > 400
+        if (width > 400) {
+            const helpArrow = createArrow(
+                [{ x: cx - 150, y: cy + (isMobile ? 50 : 100) }, { x: helpTargetX, y: helpTargetY }],
+                [{ x: cx - (isMobile ? 50 : 200), y: cy + (isMobile ? 100 : 150) }, { x: helpTargetX + 20, y: helpTargetY - 30 }]
+            );
+            renderArrow(helpArrow);
+        }
     });
 
     return (
@@ -179,31 +157,55 @@ export const WelcomeScreen: Component = () => {
                     style={{ position: "absolute", top: 0, left: 0, width: '100%', height: '100%' }}
                 />
 
-                {/* Text Labels - HTML Overlays (unchanged positions) */}
+                {/* Text Labels - HTML Overlays */}
+                <Show when={windowSize().width > 768}>
+                    {/* Menu Label */}
+                    <div style={{
+                        "position": "absolute",
+                        "top": "150px",
+                        "left": "120px",
+                        "transform": "rotate(-5deg)",
+                        "opacity": "0.8"
+                    }}>
+                        Export, preferences, languages...
+                    </div>
 
-                {/* Menu Label */}
-                <div style={{
-                    "position": "absolute",
-                    "top": "150px",
-                    "left": "120px",
-                    "transform": "rotate(-5deg)",
-                    "opacity": "0.8"
-                }}>
-                    Export, preferences, languages...
-                </div>
+                    {/* P3 Picker Label */}
+                    <div style={{
+                        "position": "absolute",
+                        "top": "100px",
+                        "right": "150px",
+                        "transform": "rotate(-5deg)",
+                        "opacity": "0.8",
+                        "text-align": "right",
+                        "max-width": "150px"
+                    }}>
+                        New! P3 Color Picker
+                    </div>
 
-                {/* P3 Picker Label */}
-                <div style={{
-                    "position": "absolute",
-                    "top": "100px",
-                    "right": "150px",
-                    "transform": "rotate(-5deg)",
-                    "opacity": "0.8",
-                    "text-align": "right",
-                    "max-width": "150px"
-                }}>
-                    New! P3 Color Picker
-                </div>
+                    {/* Toolbar Label */}
+                    <div style={{
+                        "position": "absolute",
+                        "top": "20%",
+                        "left": "60%",
+                        "transform": "rotate(5deg)",
+                        "opacity": "0.8",
+                        "max-width": "200px"
+                    }}>
+                        Pick a tool & start drawing!
+                    </div>
+
+                    {/* Help Label (Keep hidden on mobile for now as we simplified arrow) */}
+                    <div style={{
+                        "position": "absolute",
+                        "bottom": "120px",
+                        "left": "300px",
+                        "text-align": "left",
+                        "opacity": "0.8"
+                    }}>
+                        Shortcuts & help
+                    </div>
+                </Show>
 
                 {/* Logo and Tagline Center */}
                 <div style={{
@@ -220,7 +222,7 @@ export const WelcomeScreen: Component = () => {
                     <h1 style={{
                         "font-size": "5rem",
                         "margin": "0",
-                        "background": "linear-gradient(135deg, color(display-p3 0.6 0.2 0.9), color(display-p3 0.2 0.8 1.0))",
+                        "background": "linear-gradient(135deg, color(display-p3 0 0.5 1), color(display-p3 1 0.2 0.2))",
                         "-webkit-background-clip": "text",
                         "-webkit-text-fill-color": "transparent",
                         "line-height": "1.2"
@@ -250,29 +252,6 @@ export const WelcomeScreen: Component = () => {
                         <span>Help</span>
                         <strong>?</strong>
                     </div>
-                </div>
-
-                {/* Toolbar Label */}
-                <div style={{
-                    "position": "absolute",
-                    "top": "20%",
-                    "left": "60%",
-                    "transform": "rotate(5deg)",
-                    "opacity": "0.8",
-                    "max-width": "200px"
-                }}>
-                    Pick a tool & start drawing!
-                </div>
-
-                {/* Help Label */}
-                <div style={{
-                    "position": "absolute",
-                    "bottom": "120px",
-                    "left": "300px",
-                    "text-align": "left",
-                    "opacity": "0.8"
-                }}>
-                    Shortcuts & help
                 </div>
 
             </div>
