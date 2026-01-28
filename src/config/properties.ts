@@ -264,20 +264,6 @@ export const properties: PropertyConfig[] = [
         defaultValue: 'easeInOutQuad'
     },
     {
-        key: 'fillStyle',
-        label: 'Background Type',
-        type: 'select',
-        options: [
-            { label: 'Solid Color', value: 'solid' },
-            { label: 'Linear Gradient', value: 'linear' },
-            { label: 'Radial Gradient', value: 'radial' },
-            { label: 'Image', value: 'image' }
-        ],
-        group: 'slide',
-        applicableTo: ['slide'],
-        defaultValue: 'solid'
-    },
-    {
         key: 'slideBackground',
         label: 'Slide Color',
         type: 'color',
@@ -393,7 +379,8 @@ export const properties: PropertyConfig[] = [
             { label: 'Zigzag Line', value: 'zigzag-line' },
             { label: 'Linear Gradient', value: 'linear' },
             { label: 'Radial Gradient', value: 'radial' },
-            { label: 'Conic Gradient', value: 'conic' }
+            { label: 'Conic Gradient', value: 'conic' },
+            { label: 'Image', value: 'image' }
         ],
         applicableTo: ['slide', 'rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'starPerson', 'lightbulb', 'signpost', 'burstBlob', 'scroll', 'wavyDivider', 'doubleBanner', 'dfdProcess', 'dfdDataStore', 'isometricCube', 'solidBlock', 'perspectiveBlock', 'cylinder', 'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity', 'umlClass', 'umlInterface', 'umlActor', 'umlUseCase', 'umlNote', 'umlPackage', 'umlComponent', 'umlState', 'umlLifeline', 'umlFragment', 'umlSignalSend', 'umlSignalReceive', 'umlProvidedInterface', 'umlRequiredInterface'],
         defaultValue: 'solid'

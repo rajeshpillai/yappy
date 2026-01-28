@@ -1485,10 +1485,11 @@ const Canvas: Component = () => {
 
     const handleDrop = async (e: DragEvent) => {
         e.preventDefault();
+        e.stopPropagation();
         const data = e.dataTransfer?.getData('text/plain');
         if (!data) return;
 
-        const isColor = data.startsWith('color(display-p3') || data.startsWith('#') || data.startsWith('rgba') || data.startsWith('oklch');
+        const isColor = data.startsWith('color(') || data.startsWith('#') || data.startsWith('rgba(') || data.startsWith('rgb(') || data.startsWith('oklch(') || data.startsWith('hsl(');
         const isImage = data.startsWith('http') || data.startsWith('data:image');
 
         if (!isColor && !isImage) return;
