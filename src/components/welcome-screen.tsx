@@ -244,7 +244,7 @@ export const WelcomeScreen: Component = () => {
                         "opacity": "0.8"
                     }}>
                         <span>Open</span>
-                        <strong>Ctrl+O</strong>
+                        <strong>Ctrl+Alt+O</strong>
 
                         <span>Smart Palette</span>
                         <strong>Ctrl+K</strong>

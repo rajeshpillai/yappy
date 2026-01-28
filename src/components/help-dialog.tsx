@@ -66,6 +66,7 @@ export default function HelpDialog(props: Props) {
                                             <span class="shortcut-label">Open Drawing</span>
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Ctrl</span>
+                                                <span class="keycap">Alt</span>
                                                 <span class="keycap">O</span>
                                             </div>
                                         </div>
@@ -73,6 +74,7 @@ export default function HelpDialog(props: Props) {
                                             <span class="shortcut-label">Save Drawing</span>
                                             <div class="shortcut-keys">
                                                 <span class="keycap">Ctrl</span>
+                                                <span class="keycap">Alt</span>
                                                 <span class="keycap">S</span>
                                             </div>
                                         </div>

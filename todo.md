@@ -1077,3 +1077,9 @@
   - [x] Fixed File Open Dialog keyboard navigation (Focus management)
   - [x] Fixed App Crash (Missing handleBeforeUnload)
   - [x] Fixed P3 Color Picker positioning (off-screen)
+- [x] **Shortcut Updates**
+  - [x] Changed Open to `Ctrl+Alt+O` to avoid browser conflict
+  - [x] Changed Save to `Ctrl+Alt+S` to avoid browser conflict
+  - [x] Updated Help Dialog and Welcome Screen
+- [x] **Cleanup**
+  - [x] Removed "Share" button (Client-side only)

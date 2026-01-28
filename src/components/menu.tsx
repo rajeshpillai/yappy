@@ -541,10 +541,6 @@ const Menu: Component = () => {
                                     <Square size={18} color="#ef4444" fill="#ef4444" />
                                 </button>
                                 <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
-                                <button class="menu-btn primary" onClick={setIsExportOpen.bind(null, true)} title="Share">
-                                    <Share2 size={18} />
-                                </button>
-                                <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>
                                 <div ref={p3PickerRef} style={{ position: 'relative' }}>
                                     <button
                                         class={`menu-btn ${isP3PickerOpen() ? 'active' : ''}`}

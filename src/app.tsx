@@ -90,11 +90,11 @@ const App: Component = () => {
           e.preventDefault();
           setStore('selection', store.elements.map(el => el.id));
           return;
-        } else if (key === 'o') {
+        } else if (key === 'o' && e.altKey) {
           e.preventDefault();
           setIsDialogOpen(true);
           return;
-        } else if (key === 's') {
+        } else if (key === 's' && e.altKey) {
           e.preventDefault();
           handleSaveRequest('workspace');
           return;
