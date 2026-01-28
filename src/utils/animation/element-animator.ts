@@ -275,7 +275,6 @@ export function animateAlongPath(
     activeAnimations.get(elementId)!.add(animId);
 
     // Initial state
-    const originalAngle = element.angle;
     const initialCenterX = element.x + element.width / 2;
     const initialCenterY = element.y + element.height / 2;
     const isRelative = config.isRelative ?? true; // Default to relative as it's more useful
