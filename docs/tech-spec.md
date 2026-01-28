@@ -106,6 +106,19 @@ interface SlideDocument {
 
 **Migration**: v2 (flat DrawingData) is auto-migrated to v4 on load via `migrateToSlideFormat()`.
 
+### Data Compatibility & Persistence Strategy
+To ensure long-term stability and forward compatibility of the file format (`.yappy`, `.json`):
+
+1.  **Versioning**: The root document contains a `version` field (e.g., `version: 4`). Major format changes take this version to apply migration logic in `src/utils/migration.ts`.
+2.  **Normalization (`normalizeElement`)**:
+    *   Located in `src/utils/migration.ts`, this function is the **gatekeeper** for data integrity.
+    *   It accepts partial or legacy element data and returns a strictly typed `DrawingElement`.
+    *   **Forward Compatibility**: When new properties (e.g., `glowEffect`) are added to the codebase, `normalizeElement` automatically assigns default values to older files that lack them. This ensures the app never crashes when loading old files.
+3.  **Migration Pipeline**:
+    *   On load, `menu.tsx` detects the schema version.
+    *   If the version is outdated, it runs specific migration transforms (e.g., wrapping flat elements into slides) before the app state receives the data.
+    *   This decouples the storage format from the runtime application state.
+
 ---
 
 ## 3. Element System
