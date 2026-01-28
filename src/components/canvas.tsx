@@ -54,18 +54,22 @@ const renderSlideBackground = (ctx: CanvasRenderingContext2D, slide: any, x: num
             return;
         }
 
-        // Simple linear gradient calculation (reusing logic but with new structure)
-        const angleRad = (angle * Math.PI) / 180;
         const centerX = x + w / 2;
         const centerY = y + h / 2;
-        const length = Math.sqrt(w * w + h * h) / 2;
 
-        const x0 = centerX - Math.cos(angleRad) * length;
-        const y0 = centerY - Math.sin(angleRad) * length;
-        const x1 = centerX + Math.cos(angleRad) * length;
-        const y1 = centerY + Math.sin(angleRad) * length;
+        let grad;
+        if (type === 'linear') {
+            const angleRad = (angle * Math.PI) / 180;
+            const length = Math.sqrt(w * w + h * h) / 2;
+            const dx = Math.cos(angleRad) * length;
+            const dy = Math.sin(angleRad) * length;
+            grad = ctx.createLinearGradient(centerX - dx, centerY - dy, centerX + dx, centerY + dy);
+        } else {
+            // Radial
+            const radius = Math.max(w, h) / 2;
+            grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+        }
 
-        const grad = ctx.createLinearGradient(x0, y0, x1, y1);
         stops.forEach((s: any) => grad.addColorStop(s.offset, s.color));
         ctx.fillStyle = grad;
         ctx.fillRect(x, y, w, h);
@@ -1531,22 +1535,18 @@ const Canvas: Component = () => {
                 updateElement(hitId, { type: 'image', dataURL: data });
             }
         } else if (store.docType === 'slides') {
-            // Find slide at drop location
-            const slideIndex = store.slides.findIndex(s => {
-                const { x: sx, y: sy } = s.spatialPosition;
-                const { width: sw, height: sh } = s.dimensions;
-                return x >= sx && x <= sx + sw && y >= sy && y <= sy + sh;
-            });
-
-            if (slideIndex !== -1) {
+            // Drop anywhere on the canvas (even outside slide bounds) updates the ACTIVE slide background
+            // This is more intuitive for users and bypasses sensitive hit detection
+            const activeSlideIndex = store.activeSlideIndex;
+            if (activeSlideIndex !== -1) {
                 pushToHistory();
                 if (isColor) {
-                    updateSlideBackground(slideIndex, {
+                    updateSlideBackground(activeSlideIndex, {
                         backgroundColor: data,
                         fillStyle: 'solid'
                     });
                 } else if (isImage) {
-                    updateSlideBackground(slideIndex, {
+                    updateSlideBackground(activeSlideIndex, {
                         backgroundImage: data,
                         fillStyle: 'image'
                     });

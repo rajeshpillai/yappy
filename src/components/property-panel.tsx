@@ -555,8 +555,7 @@ const PropertyPanel: Component = () => {
             if (key === 'transitionType') updateSlideTransition(slideIndex, { type: value });
             else if (key === 'transitionDuration') updateSlideTransition(slideIndex, { duration: value });
             else if (key === 'transitionEasing') updateSlideTransition(slideIndex, { easing: value });
-            else if (key === 'slideBackground') updateSlideBackground(slideIndex, { backgroundColor: value, fillStyle: 'solid' });
-            else if (key === 'fillStyle') updateSlideBackground(slideIndex, { fillStyle: value });
+            else if (key === 'backgroundColor') updateSlideBackground(slideIndex, { backgroundColor: value, fillStyle: 'solid' });
             else if (key === 'backgroundImage') updateSlideBackground(slideIndex, { backgroundImage: value });
             else if (key === 'backgroundOpacity') updateSlideBackground(slideIndex, { backgroundOpacity: value });
             else if (key === 'gradientStops') updateSlideBackground(slideIndex, { gradientStops: value });
@@ -588,7 +587,7 @@ const PropertyPanel: Component = () => {
             if (prop.key === 'transitionType') return slide.transition?.type || 'none';
             if (prop.key === 'transitionDuration') return slide.transition?.duration || 500;
             if (prop.key === 'transitionEasing') return slide.transition?.easing || 'easeInOutQuad';
-            if (prop.key === 'slideBackground') return slide.backgroundColor || '#ffffff';
+            if (prop.key === 'backgroundColor') return slide.backgroundColor || '#ffffff';
             if (prop.key === 'fillStyle') return slide.fillStyle || 'solid';
             if (prop.key === 'backgroundImage') return slide.backgroundImage || '';
             if (prop.key === 'backgroundOpacity') return slide.backgroundOpacity ?? 1;

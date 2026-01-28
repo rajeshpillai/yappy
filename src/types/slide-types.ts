@@ -56,10 +56,10 @@ export interface Slide {
     dimensions: { width: number, height: number }; // slide dimensions in canvas units
     order: number;
     backgroundColor?: string;
-    fillStyle?: FillStyle; // Combined solid, gradient, and image
+    fillStyle?: FillStyle;
     gradientStops?: GradientStop[];
-    gradientDirection?: number; // Angle in degrees
-    backgroundImage?: string; // URL or data URL
+    gradientDirection?: number;
+    backgroundImage?: string;
     backgroundOpacity?: number;
     thumbnail?: string; // Data URL preview
     transition?: SlideTransition; // Transition when entering this slide

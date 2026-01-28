@@ -115,9 +115,7 @@ export const properties: PropertyConfig[] = [
         dependsOn: 'flowAnimation'
     },
 
-    // ... (lines 18-271 same) ...
     // Canvas Properties
-
     {
         key: 'canvasBackgroundColor',
         label: 'Background',
@@ -214,7 +212,7 @@ export const properties: PropertyConfig[] = [
         defaultValue: 0.5
     },
 
-    // Slide Properties
+    // Slide Transition Properties
     {
         key: 'transitionType',
         label: 'Transition',
@@ -262,43 +260,6 @@ export const properties: PropertyConfig[] = [
         group: 'slide',
         applicableTo: ['slide'],
         defaultValue: 'easeInOutQuad'
-    },
-    {
-        key: 'slideBackground',
-        label: 'Slide Color',
-        type: 'color',
-        options: [
-            { label: 'White', value: '#ffffff' },
-            { label: 'Light Gray', value: '#fafafa' },
-            { label: 'Paper', value: '#fdf6e3' },
-            { label: 'Dark Gray', value: '#121212' },
-            { label: 'Deep Black', value: '#000000' }
-        ],
-        group: 'slide',
-        applicableTo: ['slide'],
-        defaultValue: '#ffffff',
-        dependsOn: { key: 'fillStyle', value: 'solid' }
-    },
-    {
-        key: 'backgroundImage',
-        label: 'Background Image (URL)',
-        type: 'textarea',
-        group: 'slide',
-        applicableTo: ['slide'],
-        defaultValue: '',
-        dependsOn: { key: 'fillStyle', value: 'image' }
-    },
-    {
-        key: 'backgroundOpacity',
-        label: 'Opacity',
-        type: 'slider',
-        min: 0,
-        max: 1,
-        step: 0.1,
-        group: 'slide',
-        applicableTo: ['slide'],
-        defaultValue: 1,
-        dependsOn: { key: 'fillStyle', value: 'image' }
     },
 
     // Style
@@ -361,8 +322,9 @@ export const properties: PropertyConfig[] = [
         label: 'Background',
         type: 'color',
         group: 'background',
-        applicableTo: ['rectangle', 'circle', 'text', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'starPerson', 'lightbulb', 'signpost', 'burstBlob', 'scroll', 'wavyDivider', 'doubleBanner', 'dfdProcess', 'dfdDataStore', 'isometricCube', 'solidBlock', 'perspectiveBlock', 'cylinder', 'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity', 'umlClass', 'umlInterface', 'umlActor', 'umlUseCase', 'umlNote', 'umlPackage', 'umlComponent', 'umlState', 'umlLifeline', 'umlFragment', 'umlSignalSend', 'umlSignalReceive', 'umlProvidedInterface', 'umlRequiredInterface'], // text bg? maybe
-        defaultValue: 'transparent'
+        applicableTo: ['slide', 'rectangle', 'circle', 'text', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'starPerson', 'lightbulb', 'signpost', 'burstBlob', 'scroll', 'wavyDivider', 'doubleBanner', 'dfdProcess', 'dfdDataStore', 'isometricCube', 'solidBlock', 'perspectiveBlock', 'cylinder', 'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity', 'umlClass', 'umlInterface', 'umlActor', 'umlUseCase', 'umlNote', 'umlPackage', 'umlComponent', 'umlState', 'umlLifeline', 'umlFragment', 'umlSignalSend', 'umlSignalReceive', 'umlProvidedInterface', 'umlRequiredInterface'], // text bg? maybe
+        defaultValue: 'transparent',
+        dependsOn: { key: 'fillStyle', value: 'solid' }
     },
     {
         key: 'fillStyle',
@@ -396,6 +358,27 @@ export const properties: PropertyConfig[] = [
         applicableTo: ['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'starPerson', 'lightbulb', 'signpost', 'burstBlob', 'scroll', 'wavyDivider', 'doubleBanner', 'dfdProcess', 'dfdDataStore', 'isometricCube', 'solidBlock', 'perspectiveBlock', 'cylinder', 'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity', 'umlClass', 'umlInterface', 'umlActor', 'umlUseCase', 'umlNote', 'umlPackage', 'umlComponent', 'umlState', 'umlLifeline', 'umlFragment', 'umlSignalSend', 'umlSignalReceive', 'umlProvidedInterface', 'umlRequiredInterface'],
         defaultValue: 1,
         dependsOn: { key: 'fillStyle', value: ['hachure', 'cross-hatch', 'zigzag', 'dots', 'dashed', 'zigzag-line'] }
+    },
+    {
+        key: 'backgroundImage',
+        label: 'Background Image (URL)',
+        type: 'textarea',
+        group: 'background',
+        applicableTo: ['slide'],
+        defaultValue: '',
+        dependsOn: { key: 'fillStyle', value: 'image' }
+    },
+    {
+        key: 'backgroundOpacity',
+        label: 'Opacity',
+        type: 'slider',
+        min: 0,
+        max: 1,
+        step: 0.1,
+        group: 'background',
+        applicableTo: ['slide'],
+        defaultValue: 1,
+        dependsOn: { key: 'fillStyle', value: 'image' }
     },
     {
         key: 'strokeWidth',
