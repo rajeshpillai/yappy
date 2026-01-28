@@ -211,6 +211,8 @@
 - [x] Close dialogs with Esc key
   - [x] Investigate image loading/rendering
   - [x] Verify fix
+- [x] Fix Tool Property Isolation (Pen properties leaking to other shapes)
+
 
 ## Phase 19: Text Inside Shapes
 - [x] Design & Planning

@@ -67,6 +67,9 @@ interface AppState {
     showExportDialog: boolean;
     showUtilityToolbar: boolean;
     selectedUmlType: 'umlClass' | 'umlInterface' | 'umlActor' | 'umlUseCase' | 'umlNote' | 'umlPackage' | 'umlComponent' | 'umlState' | 'umlLifeline' | 'umlFragment' | 'umlSignalSend' | 'umlSignalReceive' | 'umlProvidedInterface' | 'umlRequiredInterface';
+    
+    // Tool-specific styles persistence
+    toolStyles: Record<string, Partial<DrawingElement>>;
 }
 
 const initialDoc = createSlideDocument();
@@ -124,6 +127,8 @@ const initialState: AppState = {
         taperAmount: 0.15,
         velocitySensitivity: 0.5
     },
+    // Initialize empty toolStyles
+    toolStyles: {},
     theme: (localStorage.getItem('theme') as 'light' | 'dark') || 'light',
     globalSettings: {
         animationEnabled: true,
@@ -502,12 +507,29 @@ export const setViewState = (updates: Partial<ViewState>) => {
 };
 
 export const setSelectedTool = (tool: ElementType | 'selection') => {
+    // 1. Save current tool's styles
+    const currentTool = store.selectedTool;
+    if (currentTool !== 'selection') {
+        const currentStyles = JSON.parse(JSON.stringify(store.defaultElementStyles));
+        setStore('toolStyles', currentTool, currentStyles);
+    }
+
+    // 2. Switch tool
     setStore('selectedTool', tool);
     if (tool !== 'selection' && tool !== 'pan' && tool !== 'eraser') {
         setStore('selection', []);
     }
 
-    // Adjust default styles based on tool
+    // 3. Restore new tool's styles (if they exist)
+    if (tool !== 'selection') {
+        const savedStyles = store.toolStyles[tool];
+        if (savedStyles) {
+            updateDefaultStyles(savedStyles);
+        }
+        // If no saved styles, we keep the current defaults (inheritance behavior)
+    }
+
+    // Adjust default styles based on tool (Tool-specific hard overrides)
     if (tool === 'arrow') {
         updateDefaultStyles({ endArrowhead: 'arrow' });
     } else if (tool === 'line') {
