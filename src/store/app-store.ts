@@ -71,6 +71,15 @@ interface AppState {
 
     // Tool-specific styles persistence
     toolStyles: Record<string, Partial<DrawingElement>>;
+
+    // Visual Path Editor State
+    pathEditState: {
+        isActive: boolean;
+        elementId: string | null;
+        animationId: string | null;
+        // Temporary holding state for points during edit
+        // We sync to the element's pathData on every change, but this tracks "Edit Mode"
+    };
 }
 
 const initialDoc = createSlideDocument();
@@ -165,6 +174,11 @@ const initialState: AppState = {
     slideToolbarPosition: { x: window.innerWidth / 2 - 150, y: window.innerHeight - 80 },
     showExportDialog: false,
     showUtilityToolbar: true,
+    pathEditState: {
+        isActive: false,
+        elementId: null,
+        animationId: null
+    }
 };
 
 export const [store, setStore] = createStore<AppState>(initialState);
@@ -557,6 +571,21 @@ export const updateGlobalSettings = (updates: Partial<GlobalSettings>) => {
     // Sync renderStyle to default styles if it was updated
     if (updates.renderStyle) {
         updateDefaultStyles({ renderStyle: updates.renderStyle });
+    }
+};
+
+// --- Path Editor Actions ---
+export const setPathEditing = (isActive: boolean, elementId: string | null = null, animationId: string | null = null) => {
+    setStore("pathEditState", {
+        isActive,
+        elementId,
+        animationId
+    });
+
+    // If turning on, ensure property panel is visible but maybe switch to adequate mode?
+    // If turning off, maybe clean up?
+    if (isActive) {
+        showToast("Path Edit Mode Active", "info");
     }
 };
 

@@ -195,4 +195,84 @@ export class PathUtils {
         const cont_net = Math.hypot(x1 - x0, y1 - y0) + Math.hypot(x2 - x1, y2 - y1) + Math.hypot(x3 - x2, y3 - y2);
         return (cont_net + chord) / 2;
     }
+
+    /**
+     * Convert SVG path string to editable control points
+     * This approximates the path into a series of points + bezier handles
+     * Note: Simplistic parser, mainly for M, L, Q, C
+     */
+    static svgToPoints(d: string): { x: number; y: number; type: 'anchor' | 'control' | 'control_end' }[] {
+        const commands = this.parsePath(d);
+        const points: { x: number; y: number; type: 'anchor' | 'control' | 'control_end' }[] = [];
+
+        if (commands.length === 0) return [];
+
+        // Add start point
+        points.push({ x: commands[0].start.x, y: commands[0].start.y, type: 'anchor' });
+
+        for (const cmd of commands) {
+            if (cmd.type === 'L') {
+                points.push({ x: cmd.points[0].x, y: cmd.points[0].y, type: 'anchor' });
+            } else if (cmd.type === 'Q') {
+                // Quadratic: Start -> Control -> End
+                points.push({ x: cmd.points[0].x, y: cmd.points[0].y, type: 'control' }); // Control
+                points.push({ x: cmd.points[1].x, y: cmd.points[1].y, type: 'anchor' }); // End
+            } else if (cmd.type === 'C') {
+                // Cubic: Start -> Control1 -> Control2 -> End
+                points.push({ x: cmd.points[0].x, y: cmd.points[0].y, type: 'control' });
+                points.push({ x: cmd.points[1].x, y: cmd.points[1].y, type: 'control_end' }); // Mark as paired control?
+                points.push({ x: cmd.points[2].x, y: cmd.points[2].y, type: 'anchor' });
+            }
+            // Z ignored for now
+        }
+        return points;
+    }
+
+    /**
+     * Convert points back to SVG string
+     * Heuristic: 
+     * - Anchor -> Anchor = L
+     * - Anchor -> Control -> Anchor = Q
+     * - Anchor -> Control -> Control -> Anchor = C
+     */
+    static pointsToSvg(points: { x: number; y: number; type: string }[]): string {
+        if (points.length === 0) return '';
+
+        let d = `M ${Math.round(points[0].x)} ${Math.round(points[0].y)}`;
+
+        let i = 1;
+        while (i < points.length) {
+            const p1 = points[i];
+
+            // Check if it's a control point
+            if (p1.type.includes('control')) {
+                const p2 = points[i + 1];
+                if (!p2) break; // Incomplete
+
+                if (p2.type.includes('control')) {
+                    // Two controls -> Cubic
+                    const p3 = points[i + 2];
+                    if (p3 && p3.type === 'anchor') {
+                        d += ` C ${Math.round(p1.x)} ${Math.round(p1.y)} ${Math.round(p2.x)} ${Math.round(p2.y)} ${Math.round(p3.x)} ${Math.round(p3.y)}`;
+                        i += 3;
+                    } else {
+                        // Fallback?
+                        i++;
+                    }
+                } else if (p2.type === 'anchor') {
+                    // One control -> Quadratic
+                    d += ` Q ${Math.round(p1.x)} ${Math.round(p1.y)} ${Math.round(p2.x)} ${Math.round(p2.y)}`;
+                    i += 2;
+                } else {
+                    i++;
+                }
+            } else {
+                // Just an anchor -> Line
+                d += ` L ${Math.round(p1.x)} ${Math.round(p1.y)}`;
+                i++;
+            }
+        }
+
+        return d;
+    }
 }

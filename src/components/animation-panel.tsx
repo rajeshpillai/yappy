@@ -1,7 +1,7 @@
 import { type Component, For, Show, createSignal, createMemo } from 'solid-js';
-import { store, updateElement, updateAnimation, reorderAnimation } from '../store/app-store';
+import { store, updateElement, updateAnimation, reorderAnimation, setPathEditing } from '../store/app-store';
 import { sequenceAnimator } from '../utils/animation/sequence-animator';
-import { Play, Square, Plus, Trash2, ChevronDown, ChevronRight, ChevronUp } from 'lucide-solid';
+import { Play, Square, Plus, Trash2, ChevronDown, ChevronRight, ChevronUp, Edit3 } from 'lucide-solid';
 import type { ElementAnimation, PresetAnimation, RotateAnimation } from '../types/motion-types';
 
 const PRESETS = [
@@ -253,6 +253,7 @@ export const AnimationPanel: Component = () => {
                             onUpdate={(u) => updateAnimProperty(anim.id, u)}
                             onRemove={() => removeAnimation(anim.id)}
                             onReorder={(d) => handleReorder(anim.id, d)}
+                            elementId={element()!.id} // Pass Element ID
                         />
                     )}
                 </For>
@@ -366,6 +367,7 @@ const AnimationItem: Component<{
     onUpdate: (updates: Partial<ElementAnimation>) => void;
     onRemove: () => void;
     onReorder: (direction: 'up' | 'down') => void;
+    elementId: string;
 }> = (props) => {
 
     return (
@@ -552,20 +554,47 @@ const AnimationItem: Component<{
                     <Show when={props.animation.type === 'path'}>
                         <div style={{ 'display': 'flex', 'flex-direction': 'column', 'gap': '4px' }}>
                             <label style={{ 'font-size': '11px', 'opacity': 0.7 }}>SVG Path Data (d)</label>
-                            <textarea
-                                value={(props.animation as any).pathData || ''}
-                                onInput={(e) => props.onUpdate({ pathData: e.currentTarget.value } as any)}
-                                style={{
-                                    'width': '100%',
-                                    'font-size': '10px',
-                                    'padding': '4px',
-                                    'font-family': 'monospace',
-                                    'border': '1px solid var(--border-color)',
-                                    'border-radius': '4px',
-                                    'height': '60px',
-                                    'resize': 'vertical'
-                                }}
-                            />
+                            <div style={{ 'display': 'flex', 'gap': '4px' }}>
+                                <textarea
+                                    value={(props.animation as any).pathData || ''}
+                                    onInput={(e) => props.onUpdate({ pathData: e.currentTarget.value } as any)}
+                                    style={{
+                                        'flex': 1,
+                                        'font-size': '10px',
+                                        'padding': '4px',
+                                        'font-family': 'monospace',
+                                        'border': '1px solid var(--border-color)',
+                                        'border-radius': '4px',
+                                        'height': '60px',
+                                        'resize': 'vertical'
+                                    }}
+                                />
+                                <button
+                                    onClick={() => {
+                                        // Toggle Edit Mode
+                                        if (store.pathEditState.elementId === props.elementId && store.pathEditState.animationId === props.animation.id) {
+                                            setPathEditing(false);
+                                        } else {
+                                            setPathEditing(true, props.elementId, props.animation.id);
+                                        }
+                                    }}
+                                    style={{
+                                        'width': '24px',
+                                        'background': store.pathEditState.animationId === props.animation.id ? '#3b82f6' : 'var(--bg-panel)',
+                                        'color': store.pathEditState.animationId === props.animation.id ? 'white' : 'var(--text-primary)',
+                                        'border': '1px solid var(--border-color)',
+                                        'border-radius': '4px',
+                                        'cursor': 'pointer',
+                                        'display': 'flex',
+                                        'align-items': 'center',
+                                        'justify-content': 'center',
+                                        'padding': 0
+                                    }}
+                                    title={store.pathEditState.animationId === props.animation.id ? "Done Editing" : "Draw / Edit Path"}
+                                >
+                                    <Edit3 size={14} />
+                                </button>
+                            </div>
                         </div>
                         <div style={{ 'display': 'flex', 'align-items': 'center', 'gap': '8px' }}>
                             <input
