@@ -296,6 +296,13 @@ export default function HelpDialog(props: Props) {
                                                 <span class="keycap">V</span>
                                             </div>
                                         </div>
+                                        <div class="shortcut-item">
+                                            <span class="shortcut-label">Unlock Aspect Ratio (Text)</span>
+                                            <div class="shortcut-keys">
+                                                <span class="keycap">Shift</span>
+                                                <span class="keycap">Drag</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 

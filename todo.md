@@ -1089,3 +1089,7 @@
 - [x] **Deploy Fixes**
   - [x] Resolved unused 'e' parameter in App.tsx
   - [x] Removed unused 'Share2' import in Menu.tsx
+- [x] **Text Scaling**
+  - [x] Locked aspect ratio for text resize by default (prevents font stretching)
+  - [x] Added Shift+Drag shortcut to unlock aspect ratio for text
+  - [x] Updated Help Dialog with new resize shortcut

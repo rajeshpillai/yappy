@@ -2930,7 +2930,15 @@ const Canvas: Component = () => {
                         // Apply Constraints (Proportional Resizing)
                         const isMulti = store.selection.length > 1;
                         const firstEl = store.elements.find(e => e.id === store.selection[0]);
-                        const isConstrained = e.shiftKey || (store.selection.length === 1 && firstEl?.constrained);
+                        let isConstrained = e.shiftKey || (store.selection.length === 1 && firstEl?.constrained);
+
+                        // Point 2: Lock Aspect Ratio for Text by Default
+                        // For text, we invert the Shift behavior: 
+                        // - No Shift = Constrained (Locked)
+                        // - Shift = Unconstrained (Free)
+                        if (store.selection.length === 1 && firstEl?.type === 'text') {
+                            isConstrained = !e.shiftKey;
+                        }
 
                         if (isConstrained && initialElementWidth !== 0 && initialElementHeight !== 0) {
                             const ratio = initialElementWidth / initialElementHeight;
