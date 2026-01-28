@@ -39,29 +39,31 @@ const SaveDialog: Component<SaveDialogProps> = (props) => {
                 <div class="save-modal" onClick={e => e.stopPropagation()}>
                     <div class="save-header">
                         <h2>Save Drawing</h2>
-                        <button class="close-btn" onClick={props.onClose}>
+                        <button class="close-btn" type="button" onClick={props.onClose}>
                             <X size={20} />
                         </button>
                     </div>
 
-                    <div class="save-content">
-                        <div class="input-group">
-                            <label>Filename</label>
-                            <input
-                                type="text"
-                                class="filename-input"
-                                value={filename()}
-                                onInput={(e) => setFilename(e.currentTarget.value)}
-                                onKeyDown={handleKeyDown}
-                                autofocus
-                            />
-                        </div>
+                    <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+                        <div class="save-content">
+                            <div class="input-group">
+                                <label>Filename</label>
+                                <input
+                                    type="text"
+                                    class="filename-input"
+                                    value={filename()}
+                                    onInput={(e) => setFilename(e.currentTarget.value)}
+                                    onKeyDown={handleKeyDown}
+                                    autofocus
+                                />
+                            </div>
 
-                        <div class="save-actions">
-                            <button class="cancel-btn" onClick={props.onClose}>Cancel</button>
-                            <button class="confirm-btn" onClick={handleSave}>Save</button>
+                            <div class="save-actions">
+                                <button class="cancel-btn" type="button" onClick={props.onClose}>Cancel</button>
+                                <button class="confirm-btn" type="submit">Save</button>
+                            </div>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </Show>

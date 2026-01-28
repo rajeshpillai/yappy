@@ -11,7 +11,7 @@
     position: absolute;
     right: 0;
     top: 0;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, width 0.3s ease;
     overflow: hidden;
     /* Prevent container from overflowing */
     user-select: none;
@@ -141,11 +141,12 @@
 }
 
 .property-content {
-    flex: 1;
-    overflow-y: auto;
+    overflow-y: overlay;
+    /* Use overlay if supported to prevent width shift, fallback to auto */
     padding: 16px;
     min-height: 0;
-    /* Critical for flex scroll */
+    scrollbar-gutter: stable;
+    /* Reserve space for scrollbar to prevent jumping */
 }
 
 .property-group {
@@ -208,9 +209,11 @@
 }
 
 .color-swatch:hover {
-    transform: scale(1.1);
-    z-index: 1;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: scale(1.05);
+    /* Reduced scale */
+    z-index: 10;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    outline: 2px solid var(--primary-color);
 }
 
 .color-swatch.selected {
@@ -422,15 +425,15 @@ input[type="text"] {
 }
 
 .swatch-circle:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
     border-color: var(--primary-color);
+    z-index: 10;
 }
 
 .swatch-circle.selected {
-    transform: scale(1.1);
+    transform: scale(1.05);
     border: 2px solid var(--primary-color);
-    box-shadow: 0 0 0 2px white, 0 0 0 4px var(--primary-color);
-    /* Double ring effect */
+    box-shadow: 0 0 0 1px white, 0 0 0 3px var(--primary-color);
 }
 
 /* For light swatches (white/paper), ensure they are visible on white bg */

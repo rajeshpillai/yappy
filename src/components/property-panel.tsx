@@ -579,7 +579,7 @@ const PropertyPanel: Component = () => {
             if (key === 'transitionType') updateSlideTransition(slideIndex, { type: value });
             else if (key === 'transitionDuration') updateSlideTransition(slideIndex, { duration: value });
             else if (key === 'transitionEasing') updateSlideTransition(slideIndex, { easing: value });
-            else if (key === 'backgroundColor') updateSlideBackground(slideIndex, { backgroundColor: value, fillStyle: 'solid' });
+            else if (key === 'backgroundColor') updateSlideBackground(slideIndex, { backgroundColor: value });
             else if (key === 'fillStyle') updateSlideBackground(slideIndex, { fillStyle: value });
             else if (key === 'backgroundImage') updateSlideBackground(slideIndex, { backgroundImage: value });
             else if (key === 'backgroundOpacity') updateSlideBackground(slideIndex, { backgroundOpacity: value });
