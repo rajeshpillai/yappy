@@ -598,7 +598,7 @@ const PropertyPanel: Component = () => {
             if (prop.key === 'transitionType') return slide.transition?.type || 'none';
             if (prop.key === 'transitionDuration') return slide.transition?.duration || 500;
             if (prop.key === 'transitionEasing') return slide.transition?.easing || 'easeInOutQuad';
-            if (prop.key === 'backgroundColor') return slide.backgroundColor || '#ffffff';
+            if (prop.key === 'backgroundColor') return slide.backgroundColor || (store.theme === 'dark' ? '#121212' : '#ffffff');
             if (prop.key === 'fillStyle') return slide.fillStyle || 'solid';
             if (prop.key === 'backgroundImage') return slide.backgroundImage || '';
             if (prop.key === 'backgroundOpacity') return slide.backgroundOpacity ?? 1;

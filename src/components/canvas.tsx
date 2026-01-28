@@ -3,7 +3,7 @@ import { calculateAllAnimatedStates } from "../utils/animation-utils";
 import { animationEngine } from "../utils/animation/animation-engine";
 import rough from 'roughjs/bin/rough'; // Hand-drawn style
 import { isElementHiddenByHierarchy, getDescendants } from "../utils/hierarchy";
-import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit, isLayerVisible, isLayerLocked, toggleCollapse, setParent, clearParent, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, togglePropertyPanel, updateSlideThumbnail, advancePresentation } from "../store/app-store";
+import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit, isLayerVisible, isLayerLocked, toggleCollapse, setParent, clearParent, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, togglePropertyPanel, updateSlideThumbnail, advancePresentation, updateSlideBackground } from "../store/app-store";
 import { renderElement, normalizePoints } from "../utils/render-element";
 import { getAnchorPoints, findClosestAnchor } from "../utils/anchor-points";
 import { calculateSmartElbowRoute } from "../utils/routing";
@@ -42,14 +42,20 @@ const renderSlideBackground = (ctx: CanvasRenderingContext2D, rc: any, slide: an
     const type = slide.fillStyle || 'solid';
 
     if (type === 'solid') {
-        ctx.fillStyle = slide.backgroundColor || (isDarkMode ? "#121212" : "#ffffff");
+        const fallbackColor = isDarkMode ? "#121212" : "#ffffff";
+        let color = slide.backgroundColor || fallbackColor;
+        if (color === 'transparent') color = fallbackColor;
+        ctx.fillStyle = color;
         ctx.fillRect(x, y, w, h);
     } else if (['linear', 'radial', 'conic'].includes(type)) {
         const stops = slide.gradientStops || [];
         const angle = slide.gradientDirection || 0;
 
         if (stops.length === 0) {
-            ctx.fillStyle = slide.backgroundColor || (isDarkMode ? "#121212" : "#ffffff");
+            const fallbackColor = isDarkMode ? "#121212" : "#ffffff";
+            let color = slide.backgroundColor || fallbackColor;
+            if (color === 'transparent') color = fallbackColor;
+            ctx.fillStyle = color;
             ctx.fillRect(x, y, w, h);
             return;
         }
@@ -418,6 +424,8 @@ const Canvas: Component = () => {
         ctx.save();
         ctx.translate(panX, panY);
         ctx.scale(scale, scale);
+
+        const rc = rough.canvas(canvasRef);
 
         // --- Render Slide Boundaries ---
         if (store.docType === 'slides') {
