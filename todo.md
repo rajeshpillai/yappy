@@ -1098,3 +1098,32 @@
   - [x] Enhanced P3 Palette with background textures and image drag support
   - [x] Drag behavior: drop on empty slide space updates background (fixed coordinate offsets)
   - [x] Property panel integration for background type and real-time settings
+
+## Phase 76: API Completeness & Visual Enhancements
+- [x] **Decoupled Slide Backgrounds**
+  - [x] Removed `dependsOn` constraint for `backgroundColor` in property configuration
+  - [x] Updated `PropertyPanel` to stop forcing `fillStyle: 'solid'` on color changes
+  - [x] Enabled independent control of background color and pattern fills (dots, zigzag, etc.)
+- [x] **Radial Gradient Focal Control**
+  - [x] Added `radial` to `gradientDirection` slider visibility
+  - [x] Implemented focal point offset in `RenderPipeline` for shapes
+  - [x] Implemented focal point offset in `canvas.tsx` for slide backgrounds
+  - [x] Created dynamic lighting effects with adjustable focal points
+- [x] **Comprehensive API Refresh**
+  - [x] Added `duplicateSlide(index)` for programmatic slide cloning
+  - [x] Added `advancePresentation()` and `retreatPresentation()` for navigation
+  - [x] Added `goToFirstSlide()` and `goToLastSlide()` helper methods
+  - [x] Enhanced `updateSlideBackground()` to accept full options object
+  - [x] Added UI toggles: `toggleMainToolbar`, `toggleUtilityToolbar`, `toggleSlideToolbar`
+  - [x] Added `setSlideToolbarPosition(x, y)` for programmatic positioning
+  - [x] Added `Slide` type import to fix TypeScript errors
+- [x] **UI Polish & Stability**
+  - [x] Fixed Save Dialog Enter key support via native form submission
+  - [x] Eliminated Property Panel "shaking" with stable transitions and layout
+  - [x] Added `scrollbar-gutter: stable` for consistent panel width
+- [x] **Test Coverage Expansion**
+  - [x] Added "Slides & Presentation API" test suite (duplication, navigation, backgrounds, UI toggles)
+  - [x] Added "Advanced Gradients & Backgrounds" test suite (radial focal offset, decoupled patterns)
+  - [x] Expanded to 7 comprehensive test groups covering all major features
+- [x] **Type System Fixes**
+  - [x] Added `'image'` to `FillStyle` type to resolve build errors
