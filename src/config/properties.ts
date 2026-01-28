@@ -264,12 +264,13 @@ export const properties: PropertyConfig[] = [
         defaultValue: 'easeInOutQuad'
     },
     {
-        key: 'backgroundType',
+        key: 'fillStyle',
         label: 'Background Type',
         type: 'select',
         options: [
             { label: 'Solid Color', value: 'solid' },
-            { label: 'Gradient', value: 'gradient' },
+            { label: 'Linear Gradient', value: 'linear' },
+            { label: 'Radial Gradient', value: 'radial' },
             { label: 'Image', value: 'image' }
         ],
         group: 'slide',
@@ -290,7 +291,7 @@ export const properties: PropertyConfig[] = [
         group: 'slide',
         applicableTo: ['slide'],
         defaultValue: '#ffffff',
-        dependsOn: { key: 'backgroundType', value: 'solid' }
+        dependsOn: { key: 'fillStyle', value: 'solid' }
     },
     {
         key: 'backgroundImage',
@@ -299,7 +300,7 @@ export const properties: PropertyConfig[] = [
         group: 'slide',
         applicableTo: ['slide'],
         defaultValue: '',
-        dependsOn: { key: 'backgroundType', value: 'image' }
+        dependsOn: { key: 'fillStyle', value: 'image' }
     },
     {
         key: 'backgroundOpacity',
@@ -311,7 +312,7 @@ export const properties: PropertyConfig[] = [
         group: 'slide',
         applicableTo: ['slide'],
         defaultValue: 1,
-        dependsOn: { key: 'backgroundType', value: 'image' }
+        dependsOn: { key: 'fillStyle', value: 'image' }
     },
 
     // Style
@@ -394,7 +395,7 @@ export const properties: PropertyConfig[] = [
             { label: 'Radial Gradient', value: 'radial' },
             { label: 'Conic Gradient', value: 'conic' }
         ],
-        applicableTo: ['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'starPerson', 'lightbulb', 'signpost', 'burstBlob', 'scroll', 'wavyDivider', 'doubleBanner', 'dfdProcess', 'dfdDataStore', 'isometricCube', 'solidBlock', 'perspectiveBlock', 'cylinder', 'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity', 'umlClass', 'umlInterface', 'umlActor', 'umlUseCase', 'umlNote', 'umlPackage', 'umlComponent', 'umlState', 'umlLifeline', 'umlFragment', 'umlSignalSend', 'umlSignalReceive', 'umlProvidedInterface', 'umlRequiredInterface'],
+        applicableTo: ['slide', 'rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'starPerson', 'lightbulb', 'signpost', 'burstBlob', 'scroll', 'wavyDivider', 'doubleBanner', 'dfdProcess', 'dfdDataStore', 'isometricCube', 'solidBlock', 'perspectiveBlock', 'cylinder', 'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity', 'umlClass', 'umlInterface', 'umlActor', 'umlUseCase', 'umlNote', 'umlPackage', 'umlComponent', 'umlState', 'umlLifeline', 'umlFragment', 'umlSignalSend', 'umlSignalReceive', 'umlProvidedInterface', 'umlRequiredInterface'],
         defaultValue: 'solid'
     },
     {
@@ -499,7 +500,7 @@ export const properties: PropertyConfig[] = [
         group: 'gradient',
         applicableTo: ['slide', 'rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'starPerson', 'lightbulb', 'signpost', 'burstBlob', 'scroll', 'wavyDivider', 'doubleBanner', 'dfdProcess', 'dfdDataStore', 'isometricCube', 'solidBlock', 'perspectiveBlock', 'cylinder', 'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity', 'umlClass', 'umlInterface', 'umlActor', 'umlUseCase', 'umlNote', 'umlPackage', 'umlComponent', 'umlState', 'umlLifeline', 'umlFragment', 'umlSignalSend', 'umlSignalReceive', 'umlProvidedInterface', 'umlRequiredInterface'],
         defaultValue: 45,
-        dependsOn: { key: 'backgroundType', value: 'gradient' }
+        dependsOn: { key: 'fillStyle', value: ['linear', 'conic'] }
     },
     // Blend Mode
     {

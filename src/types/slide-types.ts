@@ -1,4 +1,4 @@
-import type { DrawingElement, Layer, GridSettings } from '../types';
+import type { DrawingElement, Layer, GridSettings, FillStyle, GradientStop } from '../types';
 import type { DisplayState } from './motion-types';
 
 /**
@@ -56,11 +56,9 @@ export interface Slide {
     dimensions: { width: number, height: number }; // slide dimensions in canvas units
     order: number;
     backgroundColor?: string;
-    backgroundType?: 'solid' | 'gradient' | 'image';
-    backgroundGradient?: {
-        angle: number;
-        stops: { offset: number, color: string }[];
-    };
+    fillStyle?: FillStyle; // Combined solid, gradient, and image
+    gradientStops?: GradientStop[];
+    gradientDirection?: number; // Angle in degrees
     backgroundImage?: string; // URL or data URL
     backgroundOpacity?: number;
     thumbnail?: string; // Data URL preview

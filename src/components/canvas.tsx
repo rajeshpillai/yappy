@@ -39,14 +39,22 @@ export const [requestRecording, setRequestRecording] = createSignal<{ start: boo
 
 // Helper to render slide background
 const renderSlideBackground = (ctx: CanvasRenderingContext2D, slide: any, x: number, y: number, w: number, h: number, isDarkMode: boolean) => {
-    const type = slide.backgroundType || 'solid';
+    const type = slide.fillStyle || 'solid';
 
     if (type === 'solid') {
         ctx.fillStyle = slide.backgroundColor || (isDarkMode ? "#121212" : "#ffffff");
         ctx.fillRect(x, y, w, h);
-    } else if (type === 'gradient' && slide.backgroundGradient) {
-        const { angle, stops } = slide.backgroundGradient;
-        // Simple linear gradient calculation
+    } else if (['linear', 'radial', 'conic'].includes(type)) {
+        const stops = slide.gradientStops || [];
+        const angle = slide.gradientDirection || 0;
+
+        if (stops.length === 0) {
+            ctx.fillStyle = slide.backgroundColor || (isDarkMode ? "#121212" : "#ffffff");
+            ctx.fillRect(x, y, w, h);
+            return;
+        }
+
+        // Simple linear gradient calculation (reusing logic but with new structure)
         const angleRad = (angle * Math.PI) / 180;
         const centerX = x + w / 2;
         const centerY = y + h / 2;
@@ -1461,9 +1469,10 @@ const Canvas: Component = () => {
 
     const getWorldCoordinates = (clientX: number, clientY: number) => {
         const { scale, panX, panY } = store.viewState;
+        const rect = canvasRef.getBoundingClientRect();
         return {
-            x: (clientX - panX) / scale,
-            y: (clientY - panY) / scale
+            x: (clientX - rect.left - panX) / scale,
+            y: (clientY - rect.top - panY) / scale
         };
     };
 
@@ -1533,12 +1542,12 @@ const Canvas: Component = () => {
                 if (isColor) {
                     updateSlideBackground(slideIndex, {
                         backgroundColor: data,
-                        backgroundType: 'solid'
+                        fillStyle: 'solid'
                     });
                 } else if (isImage) {
                     updateSlideBackground(slideIndex, {
                         backgroundImage: data,
-                        backgroundType: 'image'
+                        fillStyle: 'image'
                     });
                 }
             }

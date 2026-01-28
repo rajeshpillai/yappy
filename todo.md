@@ -1094,7 +1094,7 @@
   - [x] Added Shift+Drag shortcut to unlock aspect ratio for text
   - [x] Updated Help Dialog with new resize shortcut
 - [x] **Rich Slide Backgrounds**
-  - [x] Extended slide model for Solid, Gradient, and Image backgrounds
+  - [x] Extended slide model for Solid, Gradient, and Image backgrounds (reusing `fillStyle`)
   - [x] Enhanced P3 Palette with background textures and image drag support
-  - [x] Drag behavior: drop on empty slide space updates background
-  - [x] Property panel integration for background type and settings
+  - [x] Drag behavior: drop on empty slide space updates background (fixed coordinate offsets)
+  - [x] Property panel integration for background type and real-time settings

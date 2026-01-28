@@ -831,8 +831,10 @@ export const updateSlideBackground = (slideIndex: number, updates: Partial<Slide
     if (slideIndex < 0 || slideIndex >= store.slides.length) return;
 
     if (typeof updates === 'string') {
-        setStore("slides", slideIndex, "backgroundColor", updates);
-        setStore("slides", slideIndex, "backgroundType", "solid");
+        setStore("slides", slideIndex, {
+            backgroundColor: updates,
+            fillStyle: "solid"
+        });
         if (slideIndex === store.activeSlideIndex) {
             setStore("canvasBackgroundColor", updates);
         }
