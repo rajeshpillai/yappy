@@ -1,5 +1,5 @@
 import { type Component, For, createSignal, Show } from 'solid-js';
-import { store, updateElement, pushToHistory } from '../store/app-store';
+import { store, updateElement, pushToHistory, updateSlideBackground } from '../store/app-store';
 import { AdvancedP3Picker } from './advanced-p3-picker';
 
 const P3_COLORS = [
@@ -36,6 +36,13 @@ export const P3ColorPicker: Component = () => {
                     updateElement(id, { backgroundColor: data, fillStyle: 'solid' });
                 }
             });
+        } else if (store.docType === 'slides') {
+            pushToHistory();
+            if (isImage) {
+                updateSlideBackground(store.activeSlideIndex, { backgroundImage: data, fillStyle: 'image' });
+            } else {
+                updateSlideBackground(store.activeSlideIndex, { backgroundColor: data, fillStyle: 'solid' });
+            }
         }
     };
 

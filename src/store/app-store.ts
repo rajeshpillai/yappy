@@ -831,17 +831,20 @@ export const updateSlideBackground = (slideIndex: number, updates: Partial<Slide
     if (slideIndex < 0 || slideIndex >= store.slides.length) return;
 
     if (typeof updates === 'string') {
-        setStore("slides", slideIndex, {
-            backgroundColor: updates,
-            fillStyle: "solid"
-        });
-        if (slideIndex === store.activeSlideIndex) {
-            setStore("canvasBackgroundColor", updates);
+        const isColorString = updates.startsWith('#') || updates.startsWith('rgb') || updates.startsWith('hsl') || updates.startsWith('color(') || updates.includes('display-p3');
+        if (isColorString) {
+            setStore("slides", slideIndex, {
+                backgroundColor: updates,
+                fillStyle: "solid"
+            });
+            if (slideIndex === store.activeSlideIndex) {
+                setStore("canvasBackgroundColor", updates);
+            }
         }
     } else {
         setStore("slides", slideIndex, updates);
-        if (slideIndex === store.activeSlideIndex) {
-            if (updates.backgroundColor) setStore("canvasBackgroundColor", updates.backgroundColor);
+        if (slideIndex === store.activeSlideIndex && updates.backgroundColor) {
+            setStore("canvasBackgroundColor", updates.backgroundColor);
         }
     }
 };

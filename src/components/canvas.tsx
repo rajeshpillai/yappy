@@ -38,7 +38,7 @@ import { generateId } from "../utils/id-generator"; // New Import
 export const [requestRecording, setRequestRecording] = createSignal<{ start: boolean, format?: 'webm' | 'mp4' } | null>(null);
 
 // Helper to render slide background
-const renderSlideBackground = (ctx: CanvasRenderingContext2D, slide: any, x: number, y: number, w: number, h: number, isDarkMode: boolean) => {
+const renderSlideBackground = (ctx: CanvasRenderingContext2D, rc: any, slide: any, x: number, y: number, w: number, h: number, isDarkMode: boolean) => {
     const type = slide.fillStyle || 'solid';
 
     if (type === 'solid') {
@@ -73,6 +73,20 @@ const renderSlideBackground = (ctx: CanvasRenderingContext2D, slide: any, x: num
         stops.forEach((s: any) => grad.addColorStop(s.offset, s.color));
         ctx.fillStyle = grad;
         ctx.fillRect(x, y, w, h);
+    } else if (['hachure', 'cross-hatch', 'zigzag', 'dots', 'dashed', 'zigzag-line'].includes(type)) {
+        // RoughJS Pattern Fills for slides
+        const bgColor = slide.backgroundColor || (isDarkMode ? "#121212" : "#ffffff");
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(x, y, w, h);
+
+        rc.rectangle(x, y, w, h, {
+            fill: slide.strokeColor || (isDarkMode ? "#ffffff" : "#000000"),
+            fillStyle: type as any,
+            fillWeight: 0.5,
+            hachureGap: 8,
+            stroke: 'transparent',
+            roughness: 0
+        });
     } else if (type === 'image' && slide.backgroundImage) {
         const img = getImage(slide.backgroundImage);
         if (img) {
@@ -209,10 +223,10 @@ const Canvas: Component = () => {
 
         // Background
         const isDarkMode = store.theme === 'dark';
-        renderSlideBackground(tCtx, slide, spatialX, spatialY, sW, sH, isDarkMode);
+        const rc = rough.canvas(thumbCanvas);
+        renderSlideBackground(tCtx!, rc, slide, 0, 0, thumbW, thumbH, isDarkMode);
 
         // Render elements
-        const rc = rough.canvas(thumbCanvas);
         const sortedLayers = [...store.layers].sort((a, b) => a.order - b.order);
 
         sortedLayers.forEach(layer => {
@@ -423,7 +437,7 @@ const Canvas: Component = () => {
                 ctx.restore();
 
                 // 2. Draw Slide Surface
-                renderSlideBackground(ctx, activeSlide, sX, sY, sW, sH, isDarkMode);
+                renderSlideBackground(ctx, rc, activeSlide, sX, sY, sW, sH, isDarkMode);
             }
         } else if (store.docType === 'infinite' && store.slides.length > 1) {
             // Wide Mode: Render slide frames only if there are multiple slides
@@ -1431,6 +1445,11 @@ const Canvas: Component = () => {
             e.spinEnabled; e.spinSpeed;
             e.orbitEnabled; e.orbitCenterId; e.orbitRadius; e.orbitSpeed; e.orbitDirection;
         });
+        // Track slide background changes for real-time updates
+        store.slides.forEach(s => {
+            s.backgroundColor; s.fillStyle; s.gradientStops; s.gradientDirection;
+            s.backgroundImage; s.backgroundOpacity;
+        });
         store.viewState.scale;
         store.viewState.panX;
         store.viewState.panY;
@@ -1558,6 +1577,11 @@ const Canvas: Component = () => {
                         fillStyle: 'image'
                     });
                 }
+            } else if (store.slides.length > 0) {
+                // Fallback to first slide if activeIndex is somehow -1
+                pushToHistory();
+                if (isColor) updateSlideBackground(0, { backgroundColor: data, fillStyle: 'solid' });
+                else if (isImage) updateSlideBackground(0, { backgroundImage: data, fillStyle: 'image' });
             }
         }
     };

@@ -472,8 +472,9 @@ const PropertyPanel: Component = () => {
             }
 
             // Slides and canvas require explicit applicableTo - don't inherit from 'all'
-            // FIX: slides and canvas SHOULD inherit from 'all' if applicable
+            // Only dibujo elements (rectangle, circle, etc) inherit from 'all'
             if (p.applicableTo === 'all') {
+                if (target.type === 'slide' || target.type === 'canvas') return false;
                 return true;
             }
 
@@ -565,6 +566,7 @@ const PropertyPanel: Component = () => {
             else if (key === 'transitionDuration') updateSlideTransition(slideIndex, { duration: value });
             else if (key === 'transitionEasing') updateSlideTransition(slideIndex, { easing: value });
             else if (key === 'backgroundColor') updateSlideBackground(slideIndex, { backgroundColor: value, fillStyle: 'solid' });
+            else if (key === 'fillStyle') updateSlideBackground(slideIndex, { fillStyle: value });
             else if (key === 'backgroundImage') updateSlideBackground(slideIndex, { backgroundImage: value });
             else if (key === 'backgroundOpacity') updateSlideBackground(slideIndex, { backgroundOpacity: value });
             else if (key === 'gradientStops') updateSlideBackground(slideIndex, { gradientStops: value });
