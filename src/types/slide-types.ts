@@ -56,6 +56,13 @@ export interface Slide {
     dimensions: { width: number, height: number }; // slide dimensions in canvas units
     order: number;
     backgroundColor?: string;
+    backgroundType?: 'solid' | 'gradient' | 'image';
+    backgroundGradient?: {
+        angle: number;
+        stops: { offset: number, color: string }[];
+    };
+    backgroundImage?: string; // URL or data URL
+    backgroundOpacity?: number;
     thumbnail?: string; // Data URL preview
     transition?: SlideTransition; // Transition when entering this slide
 }

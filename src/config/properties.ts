@@ -264,8 +264,21 @@ export const properties: PropertyConfig[] = [
         defaultValue: 'easeInOutQuad'
     },
     {
+        key: 'backgroundType',
+        label: 'Background Type',
+        type: 'select',
+        options: [
+            { label: 'Solid Color', value: 'solid' },
+            { label: 'Gradient', value: 'gradient' },
+            { label: 'Image', value: 'image' }
+        ],
+        group: 'slide',
+        applicableTo: ['slide'],
+        defaultValue: 'solid'
+    },
+    {
         key: 'slideBackground',
-        label: 'Background',
+        label: 'Slide Color',
         type: 'color',
         options: [
             { label: 'White', value: '#ffffff' },
@@ -276,7 +289,29 @@ export const properties: PropertyConfig[] = [
         ],
         group: 'slide',
         applicableTo: ['slide'],
-        defaultValue: '#ffffff'
+        defaultValue: '#ffffff',
+        dependsOn: { key: 'backgroundType', value: 'solid' }
+    },
+    {
+        key: 'backgroundImage',
+        label: 'Background Image (URL)',
+        type: 'textarea',
+        group: 'slide',
+        applicableTo: ['slide'],
+        defaultValue: '',
+        dependsOn: { key: 'backgroundType', value: 'image' }
+    },
+    {
+        key: 'backgroundOpacity',
+        label: 'Opacity',
+        type: 'slider',
+        min: 0,
+        max: 1,
+        step: 0.1,
+        group: 'slide',
+        applicableTo: ['slide'],
+        defaultValue: 1,
+        dependsOn: { key: 'backgroundType', value: 'image' }
     },
 
     // Style
@@ -462,9 +497,9 @@ export const properties: PropertyConfig[] = [
         max: 360,
         step: 15,
         group: 'gradient',
-        applicableTo: 'all',
+        applicableTo: ['slide', 'rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'starPerson', 'lightbulb', 'signpost', 'burstBlob', 'scroll', 'wavyDivider', 'doubleBanner', 'dfdProcess', 'dfdDataStore', 'isometricCube', 'solidBlock', 'perspectiveBlock', 'cylinder', 'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity', 'umlClass', 'umlInterface', 'umlActor', 'umlUseCase', 'umlNote', 'umlPackage', 'umlComponent', 'umlState', 'umlLifeline', 'umlFragment', 'umlSignalSend', 'umlSignalReceive', 'umlProvidedInterface', 'umlRequiredInterface'],
         defaultValue: 45,
-        dependsOn: { key: 'fillStyle', value: ['linear', 'conic'] }
+        dependsOn: { key: 'backgroundType', value: 'gradient' }
     },
     // Blend Mode
     {

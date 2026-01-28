@@ -555,7 +555,12 @@ const PropertyPanel: Component = () => {
             if (key === 'transitionType') updateSlideTransition(slideIndex, { type: value });
             else if (key === 'transitionDuration') updateSlideTransition(slideIndex, { duration: value });
             else if (key === 'transitionEasing') updateSlideTransition(slideIndex, { easing: value });
-            else if (key === 'slideBackground') updateSlideBackground(slideIndex, value);
+            else if (key === 'slideBackground') updateSlideBackground(slideIndex, { backgroundColor: value, backgroundType: 'solid' });
+            else if (key === 'backgroundType') updateSlideBackground(slideIndex, { backgroundType: value });
+            else if (key === 'backgroundImage') updateSlideBackground(slideIndex, { backgroundImage: value });
+            else if (key === 'backgroundOpacity') updateSlideBackground(slideIndex, { backgroundOpacity: value });
+            else if (key === 'gradientStops') updateSlideBackground(slideIndex, { backgroundGradient: { angle: (store.slides[slideIndex].backgroundGradient?.angle ?? 0), stops: value } });
+            else if (key === 'gradientDirection') updateSlideBackground(slideIndex, { backgroundGradient: { angle: value, stops: (store.slides[slideIndex].backgroundGradient?.stops ?? []) } });
         } else {
             updateDefaultStyles({ [key]: finalValue });
         }
@@ -584,6 +589,10 @@ const PropertyPanel: Component = () => {
             if (prop.key === 'transitionDuration') return slide.transition?.duration || 500;
             if (prop.key === 'transitionEasing') return slide.transition?.easing || 'easeInOutQuad';
             if (prop.key === 'slideBackground') return slide.backgroundColor || '#ffffff';
+            if (prop.key === 'backgroundType') return slide.backgroundType || 'solid';
+            if (prop.key === 'backgroundImage') return slide.backgroundImage || '';
+            if (prop.key === 'backgroundOpacity') return slide.backgroundOpacity ?? 1;
+            if (prop.key === 'gradientDirection') return slide.backgroundGradient?.angle ?? 0;
             return undefined;
         }
         if (target.type === 'element') {
@@ -830,9 +839,9 @@ const PropertyPanel: Component = () => {
                                     {(group) => (
                                         <div class="property-group">
                                             <div class="group-title">{group.toUpperCase()}</div>
-                                            <Show when={group === 'gradient' && activeTarget()?.type === 'element'}>
+                                            <Show when={group === 'gradient' && (activeTarget()?.type === 'element' || (activeTarget()?.type === 'slide' && (activeTarget()?.data as Slide).backgroundType === 'gradient'))}>
                                                 <GradientEditor
-                                                    target={activeTarget()}
+                                                    target={activeTarget()?.type === 'slide' ? { type: 'slide', data: { ...activeTarget()?.data, gradientStops: (activeTarget()?.data as Slide).backgroundGradient?.stops || [] } } as any : activeTarget()}
                                                     onChange={handleChange}
                                                 />
                                             </Show>

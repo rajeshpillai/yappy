@@ -11,7 +11,7 @@ import type { DrawingElement } from "../types";
 import { distanceToSegment, isPointOnPolyline, isPointInEllipse, intersectElementWithLine, isPointOnBezier, isPointInPolygon, getOrganicBranchPolygon } from "../utils/geometry";
 import ContextMenu, { type MenuItem } from "./context-menu";
 import { snapPoint } from "../utils/snap-helpers";
-import { setImageLoadCallback } from "../utils/image-cache";
+import { getImage, setImageLoadCallback } from "../utils/image-cache";
 import { getSnappingGuides } from "../utils/object-snapping";
 import type { SnappingGuide } from "../utils/object-snapping";
 import { getSpacingGuides } from "../utils/spacing";
@@ -36,6 +36,61 @@ import { generateId } from "../utils/id-generator"; // New Import
 
 // Export controls for Menu/Dialog access
 export const [requestRecording, setRequestRecording] = createSignal<{ start: boolean, format?: 'webm' | 'mp4' } | null>(null);
+
+// Helper to render slide background
+const renderSlideBackground = (ctx: CanvasRenderingContext2D, slide: any, x: number, y: number, w: number, h: number, isDarkMode: boolean) => {
+    const type = slide.backgroundType || 'solid';
+
+    if (type === 'solid') {
+        ctx.fillStyle = slide.backgroundColor || (isDarkMode ? "#121212" : "#ffffff");
+        ctx.fillRect(x, y, w, h);
+    } else if (type === 'gradient' && slide.backgroundGradient) {
+        const { angle, stops } = slide.backgroundGradient;
+        // Simple linear gradient calculation
+        const angleRad = (angle * Math.PI) / 180;
+        const centerX = x + w / 2;
+        const centerY = y + h / 2;
+        const length = Math.sqrt(w * w + h * h) / 2;
+
+        const x0 = centerX - Math.cos(angleRad) * length;
+        const y0 = centerY - Math.sin(angleRad) * length;
+        const x1 = centerX + Math.cos(angleRad) * length;
+        const y1 = centerY + Math.sin(angleRad) * length;
+
+        const grad = ctx.createLinearGradient(x0, y0, x1, y1);
+        stops.forEach((s: any) => grad.addColorStop(s.offset, s.color));
+        ctx.fillStyle = grad;
+        ctx.fillRect(x, y, w, h);
+    } else if (type === 'image' && slide.backgroundImage) {
+        const img = getImage(slide.backgroundImage);
+        if (img) {
+            ctx.save();
+            ctx.globalAlpha = slide.backgroundOpacity ?? 1;
+            // Draw image cropped/fitted
+            const imgAspect = img.width / img.height;
+            const slideAspect = w / h;
+            let dw, dh, dx, dy;
+
+            if (imgAspect > slideAspect) {
+                dh = h;
+                dw = h * imgAspect;
+                dx = x - (dw - w) / 2;
+                dy = y;
+            } else {
+                dw = w;
+                dh = w / imgAspect;
+                dx = x;
+                dy = y - (dh - h) / 2;
+            }
+            ctx.drawImage(img, dx, dy, dw, dh);
+            ctx.restore();
+        } else {
+            // Placeholder while loading
+            ctx.fillStyle = isDarkMode ? "#1a1a1a" : "#f0f0f0";
+            ctx.fillRect(x, y, w, h);
+        }
+    }
+};
 
 const Canvas: Component = () => {
 
@@ -142,8 +197,7 @@ const Canvas: Component = () => {
 
         // Background
         const isDarkMode = store.theme === 'dark';
-        tCtx.fillStyle = slide.backgroundColor || (isDarkMode ? "#121212" : "#ffffff");
-        tCtx.fillRect(spatialX, spatialY, sW, sH);
+        renderSlideBackground(tCtx, slide, spatialX, spatialY, sW, sH, isDarkMode);
 
         // Render elements
         const rc = rough.canvas(thumbCanvas);
@@ -357,9 +411,7 @@ const Canvas: Component = () => {
                 ctx.restore();
 
                 // 2. Draw Slide Surface
-                const slideBg = activeSlide.backgroundColor || (isDarkMode ? "#121212" : "#ffffff");
-                ctx.fillStyle = slideBg;
-                ctx.fillRect(sX, sY, sW, sH);
+                renderSlideBackground(ctx, activeSlide, sX, sY, sW, sH, isDarkMode);
             }
         } else if (store.docType === 'infinite' && store.slides.length > 1) {
             // Wide Mode: Render slide frames only if there are multiple slides
@@ -1424,8 +1476,13 @@ const Canvas: Component = () => {
 
     const handleDrop = async (e: DragEvent) => {
         e.preventDefault();
-        const color = e.dataTransfer?.getData('text/plain');
-        if (!color || !color.startsWith('color(display-p3')) return;
+        const data = e.dataTransfer?.getData('text/plain');
+        if (!data) return;
+
+        const isColor = data.startsWith('color(display-p3') || data.startsWith('#') || data.startsWith('rgba') || data.startsWith('oklch');
+        const isImage = data.startsWith('http') || data.startsWith('data:image');
+
+        if (!isColor && !isImage) return;
 
         const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
         const threshold = 10 / store.viewState.scale;
@@ -1458,7 +1515,33 @@ const Canvas: Component = () => {
 
         if (hitId) {
             pushToHistory();
-            updateElement(hitId, { backgroundColor: color, fillStyle: 'solid' });
+            if (isColor) {
+                updateElement(hitId, { backgroundColor: data, fillStyle: 'solid' });
+            } else if (isImage) {
+                updateElement(hitId, { type: 'image', dataURL: data });
+            }
+        } else if (store.docType === 'slides') {
+            // Find slide at drop location
+            const slideIndex = store.slides.findIndex(s => {
+                const { x: sx, y: sy } = s.spatialPosition;
+                const { width: sw, height: sh } = s.dimensions;
+                return x >= sx && x <= sx + sw && y >= sy && y <= sy + sh;
+            });
+
+            if (slideIndex !== -1) {
+                pushToHistory();
+                if (isColor) {
+                    updateSlideBackground(slideIndex, {
+                        backgroundColor: data,
+                        backgroundType: 'solid'
+                    });
+                } else if (isImage) {
+                    updateSlideBackground(slideIndex, {
+                        backgroundImage: data,
+                        backgroundType: 'image'
+                    });
+                }
+            }
         }
     };
 

@@ -14,32 +14,54 @@ const P3_COLORS = [
     { name: 'P3 Pink', value: 'color(display-p3 1 0 0.5)' },
 ];
 
+const BACKGROUND_ASSETS = [
+    { name: 'Noise Texture', value: 'https://www.transparenttextures.com/patterns/asfalt-dark.png' },
+    { name: 'Paper Texture', value: 'https://www.transparenttextures.com/patterns/paper.png' },
+    { name: 'Carbon Fiber', value: 'https://www.transparenttextures.com/patterns/carbon-fibre.png' },
+    { name: 'Gradient Blue', value: 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=320' },
+    { name: 'Gradient Sunset', value: 'https://images.unsplash.com/photo-1557683311-eac922347aa1?q=80&w=320' },
+];
+
 export const P3ColorPicker: Component = () => {
     const [showAdvanced, setShowAdvanced] = createSignal(false);
-    const applyColor = (color: string) => {
+
+    const applyAsset = (data: string) => {
+        const isImage = data.startsWith('http') || data.startsWith('data:image');
         if (store.selection.length > 0) {
             pushToHistory();
             store.selection.forEach(id => {
-                updateElement(id, { backgroundColor: color, fillStyle: 'solid' });
+                if (isImage) {
+                    updateElement(id, { type: 'image', dataURL: data });
+                } else {
+                    updateElement(id, { backgroundColor: data, fillStyle: 'solid' });
+                }
             });
         }
     };
 
-    const handleDragStart = (e: DragEvent, color: string) => {
+    const handleDragStart = (e: DragEvent, data: string) => {
         if (e.dataTransfer) {
-            e.dataTransfer.setData('text/plain', color);
+            e.dataTransfer.setData('text/plain', data);
             e.dataTransfer.effectAllowed = 'copy';
 
-            // Create a custom drag image if needed, but standard is fine
+            const isImage = data.startsWith('http') || data.startsWith('data:image');
+
+            // Create a custom drag image
             const dragIcon = document.createElement('div');
-            dragIcon.style.width = '24px';
-            dragIcon.style.height = '24px';
-            dragIcon.style.background = color;
-            dragIcon.style.borderRadius = '50%';
+            dragIcon.style.width = '32px';
+            dragIcon.style.height = '32px';
+            if (isImage) {
+                dragIcon.style.backgroundImage = `url(${data})`;
+                dragIcon.style.backgroundSize = 'cover';
+            } else {
+                dragIcon.style.background = data;
+            }
+            dragIcon.style.borderRadius = '4px';
             dragIcon.style.position = 'absolute';
             dragIcon.style.top = '-1000px';
+            dragIcon.style.border = '1px solid white';
             document.body.appendChild(dragIcon);
-            e.dataTransfer.setDragImage(dragIcon, 12, 12);
+            e.dataTransfer.setDragImage(dragIcon, 16, 16);
             setTimeout(() => document.body.removeChild(dragIcon), 0);
         }
     };
@@ -57,65 +79,107 @@ export const P3ColorPicker: Component = () => {
                             Back
                         </button>
                     </div>
-                    <AdvancedP3Picker onSelect={applyColor} />
+                    <AdvancedP3Picker onSelect={applyAsset} />
                 </div>
             }>
-                <div
-                    style={{
-                        display: 'grid',
-                        'grid-template-columns': 'repeat(5, 1fr)',
-                        gap: '8px',
-                        padding: '8px',
-                    }}
-                >
-                    <For each={P3_COLORS}>
-                        {(color) => (
-                            <div
-                                draggable={true}
-                                onDragStart={(e) => {
-                                    e.stopPropagation();
-                                    handleDragStart(e, color.value);
-                                }}
-                                onMouseDown={(e) => e.stopPropagation()}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    applyColor(color.value);
-                                }}
-                                title={`${color.name} (Drag to shape or Click to apply to selection)`}
-                                style={{
-                                    width: '24px',
-                                    height: '24px',
-                                    background: color.value,
-                                    'border-radius': '6px',
-                                    cursor: 'grab',
-                                    border: '1px solid rgba(0,0,0,0.1)',
-                                    'flex-shrink': 0,
-                                    transition: 'transform 0.2s',
-                                }}
-                                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
-                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                            />
-                        )}
-                    </For>
-                    <button
-                        onClick={() => setShowAdvanced(true)}
-                        title="Advanced Picker"
+                <div style={{ padding: '8px' }}>
+                    <div style={{ 'font-size': '10px', 'font-weight': 'bold', color: 'var(--text-secondary)', 'margin-bottom': '4px' }}>P3 COLORS</div>
+                    <div
                         style={{
-                            width: '24px',
-                            height: '24px',
-                            background: 'var(--toolbar-bg)',
-                            'border-radius': '6px',
-                            cursor: 'pointer',
-                            border: '1px dashed var(--border-color)',
-                            display: 'flex',
-                            'align-items': 'center',
-                            'justify-content': 'center',
-                            'font-size': '14px',
-                            color: 'var(--text-secondary)'
+                            display: 'grid',
+                            'grid-template-columns': 'repeat(5, 1fr)',
+                            gap: '8px',
+                            'margin-bottom': '12px'
                         }}
                     >
-                        +
-                    </button>
+                        <For each={P3_COLORS}>
+                            {(color) => (
+                                <div
+                                    draggable={true}
+                                    onDragStart={(e) => {
+                                        e.stopPropagation();
+                                        handleDragStart(e, color.value);
+                                    }}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        applyAsset(color.value);
+                                    }}
+                                    title={`${color.name} (Drag to shape/slide)`}
+                                    style={{
+                                        width: '24px',
+                                        height: '24px',
+                                        background: color.value,
+                                        'border-radius': '6px',
+                                        cursor: 'grab',
+                                        border: '1px solid rgba(0,0,0,0.1)',
+                                        transition: 'transform 0.2s',
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                />
+                            )}
+                        </For>
+                        <button
+                            onClick={() => setShowAdvanced(true)}
+                            title="Advanced Picker"
+                            style={{
+                                width: '24px',
+                                height: '24px',
+                                background: 'var(--toolbar-bg)',
+                                'border-radius': '6px',
+                                cursor: 'pointer',
+                                border: '1px dashed var(--border-color)',
+                                display: 'flex',
+                                'align-items': 'center',
+                                'justify-content': 'center',
+                                'font-size': '14px',
+                                color: 'var(--text-secondary)'
+                            }}
+                        >
+                            +
+                        </button>
+                    </div>
+
+                    <div style={{ 'font-size': '10px', 'font-weight': 'bold', color: 'var(--text-secondary)', 'margin-bottom': '4px' }}>BACKGROUNDS</div>
+                    <div
+                        style={{
+                            display: 'grid',
+                            'grid-template-columns': 'repeat(5, 1fr)',
+                            gap: '8px',
+                        }}
+                    >
+                        <For each={BACKGROUND_ASSETS}>
+                            {(asset) => (
+                                <div
+                                    draggable={true}
+                                    onDragStart={(e) => {
+                                        e.stopPropagation();
+                                        handleDragStart(e, asset.value);
+                                    }}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        applyAsset(asset.value);
+                                    }}
+                                    title={`${asset.name} (Drag to shape/slide)`}
+                                    style={{
+                                        width: '24px',
+                                        height: '24px',
+                                        'background-image': `url(${asset.value})`,
+                                        'background-size': 'cover',
+                                        'background-position': 'center',
+                                        'border-radius': '6px',
+                                        cursor: 'grab',
+                                        border: '1px solid rgba(0,0,0,0.1)',
+                                        transition: 'transform 0.2s',
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                />
+                            )}
+                        </For>
+                    </div>
                 </div>
             </Show>
         </div>
