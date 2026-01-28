@@ -1083,3 +1083,6 @@
   - [x] Updated Help Dialog and Welcome Screen
 - [x] **Cleanup**
   - [x] Removed "Share" button (Client-side only)
+- [x] **Animation Fixes**
+  - [x] Fixed Auto-Spin preview failing when no other animations exist
+  - [x] Fixed Global/Panel Play buttons for continuous animations (forced ticker)

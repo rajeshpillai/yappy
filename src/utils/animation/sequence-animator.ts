@@ -2,6 +2,7 @@ import { animateElement, type ElementAnimationTarget, type ElementAnimationConfi
 import * as animator from './element-animator';
 import type { ElementAnimation, PropertyAnimation } from '../../types/motion-types';
 import { store, updateElement, setIsPreviewing } from '../../store/app-store';
+import { animationEngine } from './animation-engine';
 
 /**
  * Manages the execution of animation sequences for elements
@@ -14,13 +15,19 @@ export class SequenceAnimator {
      */
     playSequence(elementId: string, trigger: 'on-load' | 'programmatic' = 'programmatic'): void {
         const element = store.elements.find(el => el.id === elementId);
-        if (!element || !element.animations || element.animations.length === 0) return;
+
+        // Allow preview if element has animations OR physics props (spin/orbit)
+        const hasAnimations = element?.animations && element.animations.length > 0;
+        const hasPhysics = element?.spinEnabled || element?.orbitEnabled;
+
+        if (!element || (!hasAnimations && !(trigger === 'programmatic' && hasPhysics))) return;
 
         // For programmatic previews, capture state to restore it after
         let originalState: any = null;
         if (trigger === 'programmatic') {
             this.activeSequences.add(elementId);
             setIsPreviewing(true);
+            animationEngine.setForceTicker(true); // Force loop for physics
             originalState = {
                 x: element.x,
                 y: element.y,
@@ -35,19 +42,30 @@ export class SequenceAnimator {
 
         // Filter animations by trigger
         // Note: 'after-prev' and 'with-prev' are handled naturally by the sequence order
-        const sequence = element.animations.filter((_anim, index) => {
+        const sequence = element.animations ? element.animations.filter((_anim, index) => {
             if (trigger === 'programmatic') return true; // Preview all animations
             if (index === 0) return _anim.trigger === trigger || _anim.trigger === 'after-prev';
             return true;
-        });
+        }) : [];
 
-        if (sequence.length === 0) return;
+        // If no sequence animations, but we have physics and are previewing, just let it run
+        if (sequence.length === 0) {
+            if (trigger === 'programmatic' && hasPhysics) {
+                // Physics mode: Just return, leaving isPreviewing=true. 
+                // User must manually stop or it stops when they deselect eventually (though logic for that is elsewhere)
+                // Actually, for consistency, we should probably auto-stop after some time? 
+                // No, standard behavior for "Physics" preview is usually "run until stop".
+                return;
+            }
+            return;
+        }
 
         const onAllComplete = () => {
             if (trigger === 'programmatic') {
                 this.activeSequences.delete(elementId);
                 if (this.activeSequences.size === 0) {
                     setIsPreviewing(false);
+                    animationEngine.setForceTicker(false);
                 }
             }
             if (originalState) {
@@ -66,6 +84,15 @@ export class SequenceAnimator {
      */
     stopSequence(elementId: string): void {
         animator.stopAllElementAnimations(elementId);
+
+        // Cleanup sequence state
+        if (this.activeSequences.has(elementId)) {
+            this.activeSequences.delete(elementId);
+            if (this.activeSequences.size === 0) {
+                setIsPreviewing(false);
+                animationEngine.setForceTicker(false);
+            }
+        }
     }
 
     /**
@@ -87,6 +114,7 @@ export class SequenceAnimator {
     stopAll(): void {
         this.activeSequences.clear();
         setIsPreviewing(false);
+        animationEngine.setForceTicker(false);
         store.elements.forEach(element => {
             this.stopSequence(element.id);
         });
