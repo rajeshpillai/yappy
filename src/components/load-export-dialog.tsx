@@ -4,6 +4,7 @@ import {
     Image as ImageIcon, HelpCircle, AlertTriangle
 } from "lucide-solid";
 import "./load-export-dialog.css";
+import { features } from "../config/features";
 
 interface LoadExportDialogProps {
     isOpen: boolean;
@@ -83,37 +84,28 @@ const LoadExportDialog: Component<LoadExportDialogProps> = (props) => {
                                     </div>
                                     <div class="option-info">
                                         <h4>Load from file</h4>
-                                        <p>Open a .json sketch file from your device</p>
+                                        <p>Open a .yappy or .json sketch file from your device</p>
                                     </div>
                                     <button class="action-trigger">Load from file</button>
                                 </div>
 
-                                <div class="option-card" onClick={props.onLoadWorkspace}>
-                                    <div class="option-icon workspace">
-                                        <FolderOpen size={32} />
+                                <Show when={features.enableWorkspacePersistence}>
+                                    <div class="option-card" onClick={props.onLoadWorkspace}>
+                                        <div class="option-icon workspace">
+                                            <FolderOpen size={32} />
+                                        </div>
+                                        <div class="option-info">
+                                            <h4>Open from Workspace</h4>
+                                            <p>Load a drawing saved in your local workspace</p>
+                                        </div>
+                                        <button class="action-trigger">Open Workspace</button>
                                     </div>
-                                    <div class="option-info">
-                                        <h4>Open from Workspace</h4>
-                                        <p>Load a drawing saved in your local workspace</p>
-                                    </div>
-                                    <button class="action-trigger">Open Workspace</button>
-                                </div>
+                                </Show>
                             </div>
                         </Show>
 
                         <Show when={activeTab() === 'save'}>
                             <div class="options-grid horizontal">
-                                <div class="option-card compact" onClick={props.onExportImage}>
-                                    <div class="option-icon image">
-                                        <ImageIcon size={24} />
-                                    </div>
-                                    <div class="option-info">
-                                        <h4>Export as image</h4>
-                                        <p>Download your drawing as a PNG or SVG</p>
-                                    </div>
-                                    <button class="action-trigger secondary">Export as image</button>
-                                </div>
-
                                 <div class="option-card compact" onClick={props.onSaveDisk}>
                                     <div class="option-icon disk">
                                         <Download size={24} />
@@ -123,6 +115,17 @@ const LoadExportDialog: Component<LoadExportDialogProps> = (props) => {
                                         <p>Export your drawing to a file for backup</p>
                                     </div>
                                     <button class="action-trigger secondary">Save to disk</button>
+                                </div>
+
+                                <div class="option-card compact" onClick={props.onExportImage}>
+                                    <div class="option-icon image">
+                                        <ImageIcon size={24} />
+                                    </div>
+                                    <div class="option-info">
+                                        <h4>Export as image</h4>
+                                        <p>Download your drawing as a PNG or SVG</p>
+                                    </div>
+                                    <button class="action-trigger secondary">Export as image</button>
                                 </div>
 
                                 <div class="option-card compact" onClick={props.onSaveDiskJson}>
@@ -136,16 +139,18 @@ const LoadExportDialog: Component<LoadExportDialogProps> = (props) => {
                                     <button class="action-trigger secondary">Save JSON</button>
                                 </div>
 
-                                <div class="option-card compact" onClick={props.onSaveWorkspace}>
-                                    <div class="option-icon workspace">
-                                        <Save size={24} />
+                                <Show when={features.enableWorkspacePersistence}>
+                                    <div class="option-card compact" onClick={props.onSaveWorkspace}>
+                                        <div class="option-icon workspace">
+                                            <Save size={24} />
+                                        </div>
+                                        <div class="option-info">
+                                            <h4>Save to Workspace</h4>
+                                            <p>Save drawing to your internal browser storage</p>
+                                        </div>
+                                        <button class="action-trigger secondary">Save Workspace</button>
                                     </div>
-                                    <div class="option-info">
-                                        <h4>Save to Workspace</h4>
-                                        <p>Save drawing to your internal browser storage</p>
-                                    </div>
-                                    <button class="action-trigger secondary">Save Workspace</button>
-                                </div>
+                                </Show>
                             </div>
                         </Show>
                     </div>
@@ -153,7 +158,7 @@ const LoadExportDialog: Component<LoadExportDialogProps> = (props) => {
                     <div class="dialog-footer">
                         <div class="help-tip">
                             <HelpCircle size={14} />
-                            <span>All data is stored locally in your browser.</span>
+                            <span>.yappy / .json (yappy exported) or Workspace data is stored locally in your browser.</span>
                         </div>
                     </div>
                 </div>

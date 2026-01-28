@@ -25,6 +25,7 @@ const SlideNavigator = lazy(() => import('./components/slide-navigator').then(m 
 const SlideControlToolbar = lazy(() => import('./components/slide-control-toolbar').then(m => ({ default: m.SlideControlToolbar })));
 const PresentationControls = lazy(() => import('./components/presentation-controls').then(m => ({ default: m.PresentationControls })));
 import { WelcomeScreen } from './components/welcome-screen';
+import { features } from './config/features';
 
 import Menu, {
   handleNew, handleSaveRequest, setIsDialogOpen, setShowHelp,
@@ -96,7 +97,9 @@ const App: Component = () => {
           return;
         } else if (key === 's' && e.altKey) {
           e.preventDefault();
-          handleSaveRequest('workspace');
+          if (features.enableWorkspacePersistence) {
+            handleSaveRequest('workspace');
+          }
           return;
         } else if (key === 'e' && e.shiftKey) {
           e.preventDefault();

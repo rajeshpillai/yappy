@@ -22,6 +22,7 @@ const FileOpenDialog = lazy(() => import("./file-open-dialog"));
 const ExportDialog = lazy(() => import("./export-dialog"));
 const SaveDialog = lazy(() => import("./save-dialog"));
 const TemplateBrowser = lazy(() => import("./template-browser"));
+import { features } from "../config/features";
 import { migrateToSlideFormat, isSlideDocument } from "../utils/migration";
 import type { SlideDocument } from "../types/slide-types";
 import type { Template } from "../types/template-types";
@@ -94,6 +95,10 @@ const Menu: Component = () => {
             };
 
             if (saveIntent() === 'workspace') {
+                if (!features.enableWorkspacePersistence) {
+                    showToast('Workspace saving is disabled', 'error');
+                    return;
+                }
                 await storage.saveDrawing(filename, slideDoc);
                 showToast(`Drawing saved as "${filename}"!`, 'success');
             } else {
