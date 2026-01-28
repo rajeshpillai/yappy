@@ -10,15 +10,17 @@ import {
     applyNextState, applyPreviousState,
     addChildNode, addSiblingNode, toggleCollapseSelection, toggleCollapse,
     setParent, reorderMindmap, applyMindmapStyling,
-    addSlide, deleteSlide, setActiveSlide, reorderSlides,
+    addSlide, deleteSlide, duplicateSlide, setActiveSlide, reorderSlides,
     updateSlideTransition, updateSlideBackground, setDocType, loadDocument, resetToNewDocument,
+    advancePresentation, retreatPresentation,
     bringToFront, sendToBack, moveElementZIndex,
     alignSelectedElements, distributeSelectedElements,
     setCanvasBackgroundColor, setCanvasTexture, zoomToFitSlide,
-    setSelectedTool, loadTemplate, moveSelectedElements
+    setSelectedTool, loadTemplate, moveSelectedElements,
+    toggleMainToolbar, toggleUtilityToolbar, toggleSlideToolbar, setSlideToolbarPosition
 } from "./store/app-store";
 import type { ElementType, DrawingElement, FillStyle, StrokeStyle, FontFamily, TextAlign, ArrowHead, VerticalAlign, Point, GradientStop, GradientType, Layer } from "./types";
-import type { SlideTransition } from "./types/slide-types";
+import type { Slide, SlideTransition } from "./types/slide-types";
 import type { AlignmentType, DistributionType } from "./utils/alignment";
 import type { LayoutDirection } from "./utils/mindmap-layout";
 import {
@@ -561,14 +563,23 @@ export const YappyAPI = {
     toggleMinimap(visible?: boolean) { toggleMinimap(visible); },
     toggleZenMode(visible?: boolean) { toggleZenMode(visible); },
     toggleSlideNavigator(visible?: boolean) { toggleSlideNavigator(visible); },
+    toggleMainToolbar(visible?: boolean) { toggleMainToolbar(visible); },
+    toggleUtilityToolbar(visible?: boolean) { toggleUtilityToolbar(visible); },
+    toggleSlideToolbar(visible?: boolean) { toggleSlideToolbar(visible); },
+    setSlideToolbarPosition(x: number, y: number) { setSlideToolbarPosition(x, y); },
 
     // Slides
     addSlide() { addSlide(); },
     deleteSlide(index: number) { deleteSlide(index); },
+    duplicateSlide(index: number) { duplicateSlide(index); },
     setActiveSlide(index: number) { setActiveSlide(index); },
     reorderSlides(fromIndex: number, toIndex: number) { reorderSlides(fromIndex, toIndex); },
     updateSlideTransition(slideIndex: number, transition: Partial<SlideTransition>) { updateSlideTransition(slideIndex, transition); },
-    updateSlideBackground(slideIndex: number, color: string) { updateSlideBackground(slideIndex, color); },
+    updateSlideBackground(slideIndex: number, updates: Partial<Slide> | string) { updateSlideBackground(slideIndex, updates); },
+    advancePresentation() { return advancePresentation(); },
+    retreatPresentation() { return retreatPresentation(); },
+    goToFirstSlide() { return setActiveSlide(0); },
+    goToLastSlide() { return setActiveSlide(store.slides.length - 1); },
     setDocType(type: 'infinite' | 'slides') { setDocType(type); },
     loadDocument(doc: any) { loadDocument(doc); },
     resetToNewDocument(docType: 'infinite' | 'slides' = 'slides') { resetToNewDocument(docType); },
