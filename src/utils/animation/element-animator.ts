@@ -11,8 +11,41 @@ import { lerp, lerpColor } from './animation-types';
 import { store, updateElement, setStore } from '../../store/app-store';
 import type { DrawingElement } from '../../types';
 
-// Track active animations per element to prevent drift and handle interruptions
-const activeAnimations = new Map<string, Set<string>>();
+// Track active animations per element with their affected properties
+// Map<elementId, Map<animationId, Set<propertyName>>>
+const activeAnimations = new Map<string, Map<string, Set<string>>>();
+
+/**
+ * Stop animations that conflict with the given properties
+ */
+export function stopConflictingAnimations(
+    elementId: string,
+    targetProperties: Set<string>
+): void {
+    const elementAnims = activeAnimations.get(elementId);
+    if (!elementAnims) return;
+
+    const toStop: string[] = [];
+
+    for (const [animId, animProps] of elementAnims.entries()) {
+        // Check if any property overlaps
+        for (const prop of animProps) {
+            if (targetProperties.has(prop)) {
+                toStop.push(animId);
+                break;
+            }
+        }
+    }
+
+    toStop.forEach(id => {
+        animationEngine.stop(id);
+        elementAnims.delete(id);
+    });
+
+    if (elementAnims.size === 0) {
+        activeAnimations.delete(elementId);
+    }
+}
 
 /**
  * Stop all active animations for a specific element
@@ -20,7 +53,7 @@ const activeAnimations = new Map<string, Set<string>>();
 export function stopAllElementAnimations(elementId: string): void {
     const animIds = activeAnimations.get(elementId);
     if (animIds) {
-        animIds.forEach(id => animationEngine.stop(id));
+        animIds.forEach((_, id) => animationEngine.stop(id));
         activeAnimations.delete(elementId);
     }
 }
@@ -120,23 +153,15 @@ export function animateElement(
 
     const animId = generateAnimationId('el');
 
-    // Stop existing animations for this element before starting a new one
-    // to prevent property drift and interference
-    stopAllElementAnimations(elementId);
-
-    // Register this animation
-    if (!activeAnimations.has(elementId)) {
-        activeAnimations.set(elementId, new Set());
-    }
-    activeAnimations.get(elementId)!.add(animId);
-
-    // Capture starting values
+    // Capture starting values and determine which properties will be animated
     const startValues: Record<string, number | string> = {};
     const numericProps: AnimatableProperty[] = [];
     const colorProps: AnimatableColorProperty[] = [];
     const immediateProps: Partial<DrawingElement> = {};
+    const targetProps = new Set<string>();
 
     for (const key of Object.keys(target) as (keyof ElementAnimationTarget)[]) {
+        targetProps.add(key); // Track all target properties
         const startVal = getElementProperty(element, key);
         if (startVal !== undefined) {
             startValues[key] = startVal;
@@ -151,6 +176,15 @@ export function animateElement(
             (immediateProps as any)[key] = (target as any)[key];
         }
     }
+
+    // Stop only animations that conflict with our target properties
+    stopConflictingAnimations(elementId, targetProps);
+
+    // Register this animation with its properties
+    if (!activeAnimations.has(elementId)) {
+        activeAnimations.set(elementId, new Map());
+    }
+    activeAnimations.get(elementId)!.set(animId, targetProps);
 
     // Apply immediate properties
     if (Object.keys(immediateProps).length > 0) {
@@ -270,10 +304,17 @@ export function animateAlongPath(
 
     const animId = generateAnimationId('path');
 
+    const targetProps = new Set<string>(['x', 'y']);
+    if (config.orientToPath) targetProps.add('angle');
+
     // Stop conflicting
-    stopAllElementAnimations(elementId);
-    if (!activeAnimations.has(elementId)) activeAnimations.set(elementId, new Set());
-    activeAnimations.get(elementId)!.add(animId);
+    stopConflictingAnimations(elementId, targetProps);
+
+    // Register
+    if (!activeAnimations.has(elementId)) {
+        activeAnimations.set(elementId, new Map());
+    }
+    activeAnimations.get(elementId)!.set(animId, targetProps);
 
     // Initial state
     const initialCenterX = element.x + element.width / 2;
@@ -1618,13 +1659,15 @@ export function revolve(elementId: string, duration: number = 2000, config: Elem
     const centerX = startX + radius;
     const centerY = startY;
 
+    const targetProps = new Set<string>(['x', 'y']);
+
     const animId = generateAnimationId('revolve');
-    stopAllElementAnimations(elementId);
+    stopConflictingAnimations(elementId, targetProps);
 
     if (!activeAnimations.has(elementId)) {
-        activeAnimations.set(elementId, new Set());
+        activeAnimations.set(elementId, new Map());
     }
-    activeAnimations.get(elementId)!.add(animId);
+    activeAnimations.get(elementId)!.set(animId, targetProps);
 
     animationEngine.create(
         animId,
@@ -2191,10 +2234,13 @@ export function animateMorph(
     if (!element) return '';
 
     const animId = generateAnimationId('morph');
+    const targetProps = new Set<string>(['points', 'type']);
 
-    stopAllElementAnimations(elementId);
-    if (!activeAnimations.has(elementId)) activeAnimations.set(elementId, new Set());
-    activeAnimations.get(elementId)!.add(animId);
+    stopConflictingAnimations(elementId, targetProps);
+    if (!activeAnimations.has(elementId)) {
+        activeAnimations.set(elementId, new Map());
+    }
+    activeAnimations.get(elementId)!.set(animId, targetProps);
 
     // 1. Prepare Start and End Geometry
     const samples = 120; // High resolution for smoothness
@@ -2247,7 +2293,11 @@ export function animateMorph(
             loopCount: config.loopCount,
             alternate: config.alternate,
             onComplete: () => {
-                activeAnimations.get(elementId)?.delete(animId);
+                const animIds = activeAnimations.get(elementId);
+                if (animIds) {
+                    animIds.delete(animId);
+                    if (animIds.size === 0) activeAnimations.delete(elementId);
+                }
 
                 // Final state: Set to the actual target shape type and clean up
                 updateElement(elementId, {

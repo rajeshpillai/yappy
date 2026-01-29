@@ -272,25 +272,46 @@ export class SequenceAnimator {
         const direction = anim.direction === 'counterclockwise' ? -1 : 1;
         const iterations = anim.iterations === 'infinite' ? Infinity : (anim.iterations || 1);
 
-        // Calculate total rotation in radians
-        const totalRotation = direction * iterations * Math.PI * 2; // 2π per rotation
-        const endAngle = startAngle + totalRotation;
+        // Calculate rotation for ONE iteration (2π)
+        const rotationPerIteration = direction * Math.PI * 2;
 
-        // Override config for infinite iterations
         const spinConfig = { ...config };
+
         if (iterations === Infinity) {
+            // Infinite loop: animate one full rotation and loop it
             spinConfig.loop = true;
             spinConfig.loopCount = Infinity;
-        } else if (iterations > 1 && config.duration) {
-            // For multiple iterations, we can use loop count
-            spinConfig.loop = true;
-            spinConfig.loopCount = iterations;
-            // Adjust duration to be per-rotation
-            spinConfig.duration = config.duration / iterations;
-        }
+            // For infinite, duration is per rotation
+            spinConfig.duration = config.duration || 1000;
 
-        // Animate the rotation
-        animateElement(elementId, { angle: endAngle }, spinConfig);
+            // For infinite loops, we should probably NOT block the main sequence
+            // because an infinite loop never ends.
+            // We'll call onComplete immediately to allow the next animation to start
+            const originalOnComplete = config.onComplete;
+            setTimeout(() => {
+                originalOnComplete?.();
+            }, 0);
+
+            // Set the target for a single rotation
+            const endAngle = startAngle + rotationPerIteration;
+            animateElement(elementId, { angle: endAngle }, { ...spinConfig, onComplete: undefined });
+        } else {
+            // Finite iterations
+            const totalRotation = rotationPerIteration * iterations;
+            const endAngle = startAngle + totalRotation;
+
+            if (iterations > 1 && config.duration) {
+                // For multiple iterations, use loop count for smoother motion
+                spinConfig.loop = true;
+                spinConfig.loopCount = iterations;
+                spinConfig.duration = config.duration / iterations;
+                const singleEndAngle = startAngle + rotationPerIteration;
+                animateElement(elementId, { angle: singleEndAngle }, spinConfig);
+            } else {
+                // Single iteration or custom duration
+                animateElement(elementId, { angle: endAngle }, spinConfig);
+            }
+        }
     }
 
     private animateProperty(elementId: string, anim: PropertyAnimation, config: ElementAnimationConfig): void {
