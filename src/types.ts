@@ -259,6 +259,7 @@ export interface Layer {
     parentId?: string;     // ID of parent group layer
     isGroup?: boolean;     // Whether this layer is a container/group
     expanded?: boolean;    // For groups: whether child layers are visible in panel
+    isMaster?: boolean;    // Master layer content repeats on every slide
 }
 
 export interface GridSettings {

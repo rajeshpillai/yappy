@@ -47,6 +47,11 @@ const LayerContextMenu: Component<Props> = (props) => {
         },
         { separator: true },
         {
+            label: layer()!.isMaster ? "Disable Slide Master" : "Use as Slide Master",
+            onClick: () => updateLayer(props.layerId, { isMaster: !layer()!.isMaster }),
+            checked: layer()!.isMaster
+        },
+        {
             label: "Merge Down",
             onClick: () => mergeLayerDown(props.layerId),
             disabled: store.layers.findIndex(l => l.id === props.layerId) === 0 // 0 is bottom

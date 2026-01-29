@@ -312,6 +312,17 @@
     flex-shrink: 0;
 }
 
+.master-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: rgba(245, 158, 11, 0.1);
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
 /* Layer Grouping Styles */
 .layer-item.group {
     font-weight: 600;

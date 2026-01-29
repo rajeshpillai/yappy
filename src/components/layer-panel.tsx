@@ -1,6 +1,6 @@
 import { type Component, For, createSignal, Show } from 'solid-js';
 import { store, addLayer, setActiveLayer, updateLayer, deleteLayer, duplicateLayer, reorderLayers, toggleLayerPanel, minimizeLayerPanel, toggleLayerGroupingMode, createLayerGroup, toggleLayerGroupExpansion } from '../store/app-store';
-import { X, Minus, ChevronUp, Eye, EyeOff, Plus, Maximize2, Folder, FolderOpen, ChevronRight, Layers } from 'lucide-solid';
+import { X, Minus, ChevronUp, Eye, EyeOff, Plus, Maximize2, Folder, FolderOpen, ChevronRight, Layers, Crown } from 'lucide-solid';
 import LayerContextMenu from './layer-context-menu';
 import './layer-panel.css';
 
@@ -345,6 +345,11 @@ const LayerPanel: Component = () => {
                                             </Show>
                                             <Show when={layer.colorTag}>
                                                 <div class="layer-color-tag" style={{ 'background-color': layer.colorTag }} />
+                                            </Show>
+                                            <Show when={layer.isMaster}>
+                                                <div class="master-badge" title="Slide Master (replays on every slide)">
+                                                    <Crown size={12} color="#f59e0b" fill="#f59e0b" fill-opacity="0.2" />
+                                                </div>
                                             </Show>
                                             <div
                                                 class="layer-name"

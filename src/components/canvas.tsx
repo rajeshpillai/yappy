@@ -419,8 +419,11 @@ const Canvas: Component = () => {
                 const { width: sW, height: sH } = activeSlide.dimensions;
                 const BUFFER = 200; // Extra margin to prevent pop-in
 
-                // 1. Get elements on or near the active slide
+                // 1. Get elements on or near the active slide, OR on a Master layer
+                const masterLayerIds = new Set(store.layers.filter(l => l.isMaster).map(l => l.id));
                 const primaryElements = store.elements.filter(el => {
+                    if (masterLayerIds.has(el.layerId)) return true;
+
                     const cx = el.x + el.width / 2;
                     const cy = el.y + el.height / 2;
                     return cx >= sX - BUFFER && cx <= sX + sW + BUFFER &&
@@ -774,13 +777,28 @@ const Canvas: Component = () => {
                     x: animState.x,
                     y: animState.y,
                     angle: animState.angle
-                } : el;
+                } : JSON.parse(JSON.stringify(el)); // Deep copy to safely mutate for Master rendering
+
+                const isMasterLayer = layer.isMaster;
+
+                // Project Master elements relative to active slide
+                if (isMasterLayer && store.docType === 'slides') {
+                    const activeSlide = store.slides[store.activeSlideIndex];
+                    if (activeSlide) {
+                        const { x: sX, y: sY } = activeSlide.spatialPosition;
+                        // Master elements are defined relative to (0,0) (the first slide's origin usually)
+                        // or at least should be projected relative to each slide's top-left.
+                        // We assume Master Layer elements define a template coordinate system.
+                        renderedEl.x += sX;
+                        renderedEl.y += sY;
+                    }
+                }
 
                 let cx = renderedEl.x + renderedEl.width / 2;
                 let cy = renderedEl.y + renderedEl.height / 2;
 
-                // Strict isolation in Slide Mode
-                if (store.docType === 'slides') {
+                // Strict isolation in Slide Mode (unless it's a Master Layer element which we just projected)
+                if (store.docType === 'slides' && !isMasterLayer) {
                     const activeSlide = store.slides[store.activeSlideIndex];
                     if (activeSlide) {
                         const { x: sX, y: sY } = activeSlide.spatialPosition;
@@ -790,6 +808,15 @@ const Canvas: Component = () => {
                         // If element is completely outside the active slide frame, don't render it
                         if (!isOnActiveSlide) return;
                     }
+                }
+
+                // Handle Dynamic Variables in Text
+                if (renderedEl.type === 'text' && renderedEl.text) {
+                    const slideNumber = (store.activeSlideIndex + 1).toString();
+                    const totalSlides = store.slides.length.toString();
+                    renderedEl.text = renderedEl.text
+                        .replace(/\$\{slideNumber\}/g, slideNumber)
+                        .replace(/\$\{totalSlides\}/g, totalSlides);
                 }
 
                 if (renderedEl.type !== 'text' || editingId() !== renderedEl.id) {
