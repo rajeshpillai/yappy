@@ -137,10 +137,10 @@ export const exportToSvg = (onlySelected: boolean) => {
             const textText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             textText.textContent = el.text;
             textText.setAttribute('x', `${el.x}`);
-            textText.setAttribute('y', `${el.y + (el.fontSize || 20)}`); // Baseline
+            textText.setAttribute('y', `${el.y + (el.fontSize || 28)}`); // Baseline
             textText.setAttribute('fill', el.strokeColor);
             textText.setAttribute('font-family', 'sans-serif');
-            textText.setAttribute('font-size', `${el.fontSize || 20}px`);
+            textText.setAttribute('font-size', `${el.fontSize || 28}px`);
             node = textText;
         } else if ((el.type === 'fineliner' || el.type === 'inkbrush' || el.type === 'marker') && el.points) {
             // Helper to normalize
