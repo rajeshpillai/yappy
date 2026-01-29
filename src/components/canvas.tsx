@@ -1,5 +1,6 @@
 import { type Component, onMount, createEffect, onCleanup, createSignal, Show, untrack, createMemo, For } from "solid-js";
 import { calculateAllAnimatedStates } from "../utils/animation-utils";
+import { projectMasterPosition } from "../utils/slide-utils";
 import { animationEngine } from "../utils/animation/animation-engine";
 import rough from 'roughjs'; // Hand-drawn style
 import { isElementHiddenByHierarchy, getDescendants } from "../utils/hierarchy";
@@ -242,12 +243,16 @@ const Canvas: Component = () => {
 
         sortedLayers.forEach(layer => {
             if (!isLayerVisible(layer.id)) return;
-            // Only render elements that are within this slide's bounds (roughly)
-            // Or just render all and let clipping/positioning handle it
             const layerElements = store.elements.filter(el => el.layerId === layer.id);
             layerElements.forEach(el => {
+                let renderEl = el;
+                // Project master layer elements to the active slide's spatial position
+                if (layer.isMaster && slide) {
+                    const projected = projectMasterPosition(el, slide, store.slides);
+                    renderEl = { ...el, x: projected.x, y: projected.y };
+                }
                 const layerOpacity = (layer?.opacity ?? 1);
-                renderElement(rc, tCtx, el, isDarkMode, layerOpacity);
+                renderElement(rc, tCtx, renderEl, isDarkMode, layerOpacity);
             });
         });
 
@@ -789,12 +794,9 @@ const Canvas: Component = () => {
                 if (isMasterLayer && store.docType === 'slides') {
                     const activeSlide = store.slides[store.activeSlideIndex];
                     if (activeSlide) {
-                        const { x: sX, y: sY } = activeSlide.spatialPosition;
-                        // Master elements are defined relative to (0,0) (the first slide's origin usually)
-                        // or at least should be projected relative to each slide's top-left.
-                        // We assume Master Layer elements define a template coordinate system.
-                        renderedEl.x += sX;
-                        renderedEl.y += sY;
+                        const projected = projectMasterPosition(renderedEl, activeSlide, store.slides);
+                        renderedEl.x = projected.x;
+                        renderedEl.y = projected.y;
                     }
                 }
 
@@ -1641,7 +1643,7 @@ const Canvas: Component = () => {
         for (const { el, layerVisible } of sortedElements) {
             if (!layerVisible || !canInteractWithElement(el)) continue;
             const animState = animatedStates.get(el.id);
-            const testEl = animState ? { ...el, x: animState.x, y: animState.y, angle: animState.angle } : el;
+            const testEl = applyMasterProjection(animState ? { ...el, x: animState.x, y: animState.y, angle: animState.angle } : el);
             if (hitTestElement(testEl, x, y, threshold, elementMap)) {
                 hitId = el.id;
                 break;
@@ -2037,6 +2039,20 @@ const Canvas: Component = () => {
         };
     };
 
+
+    /**
+     * Return element with projected position if it's on a master layer in slides mode.
+     * Used to make hit testing match the rendered (projected) position.
+     */
+    const applyMasterProjection = (el: DrawingElement): DrawingElement => {
+        if (store.docType !== 'slides') return el;
+        const layer = store.layers.find(l => l.id === el.layerId);
+        if (!layer?.isMaster) return el;
+        const activeSlide = store.slides[store.activeSlideIndex];
+        if (!activeSlide) return el;
+        const projected = projectMasterPosition(el, activeSlide, store.slides);
+        return { ...el, x: projected.x, y: projected.y };
+    };
 
     const hitTestElement = (el: DrawingElement, x: number, y: number, threshold: number, elementMap?: Map<string, DrawingElement>): boolean => {
         if (isElementHiddenByHierarchy(el, store.elements, elementMap)) return false;
@@ -2706,12 +2722,12 @@ const Canvas: Component = () => {
                 if (!canInteractWithElement(el)) continue;
 
                 const animState = animatedStates.get(el.id);
-                const testEl = animState ? {
+                const testEl = applyMasterProjection(animState ? {
                     ...el,
                     x: animState.x,
                     y: animState.y,
                     angle: animState.angle
-                } : el;
+                } : el);
 
                 if (hitTestElement(testEl, x, y, threshold, elementMap)) {
                     hitId = el.id;
@@ -2900,7 +2916,7 @@ const Canvas: Component = () => {
                 const el = store.elements[i];
                 if (!canInteractWithElement(el)) continue;
                 if (!isLayerVisible(el.layerId)) continue;
-                if (hitTestElement(el, x, y, threshold, elementMap)) {
+                if (hitTestElement(applyMasterProjection(el), x, y, threshold, elementMap)) {
                     deleteElements([el.id]);
                 }
             }
@@ -3558,7 +3574,7 @@ const Canvas: Component = () => {
                     const el = store.elements[i];
                     if (!canInteractWithElement(el)) continue;
                     if (!isLayerVisible(el.layerId)) continue;
-                    if (hitTestElement(el, x, y, threshold, elementMap)) {
+                    if (hitTestElement(applyMasterProjection(el), x, y, threshold, elementMap)) {
                         deleteElements([el.id]);
                     }
                 }
@@ -4027,7 +4043,7 @@ const Canvas: Component = () => {
             if (!canInteractWithElement(el)) continue;
             if (!isLayerVisible(el.layerId)) continue;
 
-            if (hitTestElement(el, x, y, threshold, elementMap)) {
+            if (hitTestElement(applyMasterProjection(el), x, y, threshold, elementMap)) {
 
                 // Check for control handles (Star, Burst, Speech Bubble, Isometric Cube, Solid Block, Perspective Block)
                 if (['star', 'burst', 'speechBubble', 'isometricCube', 'solidBlock', 'perspectiveBlock'].includes(el.type)) {

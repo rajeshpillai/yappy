@@ -82,3 +82,19 @@
 **Resolution (infinite spin):** Added `stopAllElementAnimations(elementId)` at the top of `onAllComplete` to ensure any still-running animations (including infinite spins) are stopped before cleanup and state restoration.
 
 **Resolution (multi-iteration snap):** Replaced the loop-based approach with a single continuous animation from `startAngle` to `startAngle + (2π × iterations)`. A 3-iteration spin now smoothly rotates 1080° in one animation instead of three 360° loops with snaps between them.
+
+---
+
+### 6. Master layer elements invisible when drawn on non-first slides
+
+**Files modified:** `src/components/canvas.tsx`, `src/utils/slide-utils.ts`
+
+**Observation:** Adding elements to a slide master layer worked correctly in some drawings but not others. Elements placed on the master layer while viewing certain slides would become invisible on all slides.
+
+**Root cause:** The rendering projection for master layer elements did `renderedEl.x += activeSlide.spatialPosition.x`, assuming all master elements are stored relative to coordinate (0,0). However, elements are stored in world coordinates — if a user draws on a master layer while viewing slide 3 (spatial position 4000,0), the element is stored at e.g. (4100, 100). The projection then produces `4100 + 4000 = 8100`, placing the element far off-screen. Master layers only worked correctly when elements were drawn while slide 1 (position 0,0) was active.
+
+**Resolution:**
+- Added `projectMasterPosition()` utility in `slide-utils.ts` that determines which slide an element was originally placed on (by checking which slide's spatial region contains the element's center), computes the element's local offset within that slide, then re-projects to the target slide
+- Updated the main rendering loop to use `projectMasterPosition()` instead of blind `+= sX/sY`
+- Updated all 5 hit-test locations to apply the same projection, so master layer elements are selectable at their rendered position
+- Updated thumbnail rendering to project master layer elements correctly
