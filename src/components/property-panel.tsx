@@ -869,7 +869,25 @@ const PropertyPanel: Component = () => {
                                     {(group) => (
                                         <div class="property-group">
                                             <div class="group-title">{group.toUpperCase()}</div>
-                                            <Show when={group === 'gradient' && (activeTarget()?.type === 'element' || activeTarget()?.type === 'multi' || (activeTarget()?.type === 'slide' && ['linear', 'radial', 'conic'].includes((activeTarget()?.data as Slide).fillStyle || '')))}>
+                                            <Show when={group === 'gradient' && (() => {
+                                                const target = activeTarget();
+                                                if (!target) return false;
+
+                                                // Get fillStyle from target
+                                                let fillStyle: string | undefined;
+                                                if (target.type === 'element') {
+                                                    fillStyle = target.data.fillStyle;
+                                                } else if (target.type === 'multi') {
+                                                    const firstId = store.selection[0];
+                                                    const el = store.elements.find(e => e.id === firstId);
+                                                    fillStyle = el?.fillStyle;
+                                                } else if (target.type === 'slide') {
+                                                    fillStyle = (target.data as Slide).fillStyle;
+                                                }
+
+                                                // Only show gradient editor for gradient fill styles
+                                                return ['linear', 'radial', 'conic'].includes(fillStyle || '');
+                                            })()}>
                                                 <GradientEditor
                                                     target={activeTarget()}
                                                     onChange={handleChange}
