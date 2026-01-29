@@ -815,14 +815,20 @@ const Canvas: Component = () => {
                 }
 
                 // Handle Dynamic Variables in Text (Formula Syntax starts with '=')
-                if (renderedEl.type === 'text' && renderedEl.text && renderedEl.text.startsWith('=')) {
-                    const slideNumber = (store.activeSlideIndex + 1).toString();
-                    const totalSlides = store.slides.length.toString();
+                if (renderedEl.type === 'text' && renderedEl.text) {
+                    if (renderedEl.text.startsWith('==')) {
+                        // ESCAPE SYNTAX: "==" at start renders as a literal "=" and disables formulas
+                        renderedEl.text = renderedEl.text.substring(1);
+                    } else if (renderedEl.text.startsWith('=')) {
+                        // FORMULA SYNTAX: "=" at start enables variable substitution
+                        const slideNumber = (store.activeSlideIndex + 1).toString();
+                        const totalSlides = store.slides.length.toString();
 
-                    // Remove the leading '=' and perform replacement
-                    renderedEl.text = renderedEl.text.substring(1)
-                        .replace(/\$\{slideNumber\}/g, slideNumber)
-                        .replace(/\$\{totalSlides\}/g, totalSlides);
+                        // Remove the leading '=' and perform replacement
+                        renderedEl.text = renderedEl.text.substring(1)
+                            .replace(/\$\{slideNumber\}/g, slideNumber)
+                            .replace(/\$\{totalSlides\}/g, totalSlides);
+                    }
                 }
 
                 if (renderedEl.type !== 'text' || editingId() !== renderedEl.id) {

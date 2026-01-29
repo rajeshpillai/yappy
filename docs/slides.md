@@ -30,6 +30,8 @@ Yappy supports dynamic text variables that update automatically as you navigate 
 
 > [!NOTE]
 > **Formula Syntax**: Any text box containing these variables **must start with an `=` sign** to be processed (e.g., `=Page ${slideNumber}`). Static text without the leading `=` will display as-is.
+> 
+> **Literal Equals Sign**: To show a literal `=` at the beginning of a line without triggering a formula, use a double equals sign: `==Your Text`. It will render as `=Your Text`.
 
 ### Example:
 Create a text element on your Master Layer and type:
