@@ -100,7 +100,6 @@ export class DiamondRenderer extends ShapeRenderer {
 
         ctx.beginPath();
         if (r > 0) {
-            const path = this.getRoundedDiamondPath(el.x, el.y, el.width, el.height, r);
             this.executePath(ctx, el.x, el.y, el.width, el.height, r); // use executePath instead of fill(new Path2D) to avoid issues with stroke pattern state if any
             RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
             ctx.stroke();

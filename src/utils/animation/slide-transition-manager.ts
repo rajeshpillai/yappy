@@ -298,11 +298,6 @@ class SlideTransitionManager {
             const screenCX = window.innerWidth / 2;
             const screenCY = window.innerHeight / 2;
 
-            // Pan for any scale to keep slide centered:
-            // panX = screenCX - slideCX * scale
-            const startPanX = screenCX - slideCX * startScale;
-            const startPanY = screenCY - slideCY * startScale;
-
             // Update active slide index
             setStore("activeSlideIndex", context.toIndex);
 

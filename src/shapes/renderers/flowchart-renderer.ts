@@ -5,7 +5,6 @@ import type { RenderContext } from "../base/types";
 export class FlowchartRenderer extends ShapeRenderer {
     protected renderArchitectural(context: RenderContext, cx: number, cy: number): void {
         const { ctx, element: el, isDarkMode } = context;
-        const strokeColor = RenderPipeline.adjustColor(el.strokeColor, isDarkMode);
         const backgroundColor = el.backgroundColor === 'transparent' ? undefined : RenderPipeline.adjustColor(el.backgroundColor, isDarkMode);
 
         const x = el.x, y = el.y, w = el.width, h = el.height;

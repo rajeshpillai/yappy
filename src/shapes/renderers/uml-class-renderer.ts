@@ -22,7 +22,7 @@ export class UmlClassRenderer extends ShapeRenderer {
         // Calculate layout
         const layout = this.calculateLayout(ctx, el);
 
-        this.drawDividers(ctx, el, layout, options.stroke || '#000000');
+        this.drawDividers(ctx, el, layout, options.stroke || '#000000', isDarkMode);
         this.renderTexts(context, el, layout);
     }
 
@@ -79,7 +79,7 @@ export class UmlClassRenderer extends ShapeRenderer {
         };
     }
 
-    private drawDividers(ctx: CanvasRenderingContext2D, el: DrawingElement, layout: any, stroke: string) {
+    private drawDividers(ctx: CanvasRenderingContext2D, el: DrawingElement, layout: any, stroke: string, isDarkMode: boolean) {
         ctx.strokeStyle = stroke;
         ctx.lineWidth = 1; // Thinner lines for dividers? Or same as border? Let's match border for consistency
 
