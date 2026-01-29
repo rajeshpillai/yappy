@@ -16,6 +16,7 @@ interface LoadExportDialogProps {
     onSaveDisk: () => void;
     onSaveDiskJson: () => void;
     onExportImage: () => void;
+    onExportHtml: () => void;
 }
 
 const LoadExportDialog: Component<LoadExportDialogProps> = (props) => {
@@ -137,6 +138,17 @@ const LoadExportDialog: Component<LoadExportDialogProps> = (props) => {
                                         <p>Export uncompressed legacy format</p>
                                     </div>
                                     <button class="action-trigger secondary">Save JSON</button>
+                                </div>
+
+                                <div class="option-card compact" onClick={props.onExportHtml}>
+                                    <div class="option-icon image">
+                                        <FileText size={24} />
+                                    </div>
+                                    <div class="option-info">
+                                        <h4>Export as HTML</h4>
+                                        <p>Save as a standalone presentation file</p>
+                                    </div>
+                                    <button class="action-trigger secondary">Export HTML</button>
                                 </div>
 
                                 <Show when={features.enableWorkspacePersistence}>

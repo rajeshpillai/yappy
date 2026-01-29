@@ -26,6 +26,7 @@ import { features } from "../config/features";
 import { migrateToSlideFormat, isSlideDocument } from "../utils/migration";
 import type { SlideDocument } from "../types/slide-types";
 import type { Template } from "../types/template-types";
+import { exportToHtml } from "../utils/export-to-html";
 import "./menu.css";
 
 // Exported signals for App.tsx integration
@@ -233,6 +234,36 @@ const Menu: Component = () => {
 
         setIsMenuOpen(false);
         (e.target as HTMLInputElement).value = '';
+        (e.target as HTMLInputElement).value = '';
+    };
+
+    const handleExportHtml = async () => {
+        try {
+            showToast('Generating HTML...', 'loading', 0);
+            saveActiveSlide(); // Sync current inputs
+
+            const slideDoc: SlideDocument = {
+                version: 4,
+                metadata: {
+                    name: drawingId(),
+                    updatedAt: new Date().toISOString(),
+                    docType: store.docType
+                },
+                elements: JSON.parse(JSON.stringify(store.elements)),
+                layers: JSON.parse(JSON.stringify(store.layers)),
+                slides: JSON.parse(JSON.stringify(store.slides)),
+                globalSettings: JSON.parse(JSON.stringify(store.globalSettings)),
+                gridSettings: JSON.parse(JSON.stringify(store.gridSettings)),
+                states: JSON.parse(JSON.stringify(store.states))
+            };
+
+            await exportToHtml(slideDoc, drawingId());
+            showToast('HTML Exported successfully!', 'success');
+            setIsLoadExportOpen(false);
+        } catch (e) {
+            console.error(e);
+            showToast('Failed to export HTML', 'error');
+        }
     };
 
     const [leftPos, setLeftPos] = createSignal({ x: 0, y: 0 });
@@ -355,7 +386,10 @@ const Menu: Component = () => {
                     onSaveWorkspace={() => { setIsLoadExportOpen(false); handleSaveRequest('workspace'); }}
                     onSaveDisk={() => { setIsLoadExportOpen(false); handleSaveRequest('disk'); }}
                     onSaveDiskJson={() => { setIsLoadExportOpen(false); handleSaveRequest('disk-json'); }}
+                    onSaveDisk={() => { setIsLoadExportOpen(false); handleSaveRequest('disk'); }}
+                    onSaveDiskJson={() => { setIsLoadExportOpen(false); handleSaveRequest('disk-json'); }}
                     onExportImage={() => { setIsLoadExportOpen(false); setIsExportOpen(true); }}
+                    onExportHtml={handleExportHtml}
                 />
 
                 <TemplateBrowser

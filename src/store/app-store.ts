@@ -80,6 +80,8 @@ interface AppState {
         // Temporary holding state for points during edit
         // We sync to the element's pathData on every change, but this tracks "Edit Mode"
     };
+
+    readOnly: boolean;
 }
 
 const initialDoc = createSlideDocument();
@@ -103,6 +105,7 @@ const initialState: AppState = {
     selection: [],
     flowTick: 0,
     isRecording: false,
+    readOnly: false,
     defaultElementStyles: {
         strokeColor: '#000000',
         backgroundColor: 'transparent',
