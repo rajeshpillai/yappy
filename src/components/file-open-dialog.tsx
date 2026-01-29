@@ -24,8 +24,7 @@ const FileOpenDialog: Component<FileOpenDialogProps> = (props) => {
             const list = await storage.listDrawings();
             const fileObjects = list
                 .map(f => {
-                    const name = f.replace(/\.(json|yappy)$/i, '');
-                    return { id: name, name };
+                    return { id: f, name: f };
                 })
                 .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -40,7 +39,7 @@ const FileOpenDialog: Component<FileOpenDialogProps> = (props) => {
 
     const handleDelete = async (fileId: string, e: Event) => {
         e.stopPropagation();
-        const displayName = fileId.replace(/\.json$/i, '');
+        const displayName = fileId;
         if (confirm(`Are you sure you want to delete "${displayName}"?`)) {
             try {
                 await storage.deleteDrawing(fileId);

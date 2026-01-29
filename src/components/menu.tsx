@@ -95,6 +95,7 @@ const Menu: Component = () => {
                 gridSettings: JSON.parse(JSON.stringify(store.gridSettings)),
                 states: JSON.parse(JSON.stringify(store.states))
             };
+            const baseFilename = filename.replace(/\.(json|yappy)$/i, '');
 
             if (saveIntent() === 'workspace') {
                 if (!features.enableWorkspacePersistence) {
@@ -102,7 +103,7 @@ const Menu: Component = () => {
                     return;
                 }
                 await storage.saveDrawing(filename, slideDoc);
-                showToast(`Drawing saved as "${filename}"!`, 'success');
+                showToast(`Drawing saved successfully!`, 'success');
             } else {
                 const jsonString = JSON.stringify(slideDoc, null, 2);
 
@@ -113,14 +114,14 @@ const Menu: Component = () => {
                 if (saveIntent() === 'disk-json') {
                     // Save as uncompressed JSON
                     blob = new Blob([jsonString], { type: 'application/json' });
-                    fileNameWithExt = `${filename}.json`;
+                    fileNameWithExt = `${baseFilename}.json`;
                     mimeType = 'application/json';
                 } else {
                     // Compress using GZIP (.yappy)
                     const stream = new Blob([jsonString]).stream().pipeThrough(new CompressionStream('gzip'));
                     const compressedResponse = new Response(stream);
                     blob = await compressedResponse.blob();
-                    fileNameWithExt = `${filename}.yappy`;
+                    fileNameWithExt = `${baseFilename}.yappy`;
                     mimeType = 'application/gzip';
                 }
 
