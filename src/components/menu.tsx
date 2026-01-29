@@ -386,8 +386,6 @@ const Menu: Component = () => {
                     onSaveWorkspace={() => { setIsLoadExportOpen(false); handleSaveRequest('workspace'); }}
                     onSaveDisk={() => { setIsLoadExportOpen(false); handleSaveRequest('disk'); }}
                     onSaveDiskJson={() => { setIsLoadExportOpen(false); handleSaveRequest('disk-json'); }}
-                    onSaveDisk={() => { setIsLoadExportOpen(false); handleSaveRequest('disk'); }}
-                    onSaveDiskJson={() => { setIsLoadExportOpen(false); handleSaveRequest('disk-json'); }}
                     onExportImage={() => { setIsLoadExportOpen(false); setIsExportOpen(true); }}
                     onExportHtml={handleExportHtml}
                 />

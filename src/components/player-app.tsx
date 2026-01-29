@@ -63,12 +63,12 @@ const PlayerApp: Component = () => {
                     }
 
                     // Fix orphaned elements
-                    setStore("elements", (el) => {
-                        return !store.layers.some(l => l.id === el.layerId);
-                    }, (el) => ({ layerId: activeLayerId }));
+                    setStore("elements", (_el) => {
+                        return !store.layers.some(l => l.id === _el.layerId);
+                    }, (_el) => ({ layerId: activeLayerId }));
 
                     // Force all layers visible
-                    setStore("layers", (l) => true, { visible: true, opacity: 1 });
+                    setStore("layers", (_l) => true, { visible: true, opacity: 1 });
                 }
 
                 setIsReady(true);
