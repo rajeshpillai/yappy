@@ -1,15 +1,24 @@
-import { For, Show, createSignal, onMount, onCleanup } from "solid-js";
+import { For, Show, createSignal, createEffect, onMount, onCleanup } from "solid-js";
 import { store, setActiveSlide, addSlide, deleteSlide, duplicateSlide, reorderSlides, insertNewSlide } from "../store/app-store";
 import { X, Zap, Copy } from "lucide-solid";
 import { SlideTransitionPicker } from "./slide-transition-picker";
 import "./slide-navigator.css";
 
 export const SlideNavigator = () => {
+    let listContainerRef: HTMLDivElement | undefined;
     const [activePickerIndex, setActivePickerIndex] = createSignal<number | null>(null);
     const [pickerPosition, setPickerPosition] = createSignal({ top: 0, left: 0 });
     const [dragOverIndex, setDragOverIndex] = createSignal<number | null>(null);
     const [draggedIndex, setDraggedIndex] = createSignal<number | null>(null);
     const [contextMenu, setContextMenu] = createSignal<{ visible: boolean; x: number; y: number; index: number } | null>(null);
+
+    // Auto-scroll to active slide in the navigator
+    createEffect(() => {
+        const idx = store.activeSlideIndex;
+        if (!listContainerRef) return;
+        const child = listContainerRef.children[idx] as HTMLElement | undefined;
+        child?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
 
     const handleDragStart = (e: DragEvent, index: number) => {
         e.dataTransfer!.effectAllowed = "move";
@@ -89,7 +98,7 @@ export const SlideNavigator = () => {
         <Show when={store.docType === 'slides'}>
             <div class="slide-navigator" id="slide-navigator" onClick={() => setActivePickerIndex(null)}>
                 <div class="slide-navigator-header">Slides</div>
-                <div class="slide-list-container">
+                <div class="slide-list-container" ref={listContainerRef}>
                     <For each={store.slides}>
                         {(slide, index) => (
                             <div
