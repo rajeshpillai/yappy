@@ -57,8 +57,8 @@ app.get('/api/drawings', (req, res) => {
 
 // Use wildcard matching for nested paths (Regex to avoid path-to-regexp issues)
 app.get(/^\/api\/drawings\/(.+)$/, (req, res) => {
-    // req.params[0] contains the wildcard part
-    const fileId = (req.params as any)[0];
+    const requestedId = (req.params as any)[0];
+    const fileId = requestedId.replace(/\.(json|yappy)$/i, '');
     const jsonPath = path.join(DATA_DIR, `${fileId}.json`);
     const yappyPath = path.join(DATA_DIR, `${fileId}.yappy`);
 
@@ -81,7 +81,8 @@ app.get(/^\/api\/drawings\/(.+)$/, (req, res) => {
 });
 
 app.post(/^\/api\/drawings\/(.+)$/, (req, res) => {
-    const fileId = (req.params as any)[0];
+    const requestedId = (req.params as any)[0];
+    const fileId = requestedId.replace(/\.(json|yappy)$/i, '');
 
     // Determine extension based on content type or just default to .yappy for new saves if it's binary
     const isBinary = req.is('application/octet-stream') || req.is('application/gzip') || req.is('application/x-gzip');
@@ -120,7 +121,8 @@ app.post(/^\/api\/drawings\/(.+)$/, (req, res) => {
 });
 
 app.delete(/^\/api\/drawings\/(.+)$/, (req, res) => {
-    const fileId = (req.params as any)[0];
+    const requestedId = (req.params as any)[0];
+    const fileId = requestedId.replace(/\.(json|yappy)$/i, '');
     const jsonPath = path.join(DATA_DIR, `${fileId}.json`);
     const yappyPath = path.join(DATA_DIR, `${fileId}.yappy`);
 
