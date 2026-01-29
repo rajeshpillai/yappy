@@ -2163,6 +2163,13 @@ const Canvas: Component = () => {
                 }
                 return distanceToSegment(p, { x: el.x, y: el.y }, { x: el.x + el.width, y: el.y + el.height }) <= threshold;
             }
+        } else if (el.type === 'fineliner' || el.type === 'marker' || el.type === 'inkbrush' || el.type === 'ink') {
+            const pts = normalizePoints(el.points);
+            if (pts.length > 0) {
+                const localP = { x: p.x - el.x, y: p.y - el.y };
+                return isPointOnPolyline(localP, pts, threshold + (el.strokeWidth || 0) / 2);
+            }
+            return false;
         } else if (el.type === 'organicBranch') {
             const pts = normalizePoints(el.points);
             const controls = el.controlPoints || [];
@@ -2173,13 +2180,6 @@ const Canvas: Component = () => {
             const polygon = getOrganicBranchPolygon(start, end, controls[0], controls[1], el.strokeWidth);
 
             return isPointInPolygon(p, polygon);
-        } else if ((el.type === 'fineliner' || el.type === 'inkbrush' || el.type === 'marker') && el.points) {
-            // For pen types, points are now relative to el.x, el.y
-            // The point p is in local unrotated space matches el.x/y system.
-            // But valid points are relative. So we need to check distance relative to (el.x, el.y).
-            const localP = { x: p.x - el.x, y: p.y - el.y };
-            const pts = normalizePoints(el.points);
-            return isPointOnPolyline(localP, pts, threshold);
         } else if (el.type === 'text' || el.type === 'image') {
             return true; // Box check passed
         } else if (
@@ -3937,7 +3937,7 @@ const Canvas: Component = () => {
 
                 // Switch back to selection tool after drawing (except for continuous tools)
                 // Continuous tools: Pencils, Text, Eraser, Pan, Selection
-                const continuousTools = ['selection', 'pan', 'eraser', 'fineliner', 'inkbrush', 'marker', 'text', 'block-text'];
+                const continuousTools = ['selection', 'pan', 'eraser', 'fineliner', 'inkbrush', 'marker', 'text', 'block-text', 'ink'];
                 if (!continuousTools.includes(store.selectedTool)) {
                     setSelectedTool('selection');
                 }

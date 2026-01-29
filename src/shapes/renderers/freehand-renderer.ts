@@ -4,6 +4,27 @@ import type { RenderContext } from "../base/types";
 import { normalizePoints } from "../../utils/render-element";
 
 export class FreehandRenderer extends ShapeRenderer {
+    /**
+     * Override base render to bypass the custom points check for freehand elements.
+     * Freehand elements use points for their base geometry, not as a morph target.
+     */
+    render(context: RenderContext) {
+        const { ctx, element, layerOpacity } = context;
+
+        // Apply universal transformations
+        const { cx, cy } = RenderPipeline.applyTransformations(ctx, element, layerOpacity);
+
+        // Standard freehand render path
+        if (element.renderStyle === 'architectural') {
+            this.renderArchitectural(context, cx, cy);
+        } else {
+            this.renderSketch(context, cx, cy);
+        }
+
+        // Restore transformations
+        RenderPipeline.restoreTransformations(ctx);
+    }
+
     protected renderArchitectural(context: RenderContext, _cx: number, _cy: number): void {
         this.renderCommon(context);
     }
