@@ -63,6 +63,7 @@ export interface Slide {
     backgroundOpacity?: number;
     thumbnail?: string; // Data URL preview
     transition?: SlideTransition; // Transition when entering this slide
+    lastViewState?: { scale: number; panX: number; panY: number }; // Persisted viewport state
 }
 
 /**

@@ -115,7 +115,10 @@ class SlideTransitionManager {
         setStore("activeSlideIndex", targetIndex);
         const slide = store.slides[targetIndex];
         if (slide) {
-            const viewState = calculateSlideViewState(slide);
+            // Restore last view state if in design mode, otherwise calculate fresh fit
+            const viewState = (store.appMode === 'design' && slide.lastViewState)
+                ? slide.lastViewState
+                : calculateSlideViewState(slide);
             setViewState(viewState);
         }
     }
