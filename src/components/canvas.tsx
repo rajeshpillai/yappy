@@ -4160,7 +4160,7 @@ const Canvas: Component = () => {
     // Check if content is visible
     createEffect(() => {
         const { scale, panX, panY } = store.viewState;
-        if (!canvasRef || store.elements.length === 0) {
+        if (!canvasRef) {
             setShowScrollBack(false);
             return;
         }
@@ -4171,29 +4171,45 @@ const Canvas: Component = () => {
         const vpW = canvasRef.width / scale;
         const vpH = canvasRef.height / scale;
 
-        // Content Bounds
-        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-        store.elements.forEach(el => {
-            const x1 = el.x;
-            const x2 = el.x + el.width;
-            const y1 = el.y;
-            const y2 = el.y + el.height;
-            minX = Math.min(minX, x1, x2);
-            maxX = Math.max(maxX, x1, x2);
-            minY = Math.min(minY, y1, y2);
-            maxY = Math.max(maxY, y1, y2);
-        });
+        let minX: number, minY: number, maxX: number, maxY: number;
+
+        if (store.docType === 'slides') {
+            // In slide mode, check visibility of the active slide region
+            const slide = store.slides[store.activeSlideIndex];
+            if (!slide) { setShowScrollBack(false); return; }
+            minX = slide.spatialPosition.x;
+            minY = slide.spatialPosition.y;
+            maxX = minX + slide.dimensions.width;
+            maxY = minY + slide.dimensions.height;
+        } else {
+            // In infinite canvas mode, check visibility of all elements
+            if (store.elements.length === 0) { setShowScrollBack(false); return; }
+            minX = Infinity; minY = Infinity; maxX = -Infinity; maxY = -Infinity;
+            store.elements.forEach(el => {
+                const x1 = el.x;
+                const x2 = el.x + el.width;
+                const y1 = el.y;
+                const y2 = el.y + el.height;
+                minX = Math.min(minX, x1, x2);
+                maxX = Math.max(maxX, x1, x2);
+                minY = Math.min(minY, y1, y2);
+                maxY = Math.max(maxY, y1, y2);
+            });
+        }
 
         // Check if Viewport intersects Content
-        // Loose check: If viewport is completely outside content bounds? 
-        // Or if content is completely outside viewport? YES.
-
         const isContentVisible = !(minX > vpX + vpW || maxX < vpX || minY > vpY + vpH || maxY < vpY);
 
         setShowScrollBack(!isContentVisible);
     });
 
     const handleScrollBack = () => {
+        // In slide mode, fit the active slide into view
+        if (store.docType === 'slides') {
+            zoomToFitSlide();
+            return;
+        }
+
         if (store.elements.length === 0) return;
 
         // Calculate center of content
@@ -4500,7 +4516,7 @@ const Canvas: Component = () => {
                 { label: 'Paste', shortcut: 'Ctrl+V', onClick: pasteFromClipboard },
                 { separator: true },
                 { label: 'Select all', shortcut: 'Ctrl+A', onClick: () => setStore('selection', store.elements.map(e => e.id)) },
-                { label: 'Zoom to Fit', shortcut: 'Shift+1', onClick: zoomToFit },
+                { label: 'Zoom to Fit', shortcut: 'Shift+1', onClick: store.docType === 'slides' ? zoomToFitSlide : zoomToFit },
                 { separator: true },
                 { label: 'Show Grid', checked: store.gridSettings.enabled, onClick: toggleGrid },
                 { label: 'Snap to Grid', checked: store.gridSettings.snapToGrid, onClick: toggleSnapToGrid },

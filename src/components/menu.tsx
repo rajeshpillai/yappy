@@ -2,7 +2,7 @@ import { type Component, createSignal, onMount, onCleanup, Show, lazy, Suspense,
 import { showToast } from "./toast";
 import { storage } from "../storage/file-system-storage";
 import {
-    store, deleteElements, toggleTheme, zoomToFit,
+    store, deleteElements, toggleTheme, zoomToFit, zoomToFitSlide,
     togglePropertyPanel, toggleLayerPanel, toggleMinimap, toggleStatePanel, toggleSlideToolbar,
     toggleUtilityToolbar, loadTemplate, loadDocument, resetToNewDocument, saveActiveSlide, setIsExportOpen,
     toggleMainToolbar, toggleSlideNavigator
@@ -181,7 +181,7 @@ const Menu: Component = () => {
     };
 
     const handleResetView = () => {
-        zoomToFit();
+        store.docType === 'slides' ? zoomToFitSlide() : zoomToFit();
     };
 
 
