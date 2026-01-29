@@ -1,19 +1,25 @@
-import { type Component, createSignal, Show } from 'solid-js';
+import { type Component, createSignal, createEffect, Show } from 'solid-js';
 import {
     store, togglePresentationMode, toggleSlideToolbar,
-    setSlideToolbarPosition, setIsPreviewing
+    setSlideToolbarPosition, setIsPreviewing, setActiveSlide
 } from '../store/app-store';
 import { sequenceAnimator } from '../utils/animation/sequence-animator';
 import { getElementsOnSlide } from '../utils/slide-utils';
 import {
     Zap, GripVertical, X,
-    MonitorPlay
+    MonitorPlay, ChevronLeft, ChevronRight
 } from 'lucide-solid';
 
 export const SlideControlToolbar: Component = () => {
     let toolbarRef: HTMLDivElement | undefined;
     const [isDragging, setIsDragging] = createSignal(false);
+    const [slideInput, setSlideInput] = createSignal('');
     let offset = { x: 0, y: 0 };
+
+    // Keep input in sync with active slide
+    createEffect(() => {
+        setSlideInput(String(store.activeSlideIndex + 1));
+    });
 
     const handlePointerDown = (e: PointerEvent) => {
         if ((e.target as HTMLElement).closest('.drag-handle')) {
@@ -51,6 +57,29 @@ export const SlideControlToolbar: Component = () => {
         // Auto-disable preview after a reasonable time (e.g. 10s or when stopped)
         // For simplicity, let's just allow it until they interact or mode changes
         setTimeout(() => setIsPreviewing(false), 10000);
+    };
+
+    const handleSlideInputCommit = () => {
+        const parsed = parseInt(slideInput(), 10);
+        if (!isNaN(parsed)) {
+            const clamped = Math.max(1, Math.min(parsed, store.slides.length));
+            setActiveSlide(clamped - 1);
+        }
+        // Reset to current value in case of invalid input
+        setSlideInput(String(store.activeSlideIndex + 1));
+    };
+
+    const handleSlideInputKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleSlideInputCommit();
+            (e.target as HTMLInputElement).blur();
+        } else if (e.key === 'Escape') {
+            setSlideInput(String(store.activeSlideIndex + 1));
+            (e.target as HTMLInputElement).blur();
+        }
+        // Stop propagation so canvas shortcuts don't fire while typing
+        e.stopPropagation();
     };
 
     return (
@@ -93,6 +122,61 @@ export const SlideControlToolbar: Component = () => {
                 >
                     <GripVertical size={16} />
                 </div>
+
+                {/* Slide Navigation */}
+                <div style={{ display: 'flex', 'align-items': 'center', gap: '2px' }}>
+                    <ToolbarButton
+                        onClick={() => setActiveSlide(store.activeSlideIndex - 1)}
+                        icon={<ChevronLeft size={18} />}
+                        label="Previous Slide"
+                        color="#6366f1"
+                        disabled={store.activeSlideIndex === 0}
+                    />
+
+                    <div style={{ display: 'flex', 'align-items': 'center', gap: '2px', padding: '0 2px' }}>
+                        <input
+                            type="text"
+                            value={slideInput()}
+                            onInput={(e) => setSlideInput(e.currentTarget.value)}
+                            onBlur={handleSlideInputCommit}
+                            onKeyDown={handleSlideInputKeyDown}
+                            onFocus={(e) => e.currentTarget.select()}
+                            style={{
+                                width: '28px',
+                                'text-align': 'center',
+                                border: '1px solid rgba(0, 0, 0, 0.1)',
+                                'border-radius': '4px',
+                                background: 'rgba(255, 255, 255, 0.5)',
+                                padding: '2px 0',
+                                'font-size': '13px',
+                                color: '#334155',
+                                outline: 'none',
+                                'font-family': 'inherit'
+                            }}
+                        />
+                        <span style={{
+                            'font-size': '13px',
+                            color: '#94a3b8',
+                            'white-space': 'nowrap'
+                        }}>/ {store.slides.length}</span>
+                    </div>
+
+                    <ToolbarButton
+                        onClick={() => setActiveSlide(store.activeSlideIndex + 1)}
+                        icon={<ChevronRight size={18} />}
+                        label="Next Slide"
+                        color="#6366f1"
+                        disabled={store.activeSlideIndex >= store.slides.length - 1}
+                    />
+                </div>
+
+                {/* Separator */}
+                <div style={{
+                    width: '1px',
+                    height: '20px',
+                    background: 'rgba(0, 0, 0, 0.1)',
+                    margin: '0 4px'
+                }} />
 
                 {/* Actions */}
                 <div style={{ display: 'flex', gap: '2px' }}>
@@ -138,6 +222,7 @@ interface ToolbarButtonProps {
     icon: any;
     label: string;
     color: string;
+    disabled?: boolean;
 }
 
 const ToolbarButton: Component<ToolbarButtonProps> = (props) => {
@@ -148,19 +233,21 @@ const ToolbarButton: Component<ToolbarButtonProps> = (props) => {
             onClick={props.onClick}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            disabled={props.disabled}
             title={props.label}
             style={{
-                background: isHovered() ? 'rgba(0, 0, 0, 0.05)' : 'none',
+                background: isHovered() && !props.disabled ? 'rgba(0, 0, 0, 0.05)' : 'none',
                 border: 'none',
-                color: isHovered() ? props.color : '#475569',
+                color: props.disabled ? '#cbd5e1' : isHovered() ? props.color : '#475569',
                 padding: '8px',
                 'border-radius': '8px',
-                cursor: 'pointer',
+                cursor: props.disabled ? 'default' : 'pointer',
                 display: 'flex',
                 'align-items': 'center',
                 gap: '8px',
+                opacity: props.disabled ? '0.5' : '1',
                 transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                transform: isHovered() ? 'translateY(-1px)' : 'none'
+                transform: isHovered() && !props.disabled ? 'translateY(-1px)' : 'none'
             }}
         >
             {props.icon}
