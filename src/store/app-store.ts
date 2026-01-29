@@ -615,6 +615,13 @@ export const setActiveSlide = async (index: number, skipAnimation?: boolean) => 
     if (index < 0 || index >= store.slides.length) return;
     if (index === store.activeSlideIndex && !slideTransitionManager.transitioning) return;
 
+    // Save current viewport state to the slide we are leaving (only in design mode)
+    if (store.appMode === 'design' && store.activeSlideIndex !== -1) {
+        setStore("slides", store.activeSlideIndex, {
+            lastViewState: { ...store.viewState }
+        });
+    }
+
     // Clear selection immediately
     setStore("selection", []);
 
@@ -1011,7 +1018,14 @@ export const loadDocument = (doc: any) => {
         }
 
         // Initial view focus
-        setTimeout(() => zoomToFitSlide(), 100);
+        setTimeout(() => {
+            const firstSlide = store.slides[0];
+            if (store.appMode === 'design' && firstSlide?.lastViewState) {
+                setViewState(firstSlide.lastViewState);
+            } else {
+                zoomToFitSlide();
+            }
+        }, 100);
     });
 
     // Clear history on new document load
