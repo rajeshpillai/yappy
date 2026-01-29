@@ -49,7 +49,7 @@ This document records the estimated engineering effort (in man-days) required fo
 | **Phase 13** | **Layer Grouping** | High | **10.0** | ✅ Done |
 | |  Nested Hierarchy Logic | High | 6.5 | |
 | |  Group Expand/Collapse UI | Medium | 3.5 | |
-| **Phase 14** | **Snap to Grid & Guides** | High | **10.0** | ✅ Done |
+| **Phase 14** | **Snap to Grid & Guides** | High | **12.0** | ✅ Done |
 | |  Grid System & Rendering | Medium | 3.5 | |
 | |  Object Snapping & Alignment Logic | High | 6.5 | |
 | **Phase 15** | **New Shapes (Diamond etc.)** | Low | **1.0** | ✅ Done |
@@ -66,7 +66,7 @@ This document records the estimated engineering effort (in man-days) required fo
 | |  Shape Tool Group UI | Low | 1.0 | |
 | **Phase 32** | **Specialized Shape Libraries** | Medium | **4.0** | ✅ Done |
 | **Phase 38-41**| **Mindmap Features** | High | **12.0** | ✅ Done |
-| |  Hierarchy Logic & Movement | High | 7.0 | |
+| |  Hierarchy Logic & Movement | High | 8.0 | |
 | |  Organic Branches & Styling | Medium | 4.0 | |
 | |  Keyboard Navigation | Low | 1.0 | |
 | **Phase 56** | **Multi-Slide Presentation** | Very High | **22.0** | ✅ Done/In Progress |
@@ -83,12 +83,12 @@ This document records the estimated engineering effort (in man-days) required fo
 | **Phase 73** | **Slide Enhancements** | Medium | **5.0** | ✅ Done |
 | |  Progress Toasts | Low | 0.5 | |
 | |  Slide Backgrounds & Gradients | Medium | 4.5 | |
-| **Phase 74** | **Offline Slide Player** | High | **2.0** | ✅ Done |
+| **Phase 74** | **Offline Slide Player** | High | **3.0** | ✅ Done |
 | | Standalone Player Scaffolding & Build | Medium | 0.5 | |
 | | Asset Embedding & Template Injection | Medium | 0.5 | |
 | | Standalone Renderer & Sync Logic | High | 1.0 | |
 
 ---
 
-### **Total Estimated Effort: ~196.5 Man-Days**
+### **Total Estimated Effort: ~200.5 Man-Days**
 *Note: This is a rough estimation of effective coding days for a single developer, excluding initial research, detailed design phases, and extensive QA cycles.*
