@@ -72,34 +72,21 @@ const App: Component = () => {
 
       const code = e.code;
       const key = e.key.toLowerCase();
+      const isCtrlOrMeta = e.ctrlKey || e.metaKey;
 
-      // 1. Ctrl/Meta Shortcuts (Work even if focused on inputs, e.g. Ctrl+S)
-      if (e.ctrlKey || e.metaKey) {
-        if (key === 'z') {
+      // 1. Critical Global Shortcuts (Work even if focused on inputs)
+      if (isCtrlOrMeta) {
+        if (key === 's' && e.altKey) {
           e.preventDefault();
-          if (e.shiftKey) redo(); else undo();
-          return;
-        } else if (key === 'y') {
-          e.preventDefault();
-          redo();
+          if (features.enableWorkspacePersistence) handleSaveRequest('workspace');
           return;
         } else if (key === 'k') {
           e.preventDefault();
           toggleCommandPalette(true);
           return;
-        } else if (key === 'a') {
-          e.preventDefault();
-          setStore('selection', store.elements.map(el => el.id));
-          return;
         } else if (key === 'o' && e.altKey) {
           e.preventDefault();
           setIsDialogOpen(true);
-          return;
-        } else if (key === 's' && e.altKey) {
-          e.preventDefault();
-          if (features.enableWorkspacePersistence) {
-            handleSaveRequest('workspace');
-          }
           return;
         } else if (key === 'e' && e.shiftKey) {
           e.preventDefault();
@@ -108,16 +95,33 @@ const App: Component = () => {
         }
       }
 
-      if (e.defaultPrevented) return;
-
-      // 2. Ignore hotkeys when typing in input fields, textareas, or contenteditable elements
+      // 2. Ignore other hotkeys when typing in input fields, textareas, or contenteditable elements
       const target = e.target as HTMLElement;
-      if (
+      const isInputFocused =
         target.tagName === 'INPUT' ||
         target.tagName === 'TEXTAREA' ||
-        target.isContentEditable
-      ) {
-        return; // Let the user type normally
+        target.isContentEditable;
+
+      if (isInputFocused) {
+        // Let the browser handle standard text editing shortcuts (Ctrl+A, C, V, Z, etc.)
+        return;
+      }
+
+      // 3. Regular Application Shortcuts (Blocked by inputs)
+      if (isCtrlOrMeta) {
+        if (key === 'z') {
+          e.preventDefault();
+          if (e.shiftKey) redo(); else undo();
+          return;
+        } else if (key === 'y') {
+          e.preventDefault();
+          redo();
+          return;
+        } else if (key === 'a') {
+          e.preventDefault();
+          setStore('selection', store.elements.map(el => el.id));
+          return;
+        }
       }
 
       // 3. Alt + Key shortcuts

@@ -176,7 +176,7 @@ export const YappyAPI = {
             seed: options?.seed ?? Math.floor(Math.random() * 2 ** 31),
             roundness: options?.roundness ?? defaults.roundness ?? null,
             fontFamily: options?.fontFamily ?? defaults.fontFamily ?? "hand-drawn",
-            fontSize: options?.fontSize ?? defaults.fontSize ?? 20,
+            fontSize: options?.fontSize ?? defaults.fontSize ?? 28,
             textAlign: options?.textAlign ?? defaults.textAlign ?? 'left',
             verticalAlign: options?.verticalAlign ?? 'middle',
             startArrowhead: options?.startArrowhead ?? defaults.startArrowhead ?? null,
@@ -324,7 +324,7 @@ export const YappyAPI = {
     createText(x: number, y: number, text: string, options?: ElementOptions) {
         const id = crypto.randomUUID();
         const defaults = store.defaultElementStyles;
-        const fontSize = options?.fontSize ?? defaults.fontSize ?? 20;
+        const fontSize = options?.fontSize ?? defaults.fontSize ?? 28;
         // Approximation
         const estimatedWidth = text.length * (fontSize * 0.6);
 

@@ -8,7 +8,7 @@ export interface TextMetrics {
 }
 
 export const getFontString = (el: Partial<DrawingElement>) => {
-    const fontSize = el.fontSize || 20;
+    const fontSize = el.fontSize || 28;
     const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
         el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
             'Handlee, cursive';
@@ -60,7 +60,7 @@ export const measureContainerText = (
     text: string,
     availableWidth: number
 ): TextMetrics => {
-    const fontSize = el.fontSize || 20;
+    const fontSize = el.fontSize || 28;
     ctx.save();
     ctx.font = getFontString(el);
 
@@ -118,7 +118,7 @@ export const fitShapeToText = (
     }
 
     const padding = 32;
-    const fontSize = el.fontSize || 20;
+    const fontSize = el.fontSize || 28;
     const charCount = text.length;
 
     // Heuristic for initial width guess
