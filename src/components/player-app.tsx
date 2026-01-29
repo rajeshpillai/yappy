@@ -2,6 +2,7 @@ import { createSignal, onMount, Show } from "solid-js";
 import type { Component } from "solid-js";
 import Canvas from "./canvas";
 import { loadDocument, setStore, store } from "../store/app-store";
+import { registerShapes } from "../shapes/register-shapes";
 import { PresentationControls } from "./presentation-controls";
 import type { SlideDocument } from "../types/slide-types";
 import { showToast } from "./toast";
@@ -19,6 +20,9 @@ const PlayerApp: Component = () => {
     const [isReady, setIsReady] = createSignal(false);
 
     onMount(() => {
+        // Ensure shapes are registered for rendering
+        registerShapes();
+
         // Load data from injected global variable
         if (window.__PRESENTATION_DATA__) {
             try {
@@ -35,11 +39,8 @@ const PlayerApp: Component = () => {
                 setStore("readOnly", false); // Allow Ink tool interactions
 
                 // FIX: Ensure we start at Slide 0 and load its elements
-                // loadDocument sets store.elements to what was saved, which might be a random slide
-                // We need to sync to Slide 0 for the start of presentation
                 if (store.docType === 'slides' && store.slides.length > 0) {
                     setStore("activeSlideIndex", 0);
-                    // Crucial: Set view state to match slide 0 position
                     const firstSlide = store.slides[0];
                     setStore("viewState", {
                         scale: 1,
@@ -55,34 +56,22 @@ const PlayerApp: Component = () => {
                         activeLayerId = 'default';
                         setStore("activeLayerId", 'default');
                     } else {
-                        // Ensure active layer is valid
                         if (!store.layers.find(l => l.id === activeLayerId)) {
                             activeLayerId = store.layers[0].id;
                             setStore("activeLayerId", activeLayerId);
                         }
                     }
 
-                    // Fix orphaned elements (elements on non-existent layers)
+                    // Fix orphaned elements
                     setStore("elements", (el) => {
                         return !store.layers.some(l => l.id === el.layerId);
                     }, (el) => ({ layerId: activeLayerId }));
 
-                    // Force all layers visible and 100% opaque for the player
-                    setStore("layers", {}, { visible: true, opacity: 1 });
-
+                    // Force all layers visible
+                    setStore("layers", (l) => true, { visible: true, opacity: 1 });
                 }
 
                 setIsReady(true);
-
-                // Detailed Debug Info
-                const firstSlide = store.slides[0];
-                const view = store.viewState;
-                const firstEl = store.elements[0];
-                const masterLayer = store.layers.find(l => l.isMaster);
-                const activeLayer = store.layers.find(l => l.id === store.activeLayerId);
-
-                // Cleanest Debug Toast
-                showToast(`Player Ready (${store.elements.length} els)`, 'success');
             } catch (e) {
                 console.error("Failed to load presentation data:", e);
                 showToast("Failed to load presentation data", "error");

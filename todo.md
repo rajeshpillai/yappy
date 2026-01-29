@@ -1168,3 +1168,12 @@
   - [x] Bi-directional sync between SVG strings (d) and editable Handles
   - [x] Click-to-extend and Drag-to-reshape path interactions
   - [x] Integrated with Relative Path system for intuitive drawing
+
+## Phase 74: Offline Slide Player
+- [x] Create standalone player app component <!-- id: 740 -->
+- [x] Implement build script for standalone player assets <!-- id: 741 -->
+- [x] Implement HTML template injection logic <!-- id: 742 -->
+- [x] Synchronize player camera to initial slide position <!-- id: 743 -->
+- [x] Fix renderer registration for standalone export <!-- id: 744 -->
+- [x] Enable interactive tools (Ink, Laser) in player <!-- id: 745 -->
+- [x] Update documentation for Offline HTML Export <!-- id: 746 -->

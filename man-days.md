@@ -83,6 +83,10 @@ This document records the estimated engineering effort (in man-days) required fo
 | **Phase 73** | **Slide Enhancements** | Medium | **5.0** | ✅ Done |
 | |  Progress Toasts | Low | 0.5 | |
 | |  Slide Backgrounds & Gradients | Medium | 4.5 | |
+| **Phase 74** | **Offline Slide Player** | High | **2.0** | ✅ Done |
+| | Standalone Player Scaffolding & Build | Medium | 0.5 | |
+| | Asset Embedding & Template Injection | Medium | 0.5 | |
+| | Standalone Renderer & Sync Logic | High | 1.0 | |
 
 ---
 
