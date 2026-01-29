@@ -73,6 +73,7 @@ const Menu: Component = () => {
 
     const performSave = async (filename: string) => {
         try {
+            showToast('Saving...', 'loading', 0);
             setDrawingId(filename);
 
             // 1. Ensure current slide data is synced to slides array
@@ -159,6 +160,7 @@ const Menu: Component = () => {
 
     const handleLoad = async (id?: string) => {
         const targetId = id || drawingId();
+        showToast('Loading...', 'loading', 0);
         try {
             const data = await storage.loadDrawing(targetId);
             if (data) {
@@ -197,6 +199,7 @@ const Menu: Component = () => {
         if (!file) return;
 
         try {
+            showToast('Loading file...', 'loading', 0);
             let jsonString: string;
 
             // Try to decompress if extension is .yappy OR detection fails

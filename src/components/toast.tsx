@@ -1,8 +1,8 @@
 import { createSignal, Show } from "solid-js";
-import { Check, AlertCircle, Info, X } from "lucide-solid";
+import { Check, AlertCircle, Info, X, Loader2 } from "lucide-solid";
 import "./toast.css";
 
-export type ToastType = 'success' | 'error' | 'info';
+export type ToastType = 'success' | 'error' | 'info' | 'loading';
 
 const [toast, setToast] = createSignal<{ message: string; type: ToastType; visible: boolean }>({
     message: "",
@@ -13,13 +13,19 @@ const [toast, setToast] = createSignal<{ message: string; type: ToastType; visib
 let timeoutId: number;
 
 export const showToast = (message: string, type: ToastType = 'info', duration = 3000) => {
+    // Determine default duration for loading
+    const finalDuration = type === 'loading' ? 0 : duration;
+
     setToast({ message, type, visible: true });
 
     if (timeoutId) clearTimeout(timeoutId);
 
-    timeoutId = window.setTimeout(() => {
-        setToast(prev => ({ ...prev, visible: false }));
-    }, duration);
+    // Only set auto-hide if duration > 0
+    if (finalDuration > 0) {
+        timeoutId = window.setTimeout(() => {
+            setToast(prev => ({ ...prev, visible: false }));
+        }, finalDuration);
+    }
 };
 
 export const hideToast = () => {
@@ -35,6 +41,7 @@ const Toast = () => {
                     <Show when={toast().type === 'success'}><Check size={18} /></Show>
                     <Show when={toast().type === 'error'}><AlertCircle size={18} /></Show>
                     <Show when={toast().type === 'info'}><Info size={18} /></Show>
+                    <Show when={toast().type === 'loading'}><Loader2 size={18} class="spin" /></Show>
                 </div>
                 <div class="toast-message">{toast().message}</div>
                 <button class="toast-close" onClick={hideToast}>
