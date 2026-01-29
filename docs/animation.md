@@ -127,6 +127,14 @@ Setting `iterations: "infinite"` (or `repeat: -1` in the engine) creates a persi
 | Morph | `points`, `type` |
 | Path | `x`, `y`, `angle` (optional) |
 
+## Performance Optimization
+
+### Spatial Animation Culling
+Yappy is optimized for large projects with many slides. To maintain a high frame rate (FPS), the engine uses **Spatial Culling**:
+- **Slide Filtering**: Continuous animations (like Spins and Orbits) are only calculated for elements on the currently active slide.
+- **Dependency Awareness**: If an element orbits a center that is technically off-slide, the engine automatically includes the required dependencies to ensure animation stability.
+- **Buffer Zone**: A 200px spatial buffer is maintained around the active slide to ensure smooth transitions and prevent visible pop-in.
+
 ---
 
 ## Stopping Animations
