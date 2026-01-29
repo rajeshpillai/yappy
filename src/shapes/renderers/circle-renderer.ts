@@ -7,12 +7,12 @@ export class CircleRenderer extends ShapeRenderer {
         const { ctx, element: el, isDarkMode } = context;
         const options = RenderPipeline.buildRenderOptions(el, isDarkMode);
 
-        this.drawCircleArch(ctx, el.x, el.y, el.width, el.height, el.strokeWidth, options.stroke!, options.fill);
+        this.drawCircleArch(ctx, el, isDarkMode, options.fill);
 
         if (el.drawInnerBorder) {
             const dist = el.innerBorderDistance || 5;
             if (el.width > dist * 2 && el.height > dist * 2) {
-                this.drawCircleArch(ctx, el.x + dist, el.y + dist, el.width - dist * 2, el.height - dist * 2, el.strokeWidth, el.innerBorderColor || options.stroke!, 'none');
+                this.drawCircleArch(ctx, { ...el, x: el.x + dist, y: el.y + dist, width: el.width - dist * 2, height: el.height - dist * 2, strokeColor: el.innerBorderColor || el.strokeColor }, isDarkMode, 'none');
             }
         }
 
@@ -36,11 +36,11 @@ export class CircleRenderer extends ShapeRenderer {
         RenderPipeline.renderText(context, cx, cy);
     }
 
-    private drawCircleArch(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, strokeWidth: number, stroke: string, fill?: string) {
-        const cx = x + w / 2;
-        const cy = y + h / 2;
-        const rx = Math.abs(w) / 2;
-        const ry = Math.abs(h) / 2;
+    private drawCircleArch(ctx: CanvasRenderingContext2D, el: any, isDarkMode: boolean, fill?: string) {
+        const cx = el.x + el.width / 2;
+        const cy = el.y + el.height / 2;
+        const rx = Math.abs(el.width) / 2;
+        const ry = Math.abs(el.height) / 2;
 
         if (fill && fill !== 'transparent' && fill !== 'none') {
             ctx.beginPath();
@@ -51,8 +51,7 @@ export class CircleRenderer extends ShapeRenderer {
 
         ctx.beginPath();
         ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-        ctx.strokeStyle = stroke;
-        ctx.lineWidth = strokeWidth;
+        RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
         ctx.stroke();
     }
 

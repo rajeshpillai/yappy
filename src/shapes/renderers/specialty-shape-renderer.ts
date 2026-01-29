@@ -33,9 +33,8 @@ export class SpecialtyShapeRenderer extends ShapeRenderer {
                 }
 
                 // 2. Stroke
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
-                ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
+                if (s.shade) ctx.strokeStyle = RenderPipeline.shadeColor(ctx.strokeStyle as string, s.shade);
                 ctx.beginPath();
                 RenderPipeline.renderGeometry(ctx, s);
                 ctx.stroke();
@@ -62,9 +61,7 @@ export class SpecialtyShapeRenderer extends ShapeRenderer {
                 ctx.fill();
             }
 
-            ctx.strokeStyle = strokeColor;
-            ctx.lineWidth = el.strokeWidth;
-            ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
+            RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
             ctx.beginPath();
             RenderPipeline.renderGeometry(ctx, geometry);
             ctx.stroke();

@@ -19,8 +19,7 @@ export class FlowchartRenderer extends ShapeRenderer {
                     ctx.fillStyle = backgroundColor;
                     ctx.fill(new Path2D(path));
                 }
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.stroke(new Path2D(path));
                 ctx.stroke(new Path2D(topEllipse));
                 break;
@@ -32,8 +31,7 @@ export class FlowchartRenderer extends ShapeRenderer {
                     ctx.fillStyle = backgroundColor;
                     ctx.fill(new Path2D(path));
                 }
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.lineJoin = 'round';
                 ctx.stroke(new Path2D(path));
                 break;
@@ -44,8 +42,7 @@ export class FlowchartRenderer extends ShapeRenderer {
                     ctx.fillStyle = backgroundColor;
                     ctx.fillRect(x, y, w, h);
                 }
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.strokeRect(x, y, w, h);
                 ctx.beginPath();
                 ctx.moveTo(x + sideBarWidth, y); ctx.lineTo(x + sideBarWidth, y + h);
@@ -59,8 +56,7 @@ export class FlowchartRenderer extends ShapeRenderer {
                     ctx.fillStyle = backgroundColor;
                     ctx.fillRect(x, y, w, h);
                 }
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.strokeRect(x, y, w, h);
                 ctx.beginPath();
                 ctx.moveTo(x + lineOffset, y); ctx.lineTo(x + lineOffset, y + h);

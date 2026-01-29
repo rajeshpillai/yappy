@@ -1521,8 +1521,10 @@ const Canvas: Component = () => {
             e.frontTaper; e.frontSkewX; e.frontSkewY;
             e.drawInnerBorder; // Track double border toggle
             e.innerBorderDistance; // Track double border distance
-            e.strokeLineJoin; // Track corner style
+            e.strokeStyle; // Track stroke style (solid/dashed/dotted)
             e.renderStyle; // Track drawing style (Sketch/Architectural)
+            e.startArrowhead; e.endArrowhead;
+            e.startArrowheadSize; e.endArrowheadSize;
             e.fillDensity; // Track fill density
             // Track gradient properties
             e.gradientStart; e.gradientEnd; e.gradientDirection;
@@ -1559,7 +1561,6 @@ const Canvas: Component = () => {
         store.gridSettings.style;
         store.canvasBackgroundColor;
         store.canvasTexture;
-        snappingGuides();
         snappingGuides();
         // Redraw on reactive changes
         requestAnimationFrame(draw);

@@ -103,6 +103,24 @@ export class RenderPipeline {
     }
 
     /**
+     * Applies stroke properties (color, width, dash) to the context.
+     */
+    static applyStrokeStyle(ctx: CanvasRenderingContext2D, el: DrawingElement, isDarkMode: boolean) {
+        ctx.strokeStyle = this.adjustColor(el.strokeColor, isDarkMode);
+        ctx.lineWidth = el.strokeWidth;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
+
+        if (el.strokeStyle === 'dashed') {
+            ctx.setLineDash([8, 8]);
+        } else if (el.strokeStyle === 'dotted') {
+            ctx.setLineDash([2, 4]);
+        } else {
+            ctx.setLineDash([]);
+        }
+    }
+
+    /**
      * Builds RoughJS options based on element properties.
      */
     static buildRenderOptions(el: DrawingElement, isDarkMode: boolean): Options {

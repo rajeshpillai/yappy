@@ -15,8 +15,7 @@ export class InfraRenderer extends ShapeRenderer {
                     ctx.fillStyle = backgroundColor;
                     ctx.fillRect(x, y, w, h);
                 }
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.strokeRect(x, y, w, h);
                 const slotH = h * 0.05;
                 const slotW = w * 0.7;
@@ -33,8 +32,7 @@ export class InfraRenderer extends ShapeRenderer {
                     ctx.fillStyle = backgroundColor;
                     ctx.beginPath(); ctx.ellipse(center_x, center_y, w / 2, h / 2, 0, 0, Math.PI * 2); ctx.fill();
                 }
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.beginPath(); ctx.ellipse(center_x, center_y, w / 2, h / 2, 0, 0, Math.PI * 2); ctx.stroke();
                 const arrowLen = w * 0.3;
                 ctx.beginPath(); ctx.moveTo(center_x - arrowLen, center_y); ctx.lineTo(center_x + arrowLen, center_y); ctx.stroke();
@@ -48,15 +46,17 @@ export class InfraRenderer extends ShapeRenderer {
                     ctx.fillStyle = backgroundColor;
                     ctx.fillRect(x, y, w, h);
                 }
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.strokeRect(x, y, w, h);
                 const rows = 4, cols = 3;
-                const rowH = h / rows;
+                const headerH = h * 0.15;
+                ctx.beginPath(); ctx.moveTo(x, y + headerH); ctx.lineTo(x + w, y + headerH);
+                ctx.stroke();
+                const rowH = (h - headerH) / rows;
                 const colW = w / cols;
                 ctx.beginPath();
                 for (let i = 1; i < rows; i++) {
-                    ctx.moveTo(x, y + i * rowH); ctx.lineTo(x + w, y + i * rowH);
+                    ctx.moveTo(x, y + headerH + i * rowH); ctx.lineTo(x + w, y + headerH + i * rowH);
                 }
                 for (let i = 0; i < rows; i++) {
                     const shift = (i % 2 === 0) ? 0 : colW / 2;
@@ -77,8 +77,7 @@ export class InfraRenderer extends ShapeRenderer {
                     ctx.fillStyle = backgroundColor;
                     ctx.beginPath(); ctx.arc(center_x, y + headR, headR, 0, Math.PI * 2); ctx.fill();
                 }
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.beginPath(); ctx.arc(center_x, y + headR, headR, 0, Math.PI * 2); ctx.stroke();
                 const shoulderW = w * 0.8;
                 ctx.beginPath();
@@ -92,8 +91,7 @@ export class InfraRenderer extends ShapeRenderer {
                     ctx.fillStyle = backgroundColor;
                     ctx.fillRect(x, y, w, h);
                 }
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.strokeRect(x, y, w, h);
                 const segments = 4;
                 const segW = w / segments;
@@ -113,8 +111,7 @@ export class InfraRenderer extends ShapeRenderer {
                     ctx.fillStyle = backgroundColor;
                     ctx.beginPath(); ctx.ellipse(center_x, center_y, w / 2, h / 2, 0, 0, Math.PI * 2); ctx.fill();
                 }
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.beginPath(); ctx.ellipse(center_x, center_y, w / 2, h / 2, 0, 0, Math.PI * 2); ctx.stroke();
                 ctx.fillStyle = strokeColor;
                 ctx.fill(new Path2D(zapPath));
@@ -126,8 +123,7 @@ export class InfraRenderer extends ShapeRenderer {
                     ctx.fillStyle = backgroundColor;
                     ctx.beginPath(); ctx.ellipse(center_x, center_y, w / 2, h / 2, 0, 0, Math.PI * 2); ctx.fill();
                 }
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.beginPath(); ctx.ellipse(center_x, center_y, w / 2, h / 2, 0, 0, Math.PI * 2); ctx.stroke();
                 const r = Math.min(w, h) * 0.3;
                 ctx.beginPath();

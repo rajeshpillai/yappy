@@ -16,8 +16,7 @@ export class UmlClassRenderer extends ShapeRenderer {
         if (options.fill && options.fill !== 'none') {
             ctx.fill();
         }
-        ctx.lineWidth = el.strokeWidth;
-        ctx.strokeStyle = options.stroke || '#000000';
+        RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
         ctx.stroke();
 
         // Calculate layout
@@ -87,9 +86,7 @@ export class UmlClassRenderer extends ShapeRenderer {
         // Header Divider
         const y1 = el.y + layout.headerHeight;
         if (y1 < el.y + el.height) {
-            ctx.beginPath();
-            ctx.moveTo(el.x, y1);
-            ctx.lineTo(el.x + el.width, y1);
+            RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
             ctx.stroke();
         }
 
@@ -97,9 +94,7 @@ export class UmlClassRenderer extends ShapeRenderer {
         if (layout.hasAttributes && layout.hasMethods) {
             const y2 = y1 + layout.attrHeight;
             if (y2 < el.y + el.height) {
-                ctx.beginPath();
-                ctx.moveTo(el.x, y2);
-                ctx.lineTo(el.x + el.width, y2);
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.stroke();
             }
         }

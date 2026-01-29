@@ -16,11 +16,11 @@ export class WireframeRenderer extends ShapeRenderer {
                     ctx.fillStyle = backgroundColor;
                     ctx.fillRect(x, y, w, h);
                 }
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.strokeRect(x, y, w, h);
                 const headerH = h * 0.15;
-                ctx.beginPath(); ctx.moveTo(x, y + headerH); ctx.lineTo(x + w, y + headerH); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x, y + headerH); ctx.lineTo(x + w, y + headerH);
+                ctx.stroke();
                 ctx.fillStyle = strokeColor;
                 const dotR = headerH * 0.2;
                 for (let i = 0; i < 3; i++) {
@@ -35,12 +35,9 @@ export class WireframeRenderer extends ShapeRenderer {
                     ctx.roundRect(x, y, w, h, r);
                     ctx.fill();
                 }
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
-                ctx.setLineDash([4, 4]);
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.roundRect(x, y, w, h, r);
                 ctx.stroke();
-                ctx.setLineDash([]);
                 break;
             }
             case 'inputField': {
@@ -48,8 +45,7 @@ export class WireframeRenderer extends ShapeRenderer {
                     ctx.fillStyle = backgroundColor;
                     ctx.fillRect(x, y, w, h);
                 }
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.strokeRect(x, y, w, h);
                 // Cursor
                 ctx.beginPath();

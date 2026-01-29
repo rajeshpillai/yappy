@@ -38,18 +38,9 @@ export class ConnectorRenderer extends ShapeRenderer {
 
     protected renderArchitectural(context: RenderContext, _cx: number, _cy: number): void {
         const { ctx, element: el, isDarkMode } = context;
-        const strokeColor = RenderPipeline.adjustColor(el.strokeColor, isDarkMode);
-        const backgroundColor = el.backgroundColor === 'transparent' ? '#ffffff' : RenderPipeline.adjustColor(el.backgroundColor, isDarkMode);
 
         ctx.save();
-        ctx.strokeStyle = strokeColor;
-        ctx.fillStyle = backgroundColor;
-        ctx.lineWidth = el.strokeWidth;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = (el.strokeLineJoin as CanvasLineJoin) || 'round';
-
-        if (el.strokeStyle === 'dashed') ctx.setLineDash([8, 8]);
-        else if (el.strokeStyle === 'dotted') ctx.setLineDash([2, 4]);
+        RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
 
         ctx.beginPath();
         this.definePath(ctx, el);

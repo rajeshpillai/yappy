@@ -6,7 +6,6 @@ export class SketchnoteRenderer extends ShapeRenderer {
     protected renderArchitectural(context: RenderContext, cx: number, cy: number): void {
         const { ctx, rc, element: el, isDarkMode } = context;
         const options = RenderPipeline.buildRenderOptions(el, isDarkMode);
-        const strokeColor = RenderPipeline.adjustColor(el.strokeColor, isDarkMode);
         const x = el.x, y = el.y, w = el.width, h = el.height;
 
         switch (el.type) {
@@ -24,8 +23,7 @@ export class SketchnoteRenderer extends ShapeRenderer {
                 ctx.ellipse(headX, headY, headRadius, headRadius, 0, 0, Math.PI * 2);
                 ctx.moveTo(bodyPoints[0][0], bodyPoints[0][1]);
                 for (let i = 1; i < bodyPoints.length; i++) ctx.lineTo(bodyPoints[i][0], bodyPoints[i][1]);
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.stroke();
                 break;
             }
@@ -41,8 +39,7 @@ export class SketchnoteRenderer extends ShapeRenderer {
                     ctx.fill(new Path2D(bulbPath));
                     ctx.fillRect(x + w / 2 - baseW / 2, baseY, baseW, baseH);
                 }
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.stroke(new Path2D(bulbPath));
                 ctx.strokeRect(x + w / 2 - baseW / 2, baseY, baseW, baseH);
                 break;
@@ -60,8 +57,7 @@ export class SketchnoteRenderer extends ShapeRenderer {
                     ctx.fillRect(poleX, y, poleW, h);
                     ctx.fillRect(boardX, boardY, boardW, boardH);
                 }
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.strokeRect(poleX, y, poleW, h);
                 ctx.strokeRect(boardX, boardY, boardW, boardH);
                 break;
@@ -72,16 +68,13 @@ export class SketchnoteRenderer extends ShapeRenderer {
                     ctx.fillStyle = options.fill;
                     ctx.fill(new Path2D(path));
                 }
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
-                ctx.stroke(new Path2D(path));
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.stroke(new Path2D(path));
                 break;
             }
             case 'wavyDivider': {
                 const path = this.getWavyDividerPath(x, y, w, h);
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = el.strokeWidth;
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
                 ctx.stroke(new Path2D(path));
                 break;
             }

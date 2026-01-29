@@ -18,14 +18,14 @@ export class StickyNoteRenderer extends ShapeRenderer {
         ctx.moveTo(mainPoints[0][0], mainPoints[0][1]);
         for (let i = 1; i < mainPoints.length; i++) ctx.lineTo(mainPoints[i][0], mainPoints[i][1]);
         ctx.closePath();
-        ctx.strokeStyle = RenderPipeline.adjustColor(el.strokeColor, isDarkMode);
-        ctx.lineWidth = el.strokeWidth;
+        RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
         ctx.stroke();
 
         ctx.beginPath();
         ctx.moveTo(foldPoints[0][0], foldPoints[0][1]);
         ctx.lineTo(foldPoints[1][0], foldPoints[1][1]);
         ctx.lineTo(foldPoints[2][0], foldPoints[2][1]);
+        RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
         ctx.stroke();
 
         RenderPipeline.renderText(context, cx, cy);

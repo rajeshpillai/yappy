@@ -8,13 +8,13 @@ export class RectangleRenderer extends ShapeRenderer {
         const radius = this.getRadius(el);
         const options = RenderPipeline.buildRenderOptions(el, isDarkMode);
 
-        this.drawRectArch(ctx, el.x, el.y, el.width, el.height, radius, el.strokeWidth, options.stroke!, options.fill);
+        this.drawRectArch(ctx, el, isDarkMode, radius, options.fill);
 
         if (el.drawInnerBorder) {
             const dist = el.innerBorderDistance || 5;
             if (el.width > dist * 2 && el.height > dist * 2) {
                 const innerR = Math.max(0, radius - dist);
-                this.drawRectArch(ctx, el.x + dist, el.y + dist, el.width - dist * 2, el.height - dist * 2, innerR, el.strokeWidth, el.innerBorderColor || options.stroke!, 'none');
+                this.drawRectArch(ctx, { ...el, x: el.x + dist, y: el.y + dist, width: el.width - dist * 2, height: el.height - dist * 2, strokeColor: el.innerBorderColor || el.strokeColor }, isDarkMode, innerR, 'none');
             }
         }
 
@@ -46,20 +46,19 @@ export class RectangleRenderer extends ShapeRenderer {
             : (el.roundness ? Math.min(Math.abs(el.width), Math.abs(el.height)) * 0.15 : 0);
     }
 
-    private drawRectArch(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number, strokeWidth: number, stroke: string, fill?: string) {
+    private drawRectArch(ctx: CanvasRenderingContext2D, el: any, isDarkMode: boolean, r: number, fill?: string) {
         if (fill && fill !== 'transparent' && fill !== 'none') {
             ctx.beginPath();
-            if (r > 0) ctx.roundRect(x, y, w, h, r);
-            else ctx.rect(x, y, w, h);
+            if (r > 0) ctx.roundRect(el.x, el.y, el.width, el.height, r);
+            else ctx.rect(el.x, el.y, el.width, el.height);
             ctx.fillStyle = fill;
             ctx.fill();
         }
 
         ctx.beginPath();
-        if (r > 0) ctx.roundRect(x, y, w, h, r);
-        else ctx.rect(x, y, w, h);
-        ctx.strokeStyle = stroke;
-        ctx.lineWidth = strokeWidth;
+        if (r > 0) ctx.roundRect(el.x, el.y, el.width, el.height, r);
+        else ctx.rect(el.x, el.y, el.width, el.height);
+        RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
         ctx.stroke();
     }
 

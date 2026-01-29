@@ -8,13 +8,13 @@ export class DiamondRenderer extends ShapeRenderer {
         const radius = this.getRadius(el);
         const options = RenderPipeline.buildRenderOptions(el, isDarkMode);
 
-        this.drawDiamondArch(ctx, el.x, el.y, el.width, el.height, radius, el.strokeWidth, options.stroke!, options.fill);
+        this.drawDiamondArch(ctx, el, isDarkMode, radius, options.fill);
 
         if (el.drawInnerBorder) {
             const dist = el.innerBorderDistance || 5;
             if (el.width > dist * 2 && el.height > dist * 2) {
                 const innerR = Math.max(0, radius - dist);
-                this.drawDiamondArch(ctx, el.x + dist, el.y + dist, el.width - dist * 2, el.height - dist * 2, innerR, el.strokeWidth, el.innerBorderColor || options.stroke!, 'none');
+                this.drawDiamondArch(ctx, { ...el, x: el.x + dist, y: el.y + dist, width: el.width - dist * 2, height: el.height - dist * 2, strokeColor: el.innerBorderColor || el.strokeColor }, isDarkMode, innerR, 'none');
             }
         }
 
@@ -76,22 +76,22 @@ export class DiamondRenderer extends ShapeRenderer {
             : (el.roundness ? Math.min(Math.abs(el.width), Math.abs(el.height)) * 0.2 : 0);
     }
 
-    private drawDiamondArch(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number, strokeWidth: number, stroke: string, fill?: string) {
-        const w2 = w / 2;
-        const h2 = h / 2;
-        const cx = x + w2;
-        const cy = y + h2;
+    private drawDiamondArch(ctx: CanvasRenderingContext2D, el: any, isDarkMode: boolean, r: number, fill?: string) {
+        const w2 = el.width / 2;
+        const h2 = el.height / 2;
+        const cx = el.x + w2;
+        const cy = el.y + h2;
 
         if (fill && fill !== 'transparent' && fill !== 'none') {
             ctx.beginPath();
             if (r > 0) {
-                const path = this.getRoundedDiamondPath(x, y, w, h, r);
+                const path = this.getRoundedDiamondPath(el.x, el.y, el.width, el.height, r);
                 ctx.fill(new Path2D(path));
             } else {
-                ctx.moveTo(cx, y);
-                ctx.lineTo(x + w, cy);
-                ctx.lineTo(cx, y + h);
-                ctx.lineTo(x, cy);
+                ctx.moveTo(cx, el.y);
+                ctx.lineTo(el.x + el.width, cy);
+                ctx.lineTo(cx, el.y + el.height);
+                ctx.lineTo(el.x, cy);
                 ctx.closePath();
                 ctx.fillStyle = fill;
                 ctx.fill();
@@ -100,16 +100,17 @@ export class DiamondRenderer extends ShapeRenderer {
 
         ctx.beginPath();
         if (r > 0) {
-            const path = this.getRoundedDiamondPath(x, y, w, h, r);
-            ctx.stroke(new Path2D(path));
+            const path = this.getRoundedDiamondPath(el.x, el.y, el.width, el.height, r);
+            this.executePath(ctx, el.x, el.y, el.width, el.height, r); // use executePath instead of fill(new Path2D) to avoid issues with stroke pattern state if any
+            RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
+            ctx.stroke();
         } else {
-            ctx.moveTo(cx, y);
-            ctx.lineTo(x + w, cy);
-            ctx.lineTo(cx, y + h);
-            ctx.lineTo(x, cy);
+            ctx.moveTo(cx, el.y);
+            ctx.lineTo(el.x + el.width, cy);
+            ctx.lineTo(cx, el.y + el.height);
+            ctx.lineTo(el.x, cy);
             ctx.closePath();
-            ctx.strokeStyle = stroke;
-            ctx.lineWidth = strokeWidth;
+            RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
             ctx.stroke();
         }
     }
