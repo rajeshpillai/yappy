@@ -1033,8 +1033,9 @@
 - [x] **Pointer/Annotation Improvements** — Laser pointer and temporary ink overlays.
 
 ### Slide Management
-- [/] **Drag-and-Drop Reordering** — Visual reordering in navigator (`reorderSlides` exists in store).
+- [x] **Drag-and-Drop Reordering** — Visual reordering in navigator (`reorderSlides` exists in store).
 - [x] **Slide Duplication** — Quick duplicate of an existing slide with all its content.
+- [x] **Context Menu Actions** — Right-click to Insert Slide Above/Below.
 - [x] **Build Animations & Sequencing** — Advanced triggers (On-Click, After Previous, With Previous) for professional presentations.
 - [x] **Draggable Slide Toolbar** — Floating, draggable toolbar with Play, Animation Preview, and Share controls.
 - [ ] **Slide Layouts / Templates** — Pre-designed slide layouts (Title, Content, etc.).

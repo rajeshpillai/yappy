@@ -1,5 +1,5 @@
-import { For, Show, createSignal } from "solid-js";
-import { store, setActiveSlide, addSlide, deleteSlide, duplicateSlide } from "../store/app-store";
+import { For, Show, createSignal, onMount, onCleanup } from "solid-js";
+import { store, setActiveSlide, addSlide, deleteSlide, duplicateSlide, reorderSlides, insertNewSlide } from "../store/app-store";
 import { X, Zap, Copy } from "lucide-solid";
 import { SlideTransitionPicker } from "./slide-transition-picker";
 import "./slide-navigator.css";
@@ -7,6 +7,45 @@ import "./slide-navigator.css";
 export const SlideNavigator = () => {
     const [activePickerIndex, setActivePickerIndex] = createSignal<number | null>(null);
     const [pickerPosition, setPickerPosition] = createSignal({ top: 0, left: 0 });
+    const [dragOverIndex, setDragOverIndex] = createSignal<number | null>(null);
+    const [draggedIndex, setDraggedIndex] = createSignal<number | null>(null);
+    const [contextMenu, setContextMenu] = createSignal<{ visible: boolean; x: number; y: number; index: number } | null>(null);
+
+    const handleDragStart = (e: DragEvent, index: number) => {
+        e.dataTransfer!.effectAllowed = "move";
+        e.dataTransfer!.setData("text/plain", index.toString());
+        setDraggedIndex(index);
+    };
+
+    const handleDragOver = (e: DragEvent, index: number) => {
+        e.preventDefault();
+        e.dataTransfer!.dropEffect = "move";
+        // Prevent highlighting the dragged item itself
+        if (draggedIndex() === index) return;
+        setDragOverIndex(index);
+    };
+
+    const handleDrop = (e: DragEvent, toIndex: number) => {
+        e.preventDefault();
+        const fromIndex = parseInt(e.dataTransfer!.getData("text/plain"));
+        setDragOverIndex(null);
+
+        if (!isNaN(fromIndex) && fromIndex !== toIndex) {
+            reorderSlides(fromIndex, toIndex);
+        }
+    };
+
+    const handleDragEnd = () => {
+        setDragOverIndex(null);
+        setDraggedIndex(null);
+    };
+
+    const getDragClass = (index: number) => {
+        if (dragOverIndex() !== index) return '';
+        const from = draggedIndex();
+        if (from === null) return '';
+        return from < index ? 'drag-over-bottom' : 'drag-over-top';
+    };
 
     const togglePicker = (e: MouseEvent, index: number) => {
         e.stopPropagation();
@@ -22,6 +61,30 @@ export const SlideNavigator = () => {
         }
     };
 
+    const handleContextMenu = (e: MouseEvent, index: number) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setContextMenu({
+            visible: true,
+            x: e.clientX,
+            y: e.clientY,
+            index: index
+        });
+    };
+
+    const closeContextMenu = () => {
+        setContextMenu(null);
+    };
+
+    // Close context menu on global click
+    onMount(() => {
+        document.addEventListener('click', closeContextMenu);
+    });
+
+    onCleanup(() => {
+        document.removeEventListener('click', closeContextMenu);
+    });
+
     return (
         <Show when={store.docType === 'slides'}>
             <div class="slide-navigator" id="slide-navigator" onClick={() => setActivePickerIndex(null)}>
@@ -29,7 +92,15 @@ export const SlideNavigator = () => {
                 <div class="slide-list-container">
                     <For each={store.slides}>
                         {(slide, index) => (
-                            <div class="slide-thumbnail-wrapper">
+                            <div
+                                class={`slide-thumbnail-wrapper ${getDragClass(index())}`}
+                                draggable={true}
+                                onDragStart={(e) => handleDragStart(e, index())}
+                                onDragOver={(e) => handleDragOver(e, index())}
+                                onDrop={(e) => handleDrop(e, index())}
+                                onDragEnd={handleDragEnd}
+                                onContextMenu={(e) => handleContextMenu(e, index())}
+                            >
                                 <div class="slide-index">{index() + 1}</div>
                                 <div
                                     class={`slide-thumbnail ${store.activeSlideIndex === index() ? 'active' : ''}`}
@@ -96,7 +167,34 @@ export const SlideNavigator = () => {
                         <span class="icon">+ Add Slide</span>
                     </button>
                 </div>
-            </div>
-        </Show>
+
+                <Show when={contextMenu() && contextMenu()!.visible}>
+                    <div
+                        class="slide-context-menu"
+                        style={{
+                            top: `${contextMenu()!.y}px`,
+                            left: `${contextMenu()!.x}px`
+                        }}
+                    >
+                        <div class="menu-item" onClick={(e) => {
+                            console.log('Insert Above clicked');
+                            e.stopPropagation();
+                            insertNewSlide(contextMenu()!.index, 'before');
+                            closeContextMenu();
+                        }}>
+                            Insert Slide Above
+                        </div>
+                        <div class="menu-item" onClick={(e) => {
+                            console.log('Insert Below clicked');
+                            e.stopPropagation();
+                            insertNewSlide(contextMenu()!.index, 'after');
+                            closeContextMenu();
+                        }}>
+                            Insert Slide Below
+                        </div>
+                    </div>
+                </Show>
+            </div >
+        </Show >
     );
 };

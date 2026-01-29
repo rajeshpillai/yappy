@@ -63,6 +63,33 @@
     text-align: right;
 }
 
+.slide-thumbnail-wrapper.drag-over-top .slide-thumbnail,
+.slide-thumbnail-wrapper.drag-over-bottom .slide-thumbnail {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+
+.slide-thumbnail-wrapper.drag-over-top::after,
+.slide-thumbnail-wrapper.drag-over-bottom::after {
+    content: '';
+    position: absolute;
+    left: 40px;
+    right: 0;
+    height: 4px;
+    background: #3b82f6;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.slide-thumbnail-wrapper.drag-over-top::after {
+    top: -8px;
+}
+
+.slide-thumbnail-wrapper.drag-over-bottom::after {
+    bottom: -8px;
+}
+
 .slide-thumbnail {
     position: relative;
     width: 160px;
@@ -309,5 +336,68 @@
 
 :global(.dark) .slide-duplicate-btn:hover {
     background: #3b82f6;
+    color: white;
+}
+
+/* Context Menu */
+.slide-context-menu {
+    position: fixed;
+    z-index: 2000;
+    background: white;
+    border-radius: 8px;
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(0, 0, 0, 0.05);
+    padding: 6px;
+    min-width: 180px;
+    animation: fadeIn 0.1s ease-out;
+    pointer-events: auto;
+}
+
+.slide-context-menu .menu-item {
+    padding: 8px 12px;
+    font-size: 13px;
+    color: #334155;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.1s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.slide-context-menu .menu-item:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Dark mode for context menu */
+:global(.dark) .slide-context-menu {
+    background: #1e293b;
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.3),
+        0 10px 15px -3px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+:global(.dark) .slide-context-menu .menu-item {
+    color: #cbd5e1;
+}
+
+:global(.dark) .slide-context-menu .menu-item:hover {
+    background: #334155;
     color: white;
 }
