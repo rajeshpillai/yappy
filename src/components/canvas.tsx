@@ -735,6 +735,10 @@ const Canvas: Component = () => {
                 // FIX: Always render the element currently being drawn
                 if (el.id === currentId) return true;
 
+                // FIX: Skip viewport culling for Master layers because they will be 
+                // projected into the active slide's origin during render
+                if (layer.isMaster) return true;
+
                 // Mindmap Visibility Check
                 if (isElementHiddenByHierarchy(el, store.elements, elementMap)) return false;
 
