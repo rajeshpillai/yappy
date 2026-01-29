@@ -205,31 +205,45 @@ class SlideTransitionManager {
     }
 
     /**
-     * Slide transition - pans viewport between spatial positions
+     * Slide transition - new slide enters from a specific screen edge
      */
     private executeSlide(context: TransitionContext, transition: SlideTransition): Promise<void> {
         return new Promise((resolve) => {
-            const startView = { ...store.viewState };
             const targetView = calculateSlideViewState(context.toSlide);
 
-            // Determine the slide direction offset for smooth animation
-            let offsetX = 0, offsetY = 0;
-            const slideOffset = 200; // Extra offset for dramatic effect
+            // Use full viewport dimensions so the slide clearly enters from one edge
+            const screenW = window.innerWidth;
+            const screenH = window.innerHeight;
 
+            // Compute the starting pan offset based on direction.
+            // slide-left: new content enters from right  → start shifted right, animate left
+            // slide-right: new content enters from left  → start shifted left, animate right
+            // slide-up: new content enters from bottom   → start shifted down, animate up
+            // slide-down: new content enters from top    → start shifted up, animate down
+            let offsetX = 0, offsetY = 0;
             switch (transition.type) {
                 case 'slide-left':
-                    offsetX = context.direction === 'forward' ? -slideOffset : slideOffset;
+                    offsetX = screenW;
                     break;
                 case 'slide-right':
-                    offsetX = context.direction === 'forward' ? slideOffset : -slideOffset;
+                    offsetX = -screenW;
                     break;
                 case 'slide-up':
-                    offsetY = context.direction === 'forward' ? -slideOffset : slideOffset;
+                    offsetY = screenH;
                     break;
                 case 'slide-down':
-                    offsetY = context.direction === 'forward' ? slideOffset : -slideOffset;
+                    offsetY = -screenH;
                     break;
             }
+
+            // Reverse direction when going backward
+            if (context.direction === 'backward') {
+                offsetX = -offsetX;
+                offsetY = -offsetY;
+            }
+
+            const startPanX = targetView.panX + offsetX;
+            const startPanY = targetView.panY + offsetY;
 
             // Update active slide index immediately so elements render correctly
             setStore("activeSlideIndex", context.toIndex);
@@ -244,18 +258,15 @@ class SlideTransitionManager {
                 (progress) => {
                     const easedProgress = easing(progress);
 
-                    // Animate pan with optional offset
-                    const panX = lerp(startView.panX + offsetX, targetView.panX, easedProgress);
-                    const panY = lerp(startView.panY + offsetY, targetView.panY, easedProgress);
-                    const scale = lerp(startView.scale, targetView.scale, easedProgress);
+                    const panX = lerp(startPanX, targetView.panX, easedProgress);
+                    const panY = lerp(startPanY, targetView.panY, easedProgress);
 
-                    setViewState({ panX, panY, scale });
+                    setViewState({ panX, panY, scale: targetView.scale });
                 },
                 {
                     duration: transition.duration,
                     onComplete: () => {
                         this.activeAnimationId = null;
-                        // Ensure final position is exact
                         setViewState(targetView);
                         resolve();
                     }
@@ -267,13 +278,30 @@ class SlideTransitionManager {
     }
 
     /**
-     * Zoom transition - scales in/out while transitioning
+     * Zoom transition - scales in/out while keeping the slide centered
+     * zoom-in:  slide grows into view from a small point
+     * zoom-out: slide shrinks away then new slide appears at full size
      */
     private executeZoom(context: TransitionContext, transition: SlideTransition): Promise<void> {
         return new Promise((resolve) => {
-            const startView = { ...store.viewState };
             const targetView = calculateSlideViewState(context.toSlide);
             const isZoomIn = transition.type === 'zoom-in';
+
+            // Starting scale: zoom-in starts small, zoom-out starts large
+            const startScale = isZoomIn
+                ? targetView.scale * 0.15
+                : targetView.scale * 3.0;
+
+            // Compute the slide center in world coordinates so pan stays centered
+            const slideCX = context.toSlide.spatialPosition.x + context.toSlide.dimensions.width / 2;
+            const slideCY = context.toSlide.spatialPosition.y + context.toSlide.dimensions.height / 2;
+            const screenCX = window.innerWidth / 2;
+            const screenCY = window.innerHeight / 2;
+
+            // Pan for any scale to keep slide centered:
+            // panX = screenCX - slideCX * scale
+            const startPanX = screenCX - slideCX * startScale;
+            const startPanY = screenCY - slideCY * startScale;
 
             // Update active slide index
             setStore("activeSlideIndex", context.toIndex);
@@ -283,33 +311,14 @@ class SlideTransitionManager {
 
             const easing = getEasing(transition.easing);
 
-            // Zoom factor for the effect
-            const zoomFactor = isZoomIn ? 0.3 : 1.5;
-            const midScale = targetView.scale * zoomFactor;
-
             animationEngine.create(
                 animId,
                 (progress) => {
                     const easedProgress = easing(progress);
 
-                    // Two-phase animation: zoom out/in through midpoint
-                    let scale: number;
-                    let panX: number;
-                    let panY: number;
-
-                    if (progress < 0.5) {
-                        // First half: zoom to mid state
-                        const halfProgress = easedProgress * 2;
-                        scale = lerp(startView.scale, midScale, halfProgress);
-                        panX = lerp(startView.panX, (startView.panX + targetView.panX) / 2, halfProgress);
-                        panY = lerp(startView.panY, (startView.panY + targetView.panY) / 2, halfProgress);
-                    } else {
-                        // Second half: zoom to final state
-                        const halfProgress = (easedProgress - 0.5) * 2;
-                        scale = lerp(midScale, targetView.scale, halfProgress);
-                        panX = lerp((startView.panX + targetView.panX) / 2, targetView.panX, halfProgress);
-                        panY = lerp((startView.panY + targetView.panY) / 2, targetView.panY, halfProgress);
-                    }
+                    const scale = lerp(startScale, targetView.scale, easedProgress);
+                    const panX = screenCX - slideCX * scale;
+                    const panY = screenCY - slideCY * scale;
 
                     setViewState({ scale, panX, panY });
                 },
