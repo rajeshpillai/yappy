@@ -542,7 +542,12 @@ const Menu: Component = () => {
                                 >
                                     <Pause size={18} color={!isGlobalPlaying() && !isGlobalPaused() ? "#9ca3af" : "#f59e0b"} fill={!isGlobalPlaying() && !isGlobalPaused() ? "#9ca3af" : "#f59e0b"} />
                                 </button>
-                                <button class="menu-btn" onClick={() => sequenceAnimator.stopAll()} title="Stop All Animations">
+                                <button
+                                    class="menu-btn"
+                                    onClick={() => sequenceAnimator.stopAll()}
+                                    title="Stop All Animations"
+                                    disabled={!isGlobalPlaying() && !isGlobalPaused()}
+                                >
                                     <Square size={18} color="#ef4444" fill="#ef4444" />
                                 </button>
                                 <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }}></div>

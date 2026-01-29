@@ -151,6 +151,8 @@ class AnimationEngine {
      */
     stopAll(): void {
         this.animations.clear();
+        setIsGlobalPlaying(false);
+        setIsGlobalPaused(false);
         this.stopLoop();
     }
 
@@ -302,6 +304,8 @@ class AnimationEngine {
     private stopLoop(): void {
         this.isRunning = false;
         setIsGlobalAnimating(false);
+        setIsGlobalPlaying(false);
+        setIsGlobalPaused(false);
         if (this.rafId !== null) {
             cancelAnimationFrame(this.rafId);
             this.rafId = null;

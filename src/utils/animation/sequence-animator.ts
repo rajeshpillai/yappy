@@ -103,10 +103,12 @@ export class SequenceAnimator {
         // Cleanup sequence state
         if (this.activeSequences.has(elementId)) {
             this.activeSequences.delete(elementId);
-            if (this.activeSequences.size === 0) {
-                setIsPreviewing(false);
-                animationEngine.setForceTicker(false);
-            }
+        }
+
+        // Always clear preview state when stopping
+        if (this.activeSequences.size === 0) {
+            setIsPreviewing(false);
+            animationEngine.setForceTicker(false);
         }
     }
 

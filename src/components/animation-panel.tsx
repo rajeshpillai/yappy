@@ -182,16 +182,18 @@ export const AnimationPanel: Component = () => {
                 <div style={{ display: 'flex', gap: '4px' }}>
                     <button
                         onClick={handleStop}
+                        disabled={!store.isPreviewing}
                         title="Stop Animation"
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', 'border-radius': '4px', color: '#ef4444' }}
+                        style={{ background: 'none', border: 'none', cursor: store.isPreviewing ? 'pointer' : 'not-allowed', padding: '4px', 'border-radius': '4px', color: '#ef4444', opacity: store.isPreviewing ? 1 : 0.5 }}
                         class="icon-btn"
                     >
                         <Square size={16} fill="currentColor" />
                     </button>
                     <button
                         onClick={handlePlay}
+                        disabled={store.isPreviewing}
                         title="Preview Animation"
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', 'border-radius': '4px', color: '#10b981' }}
+                        style={{ background: 'none', border: 'none', cursor: store.isPreviewing ? 'not-allowed' : 'pointer', padding: '4px', 'border-radius': '4px', color: '#10b981', opacity: store.isPreviewing ? 0.5 : 1 }}
                         class="icon-btn"
                     >
                         <Play size={16} fill="currentColor" />
