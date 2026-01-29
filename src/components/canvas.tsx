@@ -378,6 +378,9 @@ const Canvas: Component = () => {
             // (especially important after entering fullscreen)
             if (store.appMode === 'presentation') {
                 zoomToFitSlide();
+                // Sometimes browsers need a tiny extra moment for layout to settle 
+                // after fullscreen or URL bar shifts
+                setTimeout(zoomToFitSlide, 50);
             }
 
             draw();
@@ -4149,8 +4152,12 @@ const Canvas: Component = () => {
         });
 
         window.addEventListener("resize", handleResize);
+        document.addEventListener("fullscreenchange", handleResize);
         handleResize();
-        onCleanup(() => window.removeEventListener("resize", handleResize));
+        onCleanup(() => {
+            window.removeEventListener("resize", handleResize);
+            document.removeEventListener("fullscreenchange", handleResize);
+        });
     });
 
 

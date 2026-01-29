@@ -1693,9 +1693,14 @@ export const togglePresentationMode = (visible?: boolean) => {
         // animationEngine.setForceTicker(newState); - Handled by createEffect in Canvas
 
         if (newState) {
-            // Auto fit on enter
-            zoomToFitSlide();
             setStore('selection', []); // Clear selection
+
+            // Auto fit on enter - we delay this slightly to allow the appMode transition 
+            // and fullscreen state to begin initiating. The resize/fullscreen listeners 
+            // will catch the final dimensions.
+            setTimeout(() => {
+                zoomToFitSlide();
+            }, 100);
 
             // Initialize animations
             slideBuildManager.init(store.activeSlideIndex);
