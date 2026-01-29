@@ -174,6 +174,7 @@ const ColorControl: Component<{ prop: PropertyConfig, value: any, onChange: (val
                                     style={{ background: opt.value, border: opt.value === '#ffffff' ? '1px solid #e0e0e0' : 'none' }}
                                     title={opt.label}
                                     onClick={() => {
+                                        pushToHistory();
                                         props.onChange(opt.value);
                                         setShowPicker(false);
                                     }}
@@ -226,6 +227,7 @@ const ColorControl: Component<{ prop: PropertyConfig, value: any, onChange: (val
                             <input
                                 type="color"
                                 value={props.value?.startsWith('#') ? props.value : '#000000'}
+                                onFocus={() => pushToHistory()}
                                 onInput={(e) => props.onChange(e.currentTarget.value)}
                             />
                         </div>
@@ -652,7 +654,7 @@ const PropertyPanel: Component = () => {
                     <ColorControl
                         prop={prop}
                         value={getPropertyValue(prop)}
-                        onChange={(val) => handleChange(prop.key, val, activeTarget()?.type, activeTarget()?.type === 'element' ? activeTarget()?.data?.id : undefined)}
+                        onChange={(val) => handleChange(prop.key, val, activeTarget()?.type, activeTarget()?.type === 'element' ? activeTarget()?.data?.id : undefined, false)}
                     />
                 );
             case 'slider':
@@ -665,7 +667,8 @@ const PropertyPanel: Component = () => {
                                     type="range"
                                     min={prop.min} max={prop.max} step={prop.step}
                                     value={getPropertyValue(prop) ?? prop.defaultValue}
-                                    onInput={(e) => handleChange(prop.key, Number(e.currentTarget.value), activeTarget()?.type, activeTarget()?.type === 'element' ? activeTarget()?.data?.id : undefined)}
+                                    onMouseDown={() => pushToHistory()}
+                                    onInput={(e) => handleChange(prop.key, Number(e.currentTarget.value), activeTarget()?.type, activeTarget()?.type === 'element' ? activeTarget()?.data?.id : undefined, false)}
                                 />
                             </div>
                             <input
@@ -673,7 +676,8 @@ const PropertyPanel: Component = () => {
                                 class="precise-number-input"
                                 min={prop.min} max={prop.max} step={prop.step}
                                 value={getPropertyValue(prop) ?? prop.defaultValue}
-                                onInput={(e) => handleChange(prop.key, Number(e.currentTarget.value), activeTarget()?.type, activeTarget()?.type === 'element' ? activeTarget()?.data?.id : undefined)}
+                                onFocus={() => pushToHistory()}
+                                onInput={(e) => handleChange(prop.key, Number(e.currentTarget.value), activeTarget()?.type, activeTarget()?.type === 'element' ? activeTarget()?.data?.id : undefined, false)}
                             />
                         </div>
                     </div>
@@ -739,7 +743,8 @@ const PropertyPanel: Component = () => {
                         <input
                             type="number"
                             value={getPropertyValue(prop) ?? 0}
-                            onInput={(e) => handleChange(prop.key, Number(e.currentTarget.value), activeTarget()?.type, activeTarget()?.type === 'element' ? activeTarget()?.data?.id : undefined)}
+                            onFocus={() => pushToHistory()}
+                            onInput={(e) => handleChange(prop.key, Number(e.currentTarget.value), activeTarget()?.type, activeTarget()?.type === 'element' ? activeTarget()?.data?.id : undefined, false)}
                         />
                     </div>
                 );

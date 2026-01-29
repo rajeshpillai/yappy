@@ -125,6 +125,8 @@ export interface DrawingElement {
     controlPoints?: { x: number; y: number }[];
     startArrowhead?: ArrowHead;
     endArrowhead?: ArrowHead;
+    startArrowheadSize?: number;
+    endArrowheadSize?: number;
 
     // Specific to Text
     text?: string;

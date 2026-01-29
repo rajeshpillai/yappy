@@ -114,21 +114,26 @@ export const exportToSvg = (onlySelected: boolean) => {
             const endY = el.y + el.height;
 
             if (el.type === 'arrow') {
-                // Composite for arrow
-                // Since rough.svg returns ONE node, we use generator? 
-                // Or we append multiple.
-                // rc.line returns <path>.
-                // We need a group for arrow.
                 const arrowG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 arrowG.appendChild(rc.line(el.x, el.y, endX, endY, options));
 
                 const angle = Math.atan2(el.height, el.width);
-                const headLen = 15;
-                const p1 = { x: endX - headLen * Math.cos(angle - Math.PI / 6), y: endY - headLen * Math.sin(angle - Math.PI / 6) };
-                const p2 = { x: endX - headLen * Math.cos(angle + Math.PI / 6), y: endY - headLen * Math.sin(angle + Math.PI / 6) };
+                const startHeadLen = el.startArrowheadSize || 15;
+                const endHeadLen = el.endArrowheadSize || 15;
 
-                arrowG.appendChild(rc.line(endX, endY, p1.x, p1.y, options));
-                arrowG.appendChild(rc.line(endX, endY, p2.x, p2.y, options));
+                if (el.startArrowhead) {
+                    const p1 = { x: el.x - startHeadLen * Math.cos(angle + Math.PI - Math.PI / 6), y: el.y - startHeadLen * Math.sin(angle + Math.PI - Math.PI / 6) };
+                    const p2 = { x: el.x - startHeadLen * Math.cos(angle + Math.PI + Math.PI / 6), y: el.y - startHeadLen * Math.sin(angle + Math.PI + Math.PI / 6) };
+                    arrowG.appendChild(rc.line(el.x, el.y, p1.x, p1.y, options));
+                    arrowG.appendChild(rc.line(el.x, el.y, p2.x, p2.y, options));
+                }
+
+                if (el.endArrowhead || (!el.startArrowhead && !el.endArrowhead)) { // Default to end arrow if none specified for legacy
+                    const p1 = { x: endX - endHeadLen * Math.cos(angle - Math.PI / 6), y: endY - endHeadLen * Math.sin(angle - Math.PI / 6) };
+                    const p2 = { x: endX - endHeadLen * Math.cos(angle + Math.PI / 6), y: endY - endHeadLen * Math.sin(angle + Math.PI / 6) };
+                    arrowG.appendChild(rc.line(endX, endY, p1.x, p1.y, options));
+                    arrowG.appendChild(rc.line(endX, endY, p2.x, p2.y, options));
+                }
                 node = arrowG;
             } else {
                 node = rc.line(el.x, el.y, endX, endY, options);

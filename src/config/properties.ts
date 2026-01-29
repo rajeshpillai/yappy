@@ -750,6 +750,17 @@ export const properties: PropertyConfig[] = [
         defaultValue: null
     },
     {
+        key: 'startArrowheadSize',
+        label: 'Start Arrow Size',
+        type: 'number',
+        min: 1,
+        max: 100,
+        group: 'style',
+        applicableTo: ['arrow', 'line'],
+        defaultValue: 12,
+        dependsOn: { key: 'startArrowhead', value: ['arrow', 'triangle', 'diamond', 'diamondFilled', 'crowsfoot', 'circle', 'dot', 'bar'] }
+    },
+    {
         key: 'endArrowhead',
         label: 'End Arrow',
         type: 'select',
@@ -767,6 +778,17 @@ export const properties: PropertyConfig[] = [
         group: 'style',
         applicableTo: ['arrow', 'line'],
         defaultValue: null
+    },
+    {
+        key: 'endArrowheadSize',
+        label: 'End Arrow Size',
+        type: 'number',
+        min: 1,
+        max: 100,
+        group: 'style',
+        applicableTo: ['arrow', 'line'],
+        defaultValue: 12,
+        dependsOn: { key: 'endArrowhead', value: ['arrow', 'triangle', 'diamond', 'diamondFilled', 'crowsfoot', 'circle', 'dot', 'bar'] }
     },
     {
         key: 'curveType',

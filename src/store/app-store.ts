@@ -125,6 +125,8 @@ const initialState: AppState = {
         textAlign: 'left',
         startArrowhead: null,
         endArrowhead: null,
+        startArrowheadSize: 12,
+        endArrowheadSize: 12,
         autoResize: false,
         flowColor: undefined,
         seed: 0,

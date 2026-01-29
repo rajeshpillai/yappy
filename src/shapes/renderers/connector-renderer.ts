@@ -74,26 +74,26 @@ export class ConnectorRenderer extends ShapeRenderer {
             const cp2 = el.controlPoints?.[1] || cp1;
             if (el.startArrowhead) {
                 const startAngle = Math.atan2(start.y - cp1.y, start.x - cp1.x);
-                this.drawArrowheadArchitectural(ctx, start.x, start.y, startAngle, el.startArrowhead);
+                this.drawArrowheadArchitectural(ctx, start.x, start.y, startAngle, el.startArrowhead, el.startArrowheadSize || 12);
             }
             if (el.endArrowhead) {
                 const endAngle = Math.atan2(end.y - cp2.y, end.x - cp2.x);
-                this.drawArrowheadArchitectural(ctx, end.x, end.y, endAngle, el.endArrowhead);
+                this.drawArrowheadArchitectural(ctx, end.x, end.y, endAngle, el.endArrowhead, el.endArrowheadSize || 12);
             }
         } else if (el.curveType === 'elbow' && pts.length >= 2) {
             const p0 = { x: el.x + pts[0].x, y: el.y + pts[0].y };
             const p1 = { x: el.x + pts[1].x, y: el.y + pts[1].y };
             const startAngle = Math.atan2(p0.y - p1.y, p0.x - p1.x);
-            if (el.startArrowhead) this.drawArrowheadArchitectural(ctx, p0.x, p0.y, startAngle, el.startArrowhead);
+            if (el.startArrowhead) this.drawArrowheadArchitectural(ctx, p0.x, p0.y, startAngle, el.startArrowhead, el.startArrowheadSize || 12);
 
             const pn_1 = { x: el.x + pts[pts.length - 1].x, y: el.y + pts[pts.length - 1].y };
             const pn_2 = { x: el.x + pts[pts.length - 2].x, y: el.y + pts[pts.length - 2].y };
             const endAngle = Math.atan2(pn_1.y - pn_2.y, pn_1.x - pn_2.x);
-            if (el.endArrowhead) this.drawArrowheadArchitectural(ctx, pn_1.x, pn_1.y, endAngle, el.endArrowhead);
+            if (el.endArrowhead) this.drawArrowheadArchitectural(ctx, pn_1.x, pn_1.y, endAngle, el.endArrowhead, el.endArrowheadSize || 12);
         } else {
             angle = Math.atan2(end.y - start.y, end.x - start.x);
-            if (el.startArrowhead) this.drawArrowheadArchitectural(ctx, start.x, start.y, angle + Math.PI, el.startArrowhead);
-            if (el.endArrowhead) this.drawArrowheadArchitectural(ctx, end.x, end.y, angle, el.endArrowhead);
+            if (el.startArrowhead) this.drawArrowheadArchitectural(ctx, start.x, start.y, angle + Math.PI, el.startArrowhead, el.startArrowheadSize || 12);
+            if (el.endArrowhead) this.drawArrowheadArchitectural(ctx, end.x, end.y, angle, el.endArrowhead, el.endArrowheadSize || 12);
         }
 
         ctx.restore();
@@ -137,13 +137,13 @@ export class ConnectorRenderer extends ShapeRenderer {
                 const cp2 = el.controlPoints[1];
                 const path = `M ${start.x} ${start.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${end.x} ${end.y}`;
                 rc.path(path, options);
-                if (el.startArrowhead) this.drawArrowhead(rc, start.x, start.y, Math.atan2(start.y - cp1.y, start.x - cp1.x), el.startArrowhead, options);
-                if (el.endArrowhead) this.drawArrowhead(rc, end.x, end.y, Math.atan2(end.y - cp2.y, end.x - cp2.x), el.endArrowhead, options);
+                if (el.startArrowhead) this.drawArrowhead(rc, start.x, start.y, Math.atan2(start.y - cp1.y, start.x - cp1.x), el.startArrowhead, options, el.startArrowheadSize || 12);
+                if (el.endArrowhead) this.drawArrowhead(rc, end.x, end.y, Math.atan2(end.y - cp2.y, end.x - cp2.x), el.endArrowhead, options, el.endArrowheadSize || 12);
             } else {
                 const path = `M ${start.x} ${start.y} Q ${cp1.x} ${cp1.y}, ${end.x} ${end.y}`;
                 rc.path(path, options);
-                if (el.startArrowhead) this.drawArrowhead(rc, start.x, start.y, Math.atan2(start.y - cp1.y, start.x - cp1.x), el.startArrowhead, options);
-                if (el.endArrowhead) this.drawArrowhead(rc, end.x, end.y, Math.atan2(end.y - cp1.y, end.x - cp1.x), el.endArrowhead, options);
+                if (el.startArrowhead) this.drawArrowhead(rc, start.x, start.y, Math.atan2(start.y - cp1.y, start.x - cp1.x), el.startArrowhead, options, el.startArrowheadSize || 12);
+                if (el.endArrowhead) this.drawArrowhead(rc, end.x, end.y, Math.atan2(end.y - cp1.y, end.x - cp1.x), el.endArrowhead, options, el.endArrowheadSize || 12);
             }
         } else {
             const w = el.width, h = el.height;
@@ -157,8 +157,8 @@ export class ConnectorRenderer extends ShapeRenderer {
             }
             const path = `M ${start.x} ${start.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${end.x} ${end.y}`;
             rc.path(path, options);
-            if (el.startArrowhead) this.drawArrowhead(rc, start.x, start.y, Math.atan2(start.y - cp1.y, start.x - cp1.x), el.startArrowhead, options);
-            if (el.endArrowhead) this.drawArrowhead(rc, end.x, end.y, Math.atan2(end.y - cp2.y, end.x - cp2.x), el.endArrowhead, options);
+            if (el.startArrowhead) this.drawArrowhead(rc, start.x, start.y, Math.atan2(start.y - cp1.y, start.x - cp1.x), el.startArrowhead, options, el.startArrowheadSize || 12);
+            if (el.endArrowhead) this.drawArrowhead(rc, end.x, end.y, Math.atan2(end.y - cp2.y, end.x - cp2.x), el.endArrowhead, options, el.endArrowheadSize || 12);
         }
     }
 
@@ -178,12 +178,12 @@ export class ConnectorRenderer extends ShapeRenderer {
 
         if (el.startArrowhead && cleanPoints.length >= 2) {
             const angle = Math.atan2(cleanPoints[0][1] - cleanPoints[1][1], cleanPoints[0][0] - cleanPoints[1][0]);
-            this.drawArrowhead(rc, cleanPoints[0][0], cleanPoints[0][1], angle, el.startArrowhead, options);
+            this.drawArrowhead(rc, cleanPoints[0][0], cleanPoints[0][1], angle, el.startArrowhead, options, el.startArrowheadSize || 12);
         }
         if (el.endArrowhead && cleanPoints.length >= 2) {
             const n = cleanPoints.length;
             const angle = Math.atan2(cleanPoints[n - 1][1] - cleanPoints[n - 2][1], cleanPoints[n - 1][0] - cleanPoints[n - 2][0]);
-            this.drawArrowhead(rc, cleanPoints[n - 1][0], cleanPoints[n - 1][1], angle, el.endArrowhead, options);
+            this.drawArrowhead(rc, cleanPoints[n - 1][0], cleanPoints[n - 1][1], angle, el.endArrowhead, options, el.endArrowheadSize || 12);
         }
     }
 
@@ -203,12 +203,11 @@ export class ConnectorRenderer extends ShapeRenderer {
         rc.line(start.x, start.y, end.x, end.y, options);
         const angle = Math.atan2(end.y - start.y, end.x - start.x);
 
-        if (el.startArrowhead) this.drawArrowhead(rc, start.x, start.y, angle + Math.PI, el.startArrowhead, options);
-        if (el.endArrowhead) this.drawArrowhead(rc, end.x, end.y, angle, el.endArrowhead, options);
+        if (el.startArrowhead) this.drawArrowhead(rc, start.x, start.y, angle + Math.PI, el.startArrowhead, options, el.startArrowheadSize || 12);
+        if (el.endArrowhead) this.drawArrowhead(rc, end.x, end.y, angle, el.endArrowhead, options, el.endArrowheadSize || 12);
     }
 
-    private drawArrowhead(rc: any, x: number, y: number, angle: number, type: string, options: any) {
-        const headLen = 12;
+    private drawArrowhead(rc: any, x: number, y: number, angle: number, type: string, options: any, headLen: number = 12) {
         const p1 = { x: x - headLen * Math.cos(angle - Math.PI / 6), y: y - headLen * Math.sin(angle - Math.PI / 6) };
         const p2 = { x: x - headLen * Math.cos(angle + Math.PI / 6), y: y - headLen * Math.sin(angle + Math.PI / 6) };
 
@@ -243,8 +242,7 @@ export class ConnectorRenderer extends ShapeRenderer {
         }
     }
 
-    private drawArrowheadArchitectural(ctx: CanvasRenderingContext2D, x: number, y: number, angle: number, type: string) {
-        const headLen = 12;
+    private drawArrowheadArchitectural(ctx: CanvasRenderingContext2D, x: number, y: number, angle: number, type: string, headLen: number = 12) {
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(angle);
