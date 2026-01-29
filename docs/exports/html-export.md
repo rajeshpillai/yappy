@@ -21,14 +21,41 @@ Yappy allows you to export your slide presentations as a single, standalone HTML
 4. Choose **Export as HTML (Standalone Player)**.
 5. Save the file to your computer.
 
-## Technical Details
+## Technical Deep Dive
 
-The standalone player uses a pre-compiled bundle of the engine that is injected into a template. When you export, your document data is embedded as a global variable (`window.__PRESENTATION_DATA__`) which the player then loads.
+The HTML export feature uses a sophisticated "Compiled Asset Injection" architecture to ensure the resulting file is portable and performs identically to the Yappy editor.
 
-### Performance
+### 1. The Player Build Pipeline
 
-The player is optimized for fast loading and smooth transitions. It uses the same rendering logic as the main editor but with all editing features stripped out for a clean "presentation-only" experience.
+The standalone player is treated as a secondary application within the codebase.
 
-### Browser Support
+- **Vite Configuration (`vite.player.config.ts`)**: This file defines a specific build target for the player. It points to `src/player.tsx` as the entry point and outputs minified JS/CSS to `dist/player`. It is configured to exclude public assets and produce a clean, self-contained output.
+- **Embedding Script (`scripts/embed-player.js`)**: This Node.js script orchestrates the build process. After running Vite, it reads the generated `.js` and `.css` files and serializes them into a TypeScript module: `src/assets/player-assets.ts`. 
 
-The exported file is compatible with all modern browsers (Chrome, Firefox, Safari, Edge).
+```typescript
+// Example of generated player-assets.ts
+export const PLAYER_JS = "/* Minified engine code... */";
+export const PLAYER_CSS = "/* Minified styles... */";
+```
+
+This allows the main Yappy application to import the entire player engine as simple string constants, eliminating the need for complex runtime fetching.
+
+### 2. Standalone Export Logic
+
+When you click "Export as HTML", the following happens in `src/utils/export-to-html.ts`:
+
+1. **Asset Embedding**: The document is traversed. Any local images (stored as `blob:` URLs in the browser) are converted to Base64 `data:` URLs.
+2. **Template Interpolation**: A massive HTML template is constructed.
+    - `PLAYER_CSS` is injected into the `<head>`.
+    - The document data is serialized into `window.__PRESENTATION_DATA__`.
+    - `PLAYER_JS` is injected as a `<script type="module">`.
+3. **Blob Download**: The final HTML string is converted to a Blob and triggered as a download in the user's browser.
+
+### 3. Player Runtime
+
+Upon opening the HTML file:
+- The browser executes the module script containing `PLAYER_JS`.
+- The `PlayerApp` component mounts.
+- It retrieves data from `window.__PRESENTATION_DATA__`.
+- It executes `registerShapes()` to initialize the drawing instructions.
+- It enters a read-only presentation state and automatically frames the first slide.
