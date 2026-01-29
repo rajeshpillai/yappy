@@ -373,6 +373,13 @@ const Canvas: Component = () => {
         if (canvasRef) {
             canvasRef.width = window.innerWidth;
             canvasRef.height = window.innerHeight;
+
+            // In presentation mode, ensure the slide is re-fitted to the new window size
+            // (especially important after entering fullscreen)
+            if (store.appMode === 'presentation') {
+                zoomToFitSlide();
+            }
+
             draw();
         }
     };
