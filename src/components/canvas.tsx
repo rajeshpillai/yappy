@@ -2586,7 +2586,7 @@ const Canvas: Component = () => {
                         initialElementY = el.y;
                         initialElementWidth = el.width;
                         initialElementHeight = el.height;
-                        initialElementFontSize = el.fontSize || 20;
+                        initialElementFontSize = el.fontSize || 28;
 
                         // Capture initial position for the single element to support point scaling
                         initialPositions.clear();
@@ -3392,7 +3392,7 @@ const Canvas: Component = () => {
 
                                     const element = store.elements.find(e => e.id === selId);
                                     if (element && element.type === 'text') {
-                                        updates.fontSize = Math.max(8, (init.fontSize || 20) * scaleY);
+                                        updates.fontSize = Math.max(8, (init.fontSize || 28) * scaleY);
                                     }
 
                                     updateElement(selId, updates, false);
@@ -3970,7 +3970,7 @@ const Canvas: Component = () => {
                 if (canvasRef) {
                     const ctx = canvasRef.getContext("2d");
                     if (ctx) {
-                        const fontSize = el.fontSize || 20;
+                        const fontSize = el.fontSize || 28;
                         ctx.font = `${fontSize}px sans-serif`;
                         const metrics = ctx.measureText(newText);
                         width = metrics.width;
@@ -4076,7 +4076,7 @@ const Canvas: Component = () => {
 
                         let attrHeight = 20;
                         if (el.attributesText && ctx) {
-                            const metrics = measureContainerText(ctx, { ...el, fontSize: (el.fontSize || 20) * 0.9 }, el.attributesText, el.width - 10);
+                            const metrics = measureContainerText(ctx, { ...el, fontSize: (el.fontSize || 28) * 0.9 }, el.attributesText, el.width - 10);
                             attrHeight = Math.max(20, metrics.textHeight + 10);
                         }
 
@@ -4594,7 +4594,7 @@ const Canvas: Component = () => {
                     let centerX = (elX + elW / 2) * scale + panX;
                     let centerY = (elY + elH / 2) * scale + panY;
                     let textAlign = 'center';
-                    let fontSizeVal = el.fontSize || 20;
+                    let fontSizeVal = el.fontSize || 28;
 
                     if (el.type === 'umlClass') {
                         const prop = editingProperty();

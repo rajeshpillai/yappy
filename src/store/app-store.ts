@@ -118,7 +118,7 @@ const initialState: AppState = {
         angle: 0,
         roundness: null,
         locked: false,
-        fontSize: 20,
+        fontSize: 28,
         fontFamily: 'hand-drawn',
         fontWeight: false,
         fontStyle: false,
