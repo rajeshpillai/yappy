@@ -847,6 +847,16 @@
   - [x] Example: `easing: 'easeSpring'` or `easing: createSpring(170, 26, 1, 0)`
   - [x] Use case: Natural, organic motion (bounce, elastic, rubbery effects)
 
+- [x] **Trigger-Based Auto Spin Animation**
+  - [x] Implement `AutoSpinAnimation` interface with direction and iteration control
+  - [x] Add clockwise/counterclockwise direction support
+  - [x] Add iteration control (1, 2, 3, 5, or infinite rotations)
+  - [x] Implement animation execution logic in sequence-animator.ts
+  - [x] Add UI controls in animation panel (direction selector, iterations dropdown)
+  - [x] Support all trigger types (on-load, on-click, after-prev, with-prev)
+  - [x] Full easing support for smooth rotation effects
+  - [x] Use case: Loading spinners, coin flips, attention grabbers, continuous rotation
+
 - [ ] **Loop/Repeat/Direction Controls**
   - [ ] Add `loop`, `repeat`, `direction` to AnimationConfig
   - [ ] Support values: `loop: true`, `repeat: 3`, `direction: 'alternate'`

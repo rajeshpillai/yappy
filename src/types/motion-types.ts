@@ -61,6 +61,14 @@ export interface RotateAnimation extends BaseAnimation {
     relative?: boolean; // If true, treat toAngle as delta
 }
 
+// 5. Auto Spin Animation (Continuous/Triggered Rotation)
+export interface AutoSpinAnimation extends BaseAnimation {
+    type: 'autoSpin';
+    direction: 'clockwise' | 'counterclockwise';
+    iterations: number | 'infinite'; // Number of full rotations or infinite
+    rotationsPerSecond?: number; // Speed in rotations per second (alternative to duration)
+}
+
 
 export interface MorphAnimation extends BaseAnimation {
     type: 'morph';
@@ -68,7 +76,7 @@ export interface MorphAnimation extends BaseAnimation {
     // In future: targetElementId?: string;
 }
 
-export type ElementAnimation = PresetAnimation | PropertyAnimation | PathAnimation | RotateAnimation | MorphAnimation;
+export type ElementAnimation = PresetAnimation | PropertyAnimation | PathAnimation | RotateAnimation | AutoSpinAnimation | MorphAnimation;
 
 
 // Defines what properties can be overridden in a state

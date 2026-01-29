@@ -2,7 +2,7 @@ import { type Component, For, Show, createSignal, createMemo } from 'solid-js';
 import { store, updateElement, updateAnimation, reorderAnimation, setPathEditing } from '../store/app-store';
 import { sequenceAnimator } from '../utils/animation/sequence-animator';
 import { Play, Square, Plus, Trash2, ChevronDown, ChevronRight, ChevronUp, Edit3 } from 'lucide-solid';
-import type { ElementAnimation, PresetAnimation, RotateAnimation } from '../types/motion-types';
+import type { ElementAnimation, PresetAnimation, RotateAnimation, AutoSpinAnimation } from '../types/motion-types';
 
 const PRESETS = [
     'drawIn', 'drawOut',
@@ -111,6 +111,26 @@ export const AnimationPanel: Component = () => {
             duration: 1000,
             delay: 0,
             easing: 'easeOutQuad',
+            trigger: el.animations?.length ? 'after-prev' : 'on-load'
+        };
+
+        const currentAnims = el.animations || [];
+        updateElement(el.id, { animations: [...currentAnims, newAnim] }, true);
+        setIsAdding(false);
+    };
+
+    const addAutoSpinAnimation = () => {
+        const el = element();
+        if (!el) return;
+
+        const newAnim: AutoSpinAnimation = {
+            id: crypto.randomUUID(),
+            type: 'autoSpin',
+            direction: 'clockwise',
+            iterations: 1,
+            duration: 1000,
+            delay: 0,
+            easing: 'linear',
             trigger: el.animations?.length ? 'after-prev' : 'on-load'
         };
 
@@ -349,6 +369,22 @@ export const AnimationPanel: Component = () => {
                             + Add Rotate
                         </button>
                         <button
+                            onClick={addAutoSpinAnimation}
+                            style={{
+                                'flex': 1,
+                                'padding': '6px',
+                                'border': 'none',
+                                'background': '#10b981',
+                                'color': 'white',
+                                'border-radius': '4px',
+                                'cursor': 'pointer',
+                                'font-size': '11px',
+                                'font-weight': 600
+                            }}
+                        >
+                            🔄 Auto Spin
+                        </button>
+                        <button
                             onClick={addPathAnimation}
                             style={{
                                 'flex': 1,
@@ -431,8 +467,9 @@ const AnimationItem: Component<{
                 <div style={{ 'flex': 1, 'font-size': '12px', 'font-weight': 500 }}>
                     {props.animation.type === 'preset' ? (props.animation as PresetAnimation).name :
                         props.animation.type === 'rotate' ? 'Rotate' :
-                            props.animation.type === 'path' ? 'Motion Path' :
-                                props.animation.type === 'morph' ? 'Magic Morph' : 'Property'}
+                            props.animation.type === 'autoSpin' ? 'Auto Spin' :
+                                props.animation.type === 'path' ? 'Motion Path' :
+                                    props.animation.type === 'morph' ? 'Magic Morph' : 'Property'}
                     <span style={{ 'margin-left': '6px', 'opacity': 0.5, 'font-size': '10px' }}>
                         {props.animation.duration}ms
                     </span>
@@ -570,6 +607,38 @@ const AnimationItem: Component<{
                             <label for={`rel-${props.animation.id}`} style={{ 'font-size': '11px', 'opacity': 0.7, 'cursor': 'pointer' }}>
                                 Relative to current
                             </label>
+                        </div>
+                    </Show>
+
+                    {/* Specialized Auto Spin Settings */}
+                    <Show when={props.animation.type === 'autoSpin'}>
+                        <div style={{ 'display': 'flex', 'align-items': 'center', 'justify-content': 'space-between' }}>
+                            <label style={{ 'font-size': '11px', 'opacity': 0.7 }}>Direction</label>
+                            <select
+                                value={(props.animation as any).direction || 'clockwise'}
+                                onChange={(e) => props.onUpdate({ direction: e.currentTarget.value } as any)}
+                                style={{ 'font-size': '11px', 'padding': '2px 4px', 'width': '120px' }}
+                            >
+                                <option value="clockwise">Clockwise</option>
+                                <option value="counterclockwise">Counterclockwise</option>
+                            </select>
+                        </div>
+                        <div style={{ 'display': 'flex', 'align-items': 'center', 'justify-content': 'space-between' }}>
+                            <label style={{ 'font-size': '11px', 'opacity': 0.7 }}>Iterations</label>
+                            <select
+                                value={(props.animation as any).iterations === 'infinite' ? 'infinite' : String((props.animation as any).iterations || 1)}
+                                onChange={(e) => {
+                                    const val = e.currentTarget.value;
+                                    props.onUpdate({ iterations: val === 'infinite' ? 'infinite' : Number(val) } as any);
+                                }}
+                                style={{ 'font-size': '11px', 'padding': '2px 4px', 'width': '80px' }}
+                            >
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="5">5</option>
+                                <option value="infinite">Infinite</option>
+                            </select>
                         </div>
                     </Show>
 

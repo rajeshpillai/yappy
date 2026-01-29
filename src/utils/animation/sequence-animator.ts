@@ -235,6 +235,8 @@ export class SequenceAnimator {
             this.animateProperty(elementId, anim, config);
         } else if (anim.type === 'rotate') {
             this.animateRotate(elementId, anim as any, config);
+        } else if (anim.type === 'autoSpin') {
+            this.animateAutoSpin(elementId, anim as any, config);
         } else if (anim.type === 'path') {
             animator.animateAlongPath(elementId, (anim as any).pathData, {
                 ...config,
@@ -255,6 +257,38 @@ export class SequenceAnimator {
 
         const toAngle = anim.relative ? (el.angle || 0) + (anim.toAngle * Math.PI / 180) : (anim.toAngle * Math.PI / 180);
         animateElement(elementId, { angle: toAngle }, config);
+    }
+
+    private animateAutoSpin(elementId: string, anim: any, config: ElementAnimationConfig): void {
+        const el = store.elements.find(e => e.id === elementId);
+        if (!el) {
+            config.onComplete?.();
+            return;
+        }
+
+        const startAngle = el.angle || 0;
+        const direction = anim.direction === 'counterclockwise' ? -1 : 1;
+        const iterations = anim.iterations === 'infinite' ? Infinity : (anim.iterations || 1);
+
+        // Calculate total rotation in radians
+        const totalRotation = direction * iterations * Math.PI * 2; // 2π per rotation
+        const endAngle = startAngle + totalRotation;
+
+        // Override config for infinite iterations
+        const spinConfig = { ...config };
+        if (iterations === Infinity) {
+            spinConfig.loop = true;
+            spinConfig.loopCount = Infinity;
+        } else if (iterations > 1 && config.duration) {
+            // For multiple iterations, we can use loop count
+            spinConfig.loop = true;
+            spinConfig.loopCount = iterations;
+            // Adjust duration to be per-rotation
+            spinConfig.duration = config.duration / iterations;
+        }
+
+        // Animate the rotation
+        animateElement(elementId, { angle: endAngle }, spinConfig);
     }
 
     private animateProperty(elementId: string, anim: PropertyAnimation, config: ElementAnimationConfig): void {
