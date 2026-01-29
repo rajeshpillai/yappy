@@ -1,6 +1,6 @@
 import { type Component, Show, createSignal, onMount, onCleanup, createMemo } from 'solid-js';
-import { store, togglePresentationMode, advancePresentation, retreatPresentation } from '../store/app-store';
-import { ChevronLeft, ChevronRight, X } from 'lucide-solid';
+import { store, togglePresentationMode, advancePresentation, retreatPresentation, setSelectedTool } from '../store/app-store';
+import { ChevronLeft, ChevronRight, X, MousePointer2, Zap, Highlighter, Eraser } from 'lucide-solid';
 
 export const PresentationControls: Component = () => {
     const [isVisible, setIsVisible] = createSignal(true);
@@ -108,7 +108,77 @@ export const PresentationControls: Component = () => {
                     <ChevronRight size={20} />
                 </button>
 
-                <div style={{ width: '1px', height: '24px', background: 'rgba(0,0,0,0.1)', 'margin': '0 4px' }}></div>
+                <div style={{ width: '1px', height: '24px', background: 'rgba(0,0,0,0.1)', 'margin': '0 8px' }}></div>
+
+                {/* Tool Selection Toolbox */}
+                <div style={{ display: 'flex', 'align-items': 'center', gap: '4px' }}>
+                    <button
+                        onClick={() => setSelectedTool('selection')}
+                        style={{
+                            background: store.selectedTool === 'selection' ? 'rgba(59, 130, 246, 0.1)' : 'none',
+                            border: 'none',
+                            color: store.selectedTool === 'selection' ? '#3b82f6' : '#64748b',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            padding: '8px',
+                            'border-radius': '8px',
+                            transition: 'all 0.2s'
+                        }}
+                        title="Pointer (Advance Slides)"
+                    >
+                        <MousePointer2 size={18} />
+                    </button>
+                    <button
+                        onClick={() => setSelectedTool('laser')}
+                        style={{
+                            background: store.selectedTool === 'laser' ? 'rgba(245, 158, 11, 0.1)' : 'none',
+                            border: 'none',
+                            color: store.selectedTool === 'laser' ? '#f59e0b' : '#64748b',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            padding: '8px',
+                            'border-radius': '8px',
+                            transition: 'all 0.2s'
+                        }}
+                        title="Laser Pointer"
+                    >
+                        <Zap size={18} />
+                    </button>
+                    <button
+                        onClick={() => setSelectedTool('ink')}
+                        style={{
+                            background: store.selectedTool === 'ink' ? 'rgba(239, 68, 68, 0.1)' : 'none',
+                            border: 'none',
+                            color: store.selectedTool === 'ink' ? '#ef4444' : '#64748b',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            padding: '8px',
+                            'border-radius': '8px',
+                            transition: 'all 0.2s'
+                        }}
+                        title="Ink Highlighter"
+                    >
+                        <Highlighter size={18} />
+                    </button>
+                    <button
+                        onClick={() => setSelectedTool('eraser')}
+                        style={{
+                            background: store.selectedTool === 'eraser' ? 'rgba(100, 116, 139, 0.1)' : 'none',
+                            border: 'none',
+                            color: store.selectedTool === 'eraser' ? '#475569' : '#64748b',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            padding: '8px',
+                            'border-radius': '8px',
+                            transition: 'all 0.2s'
+                        }}
+                        title="Eraser"
+                    >
+                        <Eraser size={18} />
+                    </button>
+                </div>
+
+                <div style={{ width: '1px', height: '24px', background: 'rgba(0,0,0,0.1)', 'margin': '0 8px' }}></div>
 
                 <button
                     onClick={() => togglePresentationMode(false)}

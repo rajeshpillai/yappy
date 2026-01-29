@@ -7,6 +7,11 @@ The Slides system transforms YappyDraw into a powerful presentation engine. This
 - **Reorder**: Drag and drop slide thumbnails in the sidebar.
 - **Delete**: Right-click a thumbnail and select 'Delete'.
 - **Presentation Mode**: Press `F5` or click 'Play Presentation' to enter fullscreen mode.
+- **Interactive Tools**: During presentation, hover over the bottom of the screen to access the **Interaction Toolbox**:
+    - **Pointer (Selection)**: Default mode. Click anywhere on the slide to advance to the next one.
+    - **Laser Pointer**: Create transient highlights that fade away instantly.
+    - **Ink Highlighter**: Draw red annotations that automatically disappear after 3 seconds.
+    - **Eraser**: Manually remove any ink strokes you've added.
 
 ## 2. Slide Master
 The Slide Master allows you to define common elements—like logos, footers, or watermarks—that appear automatically on **every slide** in your presentation.

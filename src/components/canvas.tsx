@@ -2428,14 +2428,19 @@ const Canvas: Component = () => {
     };
 
     const handlePointerDown = (e: PointerEvent) => {
-        // Presentation Mode Navigation (Click to advance)
+        // Presentation Mode Logic
         if (store.appMode === 'presentation') {
+            const isNavTool = store.selectedTool === 'selection' || store.selectedTool === 'pan';
+
             if (store.docType === 'slides') {
-                // Only advance if left click and not on a control
-                if (e.button === 0) {
-                    advancePresentation();
+                if (isNavTool) {
+                    // Only advance if left click and not on a control
+                    if (e.button === 0) {
+                        advancePresentation();
+                    }
+                    return;
                 }
-                return;
+                // If it's a presentation tool (laser, ink, eraser), continue to standard drawing logic
             } else {
                 // For infinite mode, allow panning if left click or middle click
                 if (e.button === 0 || e.button === 1) {
@@ -2990,19 +2995,21 @@ const Canvas: Component = () => {
 
     const handlePointerMove = (e: PointerEvent) => {
         if (store.appMode === 'presentation') {
-            if (store.docType === 'slides') return;
+            const isNavTool = store.selectedTool === 'selection' || store.selectedTool === 'pan';
+            if (store.docType === 'slides' && isNavTool) return;
 
-            // For infinite mode, if dragging, we pan.
-            if (isDragging) {
+            // For infinite mode OR presentation tools, continue...
+            if (store.docType === 'slides') {
+                // We fall through to world-coord calculation and tool logic
+            } else if (isDragging) {
                 setViewState({
                     panX: store.viewState.panX + e.movementX,
                     panY: store.viewState.panY + e.movementY
                 });
-                setCursor('grabbing');
-            } else {
-                setCursor('grab');
+                return;
             }
-            return;
+            // If not slides and not dragging, we might be using a presentation tool like laser/ink
+            // In this case, we fall through to the regular tool logic below.
         }
         let { x, y } = getWorldCoordinates(e.clientX, e.clientY);
         // console.log('Move', { tool: store.selectedTool, isDragging, selection: store.selection.length });
@@ -3657,9 +3664,14 @@ const Canvas: Component = () => {
         (e.currentTarget as Element).releasePointerCapture(e.pointerId);
 
         if (store.appMode === 'presentation') {
-            if (store.docType === 'slides') return;
-            isDragging = false;
-            return;
+            const isNavTool = store.selectedTool === 'selection' || store.selectedTool === 'pan';
+            if (store.docType === 'slides' && isNavTool) return;
+
+            // For infinite mode or interaction tools, we continue to the reset logic below
+            if (store.docType !== 'slides') {
+                isDragging = false;
+                return;
+            }
         }
 
         if (store.selectedTool === 'pan') {
