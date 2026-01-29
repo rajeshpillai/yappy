@@ -84,3 +84,26 @@
         transform: translate(-50%, 0);
     }
 }
+
+.toast-loading {
+    border-left: 4px solid #f59e0b;
+    /* Amber */
+}
+
+.toast-loading .toast-icon {
+    color: #f59e0b;
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

@@ -80,6 +80,8 @@ interface AppState {
         // Temporary holding state for points during edit
         // We sync to the element's pathData on every change, but this tracks "Edit Mode"
     };
+
+    readOnly: boolean;
 }
 
 const initialDoc = createSlideDocument();
@@ -103,6 +105,7 @@ const initialState: AppState = {
     selection: [],
     flowTick: 0,
     isRecording: false,
+    readOnly: false,
     defaultElementStyles: {
         strokeColor: '#000000',
         backgroundColor: 'transparent',
@@ -702,6 +705,43 @@ export const addSlide = () => {
     showToast('Slide added', 'success');
 };
 
+export const insertNewSlide = (targetIndex: number, position: 'before' | 'after') => {
+    saveActiveSlide();
+
+    // 1. Determine new slide position (Spatially always at the end to avoid collision)
+    const sortedByX = [...store.slides].sort((a, b) => a.spatialPosition.x - b.spatialPosition.x);
+    const lastSlide = sortedByX[sortedByX.length - 1];
+    const newX = lastSlide ? lastSlide.spatialPosition.x + 2000 : 0;
+
+    const insertionIndex = position === 'before' ? targetIndex : targetIndex + 1;
+
+    // 2. Create and Insert
+    const newSlide = createDefaultSlide(undefined, `Slide ${store.slides.length + 1}`, newX, 0);
+
+    const newSlides = store.slides.map(s => ({ ...s }));
+    newSlides.splice(insertionIndex, 0, newSlide);
+
+    // 3. Reorder
+    newSlides.forEach((s, i) => s.order = i);
+
+    let currentActiveIndex = store.activeSlideIndex;
+    // If we inserted before or at the current active slide, the current slide moved down
+    if (insertionIndex <= currentActiveIndex) {
+        currentActiveIndex++;
+    }
+
+    batch(() => {
+        setStore("slides", newSlides);
+        // Update active index to point to where the *previous* active slide moved to
+        // This ensures the transition starts from the correct physical location
+        setStore("activeSlideIndex", currentActiveIndex);
+    });
+
+    // Now transition to the new slide
+    setActiveSlide(insertionIndex);
+    showToast('Slide inserted', 'success');
+};
+
 export const duplicateSlide = (index: number) => {
     if (index < 0 || index >= store.slides.length) return;
 
@@ -778,7 +818,9 @@ export const duplicateSlide = (index: number) => {
     };
 
     // 5. Update store
-    const newSlides = [...store.slides];
+    // 5. Update store
+    // Clone slides to avoid mutating store proxies
+    const newSlides = store.slides.map(s => ({ ...s }));
     newSlides.splice(index + 1, 0, newSlide);
     newSlides.forEach((s, i) => s.order = i);
 
@@ -797,7 +839,10 @@ export const deleteSlide = (index: number) => {
         return;
     }
 
-    const newSlides = store.slides.filter((_, i) => i !== index);
+    // Clone distinct from store
+    const newSlides = store.slides
+        .filter((_, i) => i !== index)
+        .map(s => ({ ...s }));
 
     // Update orders
     newSlides.forEach((s, i) => s.order = i);
@@ -818,7 +863,8 @@ export const deleteSlide = (index: number) => {
 export const reorderSlides = (fromIndex: number, toIndex: number) => {
     if (fromIndex === toIndex) return;
 
-    const newSlides = [...store.slides];
+    // Clone slides
+    const newSlides = store.slides.map(s => ({ ...s }));
     const [moved] = newSlides.splice(fromIndex, 1);
     newSlides.splice(toIndex, 0, moved);
 
