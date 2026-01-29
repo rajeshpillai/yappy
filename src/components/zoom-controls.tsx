@@ -6,12 +6,30 @@ import "./zoom-controls.css";
 const ZoomControls: Component = () => {
     const handleZoomIn = () => {
         const newScale = Math.min(store.viewState.scale * 1.1, 10);
-        setViewState({ scale: newScale });
+        zoomToCenter(newScale);
     };
 
     const handleZoomOut = () => {
         const newScale = Math.max(store.viewState.scale * 0.9, 0.1);
-        setViewState({ scale: newScale });
+        zoomToCenter(newScale);
+    };
+
+    const zoomToCenter = (newScale: number) => {
+        const { scale, panX, panY } = store.viewState;
+
+        // Get viewport center in screen coordinates
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+
+        // Convert center to world coordinates
+        const worldX = (centerX - panX) / scale;
+        const worldY = (centerY - panY) / scale;
+
+        // Calculate new pan to keep the same world point at the center
+        const newPanX = centerX - worldX * newScale;
+        const newPanY = centerY - worldY * newScale;
+
+        setViewState({ scale: newScale, panX: newPanX, panY: newPanY });
     };
 
     const resetZoom = () => {
