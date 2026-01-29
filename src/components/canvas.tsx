@@ -47,6 +47,11 @@ const renderSlideBackground = (ctx: CanvasRenderingContext2D, rc: any, slide: an
         const fallbackColor = isDarkMode ? "#121212" : "#ffffff";
         let color = slide.backgroundColor || fallbackColor;
         if (color === 'transparent') color = fallbackColor;
+
+        // Apply Dark Mode adjustment
+        if (isDarkMode && (color === '#ffffff' || color === '#fff' || color === 'white')) color = '#121212';
+        if (isDarkMode && (color === '#000000' || color === '#000' || color === 'black')) color = '#e8e8e8';
+
         ctx.fillStyle = color;
         ctx.fillRect(x, y, w, h);
     } else if (['linear', 'radial', 'conic'].includes(type)) {
@@ -57,6 +62,8 @@ const renderSlideBackground = (ctx: CanvasRenderingContext2D, rc: any, slide: an
             const fallbackColor = isDarkMode ? "#121212" : "#ffffff";
             let color = slide.backgroundColor || fallbackColor;
             if (color === 'transparent') color = fallbackColor;
+            if (isDarkMode && (color === '#ffffff' || color === '#fff' || color === 'white')) color = '#121212';
+            if (isDarkMode && (color === '#000000' || color === '#000' || color === 'black')) color = '#e8e8e8';
             ctx.fillStyle = color;
             ctx.fillRect(x, y, w, h);
             return;
@@ -82,17 +89,29 @@ const renderSlideBackground = (ctx: CanvasRenderingContext2D, rc: any, slide: an
             grad = ctx.createRadialGradient(fx, fy, 0, centerX, centerY, radius);
         }
 
-        stops.forEach((s: any) => grad.addColorStop(s.offset, s.color));
+        stops.forEach((s: any) => {
+            let color = s.color;
+            if (isDarkMode && (color === '#ffffff' || color === '#fff' || color === 'white')) color = '#121212';
+            if (isDarkMode && (color === '#000000' || color === '#000' || color === 'black')) color = '#e8e8e8';
+            grad.addColorStop(s.offset, color);
+        });
         ctx.fillStyle = grad;
         ctx.fillRect(x, y, w, h);
     } else if (['hachure', 'cross-hatch', 'zigzag', 'dots', 'dashed', 'zigzag-line'].includes(type)) {
         // RoughJS Pattern Fills for slides
-        const bgColor = slide.backgroundColor || (isDarkMode ? "#121212" : "#ffffff");
+        let bgColor = slide.backgroundColor || (isDarkMode ? "#121212" : "#ffffff");
+        if (isDarkMode && (bgColor === '#ffffff' || bgColor === '#fff' || bgColor === 'white')) bgColor = '#121212';
+        if (isDarkMode && (bgColor === '#000000' || bgColor === '#000' || bgColor === 'black')) bgColor = '#e8e8e8';
+
         ctx.fillStyle = bgColor;
         ctx.fillRect(x, y, w, h);
 
+        let strokeColor = slide.strokeColor || (isDarkMode ? "#ffffff" : "#000000");
+        if (isDarkMode && (strokeColor === '#000000' || strokeColor === '#000' || strokeColor === 'black')) strokeColor = '#ffffff';
+        if (isDarkMode && (strokeColor === '#ffffff' || strokeColor === '#fff' || strokeColor === 'white')) strokeColor = '#000000';
+
         rc.rectangle(x, y, w, h, {
-            fill: slide.strokeColor || (isDarkMode ? "#ffffff" : "#000000"),
+            fill: strokeColor,
             fillStyle: type as any,
             fillWeight: 0.5,
             hachureGap: 8,

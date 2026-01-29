@@ -8,6 +8,7 @@ export class RenderPipeline {
     static adjustColor(color: string, isDarkMode: boolean) {
         if (!isDarkMode) return color;
         if (color === '#000000' || color === 'black' || color === '#000') return '#ffffff';
+        if (color === '#ffffff' || color === 'white' || color === '#fff') return '#000000';
         return color;
     }
 
