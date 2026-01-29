@@ -66,3 +66,19 @@
 - Keyboard events stop propagation to prevent canvas shortcut interference
 - Visual separator between navigation and action groups
 - `ToolbarButton` component updated to support a `disabled` prop with appropriate styling
+
+---
+
+### 5. Animations after spinning stop working / infinite spin never stops
+
+**File modified:** `src/utils/animation/sequence-animator.ts`
+
+**Observation:** When an element had multiple animations in its sequence (e.g., spin followed by fade or bounce), animations after a spinning animation would either not run correctly or the element would continue spinning indefinitely after the preview ended.
+
+**Root cause (infinite spin leak):** `animateAutoSpin` with `iterations === Infinity` called `onComplete()` immediately via `setTimeout` to unblock the sequence, but the actual spin animation continued running in the animation engine indefinitely. When the sequence completed, `onAllComplete` cleaned up sequence state (`activeSequences`, `isPreviewing`) but did NOT stop the still-running spin animation. Result: the element kept spinning after preview ended, and state restoration was immediately overwritten by the running spin on the next frame.
+
+**Root cause (multi-iteration snap):** For finite iterations > 1, the code used `loop: true, loopCount: N` with per-loop duration. Each loop iteration re-interpolated from `startAngle` to `startAngle + 2π`. At each loop boundary, progress jumped from 1 back to 0, causing a visible angle snap-back instead of smooth continuous rotation.
+
+**Resolution (infinite spin):** Added `stopAllElementAnimations(elementId)` at the top of `onAllComplete` to ensure any still-running animations (including infinite spins) are stopped before cleanup and state restoration.
+
+**Resolution (multi-iteration snap):** Replaced the loop-based approach with a single continuous animation from `startAngle` to `startAngle + (2π × iterations)`. A 3-iteration spin now smoothly rotates 1080° in one animation instead of three 360° loops with snaps between them.

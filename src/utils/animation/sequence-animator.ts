@@ -61,6 +61,10 @@ export class SequenceAnimator {
         }
 
         const onAllComplete = () => {
+            // Stop any still-running animations on this element (e.g. infinite spins)
+            // before cleanup/restoration, so they don't overwrite restored state
+            animator.stopAllElementAnimations(elementId);
+
             if (trigger === 'programmatic') {
                 this.activeSequences.delete(elementId);
                 if (this.activeSequences.size === 0) {
@@ -69,24 +73,14 @@ export class SequenceAnimator {
                 }
             }
             if (originalState) {
-                // Check if the last animation in the sequence wants to persist check state
-                // If restoreAfter is false, we should NOT restore the original state, 
-                // effectively leaving the element at its final position.
                 const lastAnim = sequence[sequence.length - 1];
-                const shouldRestore = lastAnim?.restoreAfter ?? true; // Default to true if undefined
+                const shouldRestore = lastAnim?.restoreAfter ?? true;
 
                 if (shouldRestore) {
                     // Restore state after a small delay so the user sees the final frame
                     setTimeout(() => {
                         updateElement(elementId, originalState, false);
                     }, 500);
-                } else {
-                    // If we don't restore, we should probably commit the final state to the store
-                    // to ensure it stays there physically? 
-                    // The animation engine modifies the element in real-time updates (store),
-                    // so the store *should* already have the final values if the animation completed.
-                    // However, `programmatic` mode often implies a temporary preview. 
-                    // If the user wants to keep the position, we just don't revert.
                 }
             }
         };
@@ -281,36 +275,24 @@ export class SequenceAnimator {
             // Infinite loop: animate one full rotation and loop it
             spinConfig.loop = true;
             spinConfig.loopCount = Infinity;
-            // For infinite, duration is per rotation
             spinConfig.duration = config.duration || 1000;
+            // Use linear easing for smooth continuous rotation
+            spinConfig.easing = 'linear';
 
-            // For infinite loops, we should probably NOT block the main sequence
-            // because an infinite loop never ends.
-            // We'll call onComplete immediately to allow the next animation to start
+            // For infinite loops, call onComplete immediately to unblock the sequence
             const originalOnComplete = config.onComplete;
             setTimeout(() => {
                 originalOnComplete?.();
             }, 0);
 
-            // Set the target for a single rotation
             const endAngle = startAngle + rotationPerIteration;
             animateElement(elementId, { angle: endAngle }, { ...spinConfig, onComplete: undefined });
         } else {
-            // Finite iterations
+            // Finite iterations: use a single continuous animation from
+            // startAngle to startAngle + totalRotation to avoid snap-back at loop boundaries
             const totalRotation = rotationPerIteration * iterations;
             const endAngle = startAngle + totalRotation;
-
-            if (iterations > 1 && config.duration) {
-                // For multiple iterations, use loop count for smoother motion
-                spinConfig.loop = true;
-                spinConfig.loopCount = iterations;
-                spinConfig.duration = config.duration / iterations;
-                const singleEndAngle = startAngle + rotationPerIteration;
-                animateElement(elementId, { angle: singleEndAngle }, spinConfig);
-            } else {
-                // Single iteration or custom duration
-                animateElement(elementId, { angle: endAngle }, spinConfig);
-            }
+            animateElement(elementId, { angle: endAngle }, spinConfig);
         }
     }
 
