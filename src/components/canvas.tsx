@@ -407,10 +407,37 @@ const Canvas: Component = () => {
         const startTime = performance.now();
 
         // PRE-CALCULATE ANIMATION STATES FOR THIS FRAME
-        // This handles nested orbits (Moon > Earth > Sun) correctly
-        // Only run transform animations (Spin/Orbit) if in Presentation Mode or Previewing
+        // Performance Optimization: In Slide View, only calculate animations for elements on the active slide
+        // to avoid CPU overhead from hidden slides.
         const shouldAnimate = store.appMode === 'presentation' || store.isPreviewing;
-        const animatedStates = calculateAllAnimatedStates(store.elements, currentTime, shouldAnimate);
+
+        let elementsToAnimate = store.elements;
+        if (store.docType === 'slides' && store.slides.length > 0) {
+            const activeSlide = store.slides[store.activeSlideIndex];
+            if (activeSlide) {
+                const { x: sX, y: sY } = activeSlide.spatialPosition;
+                const { width: sW, height: sH } = activeSlide.dimensions;
+                const BUFFER = 200; // Extra margin to prevent pop-in
+
+                // 1. Get elements on or near the active slide
+                const primaryElements = store.elements.filter(el => {
+                    const cx = el.x + el.width / 2;
+                    const cy = el.y + el.height / 2;
+                    return cx >= sX - BUFFER && cx <= sX + sW + BUFFER &&
+                        cy >= sY - BUFFER && cy <= sY + sH + BUFFER;
+                });
+
+                // 2. Ensure Orbit Centers are included even if they are off-slide
+                const centerIds = new Set(primaryElements.map(el => el.orbitCenterId).filter(Boolean));
+                const centerElements = store.elements.filter(el => centerIds.has(el.id));
+
+                elementsToAnimate = primaryElements.length === store.elements.length
+                    ? store.elements
+                    : [...new Set([...primaryElements, ...centerElements])];
+            }
+        }
+
+        const animatedStates = calculateAllAnimatedStates(elementsToAnimate, currentTime, shouldAnimate);
 
         // Reset Transform Matrix to Identity so we don't accumulate translations!
         ctx.setTransform(1, 0, 0, 1, 0, 0);
