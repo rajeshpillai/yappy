@@ -814,11 +814,13 @@ const Canvas: Component = () => {
                     }
                 }
 
-                // Handle Dynamic Variables in Text
-                if (renderedEl.type === 'text' && renderedEl.text) {
+                // Handle Dynamic Variables in Text (Formula Syntax starts with '=')
+                if (renderedEl.type === 'text' && renderedEl.text && renderedEl.text.startsWith('=')) {
                     const slideNumber = (store.activeSlideIndex + 1).toString();
                     const totalSlides = store.slides.length.toString();
-                    renderedEl.text = renderedEl.text
+
+                    // Remove the leading '=' and perform replacement
+                    renderedEl.text = renderedEl.text.substring(1)
                         .replace(/\$\{slideNumber\}/g, slideNumber)
                         .replace(/\$\{totalSlides\}/g, totalSlides);
                 }

@@ -28,9 +28,12 @@ Yappy supports dynamic text variables that update automatically as you navigate 
 - `${slideNumber}`: Displays the current slide index (starting at 1).
 - `${totalSlides}`: Displays the total number of slides.
 
+> [!NOTE]
+> **Formula Syntax**: Any text box containing these variables **must start with an `=` sign** to be processed (e.g., `=Page ${slideNumber}`). Static text without the leading `=` will display as-is.
+
 ### Example:
 Create a text element on your Master Layer and type:
-`Page ${slideNumber} of ${totalSlides}`
+`=Page ${slideNumber} of ${totalSlides}`
 
 In presentation mode, this will automatically render as:
 - `Page 1 of 10`
