@@ -4,6 +4,37 @@ import type { RenderContext } from "../base/types";
 import { normalizePoints } from "../../utils/render-element";
 
 export class PathRenderer extends ShapeRenderer {
+    /**
+     * Override render to bypass the renderCustomPoints check.
+     * Organic branches need their specialized rendering logic to create
+     * tapered, curved branches instead of simple straight lines.
+     */
+    render(context: RenderContext) {
+        const { ctx, element, layerOpacity } = context;
+
+        // 1. Apply universal transformations (rotation, opacity, shadow)
+        const { cx, cy } = RenderPipeline.applyTransformations(ctx, element, layerOpacity);
+
+        // 2. Check for draw-in/draw-out animation
+        const dp = element.drawProgress;
+        if (dp !== undefined && dp >= 0 && dp < 100) {
+            this.renderDrawProgress(context, cx, cy);
+        } else {
+            // Normal render path - no complex fills for paths
+            // 3. Delegate to specialized rendering methods based on style
+            if (element.renderStyle === 'architectural') {
+                this.renderArchitectural(context, cx, cy);
+            } else {
+                this.renderSketch(context, cx, cy);
+            }
+        }
+
+        // 4. Flow Animation - handled in renderCommon via renderFlow
+
+        // 5. Restore transformations
+        RenderPipeline.restoreTransformations(ctx);
+    }
+
     protected renderArchitectural(context: RenderContext, _cx: number, _cy: number): void {
         this.renderCommon(context);
     }

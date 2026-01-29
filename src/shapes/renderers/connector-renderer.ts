@@ -4,6 +4,38 @@ import type { RenderContext } from "../base/types";
 import { normalizePoints, cubicBezier } from "../../utils/render-element";
 
 export class ConnectorRenderer extends ShapeRenderer {
+    /**
+     * Override render to bypass the renderCustomPoints check.
+     * Connectors need their specialized rendering logic to handle bezier curves,
+     * control points, and stroke styles (dashed/dotted) properly.
+     */
+    render(context: RenderContext) {
+        const { ctx, element, layerOpacity } = context;
+
+        // 1. Apply universal transformations (rotation, opacity, shadow)
+        const { cx, cy } = RenderPipeline.applyTransformations(ctx, element, layerOpacity);
+
+        // 2. Check for draw-in/draw-out animation
+        const dp = element.drawProgress;
+        if (dp !== undefined && dp >= 0 && dp < 100) {
+            this.renderDrawProgress(context, cx, cy);
+        } else {
+            // Normal render path - no complex fills for connectors
+            // 3. Delegate to specialized rendering methods based on style
+            if (element.renderStyle === 'architectural') {
+                this.renderArchitectural(context, cx, cy);
+            } else {
+                this.renderSketch(context, cx, cy);
+            }
+        }
+
+        // 4. Flow Animation (Marching Ants) - handled in renderArchitectural/renderSketch
+        // (already called via renderFlow in those methods)
+
+        // 5. Restore transformations
+        RenderPipeline.restoreTransformations(ctx);
+    }
+
     protected renderArchitectural(context: RenderContext, _cx: number, _cy: number): void {
         const { ctx, element: el, isDarkMode } = context;
         const strokeColor = RenderPipeline.adjustColor(el.strokeColor, isDarkMode);
