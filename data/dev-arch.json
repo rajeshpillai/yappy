@@ -1,0 +1,4040 @@
+{
+    "version": 4,
+    "metadata": {
+        "name": "From Todo to Systems – Architecting Software in the LLM Era",
+        "createdAt": "2026-01-28T10:00:00.000Z",
+        "updatedAt": "2026-01-28T10:00:00.000Z",
+        "docType": "slides"
+    },
+    "globalSettings": {
+        "theme": "light",
+        "renderStyle": "sketch",
+        "animationEnabled": true
+    },
+    "gridSettings": {
+        "enabled": true,
+        "gridSize": 20,
+        "gridColor": "#eeeeee",
+        "gridOpacity": 0.5,
+        "snapToGrid": true,
+        "objectSnapping": true,
+        "style": "lines"
+    },
+    "layers": [
+        {
+            "id": "layer-1",
+            "name": "Content",
+            "visible": true,
+            "locked": false,
+            "opacity": 1,
+            "order": 1,
+            "backgroundColor": "transparent"
+        }
+    ],
+    "slides": [
+        {
+            "id": "s-1",
+            "name": "Title",
+            "order": 0,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 0,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        },
+        {
+            "id": "s-2",
+            "name": "Why This Talk",
+            "order": 1,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 2000,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        },
+        {
+            "id": "s-3",
+            "name": "The Core Thesis",
+            "order": 2,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 4000,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        },
+        {
+            "id": "s-4",
+            "name": "Everything Begins With Todo",
+            "order": 3,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 6000,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        },
+        {
+            "id": "s-5",
+            "name": "What Todo Really Teaches",
+            "order": 4,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 8000,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        },
+        {
+            "id": "s-6",
+            "name": "The Belt System",
+            "order": 5,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 10000,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        },
+        {
+            "id": "s-7",
+            "name": "Auth Changes Everything",
+            "order": 6,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 12000,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        },
+        {
+            "id": "s-8",
+            "name": "Relationships Are the Core",
+            "order": 7,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 14000,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        },
+        {
+            "id": "s-9",
+            "name": "Frontend Meta Mindset",
+            "order": 8,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 16000,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        },
+        {
+            "id": "s-10",
+            "name": "Backend Meta Model",
+            "order": 9,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 18000,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        },
+        {
+            "id": "s-11",
+            "name": "Backend Building Blocks",
+            "order": 10,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 20000,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        },
+        {
+            "id": "s-12",
+            "name": "Rule Engine",
+            "order": 11,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 22000,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        },
+        {
+            "id": "s-13",
+            "name": "Messaging & Events",
+            "order": 12,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 24000,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        },
+        {
+            "id": "s-14",
+            "name": "Instrumentation",
+            "order": 13,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 26000,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        },
+        {
+            "id": "s-15",
+            "name": "Enter AI & LLMs",
+            "order": 14,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 28000,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        },
+        {
+            "id": "s-16",
+            "name": "Engineer Role Shift",
+            "order": 15,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 30000,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        },
+        {
+            "id": "s-17",
+            "name": "Engineer as Director",
+            "order": 16,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 32000,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        },
+        {
+            "id": "s-18",
+            "name": "What to Feed LLMs",
+            "order": 17,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 34000,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        },
+        {
+            "id": "s-19",
+            "name": "Unified Mental Model",
+            "order": 18,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 36000,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        },
+        {
+            "id": "s-20",
+            "name": "Final Thought",
+            "order": 19,
+            "backgroundColor": "#ffffff",
+            "spatialPosition": {
+                "x": 38000,
+                "y": 0
+            },
+            "dimensions": {
+                "width": 1920,
+                "height": 1080
+            }
+        }
+    ],
+    "elements": [
+        {
+            "id": "t-1-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 200,
+            "y": 150,
+            "width": 788,
+            "height": 100,
+            "text": "From Todo to Systems",
+            "fontSize": 64,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 101,
+            "animations": [
+                {
+                    "id": "anim-t-1-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-1-b",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 200,
+            "y": 300,
+            "width": 1056,
+            "height": 200,
+            "text": "Architecting Software in the LLM Era",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 102,
+            "animations": [
+                {
+                    "id": "anim-t-1-b",
+                    "type": "preset",
+                    "name": "fadeInUp",
+                    "trigger": "after-prev",
+                    "duration": 800,
+                    "delay": 400,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-2-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 2200,
+            "y": 200,
+            "width": 739,
+            "height": 100,
+            "text": "Code is no longer scarce.",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 201,
+            "animations": [
+                {
+                    "id": "anim-t-2-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-2-b",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 2200,
+            "y": 400,
+            "width": 495,
+            "height": 200,
+            "text": "Clarity is.",
+            "fontSize": 72,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#d946ef",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 202,
+            "animations": [
+                {
+                    "id": "anim-t-2-b",
+                    "type": "preset",
+                    "name": "fadeInUp",
+                    "trigger": "after-prev",
+                    "duration": 800,
+                    "delay": 400,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-3-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 4200,
+            "y": 150,
+            "width": 423,
+            "height": 100,
+            "text": "Why this talk?",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 301,
+            "animations": [
+                {
+                    "id": "anim-t-3-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-3-b-bullet-0",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 4200,
+            "y": 353,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 402,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-3-b-bullet-0",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-3-b-item-0",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 4260,
+            "y": 350,
+            "width": 408,
+            "height": 60,
+            "text": "LLMs generate code",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 502,
+            "animations": [
+                {
+                    "id": "anim-t-3-b-item-0",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-3-b-bullet-1",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 4200,
+            "y": 433,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 403,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-3-b-bullet-1",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-3-b-item-1",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 4260,
+            "y": 430,
+            "width": 667,
+            "height": 60,
+            "text": "Engineers read & validate code",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 503,
+            "animations": [
+                {
+                    "id": "anim-t-3-b-item-1",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-3-b-bullet-2",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 4200,
+            "y": 513,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 404,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-3-b-bullet-2",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-3-b-item-2",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 4260,
+            "y": 510,
+            "width": 775,
+            "height": 60,
+            "text": "Architecture becomes the main skill",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 504,
+            "animations": [
+                {
+                    "id": "anim-t-3-b-item-2",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-4-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 6200,
+            "y": 150,
+            "width": 336,
+            "height": 100,
+            "text": "Core Thesis",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 401,
+            "animations": [
+                {
+                    "id": "anim-t-4-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-4-b-bullet-0",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 6200,
+            "y": 353,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 502,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-4-b-bullet-0",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-4-b-item-0",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 6260,
+            "y": 350,
+            "width": 711,
+            "height": 60,
+            "text": "Engineers are no longer typists.",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 602,
+            "animations": [
+                {
+                    "id": "anim-t-4-b-item-0",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-4-b-bullet-1",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 6200,
+            "y": 433,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 503,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-4-b-bullet-1",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-4-b-item-1",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 6260,
+            "y": 430,
+            "width": 1056,
+            "height": 60,
+            "text": "Engineers are Architects, Directors, Validators.",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 603,
+            "animations": [
+                {
+                    "id": "anim-t-4-b-item-1",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-5-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 8200,
+            "y": 150,
+            "width": 855,
+            "height": 100,
+            "text": "Everything begins with a Todo",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 501,
+            "animations": [
+                {
+                    "id": "anim-t-5-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-5-b-bullet-0",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 8200,
+            "y": 353,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 602,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-5-b-bullet-0",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-5-b-item-0",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 8260,
+            "y": 350,
+            "width": 581,
+            "height": 60,
+            "text": "Twitter, CRM, ERP, SaaS...",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 702,
+            "animations": [
+                {
+                    "id": "anim-t-5-b-item-0",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-5-b-bullet-1",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 8200,
+            "y": 433,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 603,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-5-b-bullet-1",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-5-b-item-1",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 8260,
+            "y": 430,
+            "width": 732,
+            "height": 60,
+            "text": "They are all Todos with metadata.",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 703,
+            "animations": [
+                {
+                    "id": "anim-t-5-b-item-1",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-6-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 10200,
+            "y": 150,
+            "width": 394,
+            "height": 100,
+            "text": "Todo teaches:",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 601,
+            "animations": [
+                {
+                    "id": "anim-t-6-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-6-b-bullet-0",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 10200,
+            "y": 353,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 702,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-6-b-bullet-0",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-6-b-item-0",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 10260,
+            "y": 350,
+            "width": 387,
+            "height": 60,
+            "text": "State transitions",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 802,
+            "animations": [
+                {
+                    "id": "anim-t-6-b-item-0",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-6-b-bullet-1",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 10200,
+            "y": 433,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 703,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-6-b-bullet-1",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-6-b-item-1",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 10260,
+            "y": 430,
+            "width": 538,
+            "height": 60,
+            "text": "UI as projection of data",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 803,
+            "animations": [
+                {
+                    "id": "anim-t-6-b-item-1",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-6-b-bullet-2",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 10200,
+            "y": 513,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 704,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-6-b-bullet-2",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-6-b-item-2",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 10260,
+            "y": 510,
+            "width": 624,
+            "height": 60,
+            "text": "Complexity grows predictably",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 804,
+            "animations": [
+                {
+                    "id": "anim-t-6-b-item-2",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-7-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 12200,
+            "y": 150,
+            "width": 451,
+            "height": 100,
+            "text": "The Belt System",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 701,
+            "animations": [
+                {
+                    "id": "anim-t-7-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-7-b-bullet-0",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 12200,
+            "y": 353,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 802,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-7-b-bullet-0",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-7-b-item-0",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 12260,
+            "y": 350,
+            "width": 279,
+            "height": 60,
+            "text": "White → CRUD",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 902,
+            "animations": [
+                {
+                    "id": "anim-t-7-b-item-0",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-7-b-bullet-1",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 12200,
+            "y": 433,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 803,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-7-b-bullet-1",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-7-b-item-1",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 12260,
+            "y": 430,
+            "width": 451,
+            "height": 60,
+            "text": "Yellow → Performance",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 903,
+            "animations": [
+                {
+                    "id": "anim-t-7-b-item-1",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-7-b-bullet-2",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 12200,
+            "y": 513,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 804,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-7-b-bullet-2",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-7-b-item-2",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 12260,
+            "y": 510,
+            "width": 300,
+            "height": 60,
+            "text": "Orange → Auth",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 904,
+            "animations": [
+                {
+                    "id": "anim-t-7-b-item-2",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-7-b-bullet-3",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 12200,
+            "y": 593,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 805,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-7-b-bullet-3",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-7-b-item-3",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 12260,
+            "y": 590,
+            "width": 473,
+            "height": 60,
+            "text": "Green → Relationships",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 905,
+            "animations": [
+                {
+                    "id": "anim-t-7-b-item-3",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-8-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 14200,
+            "y": 150,
+            "width": 682,
+            "height": 100,
+            "text": "Auth changes everything",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 801,
+            "animations": [
+                {
+                    "id": "anim-t-8-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-8-b-bullet-0",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 14200,
+            "y": 353,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 902,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-8-b-bullet-0",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-8-b-item-0",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 14260,
+            "y": 350,
+            "width": 516,
+            "height": 60,
+            "text": "Data now has ownership.",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1002,
+            "animations": [
+                {
+                    "id": "anim-t-8-b-item-0",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-8-b-bullet-1",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 14200,
+            "y": 433,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 903,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-8-b-bullet-1",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-8-b-item-1",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 14260,
+            "y": 430,
+            "width": 732,
+            "height": 60,
+            "text": "Authorization becomes contextual.",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1003,
+            "animations": [
+                {
+                    "id": "anim-t-8-b-item-1",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-9-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 16200,
+            "y": 150,
+            "width": 768,
+            "height": 100,
+            "text": "Relationships are the core",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 901,
+            "animations": [
+                {
+                    "id": "anim-t-9-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-9-b-bullet-0",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 16200,
+            "y": 353,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1002,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-9-b-bullet-0",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-9-b-item-0",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 16260,
+            "y": 350,
+            "width": 235,
+            "height": 60,
+            "text": "One-to-one",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1102,
+            "animations": [
+                {
+                    "id": "anim-t-9-b-item-0",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-9-b-bullet-1",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 16200,
+            "y": 433,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1003,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-9-b-bullet-1",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-9-b-item-1",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 16260,
+            "y": 430,
+            "width": 257,
+            "height": 60,
+            "text": "One-to-many",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1103,
+            "animations": [
+                {
+                    "id": "anim-t-9-b-item-1",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-9-b-bullet-2",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 16200,
+            "y": 513,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1004,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-9-b-bullet-2",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-9-b-item-2",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 16260,
+            "y": 510,
+            "width": 279,
+            "height": 60,
+            "text": "Many-to-many",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1104,
+            "animations": [
+                {
+                    "id": "anim-t-9-b-item-2",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-10-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 18200,
+            "y": 150,
+            "width": 624,
+            "height": 100,
+            "text": "Frontend Meta Mindset",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1001,
+            "animations": [
+                {
+                    "id": "anim-t-10-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-10-b",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 18200,
+            "y": 350,
+            "width": 987,
+            "height": 300,
+            "text": "UI is a projection of metadata.",
+            "fontSize": 52,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1002,
+            "animations": [
+                {
+                    "id": "anim-t-10-b",
+                    "type": "preset",
+                    "name": "fadeInUp",
+                    "trigger": "after-prev",
+                    "duration": 800,
+                    "delay": 400,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-11-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 20200,
+            "y": 150,
+            "width": 538,
+            "height": 100,
+            "text": "Backend Meta Model",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1101,
+            "animations": [
+                {
+                    "id": "anim-t-11-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-11-b",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 20200,
+            "y": 350,
+            "width": 1174,
+            "height": 300,
+            "text": "Behavior is a projection of metadata.",
+            "fontSize": 52,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1102,
+            "animations": [
+                {
+                    "id": "anim-t-11-b",
+                    "type": "preset",
+                    "name": "fadeInUp",
+                    "trigger": "after-prev",
+                    "duration": 800,
+                    "delay": 400,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-12-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 22200,
+            "y": 150,
+            "width": 682,
+            "height": 100,
+            "text": "Backend building blocks",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1201,
+            "animations": [
+                {
+                    "id": "anim-t-12-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-12-b-bullet-0",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 22200,
+            "y": 353,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1302,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-12-b-bullet-0",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-12-b-item-0",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 22260,
+            "y": 350,
+            "width": 279,
+            "height": 60,
+            "text": "Domain model",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1402,
+            "animations": [
+                {
+                    "id": "anim-t-12-b-item-0",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-12-b-bullet-1",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 22200,
+            "y": 433,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1303,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-12-b-bullet-1",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-12-b-item-1",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 22260,
+            "y": 430,
+            "width": 192,
+            "height": 60,
+            "text": "Database",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1403,
+            "animations": [
+                {
+                    "id": "anim-t-12-b-item-1",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-12-b-bullet-2",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 22200,
+            "y": 513,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1304,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-12-b-bullet-2",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-12-b-item-2",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 22260,
+            "y": 510,
+            "width": 127,
+            "height": 60,
+            "text": "Rules",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1404,
+            "animations": [
+                {
+                    "id": "anim-t-12-b-item-2",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-12-b-bullet-3",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 22200,
+            "y": 593,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1305,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-12-b-bullet-3",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-12-b-item-3",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 22260,
+            "y": 590,
+            "width": 214,
+            "height": 60,
+            "text": "Messaging",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1405,
+            "animations": [
+                {
+                    "id": "anim-t-12-b-item-3",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-12-b-bullet-4",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 22200,
+            "y": 673,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1306,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-12-b-bullet-4",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-12-b-item-4",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 22260,
+            "y": 670,
+            "width": 279,
+            "height": 60,
+            "text": "Integrations",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1406,
+            "animations": [
+                {
+                    "id": "anim-t-12-b-item-4",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-12-b-bullet-5",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 22200,
+            "y": 753,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1307,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-12-b-bullet-5",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-12-b-item-5",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 22260,
+            "y": 750,
+            "width": 343,
+            "height": 60,
+            "text": "Instrumentation",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1407,
+            "animations": [
+                {
+                    "id": "anim-t-12-b-item-5",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-13-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 24200,
+            "y": 150,
+            "width": 336,
+            "height": 100,
+            "text": "Rule Engine",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1301,
+            "animations": [
+                {
+                    "id": "anim-t-13-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-13-b-bullet-0",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 24200,
+            "y": 353,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1402,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-13-b-bullet-0",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-13-b-item-0",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 24260,
+            "y": 350,
+            "width": 560,
+            "height": 60,
+            "text": "Rules are business logic.",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1502,
+            "animations": [
+                {
+                    "id": "anim-t-13-b-item-0",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-13-b-bullet-1",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 24200,
+            "y": 433,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1403,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-13-b-bullet-1",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-13-b-item-1",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 24260,
+            "y": 430,
+            "width": 711,
+            "height": 60,
+            "text": "Dynamic, versioned, explainable.",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1503,
+            "animations": [
+                {
+                    "id": "anim-t-13-b-item-1",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-14-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 26200,
+            "y": 150,
+            "width": 538,
+            "height": 100,
+            "text": "Messaging & Events",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1401,
+            "animations": [
+                {
+                    "id": "anim-t-14-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-14-b-bullet-0",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 26200,
+            "y": 353,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1502,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-14-b-bullet-0",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-14-b-item-0",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 26260,
+            "y": 350,
+            "width": 538,
+            "height": 60,
+            "text": "Messaging enables scale.",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1602,
+            "animations": [
+                {
+                    "id": "anim-t-14-b-item-0",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-14-b-bullet-1",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 26200,
+            "y": 433,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1503,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-14-b-bullet-1",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-14-b-item-1",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 26260,
+            "y": 430,
+            "width": 343,
+            "height": 60,
+            "text": "Async workflows",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1603,
+            "animations": [
+                {
+                    "id": "anim-t-14-b-item-1",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-14-b-bullet-2",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 26200,
+            "y": 513,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1504,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-14-b-bullet-2",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-14-b-item-2",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 26260,
+            "y": 510,
+            "width": 171,
+            "height": 60,
+            "text": "Retries",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1604,
+            "animations": [
+                {
+                    "id": "anim-t-14-b-item-2",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-14-b-bullet-3",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 26200,
+            "y": 593,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1505,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-14-b-bullet-3",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-14-b-item-3",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 26260,
+            "y": 590,
+            "width": 171,
+            "height": 60,
+            "text": "Replays",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1605,
+            "animations": [
+                {
+                    "id": "anim-t-14-b-item-3",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-14-b-bullet-4",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 26200,
+            "y": 673,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1506,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-14-b-bullet-4",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-14-b-item-4",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 26260,
+            "y": 670,
+            "width": 84,
+            "height": 60,
+            "text": "DLQ",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1606,
+            "animations": [
+                {
+                    "id": "anim-t-14-b-item-4",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-15-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 28200,
+            "y": 150,
+            "width": 451,
+            "height": 100,
+            "text": "Instrumentation",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1501,
+            "animations": [
+                {
+                    "id": "anim-t-15-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-15-b-bullet-0",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 28200,
+            "y": 353,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1602,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-15-b-bullet-0",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-15-b-item-0",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 28260,
+            "y": 350,
+            "width": 646,
+            "height": 60,
+            "text": "Nervous systems for your app.",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1702,
+            "animations": [
+                {
+                    "id": "anim-t-15-b-item-0",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-15-b-bullet-1",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 28200,
+            "y": 433,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1603,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-15-b-bullet-1",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-15-b-item-1",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 28260,
+            "y": 430,
+            "width": 430,
+            "height": 60,
+            "text": "Emit system events.",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1703,
+            "animations": [
+                {
+                    "id": "anim-t-15-b-item-1",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-15-b-bullet-2",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 28200,
+            "y": 513,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1604,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-15-b-bullet-2",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-15-b-item-2",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 28260,
+            "y": 510,
+            "width": 473,
+            "height": 60,
+            "text": "Emit business events.",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1704,
+            "animations": [
+                {
+                    "id": "anim-t-15-b-item-2",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-16-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 30200,
+            "y": 150,
+            "width": 451,
+            "height": 100,
+            "text": "Enter AI & LLMs",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1601,
+            "animations": [
+                {
+                    "id": "anim-t-16-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-16-b-bullet-0",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 30200,
+            "y": 353,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1702,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-16-b-bullet-0",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-16-b-item-0",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 30260,
+            "y": 350,
+            "width": 365,
+            "height": 60,
+            "text": "LLMs write code.",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1802,
+            "animations": [
+                {
+                    "id": "anim-t-16-b-item-0",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-16-b-bullet-1",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 30200,
+            "y": 433,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1703,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-16-b-bullet-1",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-16-b-item-1",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 30260,
+            "y": 430,
+            "width": 495,
+            "height": 60,
+            "text": "Humans define meaning.",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1803,
+            "animations": [
+                {
+                    "id": "anim-t-16-b-item-1",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-17-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 32200,
+            "y": 150,
+            "width": 567,
+            "height": 100,
+            "text": "Engineer Role Shift",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1701,
+            "animations": [
+                {
+                    "id": "anim-t-17-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-17-b",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 32200,
+            "y": 350,
+            "width": 970,
+            "height": 400,
+            "text": "From coder → Architect → Director",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1702,
+            "animations": [
+                {
+                    "id": "anim-t-17-b",
+                    "type": "preset",
+                    "name": "fadeInUp",
+                    "trigger": "after-prev",
+                    "duration": 800,
+                    "delay": 400,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-18-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 34200,
+            "y": 150,
+            "width": 509,
+            "height": 100,
+            "text": "What to Feed LLMs",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1801,
+            "animations": [
+                {
+                    "id": "anim-t-18-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-18-b-bullet-0",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 34200,
+            "y": 353,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1902,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-18-b-bullet-0",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-18-b-item-0",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 34260,
+            "y": 350,
+            "width": 192,
+            "height": 60,
+            "text": "Metadata",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 2002,
+            "animations": [
+                {
+                    "id": "anim-t-18-b-item-0",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-18-b-bullet-1",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 34200,
+            "y": 433,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1903,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-18-b-bullet-1",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-18-b-item-1",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 34260,
+            "y": 430,
+            "width": 322,
+            "height": 60,
+            "text": "State machines",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 2003,
+            "animations": [
+                {
+                    "id": "anim-t-18-b-item-1",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-18-b-bullet-2",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 34200,
+            "y": 513,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1904,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-18-b-bullet-2",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-18-b-item-2",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 34260,
+            "y": 510,
+            "width": 127,
+            "height": 60,
+            "text": "Rules",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 2004,
+            "animations": [
+                {
+                    "id": "anim-t-18-b-item-2",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-18-b-bullet-3",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 34200,
+            "y": 593,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1905,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-18-b-bullet-3",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-18-b-item-3",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 34260,
+            "y": 590,
+            "width": 149,
+            "height": 60,
+            "text": "Events",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 2005,
+            "animations": [
+                {
+                    "id": "anim-t-18-b-item-3",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-18-b-bullet-4",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 34200,
+            "y": 673,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1906,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-18-b-bullet-4",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-18-b-item-4",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 34260,
+            "y": 670,
+            "width": 257,
+            "height": 60,
+            "text": "Constraints",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 2006,
+            "animations": [
+                {
+                    "id": "anim-t-18-b-item-4",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-19-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 36200,
+            "y": 150,
+            "width": 596,
+            "height": 100,
+            "text": "Unified Mental Model",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1901,
+            "animations": [
+                {
+                    "id": "anim-t-19-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-19-b",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 36200,
+            "y": 350,
+            "width": 1085,
+            "height": 400,
+            "text": "State + Behavior + Decisions + Events",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#333333",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 1902,
+            "animations": [
+                {
+                    "id": "anim-t-19-b",
+                    "type": "preset",
+                    "name": "fadeInUp",
+                    "trigger": "after-prev",
+                    "duration": 800,
+                    "delay": 400,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-20-h",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 38200,
+            "y": 150,
+            "width": 394,
+            "height": 100,
+            "text": "Final thought",
+            "fontSize": 48,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 2001,
+            "animations": [
+                {
+                    "id": "anim-t-20-h",
+                    "type": "preset",
+                    "name": "backInDown",
+                    "trigger": "on-load",
+                    "duration": 1000,
+                    "delay": 200,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-20-b-bullet-0",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 38200,
+            "y": 353,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 2102,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-20-b-bullet-0",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-20-b-item-0",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 38260,
+            "y": 350,
+            "width": 322,
+            "height": 60,
+            "text": "Code is cheap.",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#d946ef",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 2202,
+            "animations": [
+                {
+                    "id": "anim-t-20-b-item-0",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "t-20-b-bullet-1",
+            "type": "circle",
+            "layerId": "layer-1",
+            "x": 38200,
+            "y": 433,
+            "width": 30,
+            "height": 30,
+            "strokeColor": "#000000",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 2,
+            "strokeStyle": "dashed",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 2103,
+            "locked": false,
+            "animations": [
+                {
+                    "id": "anim-t-20-b-bullet-1",
+                    "type": "preset",
+                    "name": "scaleIn",
+                    "trigger": "after-prev",
+                    "duration": 400,
+                    "delay": 100,
+                    "easing": "easeOutBack"
+                }
+            ]
+        },
+        {
+            "id": "t-20-b-item-1",
+            "type": "text",
+            "layerId": "layer-1",
+            "x": 38260,
+            "y": 430,
+            "width": 560,
+            "height": 60,
+            "text": "Architecture is leverage.",
+            "fontSize": 36,
+            "fontFamily": "hand-drawn",
+            "strokeColor": "#d946ef",
+            "backgroundColor": "transparent",
+            "fillStyle": "solid",
+            "strokeWidth": 1,
+            "strokeStyle": "solid",
+            "roughness": 1,
+            "opacity": 100,
+            "angle": 0,
+            "renderStyle": "sketch",
+            "seed": 2203,
+            "animations": [
+                {
+                    "id": "anim-t-20-b-item-1",
+                    "type": "preset",
+                    "name": "slideInRight",
+                    "trigger": "with-prev",
+                    "duration": 500,
+                    "delay": 50,
+                    "easing": "easeOutQuad"
+                }
+            ]
+        },
+        {
+            "id": "anim-paper-plane",
+            "type": "polygon",
+            "layerId": "layer-1",
+            "x": 400,
+            "y": 400,
+            "width": 80,
+            "height": 40,
+            "points": [
+                {
+                    "x": 0,
+                    "y": 10
+                },
+                {
+                    "x": 80,
+                    "y": 0
+                },
+                {
+                    "x": 20,
+                    "y": 40
+                },
+                {
+                    "x": 20,
+                    "y": 20
+                }
+            ],
+            "pointsEncoding": "flat",
+            "strokeColor": "#333333",
+            "backgroundColor": "#ffffff",
+            "fillStyle": "solid",
+            "opacity": 100,
+            "angle": 0,
+            "seed": 12345,
+            "animations": [
+                {
+                    "id": "relative-fly",
+                    "type": "path",
+                    "pathData": "M 0 0 Q 150 -300 300 -200",
+                    "orientToPath": true,
+                    "isRelative": true,
+                    "trigger": "on-load",
+                    "duration": 3000,
+                    "delay": 500,
+                    "easing": "easeInOutQuad"
+                }
+            ]
+        }
+    ],
+    "states": []
+}
