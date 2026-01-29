@@ -16,11 +16,16 @@ export interface Layer {
     opacity: number;    // 0-1 (multiplicative)
     order: number;      // Z-index (lower numbers in background)
     backgroundColor?: string; // Optional full-canvas color for the layer
-    colorTag?: string;     // Organizational UI label
-    parentId?: string;     // ID for nesting
-    isGroup?: boolean;     // Whether it acts as a container
+    expanded?: boolean;    // For groups: whether child layers are visible in panel
+    isMaster?: boolean;    // Master layer content repeats on every slide
 }
 ```
+
+### Master Layers
+When `isMaster` is set to `true`, the layer behaves as a template for all slides in the document.
+- **Auto-Projection**: Elements on a Master layer are rendered relative to the spatial origin of the currently active slide.
+- **Universal Visibility**: Master elements appear on every slide without needing duplication.
+- **Dynamic Variable Support**: Text elements on Master layers support variable substitution (e.g., `${slideNumber}`).
 
 ### Element Association
 Each `DrawingElement` stores a `layerId` property. This creates a loosely coupled relationship where elements belong to exactly one layer.

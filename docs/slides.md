@@ -1,0 +1,41 @@
+# Slides and Slide Master
+
+The Slides system transforms YappyDraw into a powerful presentation engine. This guide explains how to manage slides and use the **Slide Master** feature to create professional, consistent decks.
+
+## 1. Managing Slides
+- **Add Slide**: Use the `+` button in the Slide Navigator (sidebar).
+- **Reorder**: Drag and drop slide thumbnails in the sidebar.
+- **Delete**: Right-click a thumbnail and select 'Delete'.
+- **Presentation Mode**: Press `F5` or click 'Play Presentation' to enter fullscreen mode.
+
+## 2. Slide Master
+The Slide Master allows you to define common elements—like logos, footers, or watermarks—that appear automatically on **every slide** in your presentation.
+
+### How to use the Slide Master:
+1. Open the **Layer Panel**.
+2. Create a new layer (e.g., named "Global Branding").
+3. Right-click the layer and select **"Use as Slide Master"**.
+4. A **Crown icon (👑)** will appear next to the layer name.
+5. Any elements you place on this layer will now show up in the same position on every slide.
+
+### Editing Master Elements
+To edit or move master elements, ensure the Master Layer is **active** and **unlocked**. Changes made to master elements are reflected across the entire presentation instantly.
+
+## 3. Dynamic Variables
+Yappy supports dynamic text variables that update automatically as you navigate your presentation. These are especially useful when placed on a **Master Layer**.
+
+### Available Variables:
+- `${slideNumber}`: Displays the current slide index (starting at 1).
+- `${totalSlides}`: Displays the total number of slides.
+
+### Example:
+Create a text element on your Master Layer and type:
+`Page ${slideNumber} of ${totalSlides}`
+
+In presentation mode, this will automatically render as:
+- `Page 1 of 10`
+- `Page 2 of 10`
+- ...and so on.
+
+## 4. Performance Optimization
+Yappy uses **Spatial Culling** to ensure large decks remain fast. Continuous animations (like spins) on master elements or active slides are prioritized, while off-screen slides are efficiently ignored by the rendering engine.

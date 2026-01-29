@@ -46,6 +46,8 @@ Yappydraw is positioned for **animated technical diagrams, presentations, and in
 - **Spatial slides**: Slides positioned on infinite canvas (v4 format)
 - **Slide navigator**: Visual browser with thumbnails
 - **Per-slide settings**: Background color, name, transition
+- **Slide Master**: Define global branding, logos, and headers that repeat on every slide
+- **Dynamic Variable Replacement**: Automatically update text (e.g., `${slideNumber}`, `${totalSlides}`) across the entire deck
 
 ### Slide Transitions
 - **8 transition types**: none, fade, slide-left/right/up/down, zoom-in/out
@@ -285,5 +287,6 @@ hachure, solid, cross-hatch, zigzag, dots, dashed, zigzag-line, linear gradient,
 8. **18 blend modes** and advanced effects
 9. **Slide-based presentation** with 8 transition types
 10. **Display states system** for interactive diagrams
-11. **Video export** (WebM/MP4 recording)
+11. **Slide Master system** with dynamic variable replacement
+12. **Video export** (WebM/MP4 recording)
 12. **Double border capability** for shapes
