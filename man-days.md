@@ -3,6 +3,7 @@
 > **Assumed Expertise Level**: Senior Frontend Engineer (5+ years experience)
 > **Stack Proficiency**: High proficiency in React/SolidJS, Canvas/WebGL, and TypeScript.
 > **Context**: Estimates assume "ideal coding days" (8 hours/day) without external blockers, meetings, or significant scope creep.
+> **Current Scale**: ~40,958 lines of code (excluding node_modules/dist).
 
 This document records the estimated engineering effort (in man-days) required for each completed feature/phase of the Yappy project.
 

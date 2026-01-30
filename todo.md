@@ -1,3 +1,10 @@
+# Project Roadmap & Status
+
+> **Progress**: 79% Complete
+> **Total Tasks**: 873
+> **Completed**: 689
+> **Pending**: 184
+
 ## Phase 1: Core Foundation
 - [x] Update goals.md with Phase 1 requirements <!-- id: 0 -->
 - [x] Create implementation plan for Phase 1 <!-- id: 1 -->
@@ -35,9 +42,10 @@
 - [x] Redesign Property Panel (Sidebar with Popovers)
 
 ## Phase 6: Viewport & Optimization
-- [ ] Implement Viewport Culling (Visible Bounds check) - *Disabled for stability*
+- [x] Implement Viewport Culling (Visible Bounds check)
+
 - [x] Implement Auto-Scroll when dragging near viewport edges
-- [ ] Implement visible bounds check for `draw`
+- [x] Implement visible bounds check for `draw`
 - [x] Fix Scroll Stability (Transform Matrix Reset)
 - [x] Implement "Scroll back to content" button
 
@@ -115,7 +123,7 @@
 - [ ] Smart layer operations
   - Merge down (combine with layer below)
   - Isolate layer (hide all other layers)
-- [ ] Layer thumbnails/previews (50x50px visual indicator)
+- [x] Layer thumbnails/previews (50x50px visual indicator)
 
 ## Phase 12.6: Layer Properties Panel
 - [x] **Layer Opacity** (0-100%, affects all elements multiplicatively)
@@ -306,8 +314,8 @@
 
 ## Phase 25: Keyboard Shortcuts & Productivity
 - [x] Tool shortcuts (R=rectangle, C=circle, T=text, L=line, etc.)
-- [ ] Layer navigation (Alt+1-9 for quick layer switching)
-- [ ] Quick style toggles (cycle fill styles, stroke styles)
+- [x] Layer navigation (Alt+1-9 for quick layer switching)
+- [x] Quick style toggles (cycle fill styles, stroke styles)
 - [x] Nudge selected elements (Arrow keys for precise positioning)
 
 ## Phase 26: Command Palette & Search
@@ -321,9 +329,7 @@
 - [x] Layer opacity control (affects all elements)
 - [x] Layer context menu (right-click)
   - [x] Rename, Duplicate, Delete
-  - [x] Merge down
-  - [x] Flatten all
-  - [x] Isolate layer (hide all others)
+- [x] Isolate layer (hide all others)
 - [x] E2E Tests (`tests/productivity_features.spec.ts`)
 
 ### Phase 28: Smart Spacing Guides
@@ -508,7 +514,7 @@
 
 ## Phase 27: Advanced Custom Drawing Features
 - [ ] Add customizable shape libraries (user-defined shapes and import/export options)
-- [ ] Implement parametric shapes with adjustable properties (e.g., rounded rectangles, stars)
+- [x] Implement parametric shapes with adjustable properties (e.g., rounded rectangles, stars)
 - [x] Introduce smart shapes that dynamically resize based on content (e.g., flowchart shapes) <!-- id: 100 -->
 - [ ] Add interactive widgets (sliders, toggles, input fields) for diagrams
 - [ ] Enable data-driven shapes that bind to external data sources (e.g., JSON, APIs)
@@ -798,7 +804,7 @@
     - [ ] Use case: showing data transmission or packet flow in technical diagrams
 - [ ] **Master Timeline UI**
     - [ ] Create a bottom panel for orchestration
-    - [ ] Drag-and-drop start times and durations for all element animations
+    - [x] Drag-and-drop start times and durations for all element animations
     - [ ] Preview full scene choreography
 - [ ] **Follow-Path Animations**
     - [ ] Allow elements to follow any Bezier curve or hand-drawn path
@@ -834,7 +840,7 @@
 
 ### **Priority 1: Must-Have for Cool Effects** ⭐⭐⭐
 - [ ] **Stagger Animations**
-  - [ ] Add stagger support to `animateElements()` function
+  - [x] Add stagger support to `animateElements()` function
   - [ ] Support delay patterns: linear, exponential, function-based
   - [ ] Example: `animateElements([...], { stagger: 100 })` // 100ms between each
   - [ ] Use case: Cascade/ripple effects, sequential reveals
@@ -871,7 +877,7 @@
 
 ### **Priority 2: Advanced Effects** ⭐⭐
 - [ ] **Path Following Animations**
-  - [ ] Add `translateX: path('x')`, `translateY: path('y')` support
+  - [x] Add `translateX: path('x')`, `translateY: path('y')` support
   - [ ] Parse SVG path data for coordinate extraction
   - [ ] Add automatic rotation based on path tangent
   - [ ] Use case: Elements moving along custom curves
