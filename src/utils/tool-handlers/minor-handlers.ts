@@ -147,6 +147,7 @@ export function laserOnMove(
     LASER_THROTTLE_MS: number,
     LASER_MAX_POINTS: number
 ): void {
+    if (!pState.isDrawing) return;
     const now = Date.now();
     if (now - pState.lastLaserUpdateTime >= LASER_THROTTLE_MS) {
         pState.lastLaserUpdateTime = now;

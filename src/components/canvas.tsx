@@ -484,7 +484,7 @@ const Canvas: Component = () => {
 
         if (store.selectedTool === 'pan') { panOnMove(e, pState, pHelpers); return; }
 
-        if (store.selectedTool === 'selection') {
+        if (store.selectedTool === 'selection' && !pState.draggingFromConnector) {
             selectionOnMove(e, x, y, pState, pHelpers, pSignals, SNAPPING_THROTTLE_MS);
             return;
         }
