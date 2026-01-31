@@ -10,6 +10,7 @@ import type { SpacingGuide } from './spacing';
 import { isLayerVisible } from '../store/app-store';
 import { isElementHiddenByHierarchy } from './hierarchy';
 import { renderElement } from './render-element';
+import { beginElement, endElement, computeElementHash, createCachedRc } from './rough-cache';
 import { renderElementOverlays, renderMultiSelectionBox, renderSelectionBox, renderBindingHighlight } from './selection-renderer';
 import { renderSnappingGuides, renderSpacingGuides } from './snap-renderer';
 import { getSelectionBoundingBox } from './handle-detection';
@@ -495,6 +496,7 @@ export function renderLayersAndElements(
         scale, isDarkMode, currentDrawingId, hoveredConnector, editingId
     } = params;
 
+    const cachedRc = createCachedRc(rc);
     const sortedLayers = [...layers].sort((a, b) => a.order - b.order);
     let totalRendered = 0;
 
@@ -608,7 +610,10 @@ export function renderLayersAndElements(
 
             if (renderedEl.type !== 'text' || editingId !== renderedEl.id) {
                 const layerOpacity = (layer?.opacity ?? 1);
-                renderElement(rc, ctx, renderedEl, isDarkMode, layerOpacity);
+                const shouldCache = !animState;
+                if (shouldCache) beginElement(renderedEl.id, computeElementHash(renderedEl));
+                renderElement(cachedRc, ctx, renderedEl, isDarkMode, layerOpacity);
+                if (shouldCache) endElement();
             }
 
             renderElementOverlays(ctx, el, renderedEl, {
