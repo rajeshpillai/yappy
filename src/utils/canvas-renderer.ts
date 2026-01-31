@@ -502,8 +502,7 @@ export function renderLayersAndElements(
     const {
         elements, layers, slides, docType, activeSlideIndex,
         selection, selectedTool, animatedStates, viewportBounds: vp,
-        scale, isDarkMode, currentDrawingId, hoveredConnector, editingId,
-        canInteractWithElement
+        scale, isDarkMode, currentDrawingId, hoveredConnector, editingId
     } = params;
 
     const sortedLayers = [...layers].sort((a, b) => a.order - b.order);

@@ -7,7 +7,7 @@
 import type { DrawingElement } from '../../types';
 import type { PointerState } from '../pointer-state';
 import type { PointerHelpers, PointerSignals } from '../pointer-helpers';
-import { store, setViewState, addElement, updateElement, setStore, deleteElements, advancePresentation, isLayerVisible, setSelectedTool } from '../../store/app-store';
+import { store, setViewState, addElement, updateElement, setStore, deleteElements, advancePresentation, isLayerVisible } from '../../store/app-store';
 import { hitTestElement } from '../hit-testing';
 import { generateId } from '../id-generator';
 
@@ -20,7 +20,7 @@ import { generateId } from '../id-generator';
 export function presentationOnDown(
     e: PointerEvent,
     pState: PointerState,
-    helpers: PointerHelpers
+    _helpers: PointerHelpers
 ): boolean {
     if (store.appMode !== 'presentation') return false;
 

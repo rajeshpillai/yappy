@@ -178,7 +178,7 @@ export function drawOnMove(
         updates.controlPoints = [cp1, cp2];
     }
 
-    updateElement(pState.currentId, updates);
+    if (pState.currentId) updateElement(pState.currentId, updates);
 }
 
 // ─── Pointer Up: Finalize drawing ───────────────────────────────────

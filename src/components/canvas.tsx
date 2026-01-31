@@ -3,8 +3,8 @@ import { calculateAllAnimatedStates } from "../utils/animation-utils";
 import { projectMasterPosition } from "../utils/slide-utils";
 import { animationEngine } from "../utils/animation/animation-engine";
 import rough from 'roughjs'; // Hand-drawn style
-import { store, setViewState, addElement, updateElement, setStore, setActiveLayer, setSelectedTool, zoomToFitSlide, isLayerVisible, isLayerLocked, updateSlideThumbnail, advancePresentation } from "../store/app-store";
-import { renderElement, normalizePoints } from "../utils/render-element";
+import { store, updateElement, setActiveLayer, zoomToFitSlide, isLayerLocked } from "../store/app-store";
+import { normalizePoints } from "../utils/render-element";
 import type { DrawingElement } from "../types";
 import ContextMenu from "./context-menu";
 import { setImageLoadCallback } from "../utils/image-cache";
@@ -17,7 +17,7 @@ import {
     laserOnDown, laserOnMove, laserOnUp,
     textOnDown, inkOnDown,
     eraserOnDown, eraserOnMove,
-    connectorHandleOnDown, connectorHandleOnUp,
+    connectorHandleOnUp,
     handleAutoScroll
 } from "../utils/tool-handlers/minor-handlers";
 import { drawOnDown, drawOnMove, drawOnUp } from "../utils/tool-handlers/draw-handler";
@@ -28,7 +28,7 @@ import {
     computeViewportBounds, cullElementsForAnimation, decayLaserTrail,
     renderWorkspaceBackground, renderSlideBoundaries, renderCanvasTexture,
     renderGrid, renderLayersAndElements, renderSelectionOverlays,
-    renderConnectionAnchors, renderLaserTrail, renderSlideBackground
+    renderConnectionAnchors, renderLaserTrail
 } from "../utils/canvas-renderer";
 import { Minimap } from "./minimap";
 import { getContextMenuItems } from "../utils/context-menu-builder";
@@ -37,14 +37,13 @@ import { commitText as commitTextHandler, handleDoubleClick as handleDoubleClick
 import { handleDragOver, handleDrop as handleDropHandler, handleWheel, type CanvasEventContext } from "../utils/tool-handlers/canvas-event-handlers";
 import { showToast } from "./toast";
 import { perfMonitor } from "../utils/performance-monitor";
-import { fitShapeToText, measureContainerText } from "../utils/text-utils";
-import { getElementPreviewBaseState } from "../utils/animation/element-animator";
+import { fitShapeToText } from "../utils/text-utils";
 import { effectiveTime } from "../utils/animation/animation-engine";
-import { VideoRecorder } from "../utils/video-recorder";
 import RecordingOverlay from "./recording-overlay";
-
-// Export controls for Menu/Dialog access
-export const [requestRecording, setRequestRecording] = createSignal<{ start: boolean, format?: 'webm' | 'mp4' } | null>(null);
+import { setupRecording } from "../utils/recording-manager";
+export { requestRecording, setRequestRecording } from "../utils/recording-manager";
+import ScrollBackButton from "./scroll-back-button";
+import TextEditingOverlay from "./text-editing-overlay";
 
 const Canvas: Component = () => {
 
@@ -113,115 +112,9 @@ const Canvas: Component = () => {
     });
 
     let canvasRef: HTMLCanvasElement | undefined;
-    let videoRecorder: VideoRecorder | null = null;
 
-    createEffect(() => {
-        const req = requestRecording();
-        if (req && req.start) {
-            handleStartRecording(req.format || 'webm');
-            setRequestRecording(null);
-        }
-    });
-
-    const captureThumbnail = () => {
-        if (!canvasRef) return;
-
-        const slide = store.slides[store.activeSlideIndex];
-        if (!slide) return;
-
-        const { width: sW, height: sH } = slide.dimensions;
-        const { x: spatialX, y: spatialY } = slide.spatialPosition;
-        if (sW === 0 || sH === 0) return;
-
-        // Create a temp canvas for the thumbnail
-        const thumbCanvas = document.createElement('canvas');
-        const thumbW = 320; // 16:9 ratio (ish)
-        const thumbH = (thumbW * sH) / sW;
-        thumbCanvas.width = thumbW;
-        thumbCanvas.height = thumbH;
-        const tCtx = thumbCanvas.getContext('2d');
-        if (!tCtx) return;
-
-        // We want to render the current slide at the thumbnail scale
-        const thumbScale = thumbW / sW;
-
-        tCtx.save();
-        tCtx.scale(thumbScale, thumbScale);
-        tCtx.translate(-spatialX, -spatialY); // Focus on the slide's spatial area
-
-        // Background
-        const isDarkMode = store.theme === 'dark';
-        const rc = rough.canvas(thumbCanvas);
-        renderSlideBackground(tCtx!, rc, slide, spatialX, spatialY, sW, sH, isDarkMode);
-
-        // Render elements
-        const sortedLayers = [...store.layers].sort((a, b) => a.order - b.order);
-
-        sortedLayers.forEach(layer => {
-            if (!isLayerVisible(layer.id)) return;
-            const layerElements = store.elements.filter(el => el.layerId === layer.id);
-            layerElements.forEach(el => {
-                let renderEl = el;
-                // Project master layer elements to the active slide's spatial position
-                if (layer.isMaster && slide) {
-                    const projected = projectMasterPosition(el, slide, store.slides);
-                    renderEl = { ...el, x: projected.x, y: projected.y };
-                }
-                const layerOpacity = (layer?.opacity ?? 1);
-                renderElement(rc, tCtx, renderEl, isDarkMode, layerOpacity);
-            });
-        });
-
-        tCtx.restore();
-
-        const dataUrl = thumbCanvas.toDataURL('image/jpeg', 0.6);
-        updateSlideThumbnail(store.activeSlideIndex, dataUrl);
-    };
-
-    // Trigger thumbnail capture on slide change or debounced element changes
-    let thumbTimeout: any;
-    createEffect(() => {
-        // Track slide index and element count/versions (implicitly)
-        store.activeSlideIndex;
-        store.elements;
-
-        window.clearTimeout(thumbTimeout);
-        thumbTimeout = window.setTimeout(() => {
-            untrack(() => captureThumbnail());
-        }, 1000); // 1s throttle for thumbnails
-    });
-
-    const handleStartRecording = (format: 'webm' | 'mp4') => {
-        if (!canvasRef) {
-            console.error('[DEBUG] Canvas: No canvasRef available');
-            return;
-        }
-
-        if (!videoRecorder) {
-            console.log('[DEBUG] Canvas: Initializing VideoRecorder');
-            videoRecorder = new VideoRecorder(canvasRef);
-        }
-
-        console.log('[DEBUG] Canvas: Starting recorder...');
-        const started = videoRecorder.start(format);
-        console.log('[DEBUG] Canvas: Recorder start returned:', started);
-
-        if (started) {
-            setStore("isRecording", true);
-            showToast("Recording started...", "info");
-        } else {
-            showToast("Failed to start recording", "error");
-        }
-    };
-
-    const handleStopRecording = () => {
-        if (videoRecorder) {
-            videoRecorder.stop(() => {
-                setStore("isRecording", false);
-                showToast("Recording saved!", "success");
-            });
-        }
-    };
+    // Recording & thumbnail capture (effects created within this component's reactive scope)
+    const { handleStopRecording } = setupRecording(() => canvasRef);
 
 
     // Pointer handler shared mutable state
@@ -457,21 +350,6 @@ const Canvas: Component = () => {
     };
 
 
-    // Helper: Rotate point (x,y) around center (cx,cy) by angle
-    const rotatePoint = (x: number, y: number, cx: number, cy: number, angle: number) => {
-        const cos = Math.cos(angle);
-        const sin = Math.sin(angle);
-        return {
-            x: (cos * (x - cx)) - (sin * (y - cy)) + cx,
-            y: (sin * (x - cx)) + (cos * (y - cy)) + cy
-        };
-    };
-
-    // Helper: Inverse rotate point
-    const unrotatePoint = (x: number, y: number, cx: number, cy: number, angle: number) => {
-        return rotatePoint(x, y, cx, cy, -angle);
-    };
-
     // Helper: Normalize pencil points to be relative to bounding box
     const normalizePencil = (el: DrawingElement) => {
         if (!el.points || el.points.length === 0) return null;
@@ -660,114 +538,6 @@ const Canvas: Component = () => {
 
     const handleDoubleClick = (e: MouseEvent) => handleDoubleClickHandler(e, textEditCtx);
 
-    const handleTextBlur = () => {
-        // If we are still editing (i.e. didn't click canvas which manually commits), commit now.
-        if (editingId()) {
-            commitText();
-        }
-    };
-
-    const activeTextElement = () => {
-        const id = editingId();
-        if (!id) return null;
-        return store.elements.find(e => e.id === id);
-    };
-
-    createEffect(() => {
-        if (editingId() && textInputRef) {
-            textInputRef.style.height = 'auto';
-            textInputRef.style.height = textInputRef.scrollHeight + 'px';
-        }
-    });
-
-    const [showScrollBack, setShowScrollBack] = createSignal(false);
-
-    // Check if content is visible
-    createEffect(() => {
-        const { scale, panX, panY } = store.viewState;
-        if (!canvasRef) {
-            setShowScrollBack(false);
-            return;
-        }
-
-        // Viewport in World Coords
-        const vpX = -panX / scale;
-        const vpY = -panY / scale;
-        const vpW = canvasRef.width / scale;
-        const vpH = canvasRef.height / scale;
-
-        let minX: number, minY: number, maxX: number, maxY: number;
-
-        if (store.docType === 'slides') {
-            // In slide mode, check visibility of the active slide region
-            const slide = store.slides[store.activeSlideIndex];
-            if (!slide) { setShowScrollBack(false); return; }
-            minX = slide.spatialPosition.x;
-            minY = slide.spatialPosition.y;
-            maxX = minX + slide.dimensions.width;
-            maxY = minY + slide.dimensions.height;
-        } else {
-            // In infinite canvas mode, check visibility of all elements
-            if (store.elements.length === 0) { setShowScrollBack(false); return; }
-            minX = Infinity; minY = Infinity; maxX = -Infinity; maxY = -Infinity;
-            store.elements.forEach(el => {
-                const x1 = el.x;
-                const x2 = el.x + el.width;
-                const y1 = el.y;
-                const y2 = el.y + el.height;
-                minX = Math.min(minX, x1, x2);
-                maxX = Math.max(maxX, x1, x2);
-                minY = Math.min(minY, y1, y2);
-                maxY = Math.max(maxY, y1, y2);
-            });
-        }
-
-        // Check if Viewport intersects Content
-        const isContentVisible = !(minX > vpX + vpW || maxX < vpX || minY > vpY + vpH || maxY < vpY);
-
-        setShowScrollBack(!isContentVisible);
-    });
-
-    const handleScrollBack = () => {
-        // In slide mode, fit the active slide into view
-        if (store.docType === 'slides') {
-            zoomToFitSlide();
-            return;
-        }
-
-        if (store.elements.length === 0) return;
-
-        // Calculate center of content
-        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-        store.elements.forEach(el => {
-            const x1 = el.x;
-            const x2 = el.x + el.width;
-            const y1 = el.y;
-            const y2 = el.y + el.height;
-
-            minX = Math.min(minX, x1, x2);
-            maxX = Math.max(maxX, x1, x2);
-            minY = Math.min(minY, y1, y2);
-            maxY = Math.max(maxY, y1, y2);
-        });
-
-        const contentW = maxX - minX;
-        const contentH = maxY - minY;
-        const contentCX = minX + contentW / 2;
-        const contentCY = minY + contentH / 2;
-
-        // Center viewport on content center
-        // panX = -worldX * scale + screenCX
-        const { scale } = store.viewState;
-        const screenCX = window.innerWidth / 2;
-        const screenCY = window.innerHeight / 2;
-
-        const newPanX = -contentCX * scale + screenCX;
-        const newPanY = -contentCY * scale + screenCY;
-
-        setViewState({ panX: newPanX, panY: newPanY });
-    };
-
     onMount(() => {
         // Register callback to trigger redraw when images load
         setImageLoadCallback(() => {
@@ -827,121 +597,17 @@ const Canvas: Component = () => {
                 />
             </Show>
 
-            <Show when={showScrollBack()}>
-                <div style={{
-                    position: 'fixed',
-                    bottom: '30px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    "z-index": 100
-                }}>
-                    <button
-                        onClick={handleScrollBack}
-                        style={{
-                            "background-color": "white",
-                            border: "1px solid #e5e7eb",
-                            padding: "8px 16px",
-                            "border-radius": "9999px",
-                            "box-shadow": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                            cursor: "pointer",
-                            color: "#3b82f6",
-                            "font-weight": "500",
-                            "font-size": "14px",
-                            transition: "all 0.2s"
-                        }}
-                    >
-                        Scroll back to content
-                    </button>
-                </div>
-            </Show>
-            <Show when={editingId() && activeTextElement()}>
-                {(_) => {
-                    const el = activeTextElement()!;
-                    const baseState = getElementPreviewBaseState(el.id);
-                    const elX = baseState ? baseState.x : el.x;
-                    const elY = baseState ? baseState.y : el.y;
-                    const elW = baseState ? baseState.width : el.width;
-                    const elH = baseState ? baseState.height : el.height;
-                    const { scale, panX, panY } = store.viewState;
-
-                    // Calculate Center based on Editing Property
-                    let centerX = (elX + elW / 2) * scale + panX;
-                    let centerY = (elY + elH / 2) * scale + panY;
-                    let textAlign = 'center';
-                    let fontSizeVal = el.fontSize || 28;
-
-                    if (el.type === 'umlClass') {
-                        const prop = editingProperty();
-                        if (prop === 'attributesText' || prop === 'methodsText') {
-                            textAlign = 'left';
-                            fontSizeVal = fontSizeVal * 0.9;
-
-                            // Re-calculate layout to find Y position
-                            const ctx = canvasRef ? canvasRef.getContext("2d") : null;
-                            let headerHeight = 30;
-                            if (el.containerText && ctx) {
-                                const metrics = measureContainerText(ctx, el, el.containerText, el.width - 10);
-                                headerHeight = Math.max(30, metrics.textHeight + 20);
-                            }
-
-                            let attrOffsetY = headerHeight;
-                            let attrHeight = 20;
-                            if (el.attributesText && ctx) {
-                                const metrics = measureContainerText(ctx, { ...el, fontSize: fontSizeVal }, el.attributesText, el.width - 10);
-                                attrHeight = Math.max(20, metrics.textHeight + 10);
-                            }
-
-                            if (prop === 'attributesText') {
-                                centerY = (elY + attrOffsetY + attrHeight / 2) * scale + panY;
-                                centerX = (elX + elW / 2) * scale + panX; // Keep X center but align text left
-                            } else if (prop === 'methodsText') {
-                                // Methods start after attributes
-                                const methodOffsetY = attrOffsetY + attrHeight;
-                                // We don't verify methods height, just start it below
-                                centerY = (elY + methodOffsetY + 20) * scale + panY;
-                                centerX = (elX + elW / 2) * scale + panX;
-                            }
-                        }
-                    }
-
-                    return (
-                        <textarea
-                            ref={textInputRef}
-                            value={editText()}
-                            onInput={(e) => setEditText(e.currentTarget.value)}
-                            onBlur={handleTextBlur}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Escape') {
-                                    e.preventDefault();
-                                    setEditingId(null);
-                                    setEditText("");
-                                }
-                            }}
-                            style={{
-                                position: 'absolute',
-                                top: `${centerY}px`,
-                                left: `${centerX}px`,
-                                transform: 'translate(-50%, -50%)',
-                                font: `${fontSizeVal * scale}px ${el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
-                                    el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
-                                        'Handlee, cursive'
-                                    }`,
-                                color: el.strokeColor,
-                                background: 'transparent',
-                                border: '1px dashed #007acc',
-                                outline: 'none',
-                                margin: 0,
-                                padding: '4px',
-                                resize: 'none',
-                                overflow: 'hidden',
-                                'min-width': '50px',
-                                'min-height': '1em',
-                                'text-align': textAlign as any
-                            }}
-                        />
-                    );
-                }}
-            </Show>
+            <ScrollBackButton canvasRef={canvasRef} />
+            <TextEditingOverlay
+                editingId={editingId}
+                setEditingId={setEditingId}
+                editText={editText}
+                setEditText={setEditText}
+                editingProperty={editingProperty}
+                canvasRef={canvasRef}
+                onCommitText={commitText}
+                onTextInputRef={(ref) => { textInputRef = ref; }}
+            />
 
             {/* Context Menu */}
             <Show when={contextMenuOpen()}>

@@ -501,7 +501,7 @@ function handleControlPointDrag(
     y: number,
     id: string,
     pState: PointerState,
-    helpers: PointerHelpers
+    _helpers: PointerHelpers
 ): void {
     const index = parseInt(pState.draggingHandle!.replace('control-', ''), 10);
     const element = store.elements.find(e => e.id === id);
@@ -650,7 +650,7 @@ function handlePerspectiveBlockControl(
 
 function applyResize(
     id: string,
-    el: DrawingElement,
+    _el: DrawingElement,
     isMulti: boolean,
     newX: number,
     newY: number,
@@ -835,7 +835,7 @@ function handleMove(
 export function selectionOnUp(
     e: PointerEvent,
     pState: PointerState,
-    helpers: PointerHelpers,
+    _helpers: PointerHelpers,
     signals: PointerSignals
 ): void {
     if (pState.isSelecting) {
