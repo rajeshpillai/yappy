@@ -462,6 +462,32 @@ export function bounce(elementId: string, duration: number = 450, config: Elemen
 
     const intensity = config.intensity ?? 20;
     const originalY = element.y;
+    const isInfinite = config.loop && (config.loopCount === undefined || config.loopCount === Infinity);
+
+    if (isInfinite) {
+        // For infinite loops, call onComplete immediately to unblock the sequence
+        const originalOnComplete = config.onComplete;
+        setTimeout(() => originalOnComplete?.(), 0);
+
+        const doBounce = (isFirst: boolean) => {
+            return animateElement(elementId, {
+                y: originalY - intensity
+            }, {
+                duration: duration * 0.33,
+                easing: 'easeOutQuad',
+                delay: isFirst ? config.delay : 0,
+                onStart: isFirst ? config.onStart : undefined,
+                onComplete: () => {
+                    animateElement(elementId, { y: originalY }, {
+                        duration: duration * 0.67,
+                        easing: 'easeOutBounce',
+                        onComplete: () => doBounce(false)
+                    });
+                }
+            });
+        };
+        return doBounce(true);
+    }
 
     return animateElement(elementId, {
         y: originalY - intensity
@@ -497,6 +523,40 @@ export function pulse(elementId: string, duration: number = 300, config: Element
     const targetHeight = originalHeight * scale;
     const offsetX = (targetWidth - originalWidth) / 2;
     const offsetY = (targetHeight - originalHeight) / 2;
+    const isInfinite = config.loop && (config.loopCount === undefined || config.loopCount === Infinity);
+
+    if (isInfinite) {
+        // For infinite loops, call onComplete immediately to unblock the sequence
+        const originalOnComplete = config.onComplete;
+        setTimeout(() => originalOnComplete?.(), 0);
+
+        const doPulse = (isFirst: boolean) => {
+            return animateElement(elementId, {
+                width: targetWidth,
+                height: targetHeight,
+                x: originalX - offsetX,
+                y: originalY - offsetY
+            }, {
+                duration: duration / 2,
+                easing: 'easeOutQuad',
+                delay: isFirst ? config.delay : 0,
+                onStart: isFirst ? config.onStart : undefined,
+                onComplete: () => {
+                    animateElement(elementId, {
+                        width: originalWidth,
+                        height: originalHeight,
+                        x: originalX,
+                        y: originalY
+                    }, {
+                        duration: duration / 2,
+                        easing: 'easeOutQuad',
+                        onComplete: () => doPulse(false)
+                    });
+                }
+            });
+        };
+        return doPulse(true);
+    }
 
     return animateElement(elementId, {
         width: targetWidth,
@@ -599,6 +659,25 @@ export function shakeX(elementId: string, duration: number = 400, config: Elemen
 
     const intensity = config.intensity ?? 10;
     const originalX = element.x;
+    const isInfinite = config.loop && (config.loopCount === undefined || config.loopCount === Infinity);
+
+    if (isInfinite) {
+        // For infinite loops, call onComplete immediately to unblock the sequence
+        const originalOnComplete = config.onComplete;
+        setTimeout(() => originalOnComplete?.(), 0);
+
+        return animateElement(elementId, {
+            x: originalX + intensity
+        }, {
+            duration: duration / 4,
+            easing: 'linear',
+            loop: true,
+            loopCount: Infinity,
+            alternate: true,
+            delay: config.delay,
+            onStart: config.onStart,
+        });
+    }
 
     return animateElement(elementId, {
         x: originalX + intensity
@@ -626,6 +705,25 @@ export function shakeY(elementId: string, duration: number = 400, config: Elemen
 
     const intensity = config.intensity ?? 10;
     const originalY = element.y;
+    const isInfinite = config.loop && (config.loopCount === undefined || config.loopCount === Infinity);
+
+    if (isInfinite) {
+        // For infinite loops, call onComplete immediately to unblock the sequence
+        const originalOnComplete = config.onComplete;
+        setTimeout(() => originalOnComplete?.(), 0);
+
+        return animateElement(elementId, {
+            y: originalY + intensity
+        }, {
+            duration: duration / 4,
+            easing: 'linear',
+            loop: true,
+            loopCount: Infinity,
+            alternate: true,
+            delay: config.delay,
+            onStart: config.onStart,
+        });
+    }
 
     return animateElement(elementId, {
         y: originalY + intensity
