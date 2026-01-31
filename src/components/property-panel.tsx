@@ -763,6 +763,17 @@ const PropertyPanel: Component = () => {
         return groups;
     });
 
+    // Collapsible groups
+    const [collapsedGroups, setCollapsedGroups] = createSignal<Set<string>>(
+        new Set(JSON.parse(localStorage.getItem('collapsed-prop-groups') || '[]'))
+    );
+    const toggleGroup = (group: string) => {
+        const next = new Set(collapsedGroups());
+        next.has(group) ? next.delete(group) : next.add(group);
+        setCollapsedGroups(next);
+        localStorage.setItem('collapsed-prop-groups', JSON.stringify([...next]));
+    };
+
     return (
         <Show when={store.showPropertyPanel && (activeTarget() || store.isPropertyPanelMinimized)}>
             <div
@@ -872,37 +883,42 @@ const PropertyPanel: Component = () => {
                                 <For each={Object.keys(groupedProperties())}>
                                     {(group) => (
                                         <div class="property-group">
-                                            <div class="group-title">{group.toUpperCase()}</div>
-                                            <Show when={group === 'gradient' && (() => {
-                                                const target = activeTarget();
-                                                if (!target) return false;
+                                            <div class="group-title" onClick={() => toggleGroup(group)}>
+                                                <span>{group.toUpperCase()}</span>
+                                                <span class="group-chevron">{collapsedGroups().has(group) ? '\u25B8' : '\u25BE'}</span>
+                                            </div>
+                                            <Show when={!collapsedGroups().has(group)}>
+                                                <Show when={group === 'gradient' && (() => {
+                                                    const target = activeTarget();
+                                                    if (!target) return false;
 
-                                                // Get fillStyle from target
-                                                let fillStyle: string | undefined;
-                                                if (target.type === 'element') {
-                                                    fillStyle = target.data.fillStyle;
-                                                } else if (target.type === 'multi') {
-                                                    const firstId = store.selection[0];
-                                                    const el = store.elements.find(e => e.id === firstId);
-                                                    fillStyle = el?.fillStyle;
-                                                } else if (target.type === 'slide') {
-                                                    fillStyle = (target.data as Slide).fillStyle;
-                                                }
+                                                    // Get fillStyle from target
+                                                    let fillStyle: string | undefined;
+                                                    if (target.type === 'element') {
+                                                        fillStyle = target.data.fillStyle;
+                                                    } else if (target.type === 'multi') {
+                                                        const firstId = store.selection[0];
+                                                        const el = store.elements.find(e => e.id === firstId);
+                                                        fillStyle = el?.fillStyle;
+                                                    } else if (target.type === 'slide') {
+                                                        fillStyle = (target.data as Slide).fillStyle;
+                                                    }
 
-                                                // Only show gradient editor for gradient fill styles
-                                                return ['linear', 'radial', 'conic'].includes(fillStyle || '');
-                                            })()}>
-                                                <GradientEditor
-                                                    target={activeTarget()}
-                                                    onChange={handleChange}
-                                                />
+                                                    // Only show gradient editor for gradient fill styles
+                                                    return ['linear', 'radial', 'conic'].includes(fillStyle || '');
+                                                })()}>
+                                                    <GradientEditor
+                                                        target={activeTarget()}
+                                                        onChange={handleChange}
+                                                    />
+                                                </Show>
+                                                <For each={groupedProperties()[group]}>
+                                                    {(prop) => {
+                                                        if (group === 'gradient' && (prop.key === 'gradientStart' || prop.key === 'gradientEnd')) return null;
+                                                        return renderControl(prop);
+                                                    }}
+                                                </For>
                                             </Show>
-                                            <For each={groupedProperties()[group]}>
-                                                {(prop) => {
-                                                    if (group === 'gradient' && (prop.key === 'gradientStart' || prop.key === 'gradientEnd')) return null;
-                                                    return renderControl(prop);
-                                                }}
-                                            </For>
                                         </div>
                                     )}
                                 </For>

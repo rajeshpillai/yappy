@@ -160,6 +160,20 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.group-title:hover {
+    color: var(--text-primary);
+}
+
+.group-chevron {
+    font-size: 10px;
+    opacity: 0.6;
 }
 
 .control-row {
