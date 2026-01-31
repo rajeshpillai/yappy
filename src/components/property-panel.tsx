@@ -477,22 +477,21 @@ const PropertyPanel: Component = () => {
             // Only dibujo elements (rectangle, circle, etc) inherit from 'all'
             if ((p.applicableTo as any) === 'all') {
                 if (target.type === 'slide' || target.type === 'canvas') return false;
-                return true;
-            }
-
-            if (target.type === 'slide' || target.type === 'canvas') {
+                // Fall through to dependsOn check
+            } else if (target.type === 'slide' || target.type === 'canvas') {
                 if (!Array.isArray(p.applicableTo) || !(p.applicableTo as any).includes(targetType as any)) {
                     return false;
                 }
             } else if (target.type === 'multi') {
                 // For multi-selection, show 'all' properties OR any array properties not exclusive to slides/canvas
-                if ((p.applicableTo as any) === 'all') return true;
-                if (Array.isArray(p.applicableTo)) {
-                    const isExclusiveToSlides = p.applicableTo.every(t => t === 'slide' || t === 'canvas');
-                    if (isExclusiveToSlides) return false;
-                    return true;
+                if ((p.applicableTo as any) !== 'all') {
+                    if (Array.isArray(p.applicableTo)) {
+                        const isExclusiveToSlides = p.applicableTo.every(t => t === 'slide' || t === 'canvas');
+                        if (isExclusiveToSlides) return false;
+                    } else {
+                        return false;
+                    }
                 }
-                return false;
             } else if (Array.isArray(p.applicableTo) && !(p.applicableTo as any[]).includes(targetType as any)) {
                 return false;
             }
