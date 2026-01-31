@@ -48,9 +48,12 @@ export function commitText(ctx: TextEditingContext): void {
                 if (canvasCtx) {
                     const fontSize = el.fontSize || 28;
                     canvasCtx.font = `${fontSize}px sans-serif`;
-                    const metrics = canvasCtx.measureText(newText);
-                    width = metrics.width;
-                    height = fontSize;
+                    const lines = newText.split('\n');
+                    for (const line of lines) {
+                        const metrics = canvasCtx.measureText(line);
+                        width = Math.max(width, metrics.width);
+                    }
+                    height = lines.length * fontSize * 1.2;
                 }
             }
             width = Math.max(width, 10);

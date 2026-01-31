@@ -25,10 +25,14 @@ export class TextRenderer extends ShapeRenderer {
         ctx.save();
         ctx.font = `${fontStyle}${fontWeight}${fontSize}px ${fontFamily}`;
 
-        // Text Stretching logic (only for single line text elements without highlight)
+        const lines = el.text.split('\n');
+        const lineHeight = fontSize * 1.2;
+
+        // Text Stretching logic (only for single-line text elements without highlight)
+        const isSingleLine = lines.length === 1;
         const metrics = ctx.measureText(el.text);
         const actualWidth = metrics.width;
-        const scaleX = (el.width && actualWidth && !el.textHighlightEnabled) ? (el.width / actualWidth) : 1;
+        const scaleX = (isSingleLine && el.width && actualWidth && !el.textHighlightEnabled) ? (el.width / actualWidth) : 1;
 
         const textColorRaw = el.textColor || el.strokeColor;
         const textColor = RenderPipeline.adjustColor(textColorRaw, isDarkMode);
@@ -44,9 +48,6 @@ export class TextRenderer extends ShapeRenderer {
             const radius = el.textHighlightRadius ?? 2;
 
             ctx.fillStyle = RenderPipeline.adjustColor(highlightColor, isDarkMode);
-
-            const lines = el.text.split('\n');
-            const lineHeight = fontSize * 1.2;
 
             // Baseline adjustment for better visual centering
             const baselineShift = el.fontFamily === 'hand-drawn' ? -2 : 0;
@@ -106,11 +107,15 @@ export class TextRenderer extends ShapeRenderer {
             }
 
             if (scaleX !== 1) {
+                // Single-line text with width stretching
                 ctx.translate(xPos, el.y);
                 ctx.scale(scaleX, 1);
                 ctx.fillText(el.text, 0, 0);
             } else {
-                ctx.fillText(el.text, xPos, el.y);
+                // Render each line at the correct Y offset
+                lines.forEach((line, index) => {
+                    ctx.fillText(line, xPos, el.y + index * lineHeight);
+                });
             }
         }
         ctx.restore();
