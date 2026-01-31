@@ -1,0 +1,285 @@
+/**
+ * Draw Handler
+ * Handles shape/line/arrow/bezier/organicBranch creation, live dimension updates,
+ * end binding, and normalization on pointer up.
+ * Extracted from canvas.tsx handlePointerDown/Move/Up.
+ */
+
+import type { DrawingElement } from '../../types';
+import type { PointerState } from '../pointer-state';
+import type { PointerHelpers, PointerSignals } from '../pointer-helpers';
+import { store, addElement, updateElement, setStore, setSelectedTool } from '../../store/app-store';
+import { snapPoint } from '../snap-helpers';
+import { generateId } from '../id-generator';
+
+// Shapes that default to solid stroke
+const SOLID_STROKE_SHAPES = [
+    'rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon',
+    'pentagon', 'septagon', 'star', 'cloud', 'heart', 'capsule', 'stickyNote',
+    'callout', 'speechBubble', 'database', 'document', 'cylinder',
+    'isometricCube', 'solidBlock', 'perspectiveBlock',
+    'umlClass', 'umlInterface', 'umlActor', 'umlComponent', 'umlState',
+    'umlLifeline', 'umlFragment', 'umlSignalSend', 'umlSignalReceive'
+];
+
+// Shapes that need negative-dimension normalization on finish
+const NORMALIZABLE_SHAPES = [
+    'rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon',
+    'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote',
+    'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight',
+    'database', 'document', 'predefinedProcess', 'internalStorage',
+    'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda',
+    'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon',
+    'browserWindow', 'mobilePhone', 'ghostButton', 'inputField'
+];
+
+// Tools that stay active after drawing (don't switch to selection)
+const CONTINUOUS_TOOLS = [
+    'selection', 'pan', 'eraser', 'fineliner', 'inkbrush', 'marker',
+    'text', 'block-text', 'ink'
+];
+
+// ─── Pointer Down: Create element ───────────────────────────────────
+
+export function drawOnDown(
+    x: number,
+    y: number,
+    pState: PointerState,
+    helpers: PointerHelpers
+): void {
+    pState.isDrawing = true;
+    pState.penPointsBuffer = [];
+    pState.lastPenUpdateTime = 0;
+
+    // Snap start position if enabled
+    let creationX = x;
+    let creationY = y;
+    if (store.gridSettings.snapToGrid) {
+        const snapped = snapPoint(x, y, store.gridSettings.gridSize);
+        creationX = snapped.x;
+        creationY = snapped.y;
+    }
+
+    pState.startX = creationX;
+    pState.startY = creationY;
+    pState.currentId = generateId(store.selectedTool);
+
+    const tool = store.selectedTool;
+    const actualType = tool === 'bezier' ? 'line' : tool;
+    const actualCurveType = (tool === 'bezier' || tool === 'organicBranch')
+        ? 'bezier'
+        : (store.defaultElementStyles.curveType || 'straight');
+
+    // Check for start binding at creation time
+    let startBindingData: { elementId: string; focus: number; gap: number; position?: string } | undefined;
+    let snappedStartX = creationX;
+    let snappedStartY = creationY;
+
+    if (tool === 'line' || tool === 'arrow' || tool === 'bezier' || tool === 'organicBranch') {
+        const match = helpers.checkBinding(creationX, creationY, pState.currentId);
+        if (match) {
+            startBindingData = {
+                elementId: match.element.id,
+                focus: 0,
+                gap: 5,
+                position: match.position
+            };
+            snappedStartX = match.snapPoint.x;
+            snappedStartY = match.snapPoint.y;
+            pState.startX = snappedStartX;
+            pState.startY = snappedStartY;
+        }
+    }
+
+    const newElement = {
+        ...store.defaultElementStyles,
+        id: pState.currentId,
+        type: actualType,
+        x: snappedStartX,
+        y: snappedStartY,
+        width: 0,
+        height: 0,
+        seed: Math.floor(Math.random() * 2 ** 31) + 1,
+        layerId: store.activeLayerId,
+        curveType: actualCurveType as 'straight' | 'bezier' | 'elbow',
+        points: (tool === 'fineliner' || tool === 'inkbrush' || tool === 'marker') ? [0, 0] : undefined,
+        pointsEncoding: (tool === 'fineliner' || tool === 'inkbrush' || tool === 'marker') ? 'flat' : undefined,
+        startBinding: startBindingData,
+        strokeStyle: SOLID_STROKE_SHAPES.includes(actualType)
+            ? 'solid'
+            : store.defaultElementStyles.strokeStyle,
+    } as DrawingElement;
+
+    // Apply specific defaults for Sticky Note
+    if (actualType === 'stickyNote') {
+        newElement.backgroundColor = '#fef08a';
+        newElement.fillStyle = 'solid';
+        newElement.strokeColor = '#000000';
+    }
+
+    addElement(newElement);
+
+    // Update target's boundElements if we have a start binding
+    if (startBindingData) {
+        const target = store.elements.find(e => e.id === startBindingData!.elementId);
+        if (target) {
+            const existing = target.boundElements || [];
+            updateElement(target.id, { boundElements: [...existing, { id: pState.currentId, type: actualType as 'arrow' }] });
+        }
+    }
+}
+
+// ─── Pointer Move: Live dimension/binding updates ───────────────────
+
+export function drawOnMove(
+    x: number,
+    y: number,
+    pState: PointerState,
+    helpers: PointerHelpers,
+    signals: PointerSignals
+): void {
+    let finalX = x;
+    let finalY = y;
+
+    // Check binding for line/arrow tools
+    if (store.selectedTool === 'line' || store.selectedTool === 'arrow' || store.selectedTool === 'bezier' || store.selectedTool === 'organicBranch' || pState.draggingFromConnector) {
+        if (pState.currentId) {
+            const match = helpers.checkBinding(x, y, pState.currentId);
+            if (match) {
+                signals.setSuggestedBinding({ elementId: match.element.id, px: match.snapPoint.x, py: match.snapPoint.y, position: match.position });
+                finalX = match.snapPoint.x;
+                finalY = match.snapPoint.y;
+            } else {
+                signals.setSuggestedBinding(null);
+            }
+        }
+    } else {
+        signals.setSuggestedBinding(null);
+    }
+
+    if (!signals.suggestedBinding() && store.gridSettings.snapToGrid) {
+        const snapped = snapPoint(x, y, store.gridSettings.gridSize);
+        finalX = snapped.x;
+        finalY = snapped.y;
+    }
+
+    const updates: Partial<DrawingElement> = {
+        width: finalX - pState.startX,
+        height: finalY - pState.startY
+    };
+
+    // For organicBranch, provide temporary points and controlPoints for live preview
+    if (store.selectedTool === 'organicBranch') {
+        const w = finalX - pState.startX;
+        const h = finalY - pState.startY;
+        updates.points = [0, 0, w, h];
+        const cp1 = { x: pState.startX + w * 0.5, y: pState.startY };
+        const cp2 = { x: finalX - w * 0.5, y: finalY };
+        updates.controlPoints = [cp1, cp2];
+    }
+
+    updateElement(pState.currentId, updates);
+}
+
+// ─── Pointer Up: Finalize drawing ───────────────────────────────────
+
+export function drawOnUp(
+    pState: PointerState,
+    helpers: PointerHelpers,
+    signals: PointerSignals
+): void {
+    if (!pState.isDrawing || !pState.currentId) {
+        pState.isDrawing = false;
+        pState.currentId = null;
+        pState.draggingFromConnector = null;
+        return;
+    }
+
+    const el = store.elements.find(e => e.id === pState.currentId);
+    if (el) {
+        // Binding for new lines/arrows/bezier/organicBranch
+        if ((el.type === 'line' || el.type === 'arrow' || el.type === 'bezier' || el.type === 'organicBranch') && signals.suggestedBinding()) {
+            const binding = signals.suggestedBinding()!;
+            const bindingData = {
+                elementId: binding.elementId,
+                focus: 0,
+                gap: 5,
+                position: binding.position
+            };
+            updateElement(pState.currentId, { endBinding: bindingData });
+
+            const target = store.elements.find(e => e.id === binding.elementId);
+            if (target) {
+                const existing = target.boundElements || [];
+                updateElement(target.id, { boundElements: [...existing, { id: pState.currentId, type: el.type as any }] });
+            }
+            signals.setSuggestedBinding(null);
+        }
+
+        // Normalize negative dimensions for geometric shapes
+        if (NORMALIZABLE_SHAPES.includes(el.type)) {
+            if (el.width < 0) {
+                updateElement(pState.currentId, { x: el.x + el.width, width: Math.abs(el.width) });
+            }
+            if (el.height < 0) {
+                updateElement(pState.currentId, { y: el.y + el.height, height: Math.abs(el.height) });
+            }
+        } else if (el.type === 'fineliner' || el.type === 'inkbrush' || el.type === 'marker' || el.type === 'ink') {
+            // Flush buffered pen points and normalize
+            helpers.flushPenPoints();
+            const updatedEl = store.elements.find(e => e.id === pState.currentId);
+            if (updatedEl && updatedEl.points && updatedEl.points.length > 2) {
+                const updates = helpers.normalizePencil({ ...updatedEl, points: updatedEl.points });
+                if (updates) {
+                    updateElement(pState.currentId, updates);
+                }
+            }
+        } else if (el.type === 'organicBranch') {
+            normalizeOrganicBranch(pState.currentId, el);
+        }
+
+        // Switch back to selection tool after drawing (except for continuous tools)
+        if (!CONTINUOUS_TOOLS.includes(store.selectedTool)) {
+            setSelectedTool('selection');
+        }
+
+        // If drawn from a connector handle, select the new arrow
+        if (pState.draggingFromConnector) {
+            setStore('selection', [pState.currentId]);
+            setSelectedTool('selection');
+        }
+    }
+
+    pState.isDrawing = false;
+    pState.currentId = null;
+    pState.draggingFromConnector = null;
+}
+
+// ─── OrganicBranch normalization ─────────────────────────────────────
+
+function normalizeOrganicBranch(currentId: string, el: DrawingElement): void {
+    const normalizedX = Math.min(el.x, el.x + el.width);
+    const normalizedY = Math.min(el.y, el.y + el.height);
+    const normalizedW = Math.abs(el.width);
+    const normalizedH = Math.abs(el.height);
+
+    // Original Start/End relative to Normalized TL
+    const relStartX = el.x - normalizedX;
+    const relStartY = el.y - normalizedY;
+    const relEndX = (el.x + el.width) - normalizedX;
+    const relEndY = (el.y + el.height) - normalizedY;
+
+    // S-Curve control points
+    const dx = relEndX - relStartX;
+    const cp1 = { x: normalizedX + relStartX + dx * 0.5, y: normalizedY + relStartY };
+    const cp2 = { x: normalizedX + relEndX - dx * 0.5, y: normalizedY + relEndY };
+
+    updateElement(currentId, {
+        x: normalizedX,
+        y: normalizedY,
+        width: normalizedW,
+        height: normalizedH,
+        points: [relStartX, relStartY, relEndX, relEndY],
+        controlPoints: [cp1, cp2]
+    });
+}

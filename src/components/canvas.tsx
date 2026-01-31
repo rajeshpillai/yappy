@@ -3,7 +3,7 @@ import { calculateAllAnimatedStates } from "../utils/animation-utils";
 import { projectMasterPosition } from "../utils/slide-utils";
 import { animationEngine } from "../utils/animation/animation-engine";
 import rough from 'roughjs'; // Hand-drawn style
-import { isElementHiddenByHierarchy, getDescendants } from "../utils/hierarchy";
+import { isElementHiddenByHierarchy } from "../utils/hierarchy";
 import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit, zoomToFitSlide, isLayerVisible, isLayerLocked, toggleCollapse, setParent, clearParent, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, togglePropertyPanel, updateSlideThumbnail, advancePresentation, updateSlideBackground, updateAnimation, setPathEditing } from "../store/app-store";
 import { renderElement, normalizePoints } from "../utils/render-element";
 import { PathUtils } from "../utils/math/path-utils";
@@ -12,13 +12,23 @@ import type { DrawingElement } from "../types";
 import { hitTestElement } from "../utils/hit-testing";
 import { getHandleAtPosition, getSelectionBoundingBox } from "../utils/handle-detection";
 import ContextMenu, { type MenuItem } from "./context-menu";
-import { snapPoint } from "../utils/snap-helpers";
 import { getImage, setImageLoadCallback } from "../utils/image-cache";
-import { getSnappingGuides } from "../utils/object-snapping";
 import type { SnappingGuide } from "../utils/object-snapping";
-import { getSpacingGuides } from "../utils/spacing";
 import type { SpacingGuide } from "../utils/spacing";
 import { renderSnappingGuides, renderSpacingGuides } from "../utils/snap-renderer";
+import { createPointerState } from "../utils/pointer-state";
+import {
+    presentationOnDown, presentationOnMove, presentationOnUp,
+    panOnDown, panOnMove, panOnUp,
+    laserOnDown, laserOnMove, laserOnUp,
+    textOnDown, inkOnDown,
+    eraserOnDown, eraserOnMove,
+    connectorHandleOnDown, connectorHandleOnUp,
+    handleAutoScroll
+} from "../utils/tool-handlers/minor-handlers";
+import { drawOnDown, drawOnMove, drawOnUp } from "../utils/tool-handlers/draw-handler";
+import { penOnMove } from "../utils/tool-handlers/pen-handler";
+import { selectionOnDown, selectionOnMove, selectionOnUp } from "../utils/tool-handlers/selection-handler";
 import { checkBinding as checkBindingUtil, refreshLinePoints as refreshLinePointsUtil, refreshBoundLine as refreshBoundLineUtil } from "../utils/binding-logic";
 import { renderElementOverlays, renderMultiSelectionBox, renderSelectionBox, renderBindingHighlight } from "../utils/selection-renderer";
 import { Minimap } from "./minimap";
@@ -30,7 +40,6 @@ import { showToast } from "./toast";
 import { perfMonitor } from "../utils/performance-monitor";
 import { fitShapeToText, measureContainerText } from "../utils/text-utils";
 import { changeElementType, getTransformOptions, getShapeIcon, getShapeTooltip, getCurveTypeOptions, getCurveTypeIcon, getCurveTypeTooltip } from "../utils/element-transforms";
-import { getGroupsSortedByPriority, isPointInGroupBounds } from "../utils/group-utils";
 import { exportToPng, exportToSvg } from "../utils/export";
 import { getElementPreviewBaseState } from "../utils/animation/element-animator";
 import { effectiveTime } from "../utils/animation/animation-engine";
@@ -330,10 +339,8 @@ const Canvas: Component = () => {
     };
 
 
-    let isDrawing = false;
-    let currentId: string | null = null;
-    let startX = 0;
-    let startY = 0;
+    // Pointer handler shared mutable state
+    const pState = createPointerState();
 
     // Text Editing State
     const [editingId, setEditingId] = createSignal<string | null>(null);
@@ -342,57 +349,31 @@ const Canvas: Component = () => {
     let textInputRef: HTMLTextAreaElement | undefined;
 
     // Selection/Move State
-    let isDragging = false;
-    let isSelecting = false; // Drag selection box
-    let draggingHandle: string | null = null;
     const [selectionBox, setSelectionBox] = createSignal<{ x: number, y: number, w: number, h: number } | null>(null);
-    let initialPositions = new Map<string, any>();
     const [suggestedBinding, setSuggestedBinding] = createSignal<{ elementId: string; px: number; py: number; position?: string } | null>(null);
     const [snappingGuides, setSnappingGuides] = createSignal<SnappingGuide[]>([]);
     const [spacingGuides, setSpacingGuides] = createSignal<SpacingGuide[]>([]);
 
-    // Interactive Connector State
-    let draggingFromConnector: { elementId: string; anchorPosition: string; startX: number; startY: number } | null = null;
-    let hoveredConnector: { elementId: string; handle: string } | null = null;
-
-    let initialElementX = 0;
-    let initialElementY = 0;
-    let initialElementWidth = 0;
-    let initialElementHeight = 0;
-
-    let initialElementFontSize = 20;
-
-    // OPTIMIZATION: Throttle smart snapping calculations
-    let lastSnappingTime = 0;
+    // Throttle constants
     const SNAPPING_THROTTLE_MS = 16; // ~60 FPS
-
-    // Laser Pointer State (Transient) - Using mutable array for performance
-    let laserTrailData: Array<{ x: number, y: number, timestamp: number }> = [];
-    let laserRafPending = false;
-    let lastLaserUpdateTime = 0;
     const LASER_THROTTLE_MS = 8; // ~120fps for smooth trail
     const LASER_DECAY_MS = 800;
     const LASER_MAX_POINTS = 100;
-
-    // Pen/Ink Tool Optimization - Buffer points locally and batch update to store
-    let penPointsBuffer: number[] = [];
-    let lastPenUpdateTime = 0;
     const PEN_UPDATE_THROTTLE_MS = 16; // ~60fps store updates
-    let penUpdatePending = false;
 
     const flushPenPoints = () => {
-        if (!currentId || penPointsBuffer.length === 0) return;
-        const el = store.elements.find(e => e.id === currentId);
+        if (!pState.currentId || pState.penPointsBuffer.length === 0) return;
+        const el = store.elements.find(e => e.id === pState.currentId);
         if (el && el.points) {
             const existingPoints = el.points as number[];
-            const newPoints = [...existingPoints, ...penPointsBuffer];
+            const newPoints = [...existingPoints, ...pState.penPointsBuffer];
             const updates: Partial<DrawingElement> = { points: newPoints };
             // For ink tool, also update ttl
             if (el.type === 'ink') {
                 updates.ttl = Date.now() + 3000;
             }
-            updateElement(currentId, updates, false);
-            penPointsBuffer = [];
+            updateElement(pState.currentId, updates, false);
+            pState.penPointsBuffer = [];
         }
     };
 
@@ -508,15 +489,15 @@ const Canvas: Component = () => {
 
         // --- Laser Trail Decay (using mutable array for performance) ---
         const now = Date.now();
-        if (laserTrailData.length > 0) {
+        if (pState.laserTrailData.length > 0) {
             // Filter in place for performance
             let writeIdx = 0;
-            for (let i = 0; i < laserTrailData.length; i++) {
-                if (now - laserTrailData[i].timestamp < LASER_DECAY_MS) {
-                    laserTrailData[writeIdx++] = laserTrailData[i];
+            for (let i = 0; i < pState.laserTrailData.length; i++) {
+                if (now - pState.laserTrailData[i].timestamp < LASER_DECAY_MS) {
+                    pState.laserTrailData[writeIdx++] = pState.laserTrailData[i];
                 }
             }
-            laserTrailData.length = writeIdx;
+            pState.laserTrailData.length = writeIdx;
         }
 
         // Render Canvas Overall Background (The "Infinite" workspace)
@@ -614,13 +595,13 @@ const Canvas: Component = () => {
                 const lineColor = isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.03)';
                 const majorLineColor = isDarkMode ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.07)';
 
-                const startX = (panX % (spacing * scale));
-                const startY = (panY % (spacing * scale));
+                const gridStartX = (panX % (spacing * scale));
+                const gridStartY = (panY % (spacing * scale));
 
                 if (texture === 'dots') {
                     ctx.fillStyle = dotColor;
-                    for (let x = startX; x < canvasRef.width; x += spacing * scale) {
-                        for (let y = startY; y < canvasRef.height; y += spacing * scale) {
+                    for (let x = gridStartX; x < canvasRef.width; x += spacing * scale) {
+                        for (let y = gridStartY; y < canvasRef.height; y += spacing * scale) {
                             ctx.beginPath();
                             ctx.arc(x, y, 1, 0, Math.PI * 2);
                             ctx.fill();
@@ -630,10 +611,10 @@ const Canvas: Component = () => {
                     ctx.strokeStyle = lineColor;
                     ctx.lineWidth = 1;
                     ctx.beginPath();
-                    for (let x = startX; x < canvasRef.width; x += spacing * scale) {
+                    for (let x = gridStartX; x < canvasRef.width; x += spacing * scale) {
                         ctx.moveTo(x, 0); ctx.lineTo(x, canvasRef.height);
                     }
-                    for (let y = startY; y < canvasRef.height; y += spacing * scale) {
+                    for (let y = gridStartY; y < canvasRef.height; y += spacing * scale) {
                         ctx.moveTo(0, y); ctx.lineTo(canvasRef.width, y);
                     }
                     ctx.stroke();
@@ -654,10 +635,10 @@ const Canvas: Component = () => {
                     ctx.strokeStyle = majorLineColor;
                     ctx.lineWidth = 1;
                     ctx.beginPath();
-                    for (let x = startX; x < canvasRef.width; x += spacing * scale) {
+                    for (let x = gridStartX; x < canvasRef.width; x += spacing * scale) {
                         ctx.moveTo(x, 0); ctx.lineTo(x, canvasRef.height);
                     }
-                    for (let y = startY; y < canvasRef.height; y += spacing * scale) {
+                    for (let y = gridStartY; y < canvasRef.height; y += spacing * scale) {
                         ctx.moveTo(0, y); ctx.lineTo(canvasRef.width, y);
                     }
                     ctx.stroke();
@@ -695,21 +676,21 @@ const Canvas: Component = () => {
             ctx.lineWidth = 1;
 
             // Calculate visible grid bounds
-            const startX = Math.floor((-panX / scale) / gridSize) * gridSize;
+            const gridStartX = Math.floor((-panX / scale) / gridSize) * gridSize;
             const endX = Math.ceil((canvasRef.width - panX) / scale / gridSize) * gridSize;
-            const startY = Math.floor((-panY / scale) / gridSize) * gridSize;
+            const gridStartY = Math.floor((-panY / scale) / gridSize) * gridSize;
             const endY = Math.ceil((canvasRef.height - panY) / scale / gridSize) * gridSize;
 
             if (gridStyle === 'lines') {
                 // Draw vertical lines
                 ctx.beginPath();
-                for (let x = startX; x <= endX; x += gridSize) {
+                for (let x = gridStartX; x <= endX; x += gridSize) {
                     const screenX = x * scale + panX;
                     ctx.moveTo(screenX, 0);
                     ctx.lineTo(screenX, canvasRef.height);
                 }
                 // Draw horizontal lines
-                for (let y = startY; y <= endY; y += gridSize) {
+                for (let y = gridStartY; y <= endY; y += gridSize) {
                     const screenY = y * scale + panY;
                     ctx.moveTo(0, screenY);
                     ctx.lineTo(canvasRef.width, screenY);
@@ -724,8 +705,8 @@ const Canvas: Component = () => {
                     ctx.fillStyle = '#b0b0b0'; // Darker gray for dots
                 }
 
-                for (let x = startX; x <= endX; x += gridSize) {
-                    for (let y = startY; y <= endY; y += gridSize) {
+                for (let x = gridStartX; x <= endX; x += gridSize) {
+                    for (let y = gridStartY; y <= endY; y += gridSize) {
                         const screenX = x * scale + panX;
                         const screenY = y * scale + panY;
 
@@ -779,7 +760,7 @@ const Canvas: Component = () => {
                 if (el.layerId !== layer.id) return false;
 
                 // FIX: Always render the element currently being drawn
-                if (el.id === currentId) return true;
+                if (el.id === pState.currentId) return true;
 
                 // FIX: Skip viewport culling for Master layers because they will be 
                 // projected into the active slide's origin during render
@@ -887,7 +868,7 @@ const Canvas: Component = () => {
                     isDarkMode,
                     elements: store.elements,
                     selectedTool: store.selectedTool,
-                    hoveredConnector
+                    hoveredConnector: pState.hoveredConnector
                 });
             });
         });
@@ -914,8 +895,8 @@ const Canvas: Component = () => {
         renderSpacingGuides(ctx, spacingGuides(), store.viewState.scale);
 
         // Render Connection Anchors (when drawing lines/arrows)
-        if ((store.selectedTool === 'line' || store.selectedTool === 'arrow') && isDrawing && currentId) {
-            const currentEl = store.elements.find(e => e.id === currentId);
+        if ((store.selectedTool === 'line' || store.selectedTool === 'arrow') && pState.isDrawing && pState.currentId) {
+            const currentEl = store.elements.find(e => e.id === pState.currentId);
             if (currentEl && (currentEl.type === 'line' || currentEl.type === 'arrow')) {
                 const endX = currentEl.x + currentEl.width;
                 const endY = currentEl.y + currentEl.height;
@@ -926,7 +907,7 @@ const Canvas: Component = () => {
 
                 ctx.save();
                 for (const element of store.elements) {
-                    if (element.id === currentId) continue;
+                    if (element.id === pState.currentId) continue;
                     if (!canInteractWithElement(element)) continue;
                     if (element.type === 'line' || element.type === 'arrow' || element.type === 'bezier') continue;
                     if (element.layerId !== store.activeLayerId) continue;
@@ -967,7 +948,7 @@ const Canvas: Component = () => {
         }
 
         // --- Render Laser Trail (optimized: batch by opacity bands, no per-segment shadows) ---
-        if (laserTrailData.length > 1) {
+        if (pState.laserTrailData.length > 1) {
             ctx.save();
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
@@ -980,9 +961,9 @@ const Canvas: Component = () => {
             const baseWidth = 4 / store.viewState.scale;
             let currentOpacityBand = -1;
 
-            for (let i = 0; i < laserTrailData.length - 1; i++) {
-                const p1 = laserTrailData[i];
-                const p2 = laserTrailData[i + 1];
+            for (let i = 0; i < pState.laserTrailData.length - 1; i++) {
+                const p1 = pState.laserTrailData[i];
+                const p2 = pState.laserTrailData[i + 1];
                 const age = now - p1.timestamp;
                 const opacity = Math.max(0, 1 - age / LASER_DECAY_MS);
 
@@ -1070,7 +1051,7 @@ const Canvas: Component = () => {
         store.viewState.panY;
         store.selection.length;
         selectionBox();
-        // Note: laserTrailData is mutable (not reactive) for performance
+        // Note: pState.laserTrailData is mutable (not reactive) for performance
         // Track layer changes
         store.layers.length;
         store.layers.forEach(l => {
@@ -1320,31 +1301,24 @@ const Canvas: Component = () => {
     const refreshBoundLine = (lineId: string) =>
         refreshBoundLineUtil(lineId, () => store.elements, updateElement);
 
-    const handlePointerDown = (e: PointerEvent) => {
-        // Presentation Mode Logic
-        if (store.appMode === 'presentation') {
-            const isNavTool = store.selectedTool === 'selection' || store.selectedTool === 'pan';
+    // Helpers & signals bundles for extracted handler modules
+    const pHelpers: import("../utils/pointer-helpers").PointerHelpers = {
+        getWorldCoordinates, canInteractWithElement, checkBinding,
+        refreshLinePoints, refreshBoundLine, flushPenPoints,
+        applyMasterProjection, normalizePencil, commitText: () => commitText(),
+        draw, setCursor
+    };
+    const pSignals: import("../utils/pointer-helpers").PointerSignals = {
+        editingId, setEditingId, setEditText,
+        selectionBox, setSelectionBox,
+        suggestedBinding, setSuggestedBinding,
+        snappingGuides, setSnappingGuides,
+        spacingGuides, setSpacingGuides,
+        get textInputRef() { return textInputRef; }
+    };
 
-            if (store.docType === 'slides') {
-                if (isNavTool) {
-                    // Only advance if left click and not on a control
-                    if (e.button === 0) {
-                        advancePresentation();
-                    }
-                    return;
-                }
-                // If it's a presentation tool (laser, ink, eraser), continue to standard drawing logic
-            } else {
-                // For infinite mode, allow panning if left click or middle click
-                if (e.button === 0 || e.button === 1) {
-                    isDragging = true;
-                    startX = e.clientX;
-                    startY = e.clientY;
-                    (e.currentTarget as Element).setPointerCapture(e.pointerId);
-                    return;
-                }
-            }
-        }
+    const handlePointerDown = (e: PointerEvent) => {
+        if (presentationOnDown(e, pState, pHelpers)) return;
         (e.currentTarget as Element).setPointerCapture(e.pointerId);
         const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
 
@@ -1356,364 +1330,7 @@ const Canvas: Component = () => {
 
 
         if (store.selectedTool === 'selection') {
-            const hitHandle = getHandleAtPosition(x, y, store.elements, store.selection, store.viewState.scale);
-            if (hitHandle) {
-                // Mindmap toggle logic
-                if (hitHandle.handle === 'mindmap-toggle') {
-                    toggleCollapse(hitHandle.id);
-                    return;
-                }
-
-                // Check if it's a connector handle
-                if (hitHandle.handle.startsWith('connector-')) {
-                    const sourceEl = store.elements.find(e => e.id === hitHandle.id);
-                    if (sourceEl) {
-                        // Get the anchor position from the connector handle type
-                        const anchorPosition = hitHandle.handle.replace('connector-', '');
-                        const ecx = sourceEl.x + sourceEl.width / 2;
-                        const ecy = sourceEl.y + sourceEl.height / 2;
-
-                        let anchorX: number, anchorY: number;
-                        switch (anchorPosition) {
-                            case 'top':
-                                anchorX = ecx;
-                                anchorY = sourceEl.y;
-                                break;
-                            case 'right':
-                                anchorX = sourceEl.x + sourceEl.width;
-                                anchorY = ecy;
-                                break;
-                            case 'bottom':
-                                anchorX = ecx;
-                                anchorY = sourceEl.y + sourceEl.height;
-                                break;
-                            case 'left':
-                                anchorX = sourceEl.x;
-                                anchorY = ecy;
-                                break;
-                            default:
-                                anchorX = ecx;
-                                anchorY = ecy;
-                        }
-
-                        // Start drawing an arrow from this anchor
-                        pushToHistory();
-                        isDrawing = true;
-                        startX = anchorX;
-                        startY = anchorY;
-                        startX = anchorX;
-                        startY = anchorY;
-                        currentId = generateId('arrow');
-
-                        // Store connector drag state
-                        draggingFromConnector = {
-                            elementId: sourceEl.id,
-                            anchorPosition,
-                            startX: anchorX,
-                            startY: anchorY
-                        };
-
-                        const newElement = {
-                            ...store.defaultElementStyles,
-                            id: currentId,
-                            type: 'arrow',
-                            x: anchorX,
-                            y: anchorY,
-                            width: 0,
-                            height: 0,
-                            seed: Math.floor(Math.random() * 2 ** 31),
-                            layerId: store.activeLayerId,
-                            curveType: store.defaultElementStyles.curveType || 'straight',
-                            startBinding: { elementId: sourceEl.id, focus: 0, gap: 5, position: anchorPosition }
-                        } as DrawingElement;
-
-                        addElement(newElement);
-
-                        // Update source element's boundElements
-                        const existing = sourceEl.boundElements || [];
-                        updateElement(sourceEl.id, { boundElements: [...existing, { id: currentId, type: 'arrow' }] });
-
-                        return;
-                    }
-                }
-
-                pushToHistory();
-                isDragging = true;
-                draggingHandle = hitHandle.handle;
-                startX = x;
-                startY = y;
-
-                if (hitHandle.id === 'multi') {
-                    const box = getSelectionBoundingBox(store.elements, store.selection);
-                    if (box) {
-                        initialElementX = box.x;
-                        initialElementY = box.y;
-                        initialElementWidth = box.width;
-                        initialElementHeight = box.height;
-
-                        initialPositions.clear();
-                        const toCapture = new Set(store.selection);
-
-                        // Add descendants to capture list
-                        store.selection.forEach(selId => {
-                            getDescendants(selId, store.elements).forEach(d => toCapture.add(d.id));
-                        });
-
-                        store.elements.forEach(el => {
-                            if (toCapture.has(el.id)) {
-                                initialPositions.set(el.id, {
-                                    x: el.x,
-                                    y: el.y,
-                                    width: el.width,
-                                    height: el.height,
-                                    fontSize: el.fontSize,
-                                    points: el.points ? [...el.points] : undefined
-                                });
-                            }
-                        });
-                    }
-                } else {
-                    const el = store.elements.find(e => e.id === hitHandle.id);
-                    if (el) {
-                        initialElementX = el.x;
-                        initialElementY = el.y;
-                        initialElementWidth = el.width;
-                        initialElementHeight = el.height;
-                        initialElementFontSize = el.fontSize || 28;
-
-                        // Capture initial position for the single element to support point scaling
-                        initialPositions.clear();
-                        initialPositions.set(el.id, {
-                            x: el.x,
-                            y: el.y,
-                            width: el.width,
-                            height: el.height,
-                            fontSize: el.fontSize,
-                            points: el.points ? [...el.points] : undefined
-                        });
-                    }
-                }
-                return;
-            }
-
-            // Hit Test Body
-            let hitId: string | null = null;
-            const threshold = 10 / store.viewState.scale;
-
-            // STEP 1: Check if click is within any group's bounding box
-            // This makes grouped elements (like Block Text) easier to select
-            const sortedGroups = getGroupsSortedByPriority(store.elements, store.layers);
-
-            for (const { groupId } of sortedGroups) {
-                // Check if any element in this group is on a visible, unlocked layer
-                const groupElements = store.elements.filter(el =>
-                    el.groupIds && el.groupIds.includes(groupId)
-                );
-
-                // Skip if all elements are locked or on locked/invisible layers
-                const hasInteractableElement = groupElements.some(el =>
-                    canInteractWithElement(el) && isLayerVisible(el.layerId)
-                );
-
-                if (!hasInteractableElement) continue;
-
-                // Check if point is within group bounds
-                if (isPointInGroupBounds(x, y, groupId, store.elements)) {
-                    // Select all elements in this group
-                    const idsToSelect = groupElements.map(el => el.id);
-
-                    const isAllSelected = idsToSelect.every(id => store.selection.includes(id));
-
-                    if (e.shiftKey || e.ctrlKey || e.metaKey) {
-                        if (isAllSelected) {
-                            // Toggle off
-                            setStore('selection', s => s.filter(id => !idsToSelect.includes(id)));
-                        } else {
-                            // Toggle on
-                            setStore('selection', s => [...new Set([...s, ...idsToSelect])]);
-                        }
-                    } else {
-                        if (!isAllSelected) {
-                            setStore('selection', idsToSelect);
-                        }
-                    }
-
-                    // Initialize Move
-                    if (store.selection.length > 0) {
-                        pushToHistory();
-                        isDragging = true;
-                        draggingHandle = null;
-                        startX = x;
-                        startY = y;
-
-                        // Capture initial positions for ALL selected elements and their descendants
-                        initialPositions.clear();
-                        const idsToMove = new Set<string>(store.selection);
-
-                        // Include descendants in the move set
-                        store.selection.forEach(id => {
-                            getDescendants(id, store.elements).forEach(d => idsToMove.add(d.id));
-                        });
-
-                        store.elements.forEach(el => {
-                            if (idsToMove.has(el.id)) {
-                                initialPositions.set(el.id, {
-                                    x: el.x,
-                                    y: el.y,
-                                    width: el.width,
-                                    height: el.height,
-                                    fontSize: el.fontSize,
-                                    points: el.points ? [...el.points] : undefined,
-                                    controlPoints: el.controlPoints ? el.controlPoints.map(cp => ({ ...cp })) : undefined
-                                });
-                            }
-                        });
-                    }
-
-                    return; // Group hit detected, stop processing
-                }
-            }
-
-            const elementMap = new Map<string, DrawingElement>();
-            for (const el of store.elements) elementMap.set(el.id, el);
-
-            const sortedElements = store.elements.map((el, index) => {
-                const layer = store.layers.find(l => l.id === el.layerId);
-                return { el, index, layerOrder: layer?.order ?? 999, layerVisible: isLayerVisible(el.layerId) };
-            }).sort((a, b) => {
-                if (a.layerOrder !== b.layerOrder) return b.layerOrder - a.layerOrder; // Descending
-                return b.index - a.index; // Descending
-            });
-
-            // Hit Testing must respect Animation
-            const currentTime = (window as any).yappyGlobalTime || 0;
-            const shouldAnimate = store.appMode === 'presentation' || store.isPreviewing;
-            const animatedStates = calculateAllAnimatedStates(store.elements, currentTime, shouldAnimate);
-
-            for (const { el, layerVisible } of sortedElements) {
-                // Skip invisible layers
-                if (!layerVisible) continue;
-
-                // Skip elements on locked layers or locked elements
-                if (!canInteractWithElement(el)) continue;
-
-                const animState = animatedStates.get(el.id);
-                const testEl = applyMasterProjection(animState ? {
-                    ...el,
-                    x: animState.x,
-                    y: animState.y,
-                    angle: animState.angle
-                } : el);
-
-                if (hitTestElement(testEl, x, y, threshold, store.elements, elementMap)) {
-                    hitId = el.id;
-                    break;
-                }
-            }
-
-            if (hitId) {
-                const hitEl = store.elements.find(e => e.id === hitId);
-                let idsToSelect = [hitId];
-
-                // If element is grouped, select the outermost group
-                if (hitEl && hitEl.groupIds && hitEl.groupIds.length > 0) {
-                    const outermostId = hitEl.groupIds[hitEl.groupIds.length - 1];
-                    idsToSelect = store.elements
-                        .filter(el => el.groupIds && el.groupIds.includes(outermostId))
-                        .map(el => el.id);
-                }
-
-                const isAllSelected = idsToSelect.every(id => store.selection.includes(id));
-
-                if (e.shiftKey || e.ctrlKey || e.metaKey) {
-                    if (isAllSelected) {
-                        // Toggle off
-                        setStore('selection', s => s.filter(id => !idsToSelect.includes(id)));
-                    } else {
-                        // Toggle on
-                        setStore('selection', s => [...new Set([...s, ...idsToSelect])]);
-                    }
-                } else {
-                    if (!isAllSelected) {
-                        setStore('selection', idsToSelect);
-                    }
-                }
-
-                // Initialize Move (if there is selection)
-                if (store.selection.length > 0) {
-                    pushToHistory();
-                    isDragging = true;
-                    draggingHandle = null;
-                    startX = x;
-                    startY = y;
-
-                    // Capture initial positions for ALL selected elements and their descendants
-                    initialPositions.clear();
-                    const idsToMove = new Set<string>(store.selection);
-
-                    // Include descendants in the move set
-                    store.selection.forEach(id => {
-                        getDescendants(id, store.elements).forEach(d => idsToMove.add(d.id));
-                    });
-
-                    store.elements.forEach(el => {
-                        if (idsToMove.has(el.id)) {
-                            initialPositions.set(el.id, {
-                                x: el.x,
-                                y: el.y,
-                                width: el.width,
-                                height: el.height,
-                                fontSize: el.fontSize,
-                                points: el.points ? [...el.points] : undefined,
-                                controlPoints: el.controlPoints ? el.controlPoints.map(cp => ({ ...cp })) : undefined
-                            });
-                        }
-                    });
-                }
-            } else {
-                // Clicked empty space - Check if hit selection bounding box
-                if (store.selection.length > 0) {
-                    const box = getSelectionBoundingBox(store.elements, store.selection);
-                    if (box) {
-                        const threshold = 10 / store.viewState.scale;
-                        if (x >= box.x - threshold && x <= box.x + box.width + threshold &&
-                            y >= box.y - threshold && y <= box.y + box.height + threshold) {
-
-                            pushToHistory();
-                            isDragging = true;
-                            draggingHandle = null;
-                            startX = x;
-                            startY = y;
-
-                            initialPositions.clear();
-                            store.elements.forEach(el => {
-                                if (store.selection.includes(el.id)) {
-                                    initialPositions.set(el.id, {
-                                        x: el.x,
-                                        y: el.y,
-                                        width: el.width,
-                                        height: el.height,
-                                        fontSize: el.fontSize,
-                                        points: el.points ? [...el.points] : undefined,
-                                        controlPoints: el.controlPoints ? el.controlPoints.map(cp => ({ ...cp })) : undefined
-                                    });
-                                }
-                            });
-                            return;
-                        }
-                    }
-                }
-
-                if (!e.shiftKey && !e.ctrlKey && !e.metaKey) {
-                    setStore('selection', []);
-                    setShowCanvasProperties(false); // Hide canvas properties on click away
-                }
-                // Start Selection Box
-                isSelecting = true;
-                startX = x;
-                startY = y;
-                setSelectionBox({ x, y, w: 0, h: 0 });
-            }
+            selectionOnDown(e, x, y, pState, pHelpers, pSignals);
             return;
         }
 
@@ -1729,826 +1346,49 @@ const Canvas: Component = () => {
             return;
         }
 
-        if (store.selectedTool === 'text') {
-            const id = generateId('text');
-            const newElement = {
-                ...store.defaultElementStyles,
-                id,
-                type: 'text',
-                x,
-                y,
-                width: 100,
-                height: 30,
-                text: '',
-                layerId: store.activeLayerId
-            } as DrawingElement;
-            addElement(newElement);
-            setEditingId(id);
-            setEditText("");
-            setTimeout(() => textInputRef?.focus(), 0);
-            return;
-        }
+        if (store.selectedTool === 'text') { textOnDown(x, y, pSignals); return; }
+        if (store.selectedTool === 'laser') { laserOnDown(x, y, pState); return; }
+        if (store.selectedTool === 'ink') { inkOnDown(x, y, pState); return; }
+        if (store.selectedTool === 'eraser') { eraserOnDown(x, y, pState, pHelpers); return; }
+        if (store.selectedTool === 'pan') { panOnDown(pState, pHelpers); return; }
 
-        if (store.selectedTool === 'laser') {
-            isDrawing = true;
-            laserTrailData = [{ x, y, timestamp: Date.now() }];
-            lastLaserUpdateTime = Date.now();
-            return;
-        }
-
-        if (store.selectedTool === 'ink') {
-            isDrawing = true;
-            startX = x;
-            startY = y;
-            currentId = generateId('ink');
-            const newElement = {
-                ...store.defaultElementStyles,
-                id: currentId,
-                type: 'ink',
-                x,
-                y,
-                width: 0,
-                height: 0,
-                strokeColor: '#ef4444', // Bright red
-                strokeWidth: 4,
-                opacity: 100,
-                points: [0, 0],
-                pointsEncoding: 'flat',
-                ttl: Date.now() + 3000, // 3 seconds
-                layerId: store.activeLayerId,
-                seed: Math.floor(Math.random() * 2 ** 31)
-            } as DrawingElement;
-            addElement(newElement);
-            return;
-        }
-
-        if (store.selectedTool === 'eraser') {
-            isDrawing = true; // Enable drag
-            const threshold = 10 / store.viewState.scale;
-            const elementMap = new Map<string, DrawingElement>();
-            for (const el of store.elements) elementMap.set(el.id, el);
-
-            for (let i = store.elements.length - 1; i >= 0; i--) {
-                const el = store.elements[i];
-                if (!canInteractWithElement(el)) continue;
-                if (!isLayerVisible(el.layerId)) continue;
-                if (hitTestElement(applyMasterProjection(el), x, y, threshold, store.elements, elementMap)) {
-                    deleteElements([el.id]);
-                }
-            }
-            return;
-        }
-
-        if (store.selectedTool === 'pan') {
-            isDragging = true;
-            setCursor('grabbing');
-            return;
-        }
-
-        isDrawing = true;
-
-        // Clear pen buffer for new stroke
-        penPointsBuffer = [];
-        lastPenUpdateTime = 0;
-
-        // Snap start position if enabled
-        let creationX = x;
-        let creationY = y;
-        if (store.gridSettings.snapToGrid) {
-            const snapped = snapPoint(x, y, store.gridSettings.gridSize);
-            creationX = snapped.x;
-            creationY = snapped.y;
-        }
-
-        startX = creationX;
-        startY = creationY;
-        currentId = generateId(store.selectedTool);
-
-        const tool = store.selectedTool;
-        const actualType = tool === 'bezier' ? 'line' : tool;
-        const actualCurveType = (tool === 'bezier' || tool === 'organicBranch') ? 'bezier' : (store.defaultElementStyles.curveType || 'straight');
-
-        // Check for start binding at creation time (source connection fix)
-        let startBindingData: { elementId: string; focus: number; gap: number; position?: string } | undefined;
-        let snappedStartX = creationX;
-        let snappedStartY = creationY;
-
-        if (tool === 'line' || tool === 'arrow' || tool === 'bezier' || tool === 'organicBranch') {
-            const match = checkBinding(creationX, creationY, currentId);
-            if (match) {
-                startBindingData = {
-                    elementId: match.element.id,
-                    focus: 0,
-                    gap: 5,
-                    position: match.position
-                };
-                snappedStartX = match.snapPoint.x;
-                snappedStartY = match.snapPoint.y;
-                startX = snappedStartX;
-                startY = snappedStartY;
-            }
-        }
-
-        const newElement = {
-            ...store.defaultElementStyles,
-            id: currentId,
-            type: actualType,
-            x: snappedStartX,
-            y: snappedStartY,
-            width: 0,
-            height: 0,
-            seed: Math.floor(Math.random() * 2 ** 31) + 1,
-            layerId: store.activeLayerId,
-            curveType: actualCurveType as 'straight' | 'bezier' | 'elbow',
-            points: (tool === 'fineliner' || tool === 'inkbrush' || tool === 'marker') ? [0, 0] : undefined,
-            pointsEncoding: (tool === 'fineliner' || tool === 'inkbrush' || tool === 'marker') ? 'flat' : undefined,
-            startBinding: startBindingData,
-            // Ensure geometric shapes default to solid stroke unless explicitly changed
-            strokeStyle: (['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'pentagon', 'septagon', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout', 'speechBubble', 'database', 'document', 'cylinder', 'isometricCube', 'solidBlock', 'perspectiveBlock', 'umlClass', 'umlInterface', 'umlActor', 'umlComponent', 'umlState', 'umlLifeline', 'umlFragment', 'umlSignalSend', 'umlSignalReceive'].includes(actualType)) ? 'solid' : store.defaultElementStyles.strokeStyle,
-        } as DrawingElement;
-
-        // Apply specific defaults for Sticky Note
-        if (actualType === 'stickyNote') {
-            newElement.backgroundColor = '#fef08a'; // Pastel Yellow
-            newElement.fillStyle = 'solid';
-            newElement.strokeColor = '#000000'; // Ensure black text/outline
-        }
-
-        addElement(newElement);
-
-        // Update target's boundElements if we have a start binding
-        if (startBindingData) {
-            const target = store.elements.find(e => e.id === startBindingData!.elementId);
-            if (target) {
-                const existing = target.boundElements || [];
-                updateElement(target.id, { boundElements: [...existing, { id: currentId, type: actualType as 'arrow' }] });
-            }
-        }
+        drawOnDown(x, y, pState, pHelpers);
     };
 
     const handlePointerMove = (e: PointerEvent) => {
-        if (store.appMode === 'presentation') {
-            const isNavTool = store.selectedTool === 'selection' || store.selectedTool === 'pan';
-            if (store.docType === 'slides' && isNavTool) return;
-
-            // For infinite mode OR presentation tools, continue...
-            if (store.docType === 'slides') {
-                // We fall through to world-coord calculation and tool logic
-            } else if (isDragging) {
-                setViewState({
-                    panX: store.viewState.panX + e.movementX,
-                    panY: store.viewState.panY + e.movementY
-                });
-                return;
-            }
-            // If not slides and not dragging, we might be using a presentation tool like laser/ink
-            // In this case, we fall through to the regular tool logic below.
-        }
+        if (presentationOnMove(e, pState)) return;
         let { x, y } = getWorldCoordinates(e.clientX, e.clientY);
-        // console.log('Move', { tool: store.selectedTool, isDragging, selection: store.selection.length });
+        // console.log('Move', { tool: store.selectedTool, isDragging: pState.isDragging, selection: store.selection.length });
 
-        // Update Cursor
-        if (store.selectedTool === 'pan') {
-            setCursor(isDragging ? 'grabbing' : 'grab');
-        } else if (store.selectedTool === 'selection' && !isDragging) {
-            const hit = getHandleAtPosition(x, y, store.elements, store.selection, store.viewState.scale);
-            const prevHover = hoveredConnector;
-
-            if (hit) {
-                if (hit.handle === 'rotate') setCursor('grab');
-                else if (hit.handle === 'tl' || hit.handle === 'br') setCursor('nwse-resize');
-                else if (hit.handle === 'tr' || hit.handle === 'bl') setCursor('nesw-resize');
-                else if (hit.handle === 'tm' || hit.handle === 'bm') setCursor('ns-resize');
-                else if (hit.handle === 'lm' || hit.handle === 'rm') setCursor('ew-resize');
-                else if (hit.handle.startsWith('connector-')) {
-                    setCursor('crosshair'); // Or pointer
-                    hoveredConnector = { elementId: hit.id, handle: hit.handle };
-                } else {
-                    // Reset if hit something else (like resize handle)
-                    hoveredConnector = null;
-                }
-            } else {
-                setCursor('default');
-                hoveredConnector = null;
-            }
-
-            // Redraw if hover connector changed (for animation/highlight)
-            const isChanged = (prevHover && !hoveredConnector) ||
-                (!prevHover && hoveredConnector) ||
-                (prevHover && hoveredConnector && (prevHover.elementId !== hoveredConnector.elementId || prevHover.handle !== hoveredConnector.handle));
-
-            if (isChanged) {
-                requestAnimationFrame(draw);
-            }
-        }
-
-        if (store.selectedTool === 'pan') {
-            if (isDragging) {
-                setViewState({
-                    panX: store.viewState.panX + e.movementX,
-                    panY: store.viewState.panY + e.movementY
-                });
-            }
-            return;
-        }
+        if (store.selectedTool === 'pan') { panOnMove(e, pState, pHelpers); return; }
 
         if (store.selectedTool === 'selection') {
-            if (isSelecting) {
-                const w = x - startX;
-                const h = y - startY;
-                setSelectionBox({
-                    x: w > 0 ? startX : startX + w,
-                    y: h > 0 ? startY : startY + h,
-                    w: Math.abs(w),
-                    h: Math.abs(h)
-                });
-                return;
-            }
-
-            if (isDragging && store.selection.length > 0) {
-                const id = store.selection[0];
-                const el = store.elements.find(e => e.id === id);
-                if (!el) return;
-
-                if (draggingHandle && !canInteractWithElement(el)) {
-                    return;
-                }
-
-                if (draggingHandle) {
-                    // Binding Logic for Lines/Arrows/OrganicBranch
-                    if ((el.type === 'line' || el.type === 'arrow' || el.type === 'organicBranch') && (draggingHandle === 'tl' || draggingHandle === 'br')) {
-                        const match = checkBinding(x, y, el.id);
-                        if (match) {
-                            setSuggestedBinding({ elementId: match.element.id, px: match.snapPoint.x, py: match.snapPoint.y, position: match.position });
-                            x = match.snapPoint.x;
-                            y = match.snapPoint.y;
-                        } else {
-                            setSuggestedBinding(null);
-                        }
-                    } else {
-                        setSuggestedBinding(null);
-                    }
-
-                    // Resize/Rotate logic
-                    if (draggingHandle === 'rotate') {
-                        const cx = el.x + el.width / 2;
-                        const cy = el.y + el.height / 2;
-                        // Calculate angle
-                        const angle = Math.atan2(y - cy, x - cx);
-                        updateElement(id, { angle: angle + Math.PI / 2 });
-                    } else {
-                        // RESIZING
-                        let resizeX = x;
-                        let resizeY = y;
-
-                        // Snap handle position to grid if enabled
-                        if (store.gridSettings.snapToGrid) {
-                            const snapped = snapPoint(x, y, store.gridSettings.gridSize);
-                            resizeX = snapped.x;
-                            resizeY = snapped.y;
-                        }
-
-                        const dx = resizeX - startX;
-                        const dy = resizeY - startY;
-
-                        let newX = initialElementX;
-                        let newY = initialElementY;
-                        let newWidth = initialElementWidth;
-                        let newHeight = initialElementHeight;
-
-                        if (draggingHandle === 'tl') {
-                            newX += dx;
-                            newY += dy;
-                            newWidth -= dx;
-                            newHeight -= dy;
-                        } else if (draggingHandle === 'tr') {
-                            newY += dy;
-                            newWidth += dx;
-                            newHeight -= dy;
-                        } else if (draggingHandle === 'bl') {
-                            newX += dx;
-                            newWidth -= dx;
-                            newHeight += dy;
-                        } else if (draggingHandle === 'br') {
-                            newWidth += dx;
-                            newHeight += dy;
-                        } else if (draggingHandle === 'tm') {
-                            newY += dy;
-                            newHeight -= dy;
-                        } else if (draggingHandle === 'bm') {
-                            newHeight += dy;
-                        } else if (draggingHandle === 'lm') {
-                            newX += dx;
-                            newWidth -= dx;
-                        } else if (draggingHandle === 'rm') {
-                            newWidth += dx;
-                        }
-
-                        // Apply Constraints (Proportional Resizing)
-                        const isMulti = store.selection.length > 1;
-                        const firstEl = store.elements.find(e => e.id === store.selection[0]);
-                        let isConstrained = e.shiftKey || (store.selection.length === 1 && firstEl?.constrained);
-
-                        // Point 2: Lock Aspect Ratio for Text by Default
-                        // For text, we invert the Shift behavior: 
-                        // - No Shift = Constrained (Locked)
-                        // - Shift = Unconstrained (Free)
-                        if (store.selection.length === 1 && firstEl?.type === 'text') {
-                            isConstrained = !e.shiftKey;
-                        }
-
-                        if (isConstrained && initialElementWidth !== 0 && initialElementHeight !== 0) {
-                            const ratio = initialElementWidth / initialElementHeight;
-
-                            if (['tm', 'bm'].includes(draggingHandle!)) {
-                                // Side-only resize but constrained -> change width too
-                                newWidth = newHeight * ratio;
-                                // Need to keep center if it was side handle? 
-                                // Actually usually we just scale from the other side.
-                                if (draggingHandle === 'tm') {
-                                    newX = (initialElementX + initialElementWidth / 2) - newWidth / 2;
-                                } else {
-                                    newX = (initialElementX + initialElementWidth / 2) - newWidth / 2;
-                                }
-                            } else if (['lm', 'rm'].includes(draggingHandle!)) {
-                                newHeight = newWidth / ratio;
-                                newY = (initialElementY + initialElementHeight / 2) - newHeight / 2;
-                            } else {
-                                // Corner Handles
-                                if (Math.abs(newWidth) / ratio > Math.abs(newHeight)) {
-                                    newHeight = newWidth / ratio;
-                                } else {
-                                    newWidth = newHeight * ratio;
-                                }
-
-                                // Re-adjust X/Y for corner constraints
-                                if (draggingHandle === 'tl') {
-                                    newX = (initialElementX + initialElementWidth) - newWidth;
-                                    newY = (initialElementY + initialElementHeight) - newHeight;
-                                } else if (draggingHandle === 'tr') {
-                                    newY = (initialElementY + initialElementHeight) - newHeight;
-                                } else if (draggingHandle === 'bl') {
-                                    newX = (initialElementX + initialElementWidth) - newWidth;
-                                }
-                            }
-                        }
-
-                        if (draggingHandle && draggingHandle.startsWith('control-')) {
-                            // DRAGGING CONTROL POINT
-                            const index = parseInt(draggingHandle.replace('control-', ''), 10);
-                            const element = store.elements.find(e => e.id === id);
-
-                            if (element) {
-                                let newControlPoints = element.controlPoints ? [...element.controlPoints] : [];
-
-                                // Initialize if missing (e.g., first drag)
-                                while (newControlPoints.length <= index) {
-                                    newControlPoints.push({ x: x, y: y });
-                                }
-
-                                if (element.controlPoints && element.controlPoints.length === 1 && index === 0) {
-                                    // Curve Handle Logic
-                                    let start = { x: element.x, y: element.y };
-                                    let end = { x: element.x + element.width, y: element.y + element.height };
-                                    if (element.points && element.points.length >= 2) {
-                                        const pts = normalizePoints(element.points);
-                                        if (pts.length > 0) {
-                                            start = { x: element.x + pts[0].x, y: element.y + pts[0].y };
-                                            end = { x: element.x + pts[pts.length - 1].x, y: element.y + pts[pts.length - 1].y };
-                                        }
-                                    }
-                                    const cpX = 2 * x - 0.5 * start.x - 0.5 * end.x;
-                                    const cpY = 2 * y - 0.5 * start.y - 0.5 * end.y;
-                                    newControlPoints[0] = { x: cpX, y: cpY };
-                                } else {
-                                    newControlPoints[index] = { x: x, y: y };
-                                }
-                                updateElement(element.id, { controlPoints: newControlPoints });
-                            }
-
-                            // Handle Custom Control Handles (Virtual handles like Top Control for Cube)
-                            if (draggingHandle && draggingHandle.startsWith('control-')) {
-                                const el = store.elements.find(e => e.id === id);
-                                if (el) {
-                                    if (el.type === 'isometricCube' && draggingHandle === 'control-1') {
-                                        // Vertical Drag -> shapeRatio (Height of top face)
-                                        let newVRatio = (y - el.y) / el.height;
-                                        newVRatio = Math.max(0.1, Math.min(0.9, newVRatio));
-                                        const shapeRatio = Math.round(newVRatio * 100);
-
-                                        // Horizontal Drag -> sideRatio (Perspective/Rotation)
-                                        let newHRatio = (x - el.x) / el.width;
-                                        newHRatio = Math.max(0, Math.min(1, newHRatio));
-                                        const sideRatio = Math.round(newHRatio * 100);
-
-                                        updateElement(el.id, { shapeRatio, sideRatio }, false);
-                                    } else if ((el.type === 'solidBlock' || el.type === 'cylinder') && draggingHandle === 'control-1') {
-                                        // Handle drag adjusts Depth and View Angle
-                                        const centerX = el.x + el.width / 2;
-                                        const centerY = el.y + el.height / 2;
-                                        const dx = x - centerX;
-                                        const dy = y - centerY;
-
-                                        // 1. Calculate Depth (Magnitude of vector)
-                                        let newDepth = Math.sqrt(dx * dx + dy * dy);
-                                        newDepth = Math.round(newDepth);
-
-                                        // 2. Calculate Angle (Direction)
-                                        // atan2 returns -PI to PI. Convert to 0-360 deg.
-                                        let angleRad = Math.atan2(dy, dx);
-                                        let angleDeg = Math.round((angleRad * 180) / Math.PI);
-                                        if (angleDeg < 0) angleDeg += 360;
-
-                                        updateElement(el.id, { depth: newDepth, viewAngle: angleDeg }, false);
-                                    } else if (el.type === 'perspectiveBlock') {
-                                        if (draggingHandle === 'control-1') {
-                                            const centerX = el.x + el.width / 2;
-                                            const centerY = el.y + el.height / 2;
-                                            const dx = x - centerX - (el.skewX || 0) * el.width;
-                                            const dy = y - centerY - (el.skewY || 0) * el.height;
-
-                                            let newDepth = Math.sqrt(dx * dx + dy * dy);
-                                            let angleRad = Math.atan2(dy, dx);
-                                            let angleDeg = Math.round((angleRad * 180) / Math.PI);
-                                            if (angleDeg < 0) angleDeg += 360;
-
-                                            updateElement(el.id, { depth: Math.round(newDepth), viewAngle: angleDeg }, false);
-                                        } else if (draggingHandle === 'control-2' || draggingHandle === 'control-3' || draggingHandle === 'control-4' || draggingHandle === 'control-5') {
-                                            // Back Vertices (TL, TR, BR, BL)
-                                            const mw = el.width / 2;
-                                            const mh = el.height / 2;
-                                            const centerX = el.x + mw;
-                                            const centerY = el.y + mh;
-                                            const angle = (el.viewAngle || 45) * Math.PI / 180;
-                                            const depth = el.depth || 50;
-                                            const baseBackCenterX = centerX + depth * Math.cos(angle);
-                                            const baseBackCenterY = centerY + depth * Math.sin(angle);
-
-                                            // Mouse in local space relative to predicted base center
-                                            const imx = x - baseBackCenterX;
-                                            const imy = y - baseBackCenterY;
-
-                                            // Determine signs based on handle
-                                            const sx = (draggingHandle === 'control-3' || draggingHandle === 'control-4') ? 1 : -1;
-                                            const sy = (draggingHandle === 'control-4' || draggingHandle === 'control-5') ? 1 : -1;
-
-                                            // We want to solve for new skew and taper
-                                            // mx = skewX + sx * mw * (1-taper)
-                                            // my = skewY + sy * mh * (1-taper)
-                                            // This is underdetermined. Let's fix Taper based on distance or scale, and Skew as the shift.
-                                            // Simple direct mapping: 
-                                            // Dragging a corner adjusts both skew and taper.
-                                            // Taper = 1 - (distance from mouse to back center / predicted distance)
-                                            const distToCenter = Math.sqrt(imx * imx + imy * imy);
-                                            const predictedDist = Math.sqrt((mw * mw) + (mh * mh));
-                                            const newTaper = Math.max(0, Math.min(1, 1 - (distToCenter / predictedDist)));
-
-                                            // Skew is the offset of the "face center"
-                                            const newSkewX = (imx - sx * mw * (1 - newTaper)) / el.width;
-                                            const newSkewY = (imy - sy * mh * (1 - newTaper)) / el.height;
-
-                                            updateElement(el.id, { taper: newTaper, skewX: newSkewX, skewY: newSkewY }, false);
-                                        } else if (draggingHandle === 'control-6' || draggingHandle === 'control-7' || draggingHandle === 'control-8' || draggingHandle === 'control-9') {
-                                            // Front Vertices (TL, TR, BR, BL)
-                                            const mw = el.width / 2;
-                                            const mh = el.height / 2;
-                                            const centerX = el.x + mw;
-                                            const centerY = el.y + mh;
-
-                                            const imx = x - centerX;
-                                            const imy = y - centerY;
-
-                                            const sx = (draggingHandle === 'control-7' || draggingHandle === 'control-8') ? 1 : -1;
-                                            const sy = (draggingHandle === 'control-8' || draggingHandle === 'control-9') ? 1 : -1;
-
-                                            const distToCenter = Math.sqrt(imx * imx + imy * imy);
-                                            const predictedDist = Math.sqrt((mw * mw) + (mh * mh));
-                                            const newTaper = Math.max(0, Math.min(1, 1 - (distToCenter / predictedDist)));
-
-                                            const newSkewX = (imx - sx * mw * (1 - newTaper)) / el.width;
-                                            const newSkewY = (imy - sy * mh * (1 - newTaper)) / el.height;
-
-                                            updateElement(el.id, { frontTaper: newTaper, frontSkewX: newSkewX, frontSkewY: newSkewY }, false);
-                                        }
-                                    } else if ((el.type === 'star' || el.type === 'burst') && draggingHandle === 'control-1') {
-                                        let newRatio = (y - el.y) / el.height;
-                                        newRatio = Math.max(0.1, Math.min(0.9, newRatio));
-                                        const shapeRatio = Math.round(newRatio * 100);
-                                        updateElement(el.id, { shapeRatio }, false);
-                                    } else if (el.type === 'speechBubble' && draggingHandle === 'control-1') {
-                                        let newTailX = (x - el.x) / el.width;
-                                        let newTailY = (y - el.y) / el.height;
-                                        newTailX = Math.max(-0.5, Math.min(1.5, newTailX));
-                                        newTailY = Math.max(-0.5, Math.min(1.5, newTailY));
-                                        updateElement(el.id, { tailX: newTailX, tailY: newTailY }, false);
-                                    }
-                                }
-                            }
-                        } else {
-                            // APPLY RESIZE (Single or Group)
-                            // This runs if it's NOT a control handle (i.e. normal corner/side resize)
-
-                            if (isMulti) {
-                                // GROUP RESIZING
-                                const scaleX = initialElementWidth === 0 ? 1 : newWidth / initialElementWidth;
-                                const scaleY = initialElementHeight === 0 ? 1 : newHeight / initialElementHeight;
-
-                                store.selection.forEach(selId => {
-                                    const init = initialPositions.get(selId);
-                                    if (!init) return;
-
-                                    const relX = init.x - initialElementX;
-                                    const relY = init.y - initialElementY;
-
-                                    const updates: any = {
-                                        x: newX + relX * scaleX,
-                                        y: newY + relY * scaleY,
-                                        width: init.width * scaleX,
-                                        height: init.height * scaleY
-                                    };
-
-                                    if (init.points) {
-                                        if (typeof init.points[0] === 'number') {
-                                            const pts = init.points as number[];
-                                            const newPts = [];
-                                            for (let i = 0; i < pts.length; i += 2) {
-                                                newPts.push(pts[i] * scaleX, pts[i + 1] * scaleY);
-                                            }
-                                            updates.points = newPts;
-                                        } else {
-                                            updates.points = (init.points as any[]).map((p: any) => ({
-                                                x: p.x * scaleX,
-                                                y: p.y * scaleY
-                                            }));
-                                        }
-                                    }
-
-                                    const element = store.elements.find(e => e.id === selId);
-                                    if (element && element.type === 'text') {
-                                        updates.fontSize = Math.max(8, (init.fontSize || 28) * scaleY);
-                                    }
-
-                                    updateElement(selId, updates, false);
-                                });
-                            } else {
-                                // SINGLE ELEMENT RESIZING
-                                const id = store.selection[0];
-                                const el = store.elements.find(e => e.id === id);
-                                if (el) {
-                                    const updates: any = { x: newX, y: newY, width: newWidth, height: newHeight };
-
-                                    // Scale factors for points/content
-                                    const scaleX = initialElementWidth === 0 ? 1 : newWidth / initialElementWidth;
-                                    const scaleY = initialElementHeight === 0 ? 1 : newHeight / initialElementHeight;
-
-                                    // Scale font size for text
-                                    if (el.type === 'text') {
-                                        if (scaleY > 0) {
-                                            let newFontSize = initialElementFontSize * scaleY;
-                                            newFontSize = Math.max(newFontSize, 8);
-                                            updates.fontSize = newFontSize;
-                                        }
-                                    }
-
-                                    // Scale points for pen tools
-                                    if ((el.type === 'fineliner' || el.type === 'inkbrush' || el.type === 'marker') && el.points) {
-                                        const init = initialPositions.get(id);
-                                        if (init && init.points) {
-                                            if (el.pointsEncoding === 'flat' || (init.points.length > 0 && typeof init.points[0] === 'number')) {
-                                                const pts = init.points as number[];
-                                                const newPts = [];
-                                                for (let i = 0; i < pts.length; i += 2) {
-                                                    newPts.push(pts[i] * scaleX, pts[i + 1] * scaleY);
-                                                }
-                                                updates.points = newPts;
-                                            } else {
-                                                updates.points = (init.points as any[]).map((p: any) => ({
-                                                    x: p.x * scaleX,
-                                                    y: p.y * scaleY,
-                                                    ...(p.p !== undefined ? { p: p.p } : {})
-                                                }));
-                                            }
-                                        }
-                                    }
-
-                                    if (el.type === 'line' || el.type === 'arrow' || el.type === 'bezier') {
-                                        updates.points = refreshLinePoints(el, newX, newY, newX + newWidth, newY + newHeight);
-                                    }
-
-                                    if (el.type === 'organicBranch') {
-                                        updates.points = [0, 0, newWidth, newHeight];
-                                        const newStartX = newX;
-                                        const newStartY = newY;
-                                        const newEndX = newX + newWidth;
-                                        const newEndY = newY + newHeight;
-                                        const newCp1 = { x: newStartX + newWidth * 0.5, y: newStartY };
-                                        const newCp2 = { x: newEndX - newWidth * 0.5, y: newEndY };
-                                        updates.controlPoints = [newCp1, newCp2];
-                                    }
-
-                                    updateElement(id, updates, false);
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    // Move Multiple Items
-                    let dx = x - startX;
-                    let dy = y - startY;
-
-                    // OPTIMIZATION: Throttle Object Snapping calculations
-                    if (store.gridSettings.objectSnapping && !e.shiftKey) {
-                        const now = performance.now();
-
-                        // Only recalculate if enough time has passed (throttle to ~60 FPS)
-                        if (now - lastSnappingTime >= SNAPPING_THROTTLE_MS) {
-                            const snap = getSnappingGuides(store.selection, store.elements, dx, dy, 5 / store.viewState.scale);
-                            dx = snap.dx;
-                            dy = snap.dy;
-                            setSnappingGuides(snap.guides);
-
-                            const spacing = getSpacingGuides(store.selection, store.elements, dx, dy, 5 / store.viewState.scale);
-                            dx = spacing.dx;
-                            dy = spacing.dy;
-                            setSpacingGuides(spacing.guides);
-
-                            lastSnappingTime = now;
-                        }
-                        // If throttled, keep using the visual guides but don't recalculate snap position
-                    } else {
-                        setSnappingGuides([]);
-                        setSpacingGuides([]);
-                    }
-
-                    // Snap delta to grid if enabled and no object snapping guides
-                    if (store.gridSettings.snapToGrid && !e.shiftKey && snappingGuides().length === 0) {
-                        const gridSize = store.gridSettings.gridSize;
-                        dx = Math.round(dx / gridSize) * gridSize;
-                        dy = Math.round(dy / gridSize) * gridSize;
-                    }
-
-                    const skipHierarchy = e.altKey;
-
-                    initialPositions.forEach((initPos, selId) => {
-                        // If Alt is held, only move selected items, not their (unselected) descendants
-                        if (skipHierarchy && !store.selection.includes(selId)) return;
-
-                        const el = store.elements.find(e => e.id === selId);
-                        if (el && canInteractWithElement(el)) {
-                            const updates: any = { x: initPos.x + dx, y: initPos.y + dy };
-
-                            // Update Absolute Control Points
-                            if (initPos.controlPoints) {
-                                updates.controlPoints = initPos.controlPoints.map((cp: any) => ({
-                                    x: cp.x + dx,
-                                    y: cp.y + dy
-                                }));
-                            }
-
-                            updateElement(selId, updates, false);
-
-                            // Update Bound Lines
-                            if (el.boundElements) {
-                                el.boundElements.forEach(b => refreshBoundLine(b.id));
-                            }
-                        }
-                    });
-                }
-            }
+            selectionOnMove(e, x, y, pState, pHelpers, pSignals, SNAPPING_THROTTLE_MS);
+            return;
         }
 
 
         if (store.selectedTool === 'laser') {
-            const now = Date.now();
-            // Throttle updates for smooth performance
-            if (now - lastLaserUpdateTime >= LASER_THROTTLE_MS) {
-                lastLaserUpdateTime = now;
-                const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
-                // Mutate array directly for performance
-                if (laserTrailData.length >= LASER_MAX_POINTS) {
-                    laserTrailData.shift();
-                }
-                laserTrailData.push({ x, y, timestamp: now });
-                // Single RAF request to prevent stacking
-                if (!laserRafPending) {
-                    laserRafPending = true;
-                    requestAnimationFrame(() => {
-                        laserRafPending = false;
-                        draw();
-                    });
-                }
-            }
+            laserOnMove(e, pState, pHelpers, LASER_THROTTLE_MS, LASER_MAX_POINTS);
         }
 
-        if (!isDrawing || !currentId) {
-            if (isDrawing && store.selectedTool === 'eraser') {
-                const threshold = 10 / store.viewState.scale;
-                const elementMap = new Map<string, DrawingElement>();
-                for (const el of store.elements) elementMap.set(el.id, el);
-
-                for (let i = store.elements.length - 1; i >= 0; i--) {
-                    const el = store.elements[i];
-                    if (!canInteractWithElement(el)) continue;
-                    if (!isLayerVisible(el.layerId)) continue;
-                    if (hitTestElement(applyMasterProjection(el), x, y, threshold, store.elements, elementMap)) {
-                        deleteElements([el.id]);
-                    }
-                }
+        if (!pState.isDrawing || !pState.currentId) {
+            if (pState.isDrawing && store.selectedTool === 'eraser') {
+                eraserOnMove(x, y, pHelpers);
             }
             return;
         }
 
         if (store.selectedTool === 'fineliner' || store.selectedTool === 'marker' || store.selectedTool === 'inkbrush' || store.selectedTool === 'ink') {
-            const { x: ex, y: ey } = getWorldCoordinates(e.clientX, e.clientY);
-            const px = ex - startX;
-            const py = ey - startY;
-
-            // Buffer points locally for performance
-            penPointsBuffer.push(px, py);
-
-            const now = Date.now();
-            // Throttle store updates but ensure smooth visual feedback
-            if (now - lastPenUpdateTime >= PEN_UPDATE_THROTTLE_MS) {
-                lastPenUpdateTime = now;
-                flushPenPoints();
-            } else if (!penUpdatePending) {
-                // Schedule a flush if not already pending
-                penUpdatePending = true;
-                requestAnimationFrame(() => {
-                    penUpdatePending = false;
-                    flushPenPoints();
-                });
-            }
+            penOnMove(e, pState, pHelpers, PEN_UPDATE_THROTTLE_MS);
         } else {
-            // Apply snap to grid if enabled
-            let finalX = x;
-            let finalY = y;
-
-            if (store.selectedTool === 'line' || store.selectedTool === 'arrow' || store.selectedTool === 'bezier' || store.selectedTool === 'organicBranch' || draggingFromConnector) {
-                if (currentId) {
-                    const match = checkBinding(x, y, currentId);
-                    if (match) {
-                        setSuggestedBinding({ elementId: match.element.id, px: match.snapPoint.x, py: match.snapPoint.y, position: match.position });
-                        finalX = match.snapPoint.x;
-                        finalY = match.snapPoint.y;
-                    } else {
-                        setSuggestedBinding(null);
-                    }
-                }
-            } else {
-                setSuggestedBinding(null);
-            }
-
-            if (!suggestedBinding() && store.gridSettings.snapToGrid) {
-                const snapped = snapPoint(x, y, store.gridSettings.gridSize);
-                finalX = snapped.x;
-                finalY = snapped.y;
-            }
-
-            const updates: Partial<DrawingElement> = {
-                width: finalX - startX,
-                height: finalY - startY
-            };
-
-            // For organicBranch, provide temporary points and controlPoints for live preview
-            if (store.selectedTool === 'organicBranch') {
-                const w = finalX - startX;
-                const h = finalY - startY;
-                // Relative start and end points (start at origin, end at width/height)
-                updates.points = [0, 0, w, h];
-                // Calculate control points for S-curve
-                const cp1 = { x: startX + w * 0.5, y: startY };
-                const cp2 = { x: finalX - w * 0.5, y: finalY };
-                updates.controlPoints = [cp1, cp2];
-            }
-
-            updateElement(currentId, updates);
+            drawOnMove(x, y, pState, pHelpers, pSignals);
         }
 
         // Auto-Scroll Check
-        if (isDragging || isDrawing) {
-            const edgeThreshold = 50;
-            const scrollSpeed = 10;
-            const clientX = e.clientX;
-            const clientY = e.clientY;
+        handleAutoScroll(e, pState);
 
-            let dPanX = 0;
-            let dPanY = 0;
-
-            if (clientX < edgeThreshold) dPanX = scrollSpeed;
-            if (clientX > window.innerWidth - edgeThreshold) dPanX = -scrollSpeed;
-            if (clientY < edgeThreshold) dPanY = scrollSpeed;
-            if (clientY > window.innerHeight - edgeThreshold) dPanY = -scrollSpeed;
-
-            if (dPanX !== 0 || dPanY !== 0) {
-                setViewState({
-                    panX: store.viewState.panX + dPanX,
-                    panY: store.viewState.panY + dPanY
-                });
-            }
-        }
-
-        if (isDrawing || isDragging) {
+        if (pState.isDrawing || pState.isDragging) {
             requestAnimationFrame(draw);
         }
     };
@@ -2556,295 +1396,22 @@ const Canvas: Component = () => {
     const handlePointerUp = (e: PointerEvent) => {
         (e.currentTarget as Element).releasePointerCapture(e.pointerId);
 
-        if (store.appMode === 'presentation') {
-            const isNavTool = store.selectedTool === 'selection' || store.selectedTool === 'pan';
-            if (store.docType === 'slides' && isNavTool) return;
-
-            // For infinite mode or interaction tools, we continue to the reset logic below
-            if (store.docType !== 'slides') {
-                isDragging = false;
-                return;
-            }
-        }
-
-        if (store.selectedTool === 'pan') {
-            isDragging = false;
-            setCursor('grab');
-            return;
-        }
-
-        if (store.selectedTool === 'laser') {
-            isDrawing = false;
-            // Continue decay animation until trail is empty
-            const decayLoop = () => {
-                if (laserTrailData.length > 0) {
-                    draw();
-                    requestAnimationFrame(decayLoop);
-                }
-            };
-            requestAnimationFrame(decayLoop);
-            return;
-        }
+        if (presentationOnUp(pState)) return;
+        if (store.selectedTool === 'pan') { panOnUp(pState, pHelpers); return; }
+        if (store.selectedTool === 'laser') { laserOnUp(pState, pHelpers); return; }
 
         // Handle connector drawing first (before selection tool handling)
-        // This is needed because connector drawing happens while in selection mode
-        if (draggingFromConnector && isDrawing && currentId) {
-            const el = store.elements.find(e => e.id === currentId);
-            if (el) {
-                // Apply end binding if suggested
-                if (suggestedBinding()) {
-                    const binding = suggestedBinding()!;
-                    const bindingData = { elementId: binding.elementId, focus: 0, gap: 5 };
-                    updateElement(currentId, { endBinding: bindingData });
-
-                    const target = store.elements.find(e => e.id === binding.elementId);
-                    if (target) {
-                        const existing = target.boundElements || [];
-                        if (!existing.find(b => b.id === currentId)) {
-                            updateElement(target.id, { boundElements: [...existing, { id: currentId, type: 'arrow' }] });
-                        }
-                    }
-                }
-
-                // Select the new arrow
-                setStore('selection', [currentId]);
-            }
-
-            isDrawing = false;
-            currentId = null;
-            draggingFromConnector = null;
-            setSuggestedBinding(null);
-            requestAnimationFrame(draw);
+        if (pState.draggingFromConnector && pState.isDrawing && pState.currentId) {
+            connectorHandleOnUp(pState, pSignals, pHelpers);
             return;
         }
 
         if (store.selectedTool === 'selection') {
-            if (isSelecting) {
-                const box = selectionBox();
-                if (box) {
-                    // Find touching elements
-                    const selectedIds: string[] = [];
-                    // Strict inside? Or touching? usually touching/intersecting.
-                    // Box is in World Coordinates (since startX/Y and x/y are world)
-
-                    // Normalize Box
-                    const bx = box.x;
-                    const by = box.y;
-                    const bw = box.w;
-                    const bh = box.h;
-
-                    store.elements.forEach(el => {
-                        // Simple AABB overlap check
-                        // Element AABB
-                        const elX = el.x;
-                        const elY = el.y;
-                        const elW = el.width;
-                        const elH = el.height;
-
-                        // Normalize bounds
-                        const ex1 = Math.min(elX, elX + elW);
-                        const ex2 = Math.max(elX, elX + elW);
-                        const ey1 = Math.min(elY, elY + elH);
-                        const ey2 = Math.max(elY, elY + elH);
-
-                        // Intersection
-                        if (bx < ex2 && bx + bw > ex1 &&
-                            by < ey2 && by + bh > ey1) {
-                            selectedIds.push(el.id);
-                        }
-                    });
-
-                    if (e.shiftKey || e.ctrlKey || e.metaKey) {
-                        // Add to existing
-                        const existing = new Set(store.selection);
-                        selectedIds.forEach(id => existing.add(id));
-                        setStore('selection', Array.from(existing));
-                    } else {
-                        setStore('selection', selectedIds);
-                    }
-                }
-                isSelecting = false;
-                setSelectionBox(null);
-            }
-
-            if (isDragging) {
-                const binding = suggestedBinding();
-                if (binding && store.selection.length === 1 && draggingHandle) {
-                    const elId = store.selection[0];
-                    const el = store.elements.find(e => e.id === elId);
-                    if (el && (el.type === 'line' || el.type === 'arrow' || el.type === 'organicBranch')) {
-                        const isStart = draggingHandle === 'tl';
-                        const bindingData = {
-                            elementId: binding.elementId,
-                            focus: 0,
-                            gap: 5,
-                            position: binding.position
-                        };
-
-                        updateElement(elId, isStart ? { startBinding: bindingData } : { endBinding: bindingData });
-
-                        // Update Target Bound Elements
-                        const target = store.elements.find(e => e.id === binding.elementId);
-                        if (target) {
-                            const existing = target.boundElements || [];
-                            if (!existing.find(b => b.id === elId)) {
-                                updateElement(target.id, { boundElements: [...existing, { id: elId, type: el.type as any }] });
-                            }
-                        }
-                    }
-                }
-                setSuggestedBinding(null);
-            }
-
-            isDragging = false;
-            draggingHandle = null;
-            initialPositions.clear();
-            setSnappingGuides([]);
+            selectionOnUp(e, pState, pHelpers, pSignals);
             return;
         }
 
-        if (isDrawing && currentId) {
-            const el = store.elements.find(e => e.id === currentId);
-            if (el) {
-                // Binding for new lines/arrows/bezier/organicBranch
-                if ((el.type === 'line' || el.type === 'arrow' || el.type === 'bezier' || el.type === 'organicBranch') && suggestedBinding()) {
-                    const binding = suggestedBinding()!;
-                    const bindingData = {
-                        elementId: binding.elementId,
-                        focus: 0,
-                        gap: 5,
-                        position: binding.position
-                    };
-                    // New lines are drawn from x,y (TopLeft) to x+width, y+height.
-                    // The end point (width/height) is where the mouse is.
-                    // So we update 'endBinding'.
-                    updateElement(currentId, { endBinding: bindingData });
-
-                    const target = store.elements.find(e => e.id === binding.elementId);
-                    if (target) {
-                        const existing = target.boundElements || [];
-                        updateElement(target.id, { boundElements: [...existing, { id: currentId, type: el.type as any }] });
-                    }
-                    setSuggestedBinding(null);
-                }
-
-                // Logic for normalization...
-                // Logic for normalization...
-                if (['rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField'].includes(el.type)) {
-                    if (el.width < 0) {
-                        updateElement(currentId, { x: el.x + el.width, width: Math.abs(el.width) });
-                    }
-                    if (el.height < 0) {
-                        updateElement(currentId, { y: el.y + el.height, height: Math.abs(el.height) });
-                    }
-                } else if (el.type === 'fineliner' || el.type === 'inkbrush' || el.type === 'marker' || el.type === 'ink') {
-                    // Flush any buffered points before normalization
-                    flushPenPoints();
-                    // Re-fetch element after flush
-                    const updatedEl = store.elements.find(e => e.id === currentId);
-                    if (updatedEl && updatedEl.points && updatedEl.points.length > 2) {
-                        const updates = normalizePencil({ ...updatedEl, points: updatedEl.points });
-                        if (updates) {
-                            updateElement(currentId, updates);
-                        }
-                    }
-                } else if (el.type === 'organicBranch') {
-                    // Initialize control points for S-curve if likely intended
-                    let startX = el.x;
-                    let startY = el.y;
-                    let width = el.width;
-                    let height = el.height;
-
-                    // Normalize negative dimensions specifically for organicBranch to ensure hit testing works
-                    if (width < 0) {
-                        startX += width;
-                        width = Math.abs(width);
-                    }
-                    if (height < 0) {
-                        startY += height;
-                        height = Math.abs(height);
-                    }
-
-                    // If we swapped x/y (normalized), the "start" point for the branch (root)
-                    // conceptually moves. But for organicBranch, "start" is implicitly TL if W/H positive?
-                    // No, renderElement uses: start={x,y}, end={x+w, y+h}.
-                    // If we normalize, {x,y} changes.
-                    // If original was drawn Right-to-Left (neg width):
-                    // Orig: Start=(100,0), End=(0,100). (W=-100, H=100)
-                    // New: x=0, y=0, W=100, H=100. Start=(0,0), End=(100,100).
-                    // This FLIPS the branch logic.
-                    // To preserve direction, we need to swap start/end logic conceptually?
-                    // OR we just calculate Control Points based on the *actual* drag visual,
-                    // and store them. Since renderElement uses CPs if present!
-                    // If CPs are present, renderElement uses:
-                    // input: el.x, el.y.
-                    // start = {el.x + pts[0].x, ...} IF points exist.
-                    // IF CPs exist:
-                    // uses CPs for curve.
-                    // BUT start/end points passed to drawOrganicBranch?
-                    // Lines 2038+ in renderElement:
-                    // start = {el.x, el.y}, end = {el.x+w, ...}
-                    // IF CPs exist, it uses `el.x/y` as base.
-
-                    // Ideally, we want "start" to be where mouse started, "end" where mouse ended.
-                    // If we normalize, we lose that info unless we store it.
-                    // BUT 'organicBranch' relies on `drawOrganicBranch` which takes start/end.
-                    // If we normalize, we force Start=TL, End=BR (or similar).
-                    // Unless we use `points` property to store [startOffset, endOffset]?
-                    // Let's use `points` property to define start/end explicitly relative to x,y!
-                    // Similar to `fineliner`.
-
-                    // Actually, let's keep it simple:
-                    // If width was negative, it meant Start was Right, End was Left.
-                    // We normalize x,y,w,h.
-                    // We set explicit Start/End points in `points` array relative to new TopLeft.
-
-                    const normalizedX = Math.min(el.x, el.x + el.width);
-                    const normalizedY = Math.min(el.y, el.y + el.height);
-                    const normalizedW = Math.abs(el.width);
-                    const normalizedH = Math.abs(el.height);
-
-                    // Original Start (el.x, el.y) relative to Normalized TL (normalizedX, normalizedY)
-                    const relStartX = el.x - normalizedX;
-                    const relStartY = el.y - normalizedY;
-                    const relEndX = (el.x + el.width) - normalizedX;
-                    const relEndY = (el.y + el.height) - normalizedY;
-
-                    // Calculate CPs based on these relative start/end points
-                    // S-Curve logic between RelStart and RelEnd
-                    const dx = relEndX - relStartX;
-                    // CP1: Absolute = NormalizedX + RelStartX + dx*0.5
-                    const cp1 = { x: normalizedX + relStartX + dx * 0.5, y: normalizedY + relStartY };
-                    const cp2 = { x: normalizedX + relEndX - dx * 0.5, y: normalizedY + relEndY };
-
-                    updateElement(currentId, {
-                        x: normalizedX,
-                        y: normalizedY,
-                        width: normalizedW,
-                        height: normalizedH,
-                        // Store points so renderElement knows where start/end are relative to TL
-                        points: [relStartX, relStartY, relEndX, relEndY],
-                        controlPoints: [cp1, cp2]
-                    });
-                }
-
-                // Switch back to selection tool after drawing (except for continuous tools)
-                // Continuous tools: Pencils, Text, Eraser, Pan, Selection
-                const continuousTools = ['selection', 'pan', 'eraser', 'fineliner', 'inkbrush', 'marker', 'text', 'block-text', 'ink'];
-                if (!continuousTools.includes(store.selectedTool)) {
-                    setSelectedTool('selection');
-                }
-
-                // If this was drawn from a connector handle, select the new arrow and switch to selection
-                if (draggingFromConnector) {
-                    setStore('selection', [currentId]);
-                    setSelectedTool('selection');
-                }
-            }
-        }
-        isDrawing = false;
-        currentId = null;
-        draggingFromConnector = null; // Reset connector drag state
+        drawOnUp(pState, pHelpers, pSignals);
     };
 
     const commitText = () => {
@@ -3710,13 +2277,13 @@ const PathEditorOverlay: Component<{
                                     e.stopPropagation(); // Stop canvas pan
                                     e.currentTarget.setPointerCapture(e.pointerId);
 
-                                    const startX = e.clientX;
-                                    const startY = e.clientY;
+                                    const dragStartX = e.clientX;
+                                    const dragStartY = e.clientY;
                                     const initialPoint = { ...point };
 
                                     const onMove = (ev: PointerEvent) => {
-                                        const dx = (ev.clientX - startX) / props.scale;
-                                        const dy = (ev.clientY - startY) / props.scale;
+                                        const dx = (ev.clientX - dragStartX) / props.scale;
+                                        const dy = (ev.clientY - dragStartY) / props.scale;
 
                                         // Update Point in Store
                                         const currentPoints = [...points()];
