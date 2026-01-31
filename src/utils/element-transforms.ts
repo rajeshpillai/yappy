@@ -65,12 +65,24 @@ export const getTransformOptions = (currentType: ElementType): ElementType[] => 
     const connectors: ElementType[] = ['line', 'arrow', 'bezier', 'organicBranch'];
     const shapes: ElementType[] = [
         'rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon',
-        'parallelogram', 'star', 'cloud', 'heart', 'cross', 'checkmark',
+        'parallelogram', 'polygon', 'star', 'cloud', 'heart', 'cross', 'checkmark',
+        'arrowLeft', 'arrowRight', 'arrowUp', 'arrowDown',
         'capsule', 'stickyNote', 'callout', 'speechBubble', 'burst',
+        'ribbon', 'bracketLeft', 'bracketRight',
         'database', 'document', 'predefinedProcess', 'internalStorage',
         'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser',
-        'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'mobilePhone', 'browserWindow',
-        'trophy', 'clock', 'gear', 'target', 'rocket', 'flag'
+        'trapezoid', 'rightTriangle', 'pentagon', 'septagon',
+        'browserWindow', 'mobilePhone', 'ghostButton', 'inputField',
+        'starPerson', 'lightbulb', 'signpost', 'burstBlob', 'scroll', 'wavyDivider', 'doubleBanner',
+        'trophy', 'clock', 'gear', 'target', 'rocket', 'flag',
+        'dfdProcess', 'dfdDataStore', 'externalEntity',
+        'isometricCube', 'solidBlock', 'perspectiveBlock', 'cylinder',
+        'stateStart', 'stateEnd', 'stateSync', 'activationBar'
+    ];
+    const umlShapes: ElementType[] = [
+        'umlClass', 'umlInterface', 'umlActor', 'umlUseCase', 'umlNote',
+        'umlPackage', 'umlComponent', 'umlState', 'umlLifeline', 'umlFragment',
+        'umlSignalSend', 'umlSignalReceive', 'umlProvidedInterface', 'umlRequiredInterface'
     ];
 
     if (connectors.includes(currentType)) {
@@ -79,6 +91,10 @@ export const getTransformOptions = (currentType: ElementType): ElementType[] => 
 
     if (shapes.includes(currentType)) {
         return shapes.filter(t => t !== currentType);
+    }
+
+    if (umlShapes.includes(currentType)) {
+        return umlShapes.filter(t => t !== currentType);
     }
 
     return [];
@@ -104,11 +120,16 @@ export const getShapeIcon = (type: ElementType): string => {
         'hexagon': '⬡',
         'octagon': '⬢',
         'parallelogram': '▱',
+        'polygon': '⬠',
         'star': '★',
         'cloud': '☁',
         'heart': '♥',
         'cross': '✕',
         'checkmark': '✓',
+        'arrowLeft': '⬅',
+        'arrowRight': '➡',
+        'arrowUp': '⬆',
+        'arrowDown': '⬇',
 
         // Flowchart
         'database': '🗄',
@@ -132,6 +153,9 @@ export const getShapeIcon = (type: ElementType): string => {
         'callout': '💬',
         'speechBubble': '💭',
         'burst': '💥',
+        'ribbon': '🎀',
+        'bracketLeft': '【',
+        'bracketRight': '】',
 
         // Geometric
         'trapezoid': '⏢',
@@ -142,14 +166,56 @@ export const getShapeIcon = (type: ElementType): string => {
         // Wireframe
         'browserWindow': '🖼',
         'mobilePhone': '📱',
+        'ghostButton': '▢',
+        'inputField': '▭',
 
         // Sketchnote
+        'starPerson': '⭐',
+        'lightbulb': '💡',
+        'signpost': '🪧',
+        'burstBlob': '✦',
+        'scroll': '📜',
+        'wavyDivider': '〰',
+        'doubleBanner': '🏷',
         'trophy': '🏆',
         'clock': '🕐',
         'gear': '⚙',
         'target': '🎯',
         'rocket': '🚀',
-        'flag': '🚩'
+        'flag': '🚩',
+
+        // DFD / Diagram
+        'dfdProcess': '⊙',
+        'dfdDataStore': '▤',
+        'externalEntity': '▧',
+
+        // 3D shapes
+        'isometricCube': '⬙',
+        'solidBlock': '▣',
+        'perspectiveBlock': '⧈',
+        'cylinder': '⌭',
+
+        // State diagram
+        'stateStart': '●',
+        'stateEnd': '◉',
+        'stateSync': '▬',
+        'activationBar': '▮',
+
+        // UML
+        'umlClass': '⊟',
+        'umlInterface': '◎',
+        'umlActor': '🧑',
+        'umlUseCase': '⬯',
+        'umlNote': '🗒',
+        'umlPackage': '📦',
+        'umlComponent': '⧉',
+        'umlState': '▢',
+        'umlLifeline': '⫶',
+        'umlFragment': '⬒',
+        'umlSignalSend': '▷',
+        'umlSignalReceive': '◁',
+        'umlProvidedInterface': '◯',
+        'umlRequiredInterface': '◠'
     };
 
     return iconMap[type] || '◻';
