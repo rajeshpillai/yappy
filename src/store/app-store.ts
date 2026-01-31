@@ -91,7 +91,7 @@ const initialDoc = createSlideDocument();
 
 const initialState: AppState = {
     elements: initialDoc.elements,
-    viewState: { scale: 0.5, panX: 0, panY: 0 },
+    viewState: { scale: 1, panX: 0, panY: 0 },
     layers: initialDoc.layers,
     activeLayerId: initialDoc.layers[0].id,
     gridSettings: initialDoc.gridSettings!,
@@ -1158,6 +1158,21 @@ export const resetToNewDocument = (docType: 'infinite' | 'slides' = 'slides') =>
     loadDocument(doc);
     setStore("showSlideToolbar", true);
     setStore("showUtilityToolbar", true);
+    // Default to 100% zoom for new documents, centered on the first slide
+    setTimeout(() => {
+        const firstSlide = store.slides[0];
+        if (firstSlide) {
+            const { x: sx, y: sy } = firstSlide.spatialPosition;
+            const { width: sW, height: sH } = firstSlide.dimensions;
+            setStore('viewState', {
+                scale: 1,
+                panX: (window.innerWidth - sW) / 2 - sx,
+                panY: (window.innerHeight - sH) / 2 - sy
+            });
+        } else {
+            setStore('viewState', { scale: 1, panX: 0, panY: 0 });
+        }
+    }, 120);
     showToast(`New ${docType === 'slides' ? 'presentation' : 'sketch'} created`, 'info');
 };
 
