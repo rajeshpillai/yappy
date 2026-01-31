@@ -681,7 +681,9 @@ export function renderConnectionAnchors(
     for (const element of elements) {
         if (element.id === currentDrawingId) continue;
         if (!canInteractWithElement(element)) continue;
-        if (element.type === 'line' || element.type === 'arrow' || element.type === 'bezier') continue;
+        // Skip connectors as targets, but allow unbound polylines (they act as shapes)
+        const isPolylineShape = element.type === 'line' && element.curveType === 'elbow' && !element.startBinding && !element.endBinding;
+        if ((element.type === 'line' || element.type === 'arrow' || element.type === 'bezier') && !isPolylineShape) continue;
         if (element.layerId !== activeLayerId) continue;
 
         const cx = element.x + element.width / 2;

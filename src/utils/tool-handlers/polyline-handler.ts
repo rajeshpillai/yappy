@@ -81,6 +81,26 @@ export function polylineOnDown(
             }
         }
     } else if (pState.currentId) {
+        // Check if clicking near the start point to close the shape
+        const closeThreshold = 15 / store.viewState.scale;
+        const distToStart = Math.sqrt((px - pState.startX) ** 2 + (py - pState.startY) ** 2);
+
+        if (pState.polylinePoints.length >= 3 && distToStart < closeThreshold) {
+            // Snap to start point (close the polygon) and finalize
+            pState.polylinePoints.push({ x: 0, y: 0 });
+            updateElement(pState.currentId, {
+                points: [...pState.polylinePoints],
+            });
+            // Auto-finalize
+            setStore('selection', [pState.currentId]);
+            pState.isPolylineBuilding = false;
+            pState.isDrawing = false;
+            pState.polylinePoints = [];
+            pState.currentId = null;
+            setSelectedTool('selection');
+            return;
+        }
+
         // Subsequent click — commit the preview point as a real point
         const relX = px - pState.startX;
         const relY = py - pState.startY;
@@ -107,18 +127,30 @@ export function polylineOnMove(
     let px = x;
     let py = y;
 
-    // Check for binding near cursor (magnetic snap preview)
-    const match = helpers.checkBinding(px, py, pState.currentId);
-    if (match) {
-        signals.setSuggestedBinding({ elementId: match.element.id, px: match.snapPoint.x, py: match.snapPoint.y, position: match.position });
-        px = match.snapPoint.x;
-        py = match.snapPoint.y;
-    } else {
+    // Check for snap-to-start (close polygon) when >= 3 points
+    const closeThreshold = 15 / store.viewState.scale;
+    const distToStart = Math.sqrt((px - pState.startX) ** 2 + (py - pState.startY) ** 2);
+    const canClose = pState.polylinePoints.length >= 3 && distToStart < closeThreshold;
+
+    if (canClose) {
+        // Snap to start point
+        px = pState.startX;
+        py = pState.startY;
         signals.setSuggestedBinding(null);
-        if (store.gridSettings.snapToGrid) {
-            const snapped = snapPoint(x, y, store.gridSettings.gridSize);
-            px = snapped.x;
-            py = snapped.y;
+    } else {
+        // Check for binding near cursor (magnetic snap preview)
+        const match = helpers.checkBinding(px, py, pState.currentId);
+        if (match) {
+            signals.setSuggestedBinding({ elementId: match.element.id, px: match.snapPoint.x, py: match.snapPoint.y, position: match.position });
+            px = match.snapPoint.x;
+            py = match.snapPoint.y;
+        } else {
+            signals.setSuggestedBinding(null);
+            if (store.gridSettings.snapToGrid) {
+                const snapped = snapPoint(x, y, store.gridSettings.gridSize);
+                px = snapped.x;
+                py = snapped.y;
+            }
         }
     }
 

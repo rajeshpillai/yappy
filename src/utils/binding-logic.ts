@@ -29,7 +29,9 @@ export function checkBinding(
     for (const target of elements) {
         if (target.id === excludeId) continue;
         if (!canInteract(target)) continue;
-        if (target.type === 'line' || target.type === 'arrow' || target.type === 'bezier' || target.type === 'organicBranch') continue;
+        // Skip connectors as targets, but allow unbound polylines (they act as shapes)
+        const isPolylineShape = target.type === 'line' && target.curveType === 'elbow' && !target.startBinding && !target.endBinding;
+        if ((target.type === 'line' || target.type === 'arrow' || target.type === 'bezier' || target.type === 'organicBranch') && !isPolylineShape) continue;
         if (target.layerId !== activeLayerId) continue;
 
         let isHit = false;
