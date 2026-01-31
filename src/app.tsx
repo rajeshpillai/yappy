@@ -13,7 +13,8 @@ import Canvas from './components/canvas';
 import Toolbar from './components/toolbar';
 import {
   copyToClipboard, cutToClipboard, pasteFromClipboard,
-  copyStyle, pasteStyle
+  copyStyle, pasteStyle,
+  pasteImageFromBlob, pasteAsTextElement
 } from './utils/object-context-actions';
 const PropertyPanel = lazy(() => import('./components/property-panel'));
 const LayerPanel = lazy(() => import('./components/layer-panel'));
@@ -185,9 +186,9 @@ const App: Component = () => {
         } else if (key === 'c' || code === 'KeyC') {
           e.preventDefault();
           if (e.altKey) copyStyle(); else await copyToClipboard();
-        } else if (key === 'v' || code === 'KeyV') {
+        } else if ((key === 'v' || code === 'KeyV') && e.altKey) {
           e.preventDefault();
-          if (e.altKey) pasteStyle(); else await pasteFromClipboard();
+          pasteStyle();
         } else if (key === 'x' || code === 'KeyX') {
           e.preventDefault();
           await cutToClipboard();
@@ -329,13 +330,55 @@ const App: Component = () => {
       // For now, no-op or simple confirmation if needed.
     };
 
+    const handlePaste = (e: ClipboardEvent) => {
+      // Don't intercept paste in text inputs or contenteditable
+      const active = document.activeElement;
+      const tag = active?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || (active as HTMLElement)?.isContentEditable) return;
+      // Skip if editing a text element on canvas
+      if (store.editingId) return;
+      // Skip if command palette or dialogs are open
+      if (store.showCommandPalette || isDialogOpen() || isSaveOpen() || isLoadExportOpen()) return;
+
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      // Check for images first
+      for (const item of items) {
+        if (item.type.startsWith('image/')) {
+          e.preventDefault();
+          const blob = item.getAsFile();
+          if (blob) pasteImageFromBlob(blob);
+          return;
+        }
+      }
+
+      // Check for text
+      const text = e.clipboardData?.getData('text/plain');
+      if (text) {
+        e.preventDefault();
+        // Try internal Yappy JSON first
+        try {
+          const data = JSON.parse(text);
+          if (data.type === 'yappy-elements' && Array.isArray(data.elements)) {
+            pasteFromClipboard();
+            return;
+          }
+        } catch { /* not JSON */ }
+        // Plain text → create text element
+        pasteAsTextElement(text);
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown, true);
     window.addEventListener('beforeunload', handleBeforeUnload);
     document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('paste', handlePaste);
     onCleanup(() => {
       window.removeEventListener('keydown', handleKeyDown, true);
       window.removeEventListener('beforeunload', handleBeforeUnload);
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('paste', handlePaste);
     });
   });
 

@@ -1,9 +1,10 @@
 import {
     store, setStore, pushToHistory,
-    deleteElements, updateElement
+    deleteElements, updateElement, addElement
 } from "../store/app-store";
 import { normalizePoints } from "./render-element";
-import { generateId } from "./id-generator"; // New Import
+import { generateId } from "./id-generator";
+import type { DrawingElement } from "../types";
 
 export const copyToClipboard = async () => {
     if (store.selection.length === 0) return;
@@ -26,51 +27,205 @@ export const cutToClipboard = async () => {
     deleteElements(store.selection);
 };
 
+// ─── Viewport center helper ──────────────────────────────────────────
+const getViewportCenter = () => ({
+    x: -store.viewState.panX / store.viewState.scale + (window.innerWidth / 2) / store.viewState.scale,
+    y: -store.viewState.panY / store.viewState.scale + (window.innerHeight / 2) / store.viewState.scale,
+});
+
+// ─── Paste image from blob (used by paste event + context menu) ──────
+export const pasteImageFromBlob = (blob: Blob): Promise<void> => {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const dataURL = event.target?.result as string;
+            if (!dataURL) { resolve(); return; }
+
+            const img = new Image();
+            img.src = dataURL;
+            img.onload = () => {
+                const MAX_DIMENSION = 1500;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+                    const ratio = width / height;
+                    if (width > height) { width = MAX_DIMENSION; height = width / ratio; }
+                    else { height = MAX_DIMENSION; width = height * ratio; }
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) { resolve(); return; }
+
+                ctx.drawImage(img, 0, 0, width, height);
+                const compressedDataURL = canvas.toDataURL('image/webp', 0.8);
+
+                const VISUAL_MAX = 500;
+                let visualW = width;
+                let visualH = height;
+                if (visualW > VISUAL_MAX || visualH > VISUAL_MAX) {
+                    const ratio = visualW / visualH;
+                    if (visualW > visualH) { visualW = VISUAL_MAX; visualH = visualW / ratio; }
+                    else { visualH = VISUAL_MAX; visualW = visualH * ratio; }
+                }
+
+                const center = getViewportCenter();
+                const id = crypto.randomUUID();
+
+                addElement({
+                    id,
+                    type: 'image',
+                    x: center.x - visualW / 2,
+                    y: center.y - visualH / 2,
+                    width: visualW,
+                    height: visualH,
+                    strokeColor: 'transparent',
+                    backgroundColor: 'transparent',
+                    fillStyle: 'solid',
+                    strokeWidth: 0,
+                    strokeStyle: 'solid',
+                    roughness: 0,
+                    opacity: 100,
+                    angle: 0,
+                    renderStyle: 'sketch',
+                    seed: Math.floor(Math.random() * 2 ** 31),
+                    roundness: null,
+                    locked: false,
+                    link: null,
+                    dataURL: compressedDataURL,
+                    mimeType: 'image/webp',
+                    layerId: store.activeLayerId,
+                } as DrawingElement);
+
+                setStore('selection', [id]);
+                resolve();
+            };
+            img.onerror = () => resolve();
+        };
+        reader.onerror = () => resolve();
+        reader.readAsDataURL(blob);
+    });
+};
+
+// ─── Paste plain text as text element ────────────────────────────────
+export const pasteAsTextElement = (text: string): void => {
+    const defaults = store.defaultElementStyles;
+    const fontSize = defaults.fontSize ?? 28;
+    const lines = text.split('\n');
+    const maxLineLen = Math.max(...lines.map(l => l.length));
+    const estimatedWidth = Math.max(100, Math.min(600, maxLineLen * fontSize * 0.6));
+    const estimatedHeight = Math.max(fontSize * 1.5, lines.length * fontSize * 1.4);
+
+    const center = getViewportCenter();
+    const id = crypto.randomUUID();
+
+    addElement({
+        id,
+        type: 'text',
+        x: center.x - estimatedWidth / 2,
+        y: center.y - estimatedHeight / 2,
+        width: estimatedWidth,
+        height: estimatedHeight,
+        text,
+        strokeColor: defaults.strokeColor ?? '#000000',
+        backgroundColor: 'transparent',
+        fillStyle: 'solid',
+        strokeWidth: 0,
+        strokeStyle: 'solid',
+        roughness: 0,
+        opacity: 100,
+        angle: 0,
+        renderStyle: 'architectural',
+        seed: Math.floor(Math.random() * 2 ** 31),
+        roundness: null,
+        locked: false,
+        link: null,
+        fontSize,
+        fontFamily: defaults.fontFamily ?? 'handwritten',
+        layerId: store.activeLayerId,
+    } as DrawingElement);
+
+    setStore('selection', [id]);
+};
+
+// ─── Paste internal Yappy elements ───────────────────────────────────
+const pasteYappyElements = (data: any): void => {
+    pushToHistory();
+    const newIds: string[] = [];
+
+    const center = getViewportCenter();
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    data.elements.forEach((el: any) => {
+        minX = Math.min(minX, el.x);
+        minY = Math.min(minY, el.y);
+        maxX = Math.max(maxX, el.x + el.width);
+        maxY = Math.max(maxY, el.y + el.height);
+    });
+    const contentCX = minX + (maxX - minX) / 2;
+    const contentCY = minY + (maxY - minY) / 2;
+
+    const dx = center.x - contentCX;
+    const dy = center.y - contentCY;
+
+    data.elements.forEach((el: any) => {
+        const newId = generateId(el.type);
+        const newEl = {
+            ...el,
+            id: newId,
+            x: el.x + dx,
+            y: el.y + dy,
+            layerId: store.activeLayerId,
+            groupIds: [],
+        };
+        setStore('elements', els => [...els, newEl]);
+        newIds.push(newId);
+    });
+    setStore('selection', newIds);
+};
+
+// ─── Try parsing text as Yappy JSON, returns true if handled ─────────
+const tryPasteYappyJson = (text: string): boolean => {
+    try {
+        const data = JSON.parse(text);
+        if (data.type === 'yappy-elements' && Array.isArray(data.elements)) {
+            pasteYappyElements(data);
+            return true;
+        }
+    } catch { /* not JSON */ }
+    return false;
+};
+
+// ─── Main paste (context menu / programmatic fallback) ───────────────
 export const pasteFromClipboard = async () => {
+    // 1. Try reading clipboard items for images (async Clipboard API)
+    try {
+        const items = await navigator.clipboard.read();
+        for (const item of items) {
+            const imageType = item.types.find((t: string) => t.startsWith('image/'));
+            if (imageType) {
+                const blob = await item.getType(imageType);
+                await pasteImageFromBlob(blob);
+                return;
+            }
+        }
+    } catch { /* clipboard.read() not supported or permission denied */ }
+
+    // 2. Fall back to text
     try {
         const text = await navigator.clipboard.readText();
         if (!text) return;
 
-        const data = JSON.parse(text);
-        if (data.type === 'yappy-elements' && Array.isArray(data.elements)) {
-            pushToHistory();
-            const newIds: string[] = [];
+        // 3. Try internal Yappy elements
+        if (tryPasteYappyJson(text)) return;
 
-            // Calculate center of viewport to paste
-            const viewportCX = -store.viewState.panX / store.viewState.scale + (window.innerWidth / 2) / store.viewState.scale;
-            const viewportCY = -store.viewState.panY / store.viewState.scale + (window.innerHeight / 2) / store.viewState.scale;
-
-            // Find center of copied elements
-            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-            data.elements.forEach((el: any) => {
-                minX = Math.min(minX, el.x);
-                minY = Math.min(minY, el.y);
-                maxX = Math.max(maxX, el.x + el.width);
-                maxY = Math.max(maxY, el.y + el.height);
-            });
-            const contentCX = minX + (maxX - minX) / 2;
-            const contentCY = minY + (maxY - minY) / 2;
-
-            const dx = viewportCX - contentCX;
-            const dy = viewportCY - contentCY;
-
-            data.elements.forEach((el: any) => {
-                const newId = generateId(el.type);
-                const newEl = {
-                    ...el,
-                    id: newId,
-                    x: el.x + dx,
-                    y: el.y + dy,
-                    layerId: store.activeLayerId, // Paste to active layer
-                    groupIds: [] // Reset groups for now, or handle complex group logic?
-                };
-                setStore('elements', els => [...els, newEl]);
-                newIds.push(newId);
-            });
-            setStore('selection', newIds);
-        }
+        // 4. Plain text → create text element
+        pasteAsTextElement(text);
     } catch (err) {
-        console.error('Failed to paste: ', err);
+        console.error('Failed to paste:', err);
     }
 };
 
