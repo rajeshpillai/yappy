@@ -22,6 +22,7 @@ import { PeopleRenderer } from "./renderers/people-renderer";
 import { StatusRenderer } from "./renderers/status-renderer";
 import { CloudInfraRenderer } from "./renderers/cloud-infra-renderer";
 import { DataMetricsRenderer } from "./renderers/data-metrics-renderer";
+import { ConnectionRelRenderer } from "./renderers/connection-rel-renderer";
 
 export function registerShapes() {
     console.log('Registering all shapes including specialty...');
@@ -109,4 +110,8 @@ export function registerShapes() {
     const dataMetricsRenderer = new DataMetricsRenderer();
     const dataMetricsTypes = ['barChart', 'pieChart', 'trendUp', 'trendDown', 'funnel', 'gauge', 'table'] as const;
     dataMetricsTypes.forEach(type => shapeRegistry.register(type, dataMetricsRenderer));
+
+    const connectionRelRenderer = new ConnectionRelRenderer();
+    const connectionRelTypes = ['puzzlePiece', 'chainLink', 'bridge', 'magnet', 'scale', 'seedling', 'tree', 'mountain'] as const;
+    connectionRelTypes.forEach(type => shapeRegistry.register(type, connectionRelRenderer));
 }

@@ -1207,15 +1207,15 @@
 - [x] Register shapes, update types, hit-testing, text-editing, properties, element-transforms
 
 ## Phase 81: Data & Metrics Shape Group
-- [ ] Add 7 new shapes: `barChart`, `pieChart`, `trendUp`, `trendDown`, `funnel`, `gauge`, `table`
-- [ ] Create `DataMetricsRenderer` in `src/shapes/renderers/data-metrics-renderer.ts`
-- [ ] Create `DataMetricsToolGroup` component with SVG icons
-- [ ] Add `selectedDataMetricsType` signal to app-store
-- [ ] Register shapes, update types, hit-testing, text-editing, properties, element-transforms
+- [x] Add 7 new shapes: `barChart`, `pieChart`, `trendUp`, `trendDown`, `funnel`, `gauge`, `table`
+- [x] Create `DataMetricsRenderer` in `src/shapes/renderers/data-metrics-renderer.ts`
+- [x] Create `DataMetricsToolGroup` component with SVG icons
+- [x] Add `selectedDataMetricsType` signal to app-store
+- [x] Register shapes, update types, hit-testing, text-editing, properties, element-transforms
 
 ## Phase 82: Connection & Relationship Shape Group
-- [ ] Add 8 new shapes: `puzzlePiece`, `chainLink`, `bridge`, `magnet`, `scale`, `seedling`, `tree`, `mountain`
-- [ ] Create `ConnectionRenderer` in `src/shapes/renderers/connection-renderer.ts`
-- [ ] Create `ConnectionToolGroup` component with SVG icons
-- [ ] Add `selectedConnectionType` signal to app-store
-- [ ] Register shapes, update types, hit-testing, text-editing, properties, element-transforms
+- [x] Add 8 new shapes: `puzzlePiece`, `chainLink`, `bridge`, `magnet`, `scale`, `seedling`, `tree`, `mountain`
+- [x] Create `ConnectionRelRenderer` in `src/shapes/renderers/connection-rel-renderer.ts`
+- [x] Create `ConnectionRelToolGroup` component with SVG icons
+- [x] Add `selectedConnectionRelType` signal to app-store
+- [x] Register shapes, update types, hit-testing, text-editing, properties, element-transforms

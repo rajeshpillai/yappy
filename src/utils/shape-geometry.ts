@@ -992,6 +992,32 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
             const r = Math.min(w / 2, h * 0.8);
             return { type: 'ellipse', cx: 0, cy: 0, rx: r, ry: r };
         }
+
+        // ─── Connection & Relationship shapes ─────────────────────────
+
+        case 'puzzlePiece':
+        case 'chainLink':
+        case 'bridge':
+        case 'magnet':
+        case 'scale':
+        case 'seedling':
+            return { type: 'rect', x: x, y: y, w: w, h: h };
+
+        case 'tree': {
+            // Circle canopy + trunk
+            const canopyR = Math.min(w, h * 0.6) / 2;
+            return {
+                type: 'multi', shapes: [
+                    { type: 'ellipse', cx: 0, cy: y + canopyR, rx: canopyR, ry: canopyR },
+                    { type: 'rect', x: -w * 0.1, y: y + canopyR * 1.5, w: w * 0.2, h: h - canopyR * 1.5 - y }
+                ]
+            };
+        }
+
+        case 'mountain': {
+            // Triangle
+            return { type: 'points', points: [{ x: 0, y: y }, { x: x + w, y: y + h }, { x: x, y: y + h }] };
+        }
     }
 
     return null;

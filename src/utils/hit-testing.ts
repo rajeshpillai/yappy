@@ -231,7 +231,10 @@ export function hitTestElement(
         el.type === 'microservice' || el.type === 'shield' ||
         el.type === 'barChart' || el.type === 'pieChart' || el.type === 'trendUp' ||
         el.type === 'trendDown' || el.type === 'funnel' || el.type === 'gauge' ||
-        el.type === 'table'
+        el.type === 'table' ||
+        el.type === 'puzzlePiece' || el.type === 'chainLink' || el.type === 'bridge' ||
+        el.type === 'magnet' || el.type === 'scale' || el.type === 'seedling' ||
+        el.type === 'tree' || el.type === 'mountain'
     ) {
         // For these shapes, rely on bounding box hit test (passed above)
         // or implement detailed geometry check if needed

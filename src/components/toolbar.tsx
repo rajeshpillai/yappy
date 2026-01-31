@@ -16,6 +16,7 @@ import PeopleToolGroup from "./people-tool-group";
 import StatusToolGroup from "./status-tool-group";
 import CloudInfraToolGroup from "./cloud-infra-tool-group";
 import DataMetricsToolGroup from "./data-metrics-tool-group";
+import ConnectionRelToolGroup from "./connection-rel-tool-group";
 import "./toolbar.css";
 
 // Tools that are NOT pens or grouped shapes
@@ -273,6 +274,9 @@ const Toolbar: Component = () => {
 
             {/* Data & Metrics (Bar Chart, Pie Chart, Trend, Funnel, Gauge, Table) */}
             <DataMetricsToolGroup />
+
+            {/* Connection & Relationship (Puzzle, Chain, Bridge, Magnet, Scale, etc.) */}
+            <ConnectionRelToolGroup />
 
             {/* Infrastructure Tool Group (Server, LB, Cloud, User, etc.) */}
             <InfraToolGroup />

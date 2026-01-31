@@ -54,6 +54,7 @@ interface AppState {
     selectedStatusType: 'checkbox' | 'checkboxChecked' | 'numberedBadge' | 'questionMark' | 'exclamationMark' | 'tag' | 'pin' | 'stamp';
     selectedCloudInfraType: 'kubernetes' | 'container' | 'apiGateway' | 'cdn' | 'storageBlob' | 'eventBus' | 'microservice' | 'shield';
     selectedDataMetricsType: 'barChart' | 'pieChart' | 'trendUp' | 'trendDown' | 'funnel' | 'gauge' | 'table';
+    selectedConnectionRelType: 'puzzlePiece' | 'chainLink' | 'bridge' | 'magnet' | 'scale' | 'seedling' | 'tree' | 'mountain';
     selectedWireframeType: 'browserWindow' | 'mobilePhone' | 'ghostButton' | 'inputField';
     layerGroupingModeEnabled: boolean;
     maxLayers: number;
@@ -175,6 +176,7 @@ const initialState: AppState = {
     selectedStatusType: 'checkbox',
     selectedCloudInfraType: 'kubernetes',
     selectedDataMetricsType: 'barChart',
+    selectedConnectionRelType: 'puzzlePiece',
     selectedWireframeType: 'browserWindow',
     layerGroupingModeEnabled: false,
     maxLayers: 20,
@@ -1662,6 +1664,10 @@ export const setSelectedCloudInfraType = (cloudInfraType: 'kubernetes' | 'contai
 
 export const setSelectedDataMetricsType = (dataMetricsType: 'barChart' | 'pieChart' | 'trendUp' | 'trendDown' | 'funnel' | 'gauge' | 'table') => {
     setStore('selectedDataMetricsType', dataMetricsType);
+};
+
+export const setSelectedConnectionRelType = (connectionRelType: 'puzzlePiece' | 'chainLink' | 'bridge' | 'magnet' | 'scale' | 'seedling' | 'tree' | 'mountain') => {
+    setStore('selectedConnectionRelType', connectionRelType);
 };
 
 export const setSelectedWireframeType = (wireframeType: 'browserWindow' | 'mobilePhone' | 'ghostButton' | 'inputField') => {

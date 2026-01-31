@@ -421,3 +421,19 @@ const newElement = {
 | UML | umlClass, umlState, umlActor, umlLifeline | uml-tool-group | UmlClass/State/General |
 | Technical | dfdProcess, isometricCube, stateStart | technical-tool-group | SpecialtyShapeRenderer |
 | Container | browserWindow, mobilePhone | wireframe-tool-group | ContainerRenderer |
+
+
+## Hint: Steps to create a new shape
+- Add (n) types to ElementType union in types.ts
+- Create ConnectionRelRenderer with architectural + sketch rendering
+- Create <Your Tool Group> component with SVG icons
+- Register shapes in register-shapes.ts
+- Add selectedConnectionRelType to app-store.ts
+- Add ConnectionRelToolGroup to toolbar.tsx
+- Update element-transforms.ts with transforms + icons
+- Update hit-testing.ts whitelist
+- Update text-editing-handler.ts whitelist
+- Update properties.ts applicableTo arrays
+- Update shape-geometry.ts for gradient fills
+- TypeScript build check
+- Update todo.md with completed phases

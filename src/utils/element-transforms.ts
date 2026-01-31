@@ -81,6 +81,7 @@ export const getTransformOptions = (currentType: ElementType): ElementType[] => 
         'checkbox', 'checkboxChecked', 'numberedBadge', 'questionMark', 'exclamationMark', 'tag', 'pin', 'stamp',
         'kubernetes', 'container', 'apiGateway', 'cdn', 'storageBlob', 'eventBus', 'microservice', 'shield',
         'barChart', 'pieChart', 'trendUp', 'trendDown', 'funnel', 'gauge', 'table',
+        'puzzlePiece', 'chainLink', 'bridge', 'magnet', 'scale', 'seedling', 'tree', 'mountain',
         'dfdProcess', 'dfdDataStore', 'externalEntity',
         'isometricCube', 'solidBlock', 'perspectiveBlock', 'cylinder',
         'stateStart', 'stateEnd', 'stateSync', 'activationBar'
@@ -234,6 +235,16 @@ export const getShapeIcon = (type: ElementType): string => {
         'funnel': '⏏',
         'gauge': '🎛',
         'table': '▦',
+
+        // Connection & Relationship
+        'puzzlePiece': '🧩',
+        'chainLink': '🔗',
+        'bridge': '🌉',
+        'magnet': '🧲',
+        'scale': '⚖',
+        'seedling': '🌱',
+        'tree': '🌳',
+        'mountain': '⛰',
 
         // DFD / Diagram
         'dfdProcess': '⊙',
