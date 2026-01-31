@@ -49,7 +49,7 @@ interface AppState {
     selectedShapeType: 'triangle' | 'hexagon' | 'octagon' | 'parallelogram' | 'star' | 'cloud' | 'heart' | 'cross' | 'checkmark' | 'arrowLeft' | 'arrowRight' | 'arrowUp' | 'arrowDown' | 'capsule' | 'stickyNote' | 'callout' | 'burst' | 'speechBubble' | 'ribbon' | 'bracketLeft' | 'bracketRight' | 'database' | 'document' | 'predefinedProcess' | 'internalStorage';
     selectedInfraType: 'server' | 'loadBalancer' | 'firewall' | 'user' | 'messageQueue' | 'lambda' | 'router' | 'browser';
     selectedMathType: 'trapezoid' | 'rightTriangle' | 'pentagon' | 'septagon';
-    selectedSketchnoteType: 'starPerson' | 'scroll' | 'wavyDivider' | 'doubleBanner' | 'trophy' | 'clock' | 'gear' | 'target' | 'rocket' | 'flag';
+    selectedSketchnoteType: 'starPerson' | 'scroll' | 'wavyDivider' | 'doubleBanner' | 'trophy' | 'clock' | 'gear' | 'target' | 'rocket' | 'flag' | 'key' | 'magnifyingGlass' | 'book' | 'megaphone' | 'eye' | 'thoughtBubble';
     selectedWireframeType: 'browserWindow' | 'mobilePhone' | 'ghostButton' | 'inputField';
     layerGroupingModeEnabled: boolean;
     maxLayers: number;
@@ -1621,7 +1621,7 @@ export const setSelectedMathType = (mathType: 'trapezoid' | 'rightTriangle' | 'p
     setStore('selectedMathType', mathType);
 };
 
-export const setSelectedSketchnoteType = (sketchnoteType: 'starPerson' | 'scroll' | 'wavyDivider' | 'doubleBanner' | 'trophy' | 'clock' | 'gear' | 'target' | 'rocket' | 'flag') => {
+export const setSelectedSketchnoteType = (sketchnoteType: 'starPerson' | 'scroll' | 'wavyDivider' | 'doubleBanner' | 'trophy' | 'clock' | 'gear' | 'target' | 'rocket' | 'flag' | 'key' | 'magnifyingGlass' | 'book' | 'megaphone' | 'eye' | 'thoughtBubble') => {
     setStore('selectedSketchnoteType', sketchnoteType);
 };
 

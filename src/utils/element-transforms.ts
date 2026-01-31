@@ -75,6 +75,7 @@ export const getTransformOptions = (currentType: ElementType): ElementType[] => 
         'browserWindow', 'mobilePhone', 'ghostButton', 'inputField',
         'starPerson', 'lightbulb', 'signpost', 'burstBlob', 'scroll', 'wavyDivider', 'doubleBanner',
         'trophy', 'clock', 'gear', 'target', 'rocket', 'flag',
+        'key', 'magnifyingGlass', 'book', 'megaphone', 'eye', 'thoughtBubble',
         'dfdProcess', 'dfdDataStore', 'externalEntity',
         'isometricCube', 'solidBlock', 'perspectiveBlock', 'cylinder',
         'stateStart', 'stateEnd', 'stateSync', 'activationBar'
@@ -183,6 +184,12 @@ export const getShapeIcon = (type: ElementType): string => {
         'target': '🎯',
         'rocket': '🚀',
         'flag': '🚩',
+        'key': '🔑',
+        'magnifyingGlass': '🔍',
+        'book': '📖',
+        'megaphone': '📣',
+        'eye': '👁',
+        'thoughtBubble': '💭',
 
         // DFD / Diagram
         'dfdProcess': '⊙',

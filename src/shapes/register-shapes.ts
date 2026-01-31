@@ -40,7 +40,7 @@ export function registerShapes() {
     flowchartTypes.forEach(type => shapeRegistry.register(type, flowchartRenderer));
 
     const sketchnoteRenderer = new SketchnoteRenderer();
-    const sketchnoteTypes = ['starPerson', 'lightbulb', 'signpost', 'burstBlob', 'scroll', 'wavyDivider', 'doubleBanner', 'trophy', 'clock', 'gear', 'target', 'rocket', 'flag'] as const;
+    const sketchnoteTypes = ['starPerson', 'lightbulb', 'signpost', 'burstBlob', 'scroll', 'wavyDivider', 'doubleBanner', 'trophy', 'clock', 'gear', 'target', 'rocket', 'flag', 'key', 'magnifyingGlass', 'book', 'megaphone', 'eye', 'thoughtBubble'] as const;
     sketchnoteTypes.forEach(type => shapeRegistry.register(type, sketchnoteRenderer));
 
     const infraRenderer = new InfraRenderer();

@@ -112,6 +112,53 @@ const FlagIcon: Component<{ size?: number; color?: string }> = (props) => (
     </svg>
 );
 
+const KeyIcon: Component<{ size?: number; color?: string }> = (props) => (
+    <svg width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="4" />
+        <line x1="12" y1="12" x2="12" y2="22" />
+        <line x1="12" y1="18" x2="15" y2="18" />
+        <line x1="12" y1="21" x2="15" y2="21" />
+    </svg>
+);
+
+const MagnifyingGlassIcon: Component<{ size?: number; color?: string }> = (props) => (
+    <svg width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="10" cy="10" r="6" />
+        <line x1="14.5" y1="14.5" x2="21" y2="21" />
+    </svg>
+);
+
+const BookIcon: Component<{ size?: number; color?: string }> = (props) => (
+    <svg width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M 12,4 C 10,2 6,2 2,3 L 2,20 C 6,19 10,19 12,21 C 14,19 18,19 22,20 L 22,3 C 18,2 14,2 12,4 Z" />
+        <line x1="12" y1="4" x2="12" y2="21" />
+    </svg>
+);
+
+const MegaphoneIcon: Component<{ size?: number; color?: string }> = (props) => (
+    <svg width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M 3,10 L 3,14 L 7,14 L 13,18 L 13,6 L 7,10 Z" />
+        <line x1="17" y1="9" x2="21" y2="7" />
+        <line x1="17" y1="12" x2="21" y2="12" />
+        <line x1="17" y1="15" x2="21" y2="17" />
+    </svg>
+);
+
+const EyeIcon: Component<{ size?: number; color?: string }> = (props) => (
+    <svg width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M 1,12 C 4,6 8,4 12,4 C 16,4 20,6 23,12 C 20,18 16,20 12,20 C 8,20 4,18 1,12 Z" />
+        <circle cx="12" cy="12" r="3" />
+    </svg>
+);
+
+const ThoughtBubbleIcon: Component<{ size?: number; color?: string }> = (props) => (
+    <svg width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M 6,14 C 3,14 2,12 2,10 C 2,8 3,6 6,6 C 6,3 8,1 12,1 C 16,1 18,3 18,6 C 21,6 22,8 22,10 C 22,12 21,14 18,14 C 18,16 16,17 14,17 L 10,17 C 8,17 6,16 6,14 Z" />
+        <circle cx="7" cy="20" r="1.5" />
+        <circle cx="4" cy="22.5" r="1" />
+    </svg>
+);
+
 const sketchnoteTools: { type: ElementType; icon: Component<{ size?: number; color?: string }>; label: string }[] = [
     { type: 'starPerson', icon: StarPersonIcon, label: 'Star Person (Character)' },
     { type: 'lightbulb', icon: LightbulbIcon, label: 'Lightbulb (Idea)' },
@@ -123,6 +170,12 @@ const sketchnoteTools: { type: ElementType; icon: Component<{ size?: number; col
     { type: 'target', icon: TargetIcon, label: 'Target (Goal)' },
     { type: 'rocket', icon: RocketIcon, label: 'Rocket (Launch)' },
     { type: 'flag', icon: FlagIcon, label: 'Flag (Milestone)' },
+    { type: 'key', icon: KeyIcon, label: 'Key (Insight)' },
+    { type: 'magnifyingGlass', icon: MagnifyingGlassIcon, label: 'Magnifying Glass (Search)' },
+    { type: 'book', icon: BookIcon, label: 'Book (Knowledge)' },
+    { type: 'megaphone', icon: MegaphoneIcon, label: 'Megaphone (Announce)' },
+    { type: 'eye', icon: EyeIcon, label: 'Eye (Vision)' },
+    { type: 'thoughtBubble', icon: ThoughtBubbleIcon, label: 'Thought Bubble (Thinking)' },
     { type: 'scroll', icon: ScrollIcon, label: 'Scroll Container' },
     { type: 'wavyDivider', icon: WavyDividerIcon, label: 'Wavy Divider' },
     { type: 'doubleBanner', icon: DoubleBannerIcon, label: 'Double Banner' },

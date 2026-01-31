@@ -217,7 +217,9 @@ export function hitTestElement(
         el.type === 'umlFragment' || el.type === 'umlSignalSend' || el.type === 'umlSignalReceive' ||
         el.type === 'umlProvidedInterface' || el.type === 'umlRequiredInterface' ||
         el.type === 'trophy' || el.type === 'clock' || el.type === 'gear' ||
-        el.type === 'target' || el.type === 'rocket' || el.type === 'flag'
+        el.type === 'target' || el.type === 'rocket' || el.type === 'flag' ||
+        el.type === 'key' || el.type === 'magnifyingGlass' || el.type === 'book' ||
+        el.type === 'megaphone' || el.type === 'eye' || el.type === 'thoughtBubble'
     ) {
         // For these shapes, rely on bounding box hit test (passed above)
         // or implement detailed geometry check if needed

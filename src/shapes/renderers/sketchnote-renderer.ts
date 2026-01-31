@@ -197,6 +197,89 @@ export class SketchnoteRenderer extends ShapeRenderer {
                 ctx.strokeRect(poleX, y, poleW, h);
                 break;
             }
+            case 'key': {
+                const path = this.getKeyPath(x, y, w, h);
+                if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                    ctx.fillStyle = options.fill;
+                    ctx.fill(new Path2D(path));
+                }
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
+                ctx.stroke(new Path2D(path));
+                break;
+            }
+            case 'magnifyingGlass': {
+                const path = this.getMagnifyingGlassPath(x, y, w, h);
+                if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                    ctx.fillStyle = options.fill;
+                    ctx.fill(new Path2D(path));
+                }
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
+                ctx.stroke(new Path2D(path));
+                break;
+            }
+            case 'book': {
+                const path = this.getBookPath(x, y, w, h);
+                if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                    ctx.fillStyle = options.fill;
+                    ctx.fill(new Path2D(path));
+                }
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
+                ctx.stroke(new Path2D(path));
+                break;
+            }
+            case 'megaphone': {
+                const path = this.getMegaphonePath(x, y, w, h);
+                if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                    ctx.fillStyle = options.fill;
+                    ctx.fill(new Path2D(path));
+                }
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
+                ctx.stroke(new Path2D(path));
+                break;
+            }
+            case 'eye': {
+                const path = this.getEyePath(x, y, w, h);
+                if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                    ctx.fillStyle = options.fill;
+                    ctx.fill(new Path2D(path));
+                }
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
+                ctx.stroke(new Path2D(path));
+                // Iris and pupil
+                const irisR = Math.min(w, h) * 0.18;
+                const pupilR = irisR * 0.45;
+                const ecx = x + w / 2, ecy = y + h / 2;
+                ctx.beginPath();
+                ctx.ellipse(ecx, ecy, irisR, irisR, 0, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(ecx, ecy, pupilR, 0, Math.PI * 2);
+                ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || (isDarkMode ? '#ffffff' : '#000000'), isDarkMode);
+                ctx.fill();
+                break;
+            }
+            case 'thoughtBubble': {
+                const path = this.getThoughtBubblePath(x, y, w, h);
+                if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                    ctx.fillStyle = options.fill;
+                    ctx.fill(new Path2D(path));
+                }
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
+                ctx.stroke(new Path2D(path));
+                // Trailing thought circles
+                const c1r = Math.min(w, h) * 0.05;
+                const c2r = c1r * 0.65;
+                const c1x = x + w * 0.25, c1y = y + h * 0.88;
+                const c2x = x + w * 0.18, c2y = y + h * 0.95;
+                if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                    ctx.fillStyle = options.fill;
+                    ctx.beginPath(); ctx.arc(c1x, c1y, c1r, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(c2x, c2y, c2r, 0, Math.PI * 2); ctx.fill();
+                }
+                ctx.beginPath(); ctx.arc(c1x, c1y, c1r, 0, Math.PI * 2); ctx.stroke();
+                ctx.beginPath(); ctx.arc(c2x, c2y, c2r, 0, Math.PI * 2); ctx.stroke();
+                break;
+            }
         }
 
         RenderPipeline.renderText(context, cx, cy);
@@ -288,6 +371,42 @@ export class SketchnoteRenderer extends ShapeRenderer {
                 const poleX = x + w * 0.15 - poleW / 2;
                 rc.path(this.getFlagPath(x, y, w, h), options);
                 rc.rectangle(poleX, y, poleW, h, { ...options, fill: 'none' });
+                break;
+            }
+            case 'key': {
+                rc.path(this.getKeyPath(x, y, w, h), options);
+                break;
+            }
+            case 'magnifyingGlass': {
+                rc.path(this.getMagnifyingGlassPath(x, y, w, h), options);
+                break;
+            }
+            case 'book': {
+                rc.path(this.getBookPath(x, y, w, h), options);
+                break;
+            }
+            case 'megaphone': {
+                rc.path(this.getMegaphonePath(x, y, w, h), options);
+                break;
+            }
+            case 'eye': {
+                rc.path(this.getEyePath(x, y, w, h), options);
+                // Iris
+                const irisR = Math.min(w, h) * 0.18;
+                rc.circle(x + w / 2, y + h / 2, irisR * 2, options);
+                // Pupil (filled)
+                const pupilR = irisR * 0.45;
+                const strokeCol = RenderPipeline.adjustColor(el.strokeColor || (isDarkMode ? '#ffffff' : '#000000'), isDarkMode);
+                rc.circle(x + w / 2, y + h / 2, pupilR * 2, { ...options, fill: strokeCol });
+                break;
+            }
+            case 'thoughtBubble': {
+                rc.path(this.getThoughtBubblePath(x, y, w, h), options);
+                // Trailing thought circles
+                const c1r = Math.min(w, h) * 0.05;
+                const c2r = c1r * 0.65;
+                rc.circle(x + w * 0.25, y + h * 0.88, c1r * 2, options);
+                rc.circle(x + w * 0.18, y + h * 0.95, c2r * 2, options);
                 break;
             }
         }
@@ -495,6 +614,177 @@ export class SketchnoteRenderer extends ShapeRenderer {
             + ` L ${flagR} ${flagTop + flagH}`
             + ` C ${flagL + (flagR - flagL) * 0.66} ${flagTop + flagH + waveDip} ${flagL + (flagR - flagL) * 0.33} ${flagTop + flagH - waveDip} ${flagL} ${flagTop + flagH}`
             + ' Z';
+    }
+
+    private getKeyPath(x: number, y: number, w: number, h: number): string {
+        const cx = x + w / 2;
+        // Bow (oval ring at top)
+        const bowRx = w * 0.35;
+        const bowRy = h * 0.25;
+        const bowCy = y + bowRy;
+        // Shaft
+        const shaftW = w * 0.12;
+        const shaftTop = bowCy + bowRy * 0.7;
+        const shaftBottom = y + h;
+        const shaftL = cx - shaftW / 2;
+        const shaftR = cx + shaftW / 2;
+        // Teeth
+        const toothW = w * 0.15;
+        const toothH = h * 0.08;
+        const tooth1Y = shaftBottom - h * 0.25;
+        const tooth2Y = shaftBottom - h * 0.12;
+
+        // Bow outline (ellipse approximated with arcs)
+        let path = `M ${cx - bowRx} ${bowCy}`;
+        path += ` A ${bowRx} ${bowRy} 0 1 1 ${cx + bowRx} ${bowCy}`;
+        path += ` A ${bowRx} ${bowRy} 0 1 1 ${cx - bowRx} ${bowCy}`;
+        path += ' Z';
+
+        // Shaft
+        path += ` M ${shaftL} ${shaftTop} L ${shaftR} ${shaftTop} L ${shaftR} ${shaftBottom} L ${shaftL} ${shaftBottom} Z`;
+
+        // Teeth (right side notches)
+        path += ` M ${shaftR} ${tooth1Y} L ${shaftR + toothW} ${tooth1Y} L ${shaftR + toothW} ${tooth1Y + toothH} L ${shaftR} ${tooth1Y + toothH}`;
+        path += ` M ${shaftR} ${tooth2Y} L ${shaftR + toothW} ${tooth2Y} L ${shaftR + toothW} ${tooth2Y + toothH} L ${shaftR} ${tooth2Y + toothH}`;
+
+        return path;
+    }
+
+    private getMagnifyingGlassPath(x: number, y: number, w: number, h: number): string {
+        // Lens circle in upper-left area
+        const lensR = Math.min(w, h) * 0.32;
+        const lensCx = x + w * 0.42;
+        const lensCy = y + h * 0.38;
+
+        // Handle extends to bottom-right
+        const handleW = Math.max(w * 0.1, 4);
+        const angle = Math.PI / 4; // 45 degrees
+        const handleStartX = lensCx + Math.cos(angle) * lensR;
+        const handleStartY = lensCy + Math.sin(angle) * lensR;
+        const handleLen = Math.min(w, h) * 0.4;
+        const handleEndX = handleStartX + Math.cos(angle) * handleLen;
+        const handleEndY = handleStartY + Math.sin(angle) * handleLen;
+
+        // Perpendicular offset for handle width
+        const px = Math.cos(angle + Math.PI / 2) * handleW / 2;
+        const py = Math.sin(angle + Math.PI / 2) * handleW / 2;
+
+        // Lens circle
+        let path = `M ${lensCx - lensR} ${lensCy}`;
+        path += ` A ${lensR} ${lensR} 0 1 1 ${lensCx + lensR} ${lensCy}`;
+        path += ` A ${lensR} ${lensR} 0 1 1 ${lensCx - lensR} ${lensCy}`;
+        path += ' Z';
+
+        // Handle rectangle
+        path += ` M ${handleStartX + px} ${handleStartY + py}`;
+        path += ` L ${handleEndX + px} ${handleEndY + py}`;
+        path += ` L ${handleEndX - px} ${handleEndY - py}`;
+        path += ` L ${handleStartX - px} ${handleStartY - py}`;
+        path += ' Z';
+
+        return path;
+    }
+
+    private getBookPath(x: number, y: number, w: number, h: number): string {
+        const cx = x + w / 2;
+        const spine = cx;
+        const top = y + h * 0.05;
+        const bottom = y + h * 0.95;
+        const coverBulge = h * 0.08;
+
+        // Left page
+        let path = `M ${spine} ${top}`;
+        path += ` C ${spine - w * 0.1} ${top + coverBulge} ${x + w * 0.05} ${top + coverBulge} ${x} ${top}`;
+        path += ` L ${x} ${bottom}`;
+        path += ` C ${x + w * 0.05} ${bottom - coverBulge} ${spine - w * 0.1} ${bottom - coverBulge} ${spine} ${bottom}`;
+        path += ' Z';
+
+        // Right page
+        path += ` M ${spine} ${top}`;
+        path += ` C ${spine + w * 0.1} ${top + coverBulge} ${x + w * 0.95} ${top + coverBulge} ${x + w} ${top}`;
+        path += ` L ${x + w} ${bottom}`;
+        path += ` C ${x + w * 0.95} ${bottom - coverBulge} ${spine + w * 0.1} ${bottom - coverBulge} ${spine} ${bottom}`;
+        path += ' Z';
+
+        // Spine line
+        path += ` M ${spine} ${top} L ${spine} ${bottom}`;
+
+        return path;
+    }
+
+    private getMegaphonePath(x: number, y: number, w: number, h: number): string {
+        // Cone flaring to the right
+        const mouthL = x + w * 0.15;
+        const mouthR = x + w;
+        const mouthTopY = y;
+        const mouthBottomY = y + h * 0.75;
+        const backTopY = y + h * 0.25;
+        const backBottomY = y + h * 0.5;
+
+        // Main cone body
+        let path = `M ${mouthL} ${backTopY}`;
+        path += ` L ${mouthR} ${mouthTopY}`;
+        path += ` L ${mouthR} ${mouthBottomY}`;
+        path += ` L ${mouthL} ${backBottomY}`;
+        path += ' Z';
+
+        // Handle (small rectangle at back-bottom)
+        const handleW = w * 0.12;
+        const handleH = h * 0.25;
+        const handleX = mouthL - handleW * 0.3;
+        const handleY = backBottomY;
+        path += ` M ${handleX} ${handleY} L ${handleX + handleW} ${handleY} L ${handleX + handleW} ${handleY + handleH} L ${handleX} ${handleY + handleH} Z`;
+
+        return path;
+    }
+
+    private getEyePath(x: number, y: number, w: number, h: number): string {
+        const cx = x + w / 2;
+        const cy = y + h / 2;
+        const rx = w / 2;
+        const ry = h / 2;
+
+        // Almond/lemon eye shape using two cubic bezier curves
+        let path = `M ${x} ${cy}`;
+        path += ` C ${x + rx * 0.4} ${cy - ry * 1.3} ${x + rx * 1.6} ${cy - ry * 1.3} ${x + w} ${cy}`;
+        path += ` C ${x + rx * 1.6} ${cy + ry * 1.3} ${x + rx * 0.4} ${cy + ry * 1.3} ${x} ${cy}`;
+        path += ' Z';
+
+        return path;
+    }
+
+    private getThoughtBubblePath(x: number, y: number, w: number, h: number): string {
+        // Cloud-like blob occupying top ~80% of the bounding box
+        const cloudH = h * 0.8;
+        const cx = x + w / 2;
+        const cy = y + cloudH / 2;
+        const rx = w * 0.48;
+        const ry = cloudH * 0.45;
+
+        // Cloud outline using bumpy curves
+        const bumps = 8;
+        let path = '';
+        for (let i = 0; i < bumps; i++) {
+            const a1 = (Math.PI * 2 * i) / bumps;
+            const a2 = (Math.PI * 2 * (i + 1)) / bumps;
+            const aMid = (a1 + a2) / 2;
+
+            const x1 = cx + Math.cos(a1) * rx;
+            const y1 = cy + Math.sin(a1) * ry;
+            const bumpR = 1.25; // how far bumps protrude
+            const cpx = cx + Math.cos(aMid) * rx * bumpR;
+            const cpy = cy + Math.sin(aMid) * ry * bumpR;
+            const x2 = cx + Math.cos(a2) * rx;
+            const y2 = cy + Math.sin(a2) * ry;
+
+            if (i === 0) {
+                path = `M ${x1} ${y1}`;
+            }
+            path += ` Q ${cpx} ${cpy} ${x2} ${y2}`;
+        }
+        path += ' Z';
+
+        return path;
     }
 
     protected definePath(ctx: CanvasRenderingContext2D, el: any): void {
