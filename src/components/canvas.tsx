@@ -3,11 +3,9 @@ import { calculateAllAnimatedStates } from "../utils/animation-utils";
 import { projectMasterPosition } from "../utils/slide-utils";
 import { animationEngine } from "../utils/animation/animation-engine";
 import rough from 'roughjs'; // Hand-drawn style
-import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, setActiveLayer, setSelectedTool, zoomToFitSlide, isLayerVisible, isLayerLocked, updateSlideThumbnail, advancePresentation, updateSlideBackground } from "../store/app-store";
+import { store, setViewState, addElement, updateElement, setStore, setActiveLayer, setSelectedTool, zoomToFitSlide, isLayerVisible, isLayerLocked, updateSlideThumbnail, advancePresentation } from "../store/app-store";
 import { renderElement, normalizePoints } from "../utils/render-element";
 import type { DrawingElement } from "../types";
-import { hitTestElement } from "../utils/hit-testing";
-import { getHandleAtPosition } from "../utils/handle-detection";
 import ContextMenu from "./context-menu";
 import { setImageLoadCallback } from "../utils/image-cache";
 import type { SnappingGuide } from "../utils/object-snapping";
@@ -35,6 +33,8 @@ import {
 import { Minimap } from "./minimap";
 import { getContextMenuItems } from "../utils/context-menu-builder";
 import PathEditorOverlay from "./path-editor-overlay";
+import { commitText as commitTextHandler, handleDoubleClick as handleDoubleClickHandler, type TextEditingContext } from "../utils/tool-handlers/text-editing-handler";
+import { handleDragOver, handleDrop as handleDropHandler, handleWheel, type CanvasEventContext } from "../utils/tool-handlers/canvas-event-handlers";
 import { showToast } from "./toast";
 import { perfMonitor } from "../utils/performance-monitor";
 import { fitShapeToText, measureContainerText } from "../utils/text-utils";
@@ -446,10 +446,6 @@ const Canvas: Component = () => {
         });
     });
 
-    const getClientCoordinates = (e: MouseEvent | WheelEvent) => {
-        return { x: e.clientX, y: e.clientY };
-    };
-
     const getWorldCoordinates = (clientX: number, clientY: number) => {
         if (!canvasRef) return { x: 0, y: 0 };
         const { scale, panX, panY } = store.viewState;
@@ -458,136 +454,6 @@ const Canvas: Component = () => {
             x: (clientX - rect.left - panX) / scale,
             y: (clientY - rect.top - panY) / scale
         };
-    };
-
-    const handleDragOver = (e: DragEvent) => {
-        if (e.dataTransfer) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'copy';
-        }
-    };
-
-    const handleDrop = async (e: DragEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const data = e.dataTransfer?.getData('text/plain');
-        if (!data) return;
-
-        // Loosened color detection to be very inclusive for various color strings
-        const isColor = data.startsWith('color(') ||
-            data.startsWith('#') ||
-            data.startsWith('rgba(') ||
-            data.startsWith('rgb(') ||
-            data.startsWith('oklch(') ||
-            data.startsWith('hsl(') ||
-            data.includes('display-p3') ||
-            data.includes('oklch');
-        const isImage = data.startsWith('http') || data.startsWith('data:image');
-
-        if (!isColor && !isImage) return;
-
-        const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
-        const threshold = 10 / store.viewState.scale;
-
-        const elementMap = new Map<string, DrawingElement>();
-        for (const el of store.elements) elementMap.set(el.id, el);
-
-        const sortedElements = store.elements.map((el, index) => {
-            const layer = store.layers.find(l => l.id === el.layerId);
-            return { el, index, layerOrder: layer?.order ?? 999, layerVisible: isLayerVisible(el.layerId) };
-        }).sort((a, b) => {
-            if (a.layerOrder !== b.layerOrder) return b.layerOrder - a.layerOrder;
-            return b.index - a.index;
-        });
-
-        const currentTime = (window as any).yappyGlobalTime || 0;
-        const shouldAnimate = store.appMode === 'presentation' || store.isPreviewing;
-        const animatedStates = calculateAllAnimatedStates(store.elements, currentTime, shouldAnimate);
-
-        let hitId: string | null = null;
-        for (const { el, layerVisible } of sortedElements) {
-            if (!layerVisible || !canInteractWithElement(el)) continue;
-            const animState = animatedStates.get(el.id);
-            const testEl = applyMasterProjection(animState ? { ...el, x: animState.x, y: animState.y, angle: animState.angle } : el);
-            if (hitTestElement(testEl, x, y, threshold, store.elements, elementMap)) {
-                hitId = el.id;
-                break;
-            }
-        }
-
-        if (hitId) {
-            pushToHistory();
-            if (isColor) {
-                updateElement(hitId, { backgroundColor: data, fillStyle: 'solid' });
-            } else if (isImage) {
-                updateElement(hitId, { type: 'image', dataURL: data });
-            }
-        } else if (store.docType === 'slides') {
-            // Drop anywhere on the canvas (even outside slide bounds) updates the ACTIVE slide background
-            const activeSlideIndex = store.activeSlideIndex;
-            if (activeSlideIndex !== -1) {
-                pushToHistory();
-                if (isColor) {
-                    updateSlideBackground(activeSlideIndex, {
-                        backgroundColor: data,
-                        fillStyle: 'solid'
-                    });
-                } else if (isImage) {
-                    updateSlideBackground(activeSlideIndex, {
-                        backgroundImage: data,
-                        fillStyle: 'image'
-                    });
-                }
-            } else if (store.slides.length > 0) {
-                // Fallback to first slide if activeIndex is somehow -1
-                pushToHistory();
-                if (isColor) updateSlideBackground(0, { backgroundColor: data, fillStyle: 'solid' });
-                else if (isImage) updateSlideBackground(0, { backgroundImage: data, fillStyle: 'image' });
-            }
-        }
-    };
-
-    const handleWheel = (e: WheelEvent) => {
-        if (store.appMode === 'presentation' && store.docType === 'slides') return;
-        e.preventDefault();
-
-        // Normalize delta values based on deltaMode
-        // 0: Pixel, 1: Line, 2: Page
-        const multiplier = e.deltaMode === 1 ? 33 : (e.deltaMode === 2 ? 400 : 1);
-        const deltaX = e.deltaX * multiplier;
-        const deltaY = e.deltaY * multiplier;
-
-        if (e.ctrlKey || e.metaKey) {
-            // ... Zoom Logic ...
-            const zoomSensitivity = 0.001;
-            const zoom = 1 - deltaY * zoomSensitivity;
-            const newScale = Math.min(Math.max(store.viewState.scale * zoom, 0.1), 10);
-
-            const { x: mouseX, y: mouseY } = getClientCoordinates(e);
-            const { scale, panX, panY } = store.viewState;
-
-            const worldX = (mouseX - panX) / scale;
-            const worldY = (mouseY - panY) / scale;
-
-            const newPanX = mouseX - worldX * newScale;
-            const newPanY = mouseY - worldY * newScale;
-
-            setViewState({ scale: newScale, panX: newPanX, panY: newPanY });
-        } else {
-            // Pan
-            if (e.shiftKey) {
-                // Horizontal Scroll
-                setViewState({
-                    panX: store.viewState.panX - (deltaY || deltaX),
-                    panY: store.viewState.panY
-                });
-            } else {
-                setViewState({
-                    panX: store.viewState.panX - deltaX,
-                    panY: store.viewState.panY - deltaY
-                });
-            }
-        }
     };
 
 
@@ -665,10 +531,25 @@ const Canvas: Component = () => {
         refreshBoundLineUtil(lineId, () => store.elements, updateElement);
 
     // Helpers & signals bundles for extracted handler modules
+    const textEditCtx: TextEditingContext = {
+        editingId, setEditingId, editingProperty, setEditingProperty,
+        editText, setEditText,
+        get textInputRef() { return textInputRef; },
+        get canvasRef() { return canvasRef; },
+        getWorldCoordinates, canInteractWithElement, applyMasterProjection,
+        redrawFn: draw
+    };
+
+    const canvasEventCtx: CanvasEventContext = {
+        getWorldCoordinates, canInteractWithElement, applyMasterProjection
+    };
+
+    const commitText = () => commitTextHandler(textEditCtx);
+
     const pHelpers: import("../utils/pointer-helpers").PointerHelpers = {
         getWorldCoordinates, canInteractWithElement, checkBinding,
         refreshLinePoints, refreshBoundLine, flushPenPoints,
-        applyMasterProjection, normalizePencil, commitText: () => commitText(),
+        applyMasterProjection, normalizePencil, commitText,
         draw, setCursor
     };
     const pSignals: import("../utils/pointer-helpers").PointerSignals = {
@@ -777,185 +658,7 @@ const Canvas: Component = () => {
         drawOnUp(pState, pHelpers, pSignals);
     };
 
-    const commitText = () => {
-        const id = editingId();
-        if (!id) return;
-        const el = store.elements.find(e => e.id === id);
-        if (!el) return;
-
-        const newText = editText().trim();
-
-        // For standalone text elements, update text property and calculate dimensions
-        if (el.type === 'text') {
-            if (newText) {
-                let width = 0;
-                let height = 0;
-                if (canvasRef) {
-                    const ctx = canvasRef.getContext("2d");
-                    if (ctx) {
-                        const fontSize = el.fontSize || 28;
-                        ctx.font = `${fontSize}px sans-serif`;
-                        const metrics = ctx.measureText(newText);
-                        width = metrics.width;
-                        height = fontSize;
-                    }
-                }
-                width = Math.max(width, 10);
-                height = Math.max(height, 10);
-                updateElement(id, { text: newText, width, height }, true);
-            } else {
-                deleteElements([id]);
-            }
-        } else {
-            // For shapes with containerText
-            const isLine = el.type === 'line' || el.type === 'arrow' || el.type === 'organicBranch';
-            const prop = editingProperty();
-
-            if (el.autoResize && canvasRef && !isLine && prop === 'containerText') {
-                const ctx = canvasRef.getContext("2d");
-                if (ctx) {
-                    const dims = fitShapeToText(ctx, el, newText);
-                    updateElement(id, {
-                        [prop]: newText,
-                        width: dims.width,
-                        height: dims.height,
-                    }, true);
-                } else {
-                    updateElement(id, { [prop]: newText }, true);
-                }
-            } else {
-                updateElement(id, { [prop]: newText }, true);
-            }
-        }
-
-        setEditingId(null);
-        setEditText("");
-        requestAnimationFrame(draw);
-    };
-
-    const handleDoubleClick = (e: MouseEvent) => {
-        e.preventDefault(); // Prevent browser context menu
-        if (store.selectedTool !== 'selection') return;
-
-        const { x, y } = getWorldCoordinates(e.clientX, e.clientY);
-        const threshold = 10 / store.viewState.scale;
-
-        // Find element under cursor
-        const elementMap = new Map<string, DrawingElement>();
-        for (const el of store.elements) elementMap.set(el.id, el);
-
-        for (let i = store.elements.length - 1; i >= 0; i--) {
-            const el = store.elements[i];
-            if (!canInteractWithElement(el)) continue;
-            if (!isLayerVisible(el.layerId)) continue;
-
-            if (hitTestElement(applyMasterProjection(el), x, y, threshold, store.elements, elementMap)) {
-
-                // Check for control handles (Star, Burst, Speech Bubble, Isometric Cube, Solid Block, Perspective Block)
-                if (['star', 'burst', 'speechBubble', 'isometricCube', 'solidBlock', 'perspectiveBlock'].includes(el.type)) {
-                    const hitHandle = getHandleAtPosition(x, y, store.elements, store.selection, store.viewState.scale);
-                    if (hitHandle && hitHandle.handle.startsWith('control-')) {
-                        // Hit a control handle, don't open text editor
-                        return;
-                    }
-                }
-
-                // Add Control Point for Bezier/Arrow
-                if ((el.type === 'line' || el.type === 'arrow' || el.type === 'bezier')) {
-                    // Logic to add a control point
-
-                    const newControlPoints = el.controlPoints ? [...el.controlPoints] : [];
-
-                    // LIMIT TO 2 Control Points for S-Curve Support
-                    if (newControlPoints.length >= 2) {
-                        return; // Already has 2 points, don't add more for now
-                    }
-
-                    newControlPoints.push({ x, y });
-
-                    updateElement(el.id, {
-                        controlPoints: newControlPoints,
-                        curveType: 'bezier' // Switch to bezier if adding control points
-                    }, true); // Push to history
-
-                    // Don't open text editor if we added a point
-                    return;
-                }
-
-                // Only allow editing containerText for shapes and lines
-                const shapeTypes = ['rectangle', 'circle', 'diamond', 'line', 'arrow', 'text', 'triangle', 'hexagon', 'octagon', 'parallelogram', 'star', 'cloud', 'heart', 'capsule', 'stickyNote', 'callout', 'burst', 'speechBubble', 'ribbon', 'bracketLeft', 'bracketRight', 'database', 'document', 'predefinedProcess', 'internalStorage', 'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser', 'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'starPerson', 'scroll', 'wavyDivider', 'doubleBanner', 'lightbulb', 'signpost', 'burstBlob', 'browserWindow', 'mobilePhone', 'ghostButton', 'inputField', 'dfdProcess', 'dfdDataStore', 'isometricCube', 'solidBlock', 'perspectiveBlock', 'cylinder', 'stateStart', 'stateEnd', 'stateSync', 'activationBar', 'externalEntity', 'umlClass', 'umlInterface', 'umlActor', 'umlUseCase', 'umlNote', 'umlPackage', 'umlComponent', 'umlState', 'umlLifeline', 'umlFragment', 'umlSignalSend', 'umlSignalReceive', 'umlProvidedInterface', 'umlRequiredInterface'];
-                if (shapeTypes.includes(el.type)) {
-                    setEditingId(el.id);
-
-                    if (el.type === 'umlClass') {
-                        // Determine which section was clicked
-                        const clickYRelativeToShape = y - el.y;
-                        const ctx = canvasRef?.getContext("2d");
-                        let headerHeight = 30;
-                        if (el.containerText && ctx) {
-                            const metrics = measureContainerText(ctx, el, el.containerText, el.width - 10);
-                            headerHeight = Math.max(30, metrics.textHeight + 20);
-                        }
-
-                        let attrHeight = 20;
-                        if (el.attributesText && ctx) {
-                            const metrics = measureContainerText(ctx, { ...el, fontSize: (el.fontSize || 28) * 0.9 }, el.attributesText, el.width - 10);
-                            attrHeight = Math.max(20, metrics.textHeight + 10);
-                        }
-
-                        if (clickYRelativeToShape < headerHeight) {
-                            setEditingProperty('containerText');
-                            setEditText(el.containerText || '');
-                        } else if (clickYRelativeToShape < headerHeight + attrHeight) {
-                            setEditingProperty('attributesText');
-                            setEditText(el.attributesText || '');
-                        } else {
-                            setEditingProperty('methodsText');
-                            setEditText(el.methodsText || '');
-                        }
-                    } else if (el.type === 'umlState') {
-                        const clickYRelativeToShape = y - el.y;
-                        const ctx = canvasRef?.getContext("2d");
-                        let headerHeight = 35;
-                        if (el.containerText && ctx) {
-                            const metrics = measureContainerText(ctx, el, el.containerText, el.width - 20);
-                            headerHeight = Math.max(35, metrics.textHeight + 15);
-                        }
-                        if (clickYRelativeToShape < headerHeight) {
-                            setEditingProperty('containerText');
-                            setEditText(el.containerText || '');
-                        } else {
-                            setEditingProperty('attributesText');
-                            setEditText(el.attributesText || '');
-                        }
-                    } else if (el.type === 'umlFragment') {
-                        const clickYRelativeToShape = y - el.y;
-                        const clickXRelativeToShape = x - el.x;
-                        const tabW = Math.min(el.width * 0.3, 60);
-                        const tabH = Math.min(el.height * 0.12, 22) + 5;
-
-                        if (clickXRelativeToShape < tabW && clickYRelativeToShape < tabH) {
-                            setEditingProperty('containerText');
-                            setEditText(el.containerText || '');
-                        } else {
-                            setEditingProperty('attributesText');
-                            setEditText(el.attributesText || '');
-                        }
-                    } else if (el.type === 'text') {
-                        setEditingProperty('text');
-                        setEditText(el.text || '');
-                    } else {
-                        setEditingProperty('containerText');
-                        setEditText(el.containerText || '');
-                    }
-
-                    setTimeout(() => textInputRef?.focus(), 0);
-                    return;
-                }
-                break;
-            }
-        }
-    };
+    const handleDoubleClick = (e: MouseEvent) => handleDoubleClickHandler(e, textEditCtx);
 
     const handleTextBlur = () => {
         // If we are still editing (i.e. didn't click canvas which manually commits), commit now.
@@ -1093,7 +796,7 @@ const Canvas: Component = () => {
                 onPointerUp={handlePointerUp}
                 onDblClick={handleDoubleClick}
                 onDragOver={handleDragOver}
-                onDrop={handleDrop}
+                onDrop={(e) => handleDropHandler(e, canvasEventCtx)}
                 onContextMenu={(e) => {
                     e.preventDefault();
                     setContextMenuPos({ x: e.clientX, y: e.clientY });
