@@ -470,7 +470,7 @@ const PropertyPanel: Component = () => {
         return properties.filter(p => {
             // Filter out properties that don't make sense for defaults (like locked, link, angle, width/height?)
             if (target.type === 'defaults') {
-                if (['locked', 'link', 'angle', 'containerText', 'text', 'shadowOffsetX', 'shadowOffsetY'].includes(p.key)) return false;
+                if (['locked', 'link', 'tag', 'angle', 'containerText', 'text', 'shadowOffsetX', 'shadowOffsetY'].includes(p.key)) return false;
             }
 
             // Slides and canvas require explicit applicableTo - don't inherit from 'all'

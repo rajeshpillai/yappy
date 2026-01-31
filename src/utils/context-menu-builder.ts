@@ -31,6 +31,20 @@ export function getContextMenuItems(redrawFn: () => void): MenuItem[] {
     const hasSelection = selectionCount > 0;
     const items: MenuItem[] = [];
 
+    // In presentation mode, only show "Open Link" if element has one
+    if (store.appMode === 'presentation') {
+        if (selectionCount === 1) {
+            const selectedEl = store.elements.find(e => e.id === store.selection[0]);
+            if (selectedEl?.link) {
+                items.push({
+                    label: 'Open Link',
+                    onClick: () => window.open(selectedEl.link!, '_blank', 'noopener')
+                });
+            }
+        }
+        return items;
+    }
+
     if (hasSelection) {
         items.push(
             { label: 'Copy', shortcut: 'Ctrl+C', onClick: copyToClipboard },
@@ -245,8 +259,15 @@ export function getContextMenuItems(redrawFn: () => void): MenuItem[] {
             items.push(
                 { label: 'Copy Styles', shortcut: 'Ctrl+Alt+C', onClick: copyStyle },
                 { label: 'Paste Styles', shortcut: 'Ctrl+Alt+V', onClick: pasteStyle },
-                { separator: true }
             );
+            const selectedEl = store.elements.find(e => e.id === store.selection[0]);
+            if (selectedEl?.link) {
+                items.push({
+                    label: 'Open Link',
+                    onClick: () => window.open(selectedEl.link!, '_blank', 'noopener')
+                });
+            }
+            items.push({ separator: true });
         }
 
         // Lock / Flip / Delete

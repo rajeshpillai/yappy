@@ -149,7 +149,7 @@ const initialState: AppState = {
     },
     // Initialize empty toolStyles
     toolStyles: {},
-    theme: (localStorage.getItem('theme') as 'light' | 'dark') || 'light',
+    theme: (localStorage.getItem('theme') as 'light' | 'dark') || 'dark',
     globalSettings: {
         animationEnabled: true,
         reducedMotion: false,

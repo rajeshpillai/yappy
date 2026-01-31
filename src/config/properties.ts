@@ -831,6 +831,14 @@ export const properties: PropertyConfig[] = [
         defaultValue: null
     },
     {
+        key: 'tag',
+        label: 'Tag',
+        type: 'input',
+        group: 'advanced',
+        applicableTo: 'all',
+        defaultValue: null
+    },
+    {
         key: 'constrained',
         label: 'Keep Proportions',
         type: 'toggle',

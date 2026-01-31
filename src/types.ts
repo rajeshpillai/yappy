@@ -122,6 +122,7 @@ export interface DrawingElement {
     roundness: null | { type: number };
     locked: boolean;
     link: string | null;
+    tag?: string | null;
 
     // Specific to Linear (Line, Arrow, Pencil)
     points?: Point[] | number[];

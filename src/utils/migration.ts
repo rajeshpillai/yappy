@@ -31,6 +31,7 @@ export const normalizeElement = (el: Partial<DrawingElement> & { id: string; typ
         roundness: el.roundness ?? null,
         locked: el.locked ?? false,
         link: el.link ?? null,
+        tag: el.tag ?? null,
 
         // Layer reference
         layerId: el.layerId || DEFAULT_LAYER_ID,

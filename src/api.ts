@@ -71,6 +71,7 @@ interface ElementOptions {
     containerText?: string;
     locked?: boolean;
     link?: string | null;
+    tag?: string | null;
     priority?: number; // Layer order implicitly handled by addElement but maybe useful?
 
     // Shape Specifics
@@ -183,6 +184,7 @@ export const YappyAPI = {
             endArrowhead: options?.endArrowhead ?? defaults.endArrowhead ?? 'arrow',
             locked: options?.locked ?? false,
             link: options?.link ?? null,
+            tag: options?.tag ?? null,
             layerId: options?.layerId ?? store.activeLayerId,
             curveType: options?.curveType ?? 'straight',
             containerText: options?.containerText ?? '',

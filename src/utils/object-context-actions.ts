@@ -34,12 +34,12 @@ const getViewportCenter = () => ({
 });
 
 // ─── Paste image from blob (used by paste event + context menu) ──────
-export const pasteImageFromBlob = (blob: Blob): Promise<void> => {
+export const pasteImageFromBlob = (blob: Blob, offset = { dx: 0, dy: 0 }): Promise<string | null> => {
     return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = (event) => {
             const dataURL = event.target?.result as string;
-            if (!dataURL) { resolve(); return; }
+            if (!dataURL) { resolve(null); return; }
 
             const img = new Image();
             img.src = dataURL;
@@ -58,7 +58,7 @@ export const pasteImageFromBlob = (blob: Blob): Promise<void> => {
                 canvas.width = width;
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
-                if (!ctx) { resolve(); return; }
+                if (!ctx) { resolve(null); return; }
 
                 ctx.drawImage(img, 0, 0, width, height);
                 const compressedDataURL = canvas.toDataURL('image/webp', 0.8);
@@ -78,8 +78,8 @@ export const pasteImageFromBlob = (blob: Blob): Promise<void> => {
                 addElement({
                     id,
                     type: 'image',
-                    x: center.x - visualW / 2,
-                    y: center.y - visualH / 2,
+                    x: center.x - visualW / 2 + offset.dx,
+                    y: center.y - visualH / 2 + offset.dy,
                     width: visualW,
                     height: visualH,
                     strokeColor: 'transparent',
@@ -100,12 +100,11 @@ export const pasteImageFromBlob = (blob: Blob): Promise<void> => {
                     layerId: store.activeLayerId,
                 } as DrawingElement);
 
-                setStore('selection', [id]);
-                resolve();
+                resolve(id);
             };
-            img.onerror = () => resolve();
+            img.onerror = () => resolve(null);
         };
-        reader.onerror = () => resolve();
+        reader.onerror = () => resolve(null);
         reader.readAsDataURL(blob);
     });
 };
@@ -199,18 +198,29 @@ const tryPasteYappyJson = (text: string): boolean => {
     return false;
 };
 
+// ─── Stagger offset for multiple pasted images ─────────────────────
+const PASTE_STAGGER = 30;
+
 // ─── Main paste (context menu / programmatic fallback) ───────────────
 export const pasteFromClipboard = async () => {
     // 1. Try reading clipboard items for images (async Clipboard API)
     try {
         const items = await navigator.clipboard.read();
+        const imageBlobs: Blob[] = [];
         for (const item of items) {
             const imageType = item.types.find((t: string) => t.startsWith('image/'));
             if (imageType) {
-                const blob = await item.getType(imageType);
-                await pasteImageFromBlob(blob);
-                return;
+                imageBlobs.push(await item.getType(imageType));
             }
+        }
+        if (imageBlobs.length > 0) {
+            const ids: string[] = [];
+            for (let i = 0; i < imageBlobs.length; i++) {
+                const id = await pasteImageFromBlob(imageBlobs[i], { dx: i * PASTE_STAGGER, dy: i * PASTE_STAGGER });
+                if (id) ids.push(id);
+            }
+            if (ids.length > 0) setStore('selection', ids);
+            return;
         }
     } catch { /* clipboard.read() not supported or permission denied */ }
 

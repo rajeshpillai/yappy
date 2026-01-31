@@ -335,22 +335,32 @@ const App: Component = () => {
       const active = document.activeElement;
       const tag = active?.tagName?.toLowerCase();
       if (tag === 'input' || tag === 'textarea' || (active as HTMLElement)?.isContentEditable) return;
-      // Skip if editing a text element on canvas
-      if (store.editingId) return;
       // Skip if command palette or dialogs are open
       if (store.showCommandPalette || isDialogOpen() || isSaveOpen() || isLoadExportOpen()) return;
 
       const items = e.clipboardData?.items;
       if (!items) return;
 
-      // Check for images first
+      // Check for images first — collect all image blobs
+      const imageBlobs: File[] = [];
       for (const item of items) {
         if (item.type.startsWith('image/')) {
-          e.preventDefault();
           const blob = item.getAsFile();
-          if (blob) pasteImageFromBlob(blob);
-          return;
+          if (blob) imageBlobs.push(blob);
         }
+      }
+      if (imageBlobs.length > 0) {
+        e.preventDefault();
+        const STAGGER = 30;
+        (async () => {
+          const ids: string[] = [];
+          for (let i = 0; i < imageBlobs.length; i++) {
+            const id = await pasteImageFromBlob(imageBlobs[i], { dx: i * STAGGER, dy: i * STAGGER });
+            if (id) ids.push(id);
+          }
+          if (ids.length > 0) setStore('selection', ids);
+        })();
+        return;
       }
 
       // Check for text

@@ -36,14 +36,15 @@ export function presentationOnDown(
         // Presentation tools (laser, ink, eraser) fall through
         return false;
     } else {
-        // Infinite mode: allow panning
-        if (e.button === 0 || e.button === 1) {
+        // Infinite mode: laser/ink/eraser fall through, nav tools pan
+        if (isNavTool && (e.button === 0 || e.button === 1)) {
             pState.isDragging = true;
             pState.startX = e.clientX;
             pState.startY = e.clientY;
             (e.currentTarget as Element).setPointerCapture(e.pointerId);
             return true;
         }
+        if (!isNavTool) return false;
     }
 
     return false;
@@ -65,7 +66,7 @@ export function presentationOnMove(
     if (store.docType === 'slides') {
         // Fall through to world-coord calculation and tool logic
         return false;
-    } else if (pState.isDragging) {
+    } else if (pState.isDragging && isNavTool) {
         setViewState({
             panX: store.viewState.panX + e.movementX,
             panY: store.viewState.panY + e.movementY
@@ -73,6 +74,7 @@ export function presentationOnMove(
         return true;
     }
 
+    // Infinite mode: laser/ink/eraser fall through to tool logic
     return false;
 }
 
@@ -88,11 +90,12 @@ export function presentationOnUp(
     const isNavTool = store.selectedTool === 'selection' || store.selectedTool === 'pan';
     if (store.docType === 'slides' && isNavTool) return true;
 
-    if (store.docType !== 'slides') {
+    if (store.docType !== 'slides' && isNavTool) {
         pState.isDragging = false;
         return true;
     }
 
+    // Infinite mode: laser/ink/eraser fall through to tool logic
     return false;
 }
 
