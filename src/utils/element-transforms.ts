@@ -69,7 +69,8 @@ export const getTransformOptions = (currentType: ElementType): ElementType[] => 
         'capsule', 'stickyNote', 'callout', 'speechBubble', 'burst',
         'database', 'document', 'predefinedProcess', 'internalStorage',
         'server', 'loadBalancer', 'firewall', 'user', 'messageQueue', 'lambda', 'router', 'browser',
-        'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'mobilePhone', 'browserWindow'
+        'trapezoid', 'rightTriangle', 'pentagon', 'septagon', 'mobilePhone', 'browserWindow',
+        'trophy', 'clock', 'gear', 'target', 'rocket', 'flag'
     ];
 
     if (connectors.includes(currentType)) {
@@ -140,7 +141,15 @@ export const getShapeIcon = (type: ElementType): string => {
 
         // Wireframe
         'browserWindow': '🖼',
-        'mobilePhone': '📱'
+        'mobilePhone': '📱',
+
+        // Sketchnote
+        'trophy': '🏆',
+        'clock': '🕐',
+        'gear': '⚙',
+        'target': '🎯',
+        'rocket': '🚀',
+        'flag': '🚩'
     };
 
     return iconMap[type] || '◻';

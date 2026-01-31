@@ -108,6 +108,95 @@ export class SketchnoteRenderer extends ShapeRenderer {
                 }
                 break;
             }
+            case 'trophy': {
+                const path = this.getTrophyPath(x, y, w, h);
+                if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                    ctx.fillStyle = options.fill;
+                    ctx.fill(new Path2D(path));
+                }
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
+                ctx.stroke(new Path2D(path));
+                break;
+            }
+            case 'clock': {
+                const r = Math.min(w, h) / 2;
+                const ccx = x + w / 2, ccy = y + h / 2;
+                if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                    ctx.fillStyle = options.fill;
+                    ctx.beginPath();
+                    ctx.ellipse(ccx, ccy, r, r, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
+                ctx.beginPath();
+                ctx.ellipse(ccx, ccy, r, r, 0, 0, Math.PI * 2);
+                ctx.stroke();
+                // Hands
+                ctx.beginPath();
+                ctx.moveTo(ccx, ccy);
+                ctx.lineTo(ccx, ccy - r * 0.55); // minute hand (12 o'clock)
+                ctx.moveTo(ccx, ccy);
+                ctx.lineTo(ccx + r * 0.35, ccy + r * 0.1); // hour hand (~3 o'clock)
+                ctx.stroke();
+                // Center dot
+                ctx.beginPath();
+                ctx.arc(ccx, ccy, r * 0.06, 0, Math.PI * 2);
+                ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || (isDarkMode ? '#ffffff' : '#000000'), isDarkMode);
+                ctx.fill();
+                break;
+            }
+            case 'gear': {
+                const path = this.getGearPath(x, y, w, h);
+                if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                    ctx.fillStyle = options.fill;
+                    ctx.fill(new Path2D(path), 'evenodd');
+                }
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
+                ctx.stroke(new Path2D(path));
+                break;
+            }
+            case 'target': {
+                const r = Math.min(w, h) / 2;
+                const ccx = x + w / 2, ccy = y + h / 2;
+                const rings = 3;
+                for (let i = rings; i >= 1; i--) {
+                    const rr = r * (i / rings);
+                    if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                        ctx.fillStyle = (i % 2 === 1) ? options.fill : (isDarkMode ? '#1a1a2e' : '#ffffff');
+                        ctx.beginPath();
+                        ctx.ellipse(ccx, ccy, rr, rr, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
+                    ctx.beginPath();
+                    ctx.ellipse(ccx, ccy, rr, rr, 0, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+                break;
+            }
+            case 'rocket': {
+                const path = this.getRocketPath(x, y, w, h);
+                if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                    ctx.fillStyle = options.fill;
+                    ctx.fill(new Path2D(path));
+                }
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
+                ctx.stroke(new Path2D(path));
+                break;
+            }
+            case 'flag': {
+                const path = this.getFlagPath(x, y, w, h);
+                const poleW = Math.max(3, w * 0.04);
+                const poleX = x + w * 0.15 - poleW / 2;
+                if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                    ctx.fillStyle = options.fill;
+                    ctx.fill(new Path2D(path));
+                }
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
+                ctx.stroke(new Path2D(path));
+                ctx.strokeRect(poleX, y, poleW, h);
+                break;
+            }
         }
 
         RenderPipeline.renderText(context, cx, cy);
@@ -160,6 +249,45 @@ export class SketchnoteRenderer extends ShapeRenderer {
                 for (const poly of bannerPolys) {
                     rc.polygon(poly, options);
                 }
+                break;
+            }
+            case 'trophy': {
+                rc.path(this.getTrophyPath(x, y, w, h), options);
+                break;
+            }
+            case 'clock': {
+                const r = Math.min(w, h) / 2;
+                const ccx = x + w / 2, ccy = y + h / 2;
+                rc.circle(ccx, ccy, r * 2, options);
+                // Hands
+                rc.line(ccx, ccy, ccx, ccy - r * 0.55, { ...options, fill: 'none' });
+                rc.line(ccx, ccy, ccx + r * 0.35, ccy + r * 0.1, { ...options, fill: 'none' });
+                break;
+            }
+            case 'gear': {
+                rc.path(this.getGearPath(x, y, w, h), options);
+                break;
+            }
+            case 'target': {
+                const r = Math.min(w, h) / 2;
+                const ccx = x + w / 2, ccy = y + h / 2;
+                const rings = 3;
+                for (let i = rings; i >= 1; i--) {
+                    const rr = r * (i / rings);
+                    const ringOpts = (i % 2 === 1) ? options : { ...options, fill: isDarkMode ? '#1a1a2e' : '#ffffff' };
+                    rc.circle(ccx, ccy, rr * 2, ringOpts);
+                }
+                break;
+            }
+            case 'rocket': {
+                rc.path(this.getRocketPath(x, y, w, h), options);
+                break;
+            }
+            case 'flag': {
+                const poleW = Math.max(3, w * 0.04);
+                const poleX = x + w * 0.15 - poleW / 2;
+                rc.path(this.getFlagPath(x, y, w, h), options);
+                rc.rectangle(poleX, y, poleW, h, { ...options, fill: 'none' });
                 break;
             }
         }
@@ -248,6 +376,125 @@ export class SketchnoteRenderer extends ShapeRenderer {
             // Center panel
             [[x + eW, y], [x + w - eW, y], [x + w - eW, y + h - eH], [x + eW, y + h - eH]]
         ];
+    }
+
+    private getTrophyPath(x: number, y: number, w: number, h: number): string {
+        const cupTop = y;
+        const cupBottom = y + h * 0.55;
+        const stemTop = cupBottom;
+        const stemBottom = y + h * 0.8;
+        const baseTop = stemBottom;
+        const baseBottom = y + h;
+        const cupW = w * 0.6;
+        const cupL = x + (w - cupW) / 2;
+        const cupR = cupL + cupW;
+        const stemW = w * 0.1;
+        const stemL = x + w / 2 - stemW / 2;
+        const stemR = stemL + stemW;
+        const baseW = w * 0.5;
+        const baseL = x + (w - baseW) / 2;
+        const baseR = baseL + baseW;
+        // Handles
+        const handleW = w * 0.18;
+
+        return `M ${cupL} ${cupTop} L ${cupR} ${cupTop} L ${cupR} ${cupBottom} L ${cupL} ${cupBottom} Z `
+            + `M ${stemL} ${stemTop} L ${stemR} ${stemTop} L ${stemR} ${stemBottom} L ${stemL} ${stemBottom} Z `
+            + `M ${baseL} ${baseTop} L ${baseR} ${baseTop} L ${baseR} ${baseBottom} L ${baseL} ${baseBottom} Z `
+            + `M ${cupL} ${cupTop + (cupBottom - cupTop) * 0.15} C ${cupL - handleW} ${cupTop + (cupBottom - cupTop) * 0.15} ${cupL - handleW} ${cupBottom - (cupBottom - cupTop) * 0.15} ${cupL} ${cupBottom - (cupBottom - cupTop) * 0.15} `
+            + `M ${cupR} ${cupTop + (cupBottom - cupTop) * 0.15} C ${cupR + handleW} ${cupTop + (cupBottom - cupTop) * 0.15} ${cupR + handleW} ${cupBottom - (cupBottom - cupTop) * 0.15} ${cupR} ${cupBottom - (cupBottom - cupTop) * 0.15}`;
+    }
+
+    private getGearPath(x: number, y: number, w: number, h: number): string {
+        const ccx = x + w / 2, ccy = y + h / 2;
+        const outerR = Math.min(w, h) / 2;
+        const innerR = outerR * 0.7;
+        const holeR = outerR * 0.25;
+        const teeth = 8;
+        const toothDepth = outerR - innerR;
+
+        let path = '';
+        for (let i = 0; i < teeth; i++) {
+            const a1 = (Math.PI * 2 * i) / teeth;
+            const a2 = (Math.PI * 2 * (i + 0.35)) / teeth;
+            const a3 = (Math.PI * 2 * (i + 0.5)) / teeth;
+            const a4 = (Math.PI * 2 * (i + 0.85)) / teeth;
+            const a5 = (Math.PI * 2 * (i + 1)) / teeth;
+
+            const p1 = [ccx + Math.cos(a1) * innerR, ccy + Math.sin(a1) * innerR];
+            const p2 = [ccx + Math.cos(a2) * (innerR + toothDepth), ccy + Math.sin(a2) * (innerR + toothDepth)];
+            const p3 = [ccx + Math.cos(a3) * (innerR + toothDepth), ccy + Math.sin(a3) * (innerR + toothDepth)];
+            const p4 = [ccx + Math.cos(a4) * innerR, ccy + Math.sin(a4) * innerR];
+            const p5 = [ccx + Math.cos(a5) * innerR, ccy + Math.sin(a5) * innerR];
+
+            path += (i === 0 ? `M ${p1[0]} ${p1[1]}` : `L ${p1[0]} ${p1[1]}`);
+            path += ` L ${p2[0]} ${p2[1]} L ${p3[0]} ${p3[1]} L ${p4[0]} ${p4[1]} L ${p5[0]} ${p5[1]}`;
+        }
+        path += ' Z';
+
+        // Center hole
+        const holeSteps = 16;
+        for (let i = 0; i <= holeSteps; i++) {
+            const a = (Math.PI * 2 * i) / holeSteps;
+            const px = ccx + Math.cos(a) * holeR;
+            const py = ccy + Math.sin(a) * holeR;
+            path += (i === 0 ? ` M ${px} ${py}` : ` L ${px} ${py}`);
+        }
+        path += ' Z';
+
+        return path;
+    }
+
+    private getRocketPath(x: number, y: number, w: number, h: number): string {
+        const bw = w * 0.5; // body width
+        const bx = x + (w - bw) / 2;
+        const noseH = h * 0.25;
+        const bodyBottom = y + h * 0.75;
+        const finW = w * 0.2;
+        const finH = h * 0.25;
+
+        // Body with nose cone
+        let path = `M ${bx + bw / 2} ${y}`; // nose tip
+        path += ` C ${bx + bw} ${y + noseH * 0.5} ${bx + bw} ${y + noseH} ${bx + bw} ${y + noseH}`; // right side of nose
+        path += ` L ${bx + bw} ${bodyBottom}`; // right side of body
+        path += ` L ${bx} ${bodyBottom}`; // bottom of body
+        path += ` L ${bx} ${y + noseH}`; // left side of body
+        path += ` C ${bx} ${y + noseH} ${bx} ${y + noseH * 0.5} ${bx + bw / 2} ${y}`; // left side of nose
+        path += ' Z';
+
+        // Left fin
+        path += ` M ${bx} ${bodyBottom - finH * 0.3}`;
+        path += ` L ${bx - finW} ${bodyBottom + finH * 0.5}`;
+        path += ` L ${bx} ${bodyBottom}`;
+        path += ' Z';
+
+        // Right fin
+        path += ` M ${bx + bw} ${bodyBottom - finH * 0.3}`;
+        path += ` L ${bx + bw + finW} ${bodyBottom + finH * 0.5}`;
+        path += ` L ${bx + bw} ${bodyBottom}`;
+        path += ' Z';
+
+        // Exhaust flame
+        path += ` M ${bx + bw * 0.2} ${bodyBottom}`;
+        path += ` L ${bx + bw / 2} ${y + h}`;
+        path += ` L ${bx + bw * 0.8} ${bodyBottom}`;
+
+        return path;
+    }
+
+    private getFlagPath(x: number, y: number, w: number, h: number): string {
+        const poleX = x + w * 0.15;
+        const flagL = poleX;
+        const flagR = x + w;
+        const flagTop = y;
+        const flagH = h * 0.55;
+        const waveDip = flagH * 0.15;
+
+        // Waving flag
+        return `M ${flagL} ${flagTop}`
+            + ` C ${flagL + (flagR - flagL) * 0.33} ${flagTop - waveDip} ${flagL + (flagR - flagL) * 0.66} ${flagTop + waveDip} ${flagR} ${flagTop}`
+            + ` L ${flagR} ${flagTop + flagH}`
+            + ` C ${flagL + (flagR - flagL) * 0.66} ${flagTop + flagH + waveDip} ${flagL + (flagR - flagL) * 0.33} ${flagTop + flagH - waveDip} ${flagL} ${flagTop + flagH}`
+            + ' Z';
     }
 
     protected definePath(ctx: CanvasRenderingContext2D, el: any): void {
