@@ -97,8 +97,21 @@ When defining multiple animations for an element in the Animation Panel or via t
 - `after-prev`: Waits for the previous animation in the list to finish before starting.
 - `with-prev`: Starts simultaneously with the previous animation.
 
-### Sequence Continuity
-Animations that are intended to loop infinitely (like a background spin) do **not** block the sequence. If an animation is set to `iterations: "infinite"`, the sequence animator triggers the `after-prev` callback immediately so subsequent animations can run.
+### Sequence Continuity and Infinite Animations
+
+An animation with **Loop Infinitely** enabled (`repeat: -1`) **blocks** `after-prev` successors. Since the animation never finishes, "after previous" never comes, and subsequent animations in the sequence will not start.
+
+To run animations **concurrently** with an infinite animation, set the successor's trigger to **`with-prev`** instead of `after-prev`. The `with-prev` lookahead fires before the main animation, so both start together.
+
+**Examples:**
+
+| Sequence | Behavior |
+|----------|----------|
+| pulse (infinite) → shakeX (after-prev) | Only pulse runs. shakeX never starts. |
+| shakeX (finite) → pulse (infinite) | shakeX plays, finishes, then pulse loops forever. |
+| shakeX (infinite) → autoSpin (with-prev) | Both start simultaneously and loop forever. |
+
+When all remaining animations in a sequence are infinite, the sequence stays active until the user clicks **Stop**. The `stopSequence` / `stopAll` methods handle full cleanup.
 
 ## Looping and Iterations
 
@@ -106,16 +119,23 @@ Animations that are intended to loop infinitely (like a background spin) do **no
 Animations can be configured to run a specific number of times:
 - `iterations: 3` will run the animation 3 times and then satisfy its `onComplete` trigger.
 
-### Infinite Loops
-Setting `iterations: "infinite"` (or `repeat: -1` in the engine) creates a persistent behavior.
-- **Auto-Spin**: Animates one 360° rotation and loops it forever.
-- **Performance**: Looping animations are optimized to minimize store updates when the property values haven't changed meaningfully.
+### Infinite Loops (Loop Infinitely checkbox)
+Setting `repeat: -1` via the **Loop Infinitely** checkbox creates a persistent looping behavior. How each animation type handles this:
+- **shakeX / shakeY**: Oscillates with `loopCount: Infinity` (instead of the default 4 oscillations).
+- **bounce / pulse**: Recursively restarts their multi-step animation cycle after each completion.
+- **Auto-Spin**: Rotates one full 360° and loops it via the engine's native loop mechanism.
+- **Simple presets** (fadeIn, slideIn, zoomIn, etc.): Loop natively via `config.loop` passed through to the animation engine.
+
+### Auto-Spin Iterations dropdown
+Auto-Spin has a separate **Iterations** dropdown (`iterations: "infinite"` or `1`/`2`/`3`/`5`). This is independent of the Loop Infinitely checkbox and controls how many full rotations the spin performs.
 
 ## Advanced Control
 
-### Persistence
-- `restoreAfter: true`: The element reverts to its pre-animation state once finished.
+### Restore State After Finish
+- `restoreAfter: true`: The element reverts to its pre-animation state once the animation finishes.
 - `restoreAfter: false`: The element stays at its final animated values (e.g., a "Move" that actually relocates the item).
+- For **infinite animations**, `restoreAfter` has no effect during playback (the animation never "finishes"). State is restored when the user clicks Stop if the sequence-level restore applies.
+- **Persistence**: `restoreAfter` is stored as part of the animation JSON and is correctly serialized/deserialized through save/load. No special handling is needed -- standard `JSON.stringify`/`JSON.parse` preserves the boolean value.
 
 ### Conflict Properties Table
 | Animation | Affected Properties |

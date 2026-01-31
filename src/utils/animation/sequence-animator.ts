@@ -61,6 +61,12 @@ export class SequenceAnimator {
         }
 
         const onAllComplete = () => {
+            // Guard: if the sequence was already stopped, don't proceed.
+            // This prevents race conditions where a deferred onComplete (from
+            // infinite animations calling setTimeout(onComplete, 0)) fires
+            // after the user has already clicked Stop.
+            if (!this.activeSequences.has(elementId)) return;
+
             // Stop any still-running animations on this element (e.g. infinite spins)
             // before cleanup/restoration, so they don't overwrite restored state
             animator.stopAllElementAnimations(elementId);
@@ -135,6 +141,9 @@ export class SequenceAnimator {
      * Recursive runner for the sequence
      */
     private runStep(elementId: string, sequence: ElementAnimation[], index: number, onAllComplete?: () => void): void {
+        // Guard: if the sequence was already stopped, don't proceed.
+        if (!this.activeSequences.has(elementId)) return;
+
         if (index >= sequence.length) {
             onAllComplete?.();
             return;
@@ -142,8 +151,19 @@ export class SequenceAnimator {
 
         const anim = sequence[index];
         const nextIndex = index + 1;
+        const isInfiniteLoop = anim.repeat === -1;
+
+        // Find NEXT valid start point (skip animations marked as 'with-prev'
+        // since they are triggered concurrently in the lookahead below)
+        let nextValidIndex = nextIndex;
+        while (nextValidIndex < sequence.length && sequence[nextValidIndex].trigger === 'with-prev') {
+            nextValidIndex++;
+        }
+        const hasMoreSteps = nextValidIndex < sequence.length;
 
         const onComplete = () => {
+            if (!this.activeSequences.has(elementId)) return;
+
             // Restore state if requested for this SPECIFIC animation
             if (anim.restoreAfter) {
                 const elementNow = store.elements.find(el => el.id === elementId);
@@ -152,14 +172,7 @@ export class SequenceAnimator {
                 }
             }
 
-            // Find NEXT valid start point (skip animations marked as 'with-prev' 
-            // since they were already triggered in the loop below)
-            let nextValidIndex = nextIndex;
-            while (nextValidIndex < sequence.length && sequence[nextValidIndex].trigger === 'with-prev') {
-                nextValidIndex++;
-            }
-
-            if (nextValidIndex < sequence.length) {
+            if (hasMoreSteps) {
                 this.runStep(elementId, sequence, nextValidIndex, onAllComplete);
             } else {
                 onAllComplete?.();
@@ -167,7 +180,7 @@ export class SequenceAnimator {
         };
 
         // Capture state for per-animation restoration if needed
-        // (We already have sequence-level originalState for previews, 
+        // (We already have sequence-level originalState for previews,
         // but per-animation restoreAfter might be used in live mode)
         let stepOriginalState: any = null;
         if (anim.restoreAfter) {
@@ -195,8 +208,18 @@ export class SequenceAnimator {
             }
         }
 
-        // Execute current animation
-        this.executeAnimation(elementId, anim, onComplete);
+        if (isInfiniteLoop) {
+            // For infinite animations (repeat === -1), the animation runs forever
+            // and never fires onComplete. Pass a no-op so the animation doesn't
+            // trigger sequence cleanup. The sequence stays active until the user
+            // manually clicks Stop.
+            // Note: "after-prev" successors won't start (the animation never finishes).
+            // Use "with-prev" trigger for concurrent playback with infinite animations.
+            this.executeAnimation(elementId, anim, () => {});
+        } else {
+            // Finite animation: chain to next step via onComplete callback
+            this.executeAnimation(elementId, anim, onComplete);
+        }
     }
 
     /**

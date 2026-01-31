@@ -419,7 +419,6 @@ const Canvas: Component = () => {
     const [contextMenuPos, setContextMenuPos] = createSignal({ x: 0, y: 0 });
 
     function draw() {
-        console.log('[Canvas] draw() called, effectiveTime:', effectiveTime());
         if (!canvasRef) return;
         const ctx = canvasRef.getContext("2d");
         if (!ctx) return;
@@ -428,12 +427,25 @@ const Canvas: Component = () => {
         const currentTime = effectiveTime();
         (window as any).yappyGlobalTime = currentTime;
 
+        console.log('[Canvas] draw() called, effectiveTime:', currentTime);
+
         const startTime = performance.now();
 
         // PRE-CALCULATE ANIMATION STATES FOR THIS FRAME
-        // Performance Optimization: In Slide View, only calculate animations for elements on the active slide
-        // to avoid CPU overhead from hidden slides.
+        // Performance Optimization: Only calculate animations for elements near the viewport
+        // to avoid CPU overhead from off-screen elements.
         const shouldAnimate = store.appMode === 'presentation' || store.isPreviewing;
+
+        // Compute viewport bounds early so we can use them for animation culling AND render culling
+        const { scale, panX, panY } = store.viewState;
+        const viewportBounds = {
+            minX: (-panX) / scale,
+            maxX: (canvasRef.width - panX) / scale,
+            minY: (-panY) / scale,
+            maxY: (canvasRef.height - panY) / scale
+        };
+        const bufferX = (viewportBounds.maxX - viewportBounds.minX) * 0.1;
+        const bufferY = (viewportBounds.maxY - viewportBounds.minY) * 0.1;
 
         let elementsToAnimate = store.elements;
         if (store.docType === 'slides' && store.slides.length > 0) {
@@ -462,6 +474,27 @@ const Canvas: Component = () => {
                     ? store.elements
                     : [...new Set([...primaryElements, ...centerElements])];
             }
+        } else {
+            // Infinite canvas: cull elements outside the viewport
+            const primaryElements = store.elements.filter(el => {
+                const margin = Math.max(Math.abs(el.width), Math.abs(el.height)) * 0.5;
+                return !(el.x + el.width + margin < viewportBounds.minX - bufferX ||
+                    el.x - margin > viewportBounds.maxX + bufferX ||
+                    el.y + el.height + margin < viewportBounds.minY - bufferY ||
+                    el.y - margin > viewportBounds.maxY + bufferY);
+            });
+
+            // Ensure Orbit Centers are included even if off-screen
+            const centerIds = new Set(primaryElements.map(el => el.orbitCenterId).filter(Boolean));
+            const centerElements = store.elements.filter(el => centerIds.has(el.id));
+
+            elementsToAnimate = primaryElements.length === store.elements.length
+                ? store.elements
+                : [...new Set([...primaryElements, ...centerElements])];
+        }
+
+        if (elementsToAnimate.length !== store.elements.length) {
+            console.log(`[Canvas] culling: ${elementsToAnimate.length}/${store.elements.length} elements in viewport`);
         }
 
         const animatedStates = calculateAllAnimatedStates(elementsToAnimate, currentTime, shouldAnimate);
@@ -488,8 +521,6 @@ const Canvas: Component = () => {
         const workspaceBg = isDarkMode ? "#1a1a1b" : "#e2e8f0"; // Slightly darker for contrast
         ctx.fillStyle = workspaceBg;
         ctx.fillRect(0, 0, canvasRef.width, canvasRef.height);
-
-        const { scale, panX, panY } = store.viewState;
 
         ctx.save();
         ctx.translate(panX, panY);
@@ -709,19 +740,7 @@ const Canvas: Component = () => {
             ctx.restore();
         }
 
-        // Calculate viewport bounds in world coordinates for culling
-        const viewportBounds = {
-            minX: (-panX) / scale,
-            maxX: (canvasRef.width - panX) / scale,
-            minY: (-panY) / scale,
-            maxY: (canvasRef.height - panY) / scale
-        };
-
-        // Add 10% buffer for smoother transitions at viewport edges
-        const bufferX = (viewportBounds.maxX - viewportBounds.minX) * 0.1;
-        const bufferY = (viewportBounds.maxY - viewportBounds.minY) * 0.1;
-
-        // Render Layers and Elements
+        // Render Layers and Elements (reuse viewportBounds + bufferX/bufferY from above)
         const sortedLayers = [...store.layers].sort((a, b) => a.order - b.order);
         let totalRendered = 0;
 

@@ -465,10 +465,6 @@ export function bounce(elementId: string, duration: number = 450, config: Elemen
     const isInfinite = config.loop && (config.loopCount === undefined || config.loopCount === Infinity);
 
     if (isInfinite) {
-        // For infinite loops, call onComplete immediately to unblock the sequence
-        const originalOnComplete = config.onComplete;
-        setTimeout(() => originalOnComplete?.(), 0);
-
         const doBounce = (isFirst: boolean) => {
             return animateElement(elementId, {
                 y: originalY - intensity
@@ -526,10 +522,6 @@ export function pulse(elementId: string, duration: number = 300, config: Element
     const isInfinite = config.loop && (config.loopCount === undefined || config.loopCount === Infinity);
 
     if (isInfinite) {
-        // For infinite loops, call onComplete immediately to unblock the sequence
-        const originalOnComplete = config.onComplete;
-        setTimeout(() => originalOnComplete?.(), 0);
-
         const doPulse = (isFirst: boolean) => {
             return animateElement(elementId, {
                 width: targetWidth,
@@ -662,10 +654,6 @@ export function shakeX(elementId: string, duration: number = 400, config: Elemen
     const isInfinite = config.loop && (config.loopCount === undefined || config.loopCount === Infinity);
 
     if (isInfinite) {
-        // For infinite loops, call onComplete immediately to unblock the sequence
-        const originalOnComplete = config.onComplete;
-        setTimeout(() => originalOnComplete?.(), 0);
-
         return animateElement(elementId, {
             x: originalX + intensity
         }, {
@@ -708,10 +696,6 @@ export function shakeY(elementId: string, duration: number = 400, config: Elemen
     const isInfinite = config.loop && (config.loopCount === undefined || config.loopCount === Infinity);
 
     if (isInfinite) {
-        // For infinite loops, call onComplete immediately to unblock the sequence
-        const originalOnComplete = config.onComplete;
-        setTimeout(() => originalOnComplete?.(), 0);
-
         return animateElement(elementId, {
             y: originalY + intensity
         }, {
@@ -2352,18 +2336,17 @@ export function animateMorph(
     // 3. Align to minimize rotation/twisting
     endPoints = MorphUtils.alignPolygons(startPoints, endPoints);
 
-    console.log('[Morph] Starting morph:', { elementId, startPoints: startPoints.length, endPoints: endPoints.length });
-
     // Store original type to restore later
     // Store original type for potential rollback
+
+    console.log('[Morph] Starting morph:', element.type, '→', targetShape, 'samples:', samples);
 
     animationEngine.create(
         animId,
         (progress: number) => {
+            console.log('[Morph] Progress:', progress.toFixed(3));
             // Interpolate
             const currentPoints = MorphUtils.interpolatePoints(startPoints, endPoints, progress);
-
-            console.log('[Morph] Progress:', progress.toFixed(3));
 
             // DIFFERENT APPROACH: Render directly to canvas instead of updating store
             // This bypasses the reactive system entirely

@@ -39,9 +39,6 @@ class SlideBuildManager {
             }
         });
 
-        console.log(`[BuildManager] Initialized for slide ${slideIndex}. Found ${allBuilds.length} total animations.`);
-        allBuilds.forEach(b => console.log(`  - Element ${b.elementId}: ${b.animation.type} (trigger: ${b.animation.trigger})`));
-
         // SORTING LOGIC:
         // For now, we sort by either:
         // 1. Explicit order if we had a z-index/order property on animations (not yet)
@@ -67,7 +64,6 @@ class SlideBuildManager {
             return a.elementId.localeCompare(b.elementId);
         });
 
-        console.log(`[BuildManager] Initialized with ${this.buildSequence.length} steps for slide ${slideIndex}`);
     }
 
     reset() {
@@ -103,7 +99,6 @@ class SlideBuildManager {
      */
     async playNext(): Promise<boolean> {
         if (this.isPlaying) {
-            console.log('[BuildManager] Already playing, ignoring click');
             return true;
         }
 
@@ -111,11 +106,9 @@ class SlideBuildManager {
         const nextClickIdx = this.buildSequence.findIndex(step => !step.played && step.animation.trigger === 'on-click');
 
         if (nextClickIdx === -1) {
-            console.log('[BuildManager] No more on-click steps found');
             return false;
         }
 
-        console.log(`[BuildManager] Executing on-click step ${nextClickIdx}`);
         this.isPlaying = true;
         await this.executeStep(nextClickIdx);
         this.isPlaying = false;

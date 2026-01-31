@@ -1,5 +1,74 @@
 # Bug Fixes Log
 
+## 2026-01-31
+
+### 7. Preset animations (shakeX, shakeY, bounce, pulse) ignore "Loop Infinitely" checkbox
+
+**Files modified:** `src/utils/animation/element-animator.ts`, `src/utils/animation/sequence-animator.ts`
+
+**Observation:** Adding two animations to a rectangle (shakeX and autoSpin) with "Loop Infinitely" enabled on both resulted in only autoSpin looping. shakeX always stopped after one cycle.
+
+**Root cause:** Four preset functions hardcoded their own loop parameters and ignored `config.loop` / `config.loopCount` passed from the animation panel:
+- `shakeX` / `shakeY` hardcoded `loopCount: 4`
+- `bounce` / `pulse` used chained two-step animations that never passed through the loop config
+
+Other presets (`fadeIn`, `slideIn`, `zoomIn`, `revolve`) worked because they used `...config` spread, passing loop settings through to the animation engine.
+
+**Resolution:**
+- `shakeX` / `shakeY`: When `config.loop === true`, use `loopCount: Infinity` instead of 4
+- `bounce` / `pulse`: When `config.loop === true`, recursively restart their multi-step cycle after each completion
+- Infinite loop handling moved to `sequence-animator.ts` `runStep()`: when `anim.repeat === -1`, pass a no-op `onComplete` and let the sequence handle unblocking
+
+---
+
+### 8. Infinite animation as last/only in sequence stops immediately
+
+**File modified:** `src/utils/animation/sequence-animator.ts`
+
+**Observation:** Adding a single animation with "Loop Infinitely" enabled caused it to stop after one iteration. The same happened when an infinite animation was the last in a multi-animation sequence.
+
+**Root cause:** Infinite animations used `setTimeout(() => onComplete(), 0)` to unblock the sequence. When the animation was last (or only), this triggered `onAllComplete()`, which called `stopAllElementAnimations()` — killing the animation that was supposed to loop forever. This also created a race condition: if the user clicked Stop before the `setTimeout` fired, the deferred callback would create orphaned animations that ran forever with no way to stop them.
+
+**Resolution:**
+- Removed `setTimeout(onComplete)` pattern from all preset functions
+- `runStep()` now checks `isInfiniteLoop` (`anim.repeat === -1`) and passes a no-op `onComplete` to the animation engine. The sequence stays active until the user clicks Stop.
+- Infinite animations block `after-prev` successors (the animation never finishes, so "after" never comes). Use `with-prev` trigger for concurrent playback.
+- Added guard `if (!this.activeSequences.has(elementId)) return` at the top of `runStep()` and `onAllComplete()` to prevent race conditions from deferred callbacks.
+
+---
+
+### 9. Animation engine tick loop and console noise after stopping preview
+
+**Files modified:** `src/components/canvas.tsx`, `src/utils/animation/element-animator.ts`, `src/shapes/base/shape-renderer.ts`, `src/utils/animation/slide-build-manager.ts`
+
+**Observation:** After stopping an animation preview, `console.log` output continued in the browser console. Off-screen elements with continuous animations also produced per-frame log noise.
+
+**Root cause:** Debug `console.log` statements were left in per-frame code paths:
+- `[Canvas] draw()` in `canvas.tsx` — fired every frame
+- `[Morph] Starting morph` and `[Morph] Progress` in `element-animator.ts` — fired per-frame during morph
+- `[renderCustomPoints]` debug logs in `shape-renderer.ts` — fired per-frame during rendering
+- `[BuildManager]` initialization logs in `slide-build-manager.ts`
+
+**Resolution:** Removed all debug `console.log` statements from per-frame code paths.
+
+---
+
+### 10. Off-screen elements with continuous animations cause unnecessary per-frame computation on infinite canvas
+
+**File modified:** `src/components/canvas.tsx`
+
+**Observation:** On an infinite canvas with one on-screen element and one off-screen element with continuous animation (auto-spin), the animation engine kept computing states for the off-screen element every frame, even though it was nowhere near the viewport.
+
+**Root cause:** The `elementsToAnimate` filter in `draw()` only applied spatial culling for slide documents (checking elements against the active slide bounds). For infinite canvas mode (`docType !== 'slides'`), it passed all `store.elements` to `calculateAllAnimatedStates()` with no viewport filtering.
+
+**Resolution:**
+- Moved viewport bounds calculation (`viewportBounds`, `bufferX`, `bufferY`) to before the animation state computation so it can be reused for both animation culling and render culling
+- Added an `else` branch for infinite canvas that applies AABB viewport culling with a 10% buffer — the same test used by the render pass
+- Orbit center elements are still included even if off-screen (same dependency-aware pattern as the slide culling branch)
+- Removed the duplicate viewport bounds calculation that previously existed further down in the render section
+
+---
+
 ## 2026-01-29
 
 ### 1. "Scroll back to content" and "Zoom to Fit" broken in Slide documents

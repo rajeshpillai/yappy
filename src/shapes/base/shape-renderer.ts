@@ -157,7 +157,6 @@ export abstract class ShapeRenderer {
             y: p.y + cy
         }));
 
-        // DEBUG: Log first few points to see coordinates
         if (absolutePoints.length >= 3) {
             console.log('[renderCustomPoints] First 3 absolute points:', [
                 { x: absolutePoints[0].x, y: absolutePoints[0].y },
@@ -166,6 +165,7 @@ export abstract class ShapeRenderer {
             ]);
         }
         console.log('[renderCustomPoints] Element center:', { cx, cy });
+
 
         // Apply opacity
         ctx.save();
