@@ -49,6 +49,21 @@ export function checkBinding(
             if (((x - cx) ** 2) / (rx ** 2) + ((y - cy) ** 2) / (ry ** 2) <= 1) {
                 isHit = true;
             }
+        } else if (isPolylineShape && target.points && Array.isArray(target.points) && (target.points as any[]).length >= 2) {
+            // Polyline shape: compute actual AABB from points (not element.x/width which is origin-relative)
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            for (const p of target.points as { x: number; y: number }[]) {
+                const absX = target.x + p.x;
+                const absY = target.y + p.y;
+                minX = Math.min(minX, absX);
+                minY = Math.min(minY, absY);
+                maxX = Math.max(maxX, absX);
+                maxY = Math.max(maxY, absY);
+            }
+            if (x >= minX - threshold && x <= maxX + threshold &&
+                y >= minY - threshold && y <= maxY + threshold) {
+                isHit = true;
+            }
         } else {
             if (x >= target.x - threshold && x <= target.x + target.width + threshold &&
                 y >= target.y - threshold && y <= target.y + target.height + threshold) {

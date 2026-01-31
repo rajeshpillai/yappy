@@ -338,5 +338,36 @@ export const intersectElementWithLine = (
         return { x: ix, y: iy };
     }
 
+    // Handle polyline shapes (line type with points array)
+    if (element.type === 'line' && element.points && Array.isArray(element.points) && (element.points as any[]).length >= 2) {
+        const pts = element.points as { x: number; y: number }[];
+        const absPoints = pts.map(p => ({ x: element.x + p.x, y: element.y + p.y }));
+
+        // Find closest point on any polyline segment to the query point
+        let minDist = Infinity;
+        let closestPoint: Point | null = null;
+
+        for (let i = 0; i < absPoints.length - 1; i++) {
+            const segA = absPoints[i];
+            const segB = absPoints[i + 1];
+            // Closest point on segment
+            const sdx = segB.x - segA.x;
+            const sdy = segB.y - segA.y;
+            const lenSq = sdx * sdx + sdy * sdy;
+            let t = 0;
+            if (lenSq > 0) {
+                t = Math.max(0, Math.min(1, ((a.x - segA.x) * sdx + (a.y - segA.y) * sdy) / lenSq));
+            }
+            const cp = { x: segA.x + t * sdx, y: segA.y + t * sdy };
+            const dist = Math.sqrt((a.x - cp.x) ** 2 + (a.y - cp.y) ** 2);
+            if (dist < minDist) {
+                minDist = dist;
+                closestPoint = cp;
+            }
+        }
+
+        return closestPoint;
+    }
+
     return null;
 };

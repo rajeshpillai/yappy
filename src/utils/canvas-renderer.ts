@@ -667,10 +667,10 @@ export function renderConnectionAnchors(
 ): void {
     const { elements, selectedTool, currentDrawingId, isDrawing, activeLayerId, scale, canInteractWithElement } = params;
 
-    if (!(selectedTool === 'line' || selectedTool === 'arrow' || selectedTool === 'polyline') || !isDrawing || !currentDrawingId) return;
+    if (!(selectedTool === 'line' || selectedTool === 'arrow' || selectedTool === 'polyline' || selectedTool === 'bezier' || selectedTool === 'organicBranch') || !isDrawing || !currentDrawingId) return;
 
     const currentEl = elements.find(e => e.id === currentDrawingId);
-    if (!currentEl || (currentEl.type !== 'line' && currentEl.type !== 'arrow')) return;
+    if (!currentEl || (currentEl.type !== 'line' && currentEl.type !== 'arrow' && currentEl.type !== 'organicBranch')) return;
 
     const endX = currentEl.x + currentEl.width;
     const endY = currentEl.y + currentEl.height;
@@ -683,7 +683,7 @@ export function renderConnectionAnchors(
         if (!canInteractWithElement(element)) continue;
         // Skip connectors as targets, but allow unbound polylines (they act as shapes)
         const isPolylineShape = element.type === 'line' && element.curveType === 'elbow' && !element.startBinding && !element.endBinding;
-        if ((element.type === 'line' || element.type === 'arrow' || element.type === 'bezier') && !isPolylineShape) continue;
+        if ((element.type === 'line' || element.type === 'arrow' || element.type === 'bezier' || element.type === 'organicBranch') && !isPolylineShape) continue;
         if (element.layerId !== activeLayerId) continue;
 
         const cx = element.x + element.width / 2;

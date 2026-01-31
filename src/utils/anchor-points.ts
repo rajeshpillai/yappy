@@ -130,6 +130,25 @@ export function getAnchorPoints(element: DrawingElement): AnchorPoint[] {
         } else {
             anchors = rawAnchors;
         }
+    } else if (element.type === 'line' && element.curveType === 'elbow' && !element.startBinding && !element.endBinding
+        && element.points && Array.isArray(element.points) && (element.points as any[]).length >= 2) {
+        // Polyline shape: compute actual bounding box from points for proper anchor positions
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        for (const p of element.points as { x: number; y: number }[]) {
+            minX = Math.min(minX, element.x + p.x);
+            minY = Math.min(minY, element.y + p.y);
+            maxX = Math.max(maxX, element.x + p.x);
+            maxY = Math.max(maxY, element.y + p.y);
+        }
+        const polyCx = (minX + maxX) / 2;
+        const polyCy = (minY + maxY) / 2;
+
+        anchors = [
+            { x: polyCx, y: minY, position: 'top' },
+            { x: maxX, y: polyCy, position: 'right' },
+            { x: polyCx, y: maxY, position: 'bottom' },
+            { x: minX, y: polyCy, position: 'left' },
+        ];
     } else {
         // Fallback for any other shape (including fineliner, marker, inkbrush)
         // Use 4 cardinal points of bounding box

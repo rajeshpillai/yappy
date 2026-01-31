@@ -109,20 +109,26 @@ export function getContextMenuItems(redrawFn: () => void): MenuItem[] {
         // Batch Transform Logic (Split by Family)
         const allSelectedElements = store.selection.map(id => store.elements.find(e => e.id === id)).filter(Boolean) as DrawingElement[];
 
-        // Filter selection into families
+        // Filter selection into families (unbound polylines act as shapes, not connectors)
+        const isPolylineShapeEl = (el: DrawingElement) =>
+            el.type === 'line' && el.curveType === 'elbow' && !el.startBinding && !el.endBinding;
+
         const shapesInSelection = allSelectedElements.filter(el => {
+            if (isPolylineShapeEl(el)) return true;
             const type = el.type;
             return type !== 'line' && type !== 'arrow' && type !== 'bezier' && type !== 'organicBranch' && type !== 'text' && type !== 'image';
         });
 
         const connectorsInSelection = allSelectedElements.filter(el => {
+            if (isPolylineShapeEl(el)) return false;
             const type = el.type;
             return type === 'line' || type === 'arrow' || type === 'bezier' || type === 'organicBranch';
         });
 
         // 1. Transform Shapes
         if (shapesInSelection.length > 0) {
-            let transformOptions = getTransformOptions(shapesInSelection[0].type);
+            const firstShapeEl = shapesInSelection[0];
+            let transformOptions = getTransformOptions(firstShapeEl.type, isPolylineShapeEl(firstShapeEl));
             const distinctTypes = new Set(shapesInSelection.map(e => e.type));
 
             // If mixed types, allow converting to any of the present types as well (e.g. Rect+Circle -> convert all to Rect)

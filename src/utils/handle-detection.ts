@@ -270,17 +270,31 @@ export function getHandleAtPosition(
             }
         }
 
-        // Check Connector Handles (only for non-line/arrow shapes)
-        if (el.type !== 'line' && el.type !== 'arrow') {
+        // Check Connector Handles (only for non-line/arrow shapes, plus polyline shapes)
+        const isPolylineShape = el.type === 'line' && el.curveType === 'elbow' && !el.startBinding && !el.endBinding;
+        if ((el.type !== 'line' && el.type !== 'arrow') || isPolylineShape) {
             const connectorSize = 14 / scale;
             const connectorOffset = 32 / scale;
-            const ecx = el.x + el.width / 2;
-            const ecy = el.y + el.height / 2;
+
+            // For polylines, compute actual AABB from points
+            let bbMinX = el.x, bbMinY = el.y, bbMaxX = el.x + el.width, bbMaxY = el.y + el.height;
+            if (isPolylineShape && el.points && Array.isArray(el.points) && (el.points as any[]).length >= 2) {
+                bbMinX = Infinity; bbMinY = Infinity; bbMaxX = -Infinity; bbMaxY = -Infinity;
+                for (const p of el.points as { x: number; y: number }[]) {
+                    bbMinX = Math.min(bbMinX, el.x + p.x);
+                    bbMinY = Math.min(bbMinY, el.y + p.y);
+                    bbMaxX = Math.max(bbMaxX, el.x + p.x);
+                    bbMaxY = Math.max(bbMaxY, el.y + p.y);
+                }
+            }
+
+            const ecx = (bbMinX + bbMaxX) / 2;
+            const ecy = (bbMinY + bbMaxY) / 2;
             const connectorHandles = [
-                { type: 'connector-top', x: ecx, y: el.y - connectorOffset },
-                { type: 'connector-right', x: el.x + el.width + connectorOffset, y: ecy },
-                { type: 'connector-bottom', x: ecx, y: el.y + el.height + connectorOffset },
-                { type: 'connector-left', x: el.x - connectorOffset, y: ecy }
+                { type: 'connector-top', x: ecx, y: bbMinY - connectorOffset },
+                { type: 'connector-right', x: bbMaxX + connectorOffset, y: ecy },
+                { type: 'connector-bottom', x: ecx, y: bbMaxY + connectorOffset },
+                { type: 'connector-left', x: bbMinX - connectorOffset, y: ecy }
             ];
 
             for (const ch of connectorHandles) {

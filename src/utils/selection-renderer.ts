@@ -323,16 +323,30 @@ export function renderElementOverlays(
         }
 
         // --- Connector Handles ---
-        if (el.type !== 'line' && el.type !== 'arrow' && selectedTool === 'selection') {
+        const isPolylineShape = el.type === 'line' && el.curveType === 'elbow' && !el.startBinding && !el.endBinding;
+        if (((el.type !== 'line' && el.type !== 'arrow') || isPolylineShape) && selectedTool === 'selection') {
             const connectorSize = 14 / scale;
             const connectorOffset = 32 / scale;
-            const cx = el.x + el.width / 2;
-            const cy = el.y + el.height / 2;
+
+            // For polylines, compute actual AABB from points
+            let bbMinX = el.x, bbMinY = el.y, bbMaxX = el.x + el.width, bbMaxY = el.y + el.height;
+            if (isPolylineShape && el.points && Array.isArray(el.points) && (el.points as any[]).length >= 2) {
+                bbMinX = Infinity; bbMinY = Infinity; bbMaxX = -Infinity; bbMaxY = -Infinity;
+                for (const p of el.points as { x: number; y: number }[]) {
+                    bbMinX = Math.min(bbMinX, el.x + p.x);
+                    bbMinY = Math.min(bbMinY, el.y + p.y);
+                    bbMaxX = Math.max(bbMaxX, el.x + p.x);
+                    bbMaxY = Math.max(bbMaxY, el.y + p.y);
+                }
+            }
+
+            const cx = (bbMinX + bbMaxX) / 2;
+            const cy = (bbMinY + bbMaxY) / 2;
             const connectorHandles = [
-                { pos: 'top', x: cx, y: el.y - connectorOffset },
-                { pos: 'right', x: el.x + el.width + connectorOffset, y: cy },
-                { pos: 'bottom', x: cx, y: el.y + el.height + connectorOffset },
-                { pos: 'left', x: el.x - connectorOffset, y: cy }
+                { pos: 'top', x: cx, y: bbMinY - connectorOffset },
+                { pos: 'right', x: bbMaxX + connectorOffset, y: cy },
+                { pos: 'bottom', x: cx, y: bbMaxY + connectorOffset },
+                { pos: 'left', x: bbMinX - connectorOffset, y: cy }
             ];
 
             connectorHandles.forEach(ch => {
@@ -345,16 +359,16 @@ export function renderElementOverlays(
                 ctx.setLineDash([3 / scale, 3 / scale]);
                 ctx.beginPath();
                 if (ch.pos === 'top') {
-                    ctx.moveTo(ch.x, el.y);
+                    ctx.moveTo(ch.x, bbMinY);
                     ctx.lineTo(ch.x, ch.y);
                 } else if (ch.pos === 'right') {
-                    ctx.moveTo(el.x + el.width, ch.y);
+                    ctx.moveTo(bbMaxX, ch.y);
                     ctx.lineTo(ch.x, ch.y);
                 } else if (ch.pos === 'bottom') {
-                    ctx.moveTo(ch.x, el.y + el.height);
+                    ctx.moveTo(ch.x, bbMaxY);
                     ctx.lineTo(ch.x, ch.y);
                 } else if (ch.pos === 'left') {
-                    ctx.moveTo(el.x, ch.y);
+                    ctx.moveTo(bbMinX, ch.y);
                     ctx.lineTo(ch.x, ch.y);
                 }
                 ctx.stroke();

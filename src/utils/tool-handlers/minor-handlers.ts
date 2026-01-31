@@ -291,25 +291,39 @@ export function connectorHandleOnDown(
     if (!sourceEl) return;
 
     const anchorPosition = hitHandle.handle.replace('connector-', '');
-    const ecx = sourceEl.x + sourceEl.width / 2;
-    const ecy = sourceEl.y + sourceEl.height / 2;
+
+    // For polylines, compute actual AABB from points
+    const isPolylineShape = sourceEl.type === 'line' && sourceEl.curveType === 'elbow' && !sourceEl.startBinding && !sourceEl.endBinding;
+    let bbMinX = sourceEl.x, bbMinY = sourceEl.y, bbMaxX = sourceEl.x + sourceEl.width, bbMaxY = sourceEl.y + sourceEl.height;
+    if (isPolylineShape && sourceEl.points && Array.isArray(sourceEl.points) && (sourceEl.points as any[]).length >= 2) {
+        bbMinX = Infinity; bbMinY = Infinity; bbMaxX = -Infinity; bbMaxY = -Infinity;
+        for (const p of sourceEl.points as { x: number; y: number }[]) {
+            bbMinX = Math.min(bbMinX, sourceEl.x + p.x);
+            bbMinY = Math.min(bbMinY, sourceEl.y + p.y);
+            bbMaxX = Math.max(bbMaxX, sourceEl.x + p.x);
+            bbMaxY = Math.max(bbMaxY, sourceEl.y + p.y);
+        }
+    }
+
+    const ecx = (bbMinX + bbMaxX) / 2;
+    const ecy = (bbMinY + bbMaxY) / 2;
 
     let anchorX: number, anchorY: number;
     switch (anchorPosition) {
         case 'top':
             anchorX = ecx;
-            anchorY = sourceEl.y;
+            anchorY = bbMinY;
             break;
         case 'right':
-            anchorX = sourceEl.x + sourceEl.width;
+            anchorX = bbMaxX;
             anchorY = ecy;
             break;
         case 'bottom':
             anchorX = ecx;
-            anchorY = sourceEl.y + sourceEl.height;
+            anchorY = bbMaxY;
             break;
         case 'left':
-            anchorX = sourceEl.x;
+            anchorX = bbMinX;
             anchorY = ecy;
             break;
         default:

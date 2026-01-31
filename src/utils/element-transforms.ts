@@ -7,11 +7,12 @@ export const changeElementType = (elementId: string, newType: ElementType, pushH
 
     if (element.type === newType) return;
 
-    // Define families
-    const isConnector = (type: string) => ['line', 'arrow', 'bezier', 'organicBranch'].includes(type);
+    // Define families — unbound polylines are shapes, not connectors
+    const isConnectorType = (type: string) => ['line', 'arrow', 'bezier', 'organicBranch'].includes(type);
+    const isPolylineShape = element.type === 'line' && element.curveType === 'elbow' && !element.startBinding && !element.endBinding;
 
-    const oldIsConnector = isConnector(element.type);
-    const newIsConnector = isConnector(newType);
+    const oldIsConnector = isPolylineShape ? false : isConnectorType(element.type);
+    const newIsConnector = isConnectorType(newType);
 
     // Only allow like-for-like (Connector <-> Connector, Shape <-> Shape)
     if (oldIsConnector !== newIsConnector) {
@@ -20,6 +21,27 @@ export const changeElementType = (elementId: string, newType: ElementType, pushH
     }
 
     const updates: Partial<DrawingElement> = { type: newType };
+
+    // Polyline shape → regular shape: compute AABB and clear polyline properties
+    if (isPolylineShape && !newIsConnector) {
+        if (element.points && Array.isArray(element.points) && (element.points as any[]).length >= 2) {
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            for (const p of element.points as { x: number; y: number }[]) {
+                minX = Math.min(minX, element.x + p.x);
+                minY = Math.min(minY, element.y + p.y);
+                maxX = Math.max(maxX, element.x + p.x);
+                maxY = Math.max(maxY, element.y + p.y);
+            }
+            updates.x = minX;
+            updates.y = minY;
+            updates.width = maxX - minX;
+            updates.height = maxY - minY;
+        }
+        updates.points = undefined;
+        updates.curveType = undefined as any;
+        updates.startArrowhead = null;
+        updates.endArrowhead = null;
+    }
 
     // Connector-specific logic
     if (newIsConnector) {
@@ -61,7 +83,7 @@ export const changeElementType = (elementId: string, newType: ElementType, pushH
     updateElement(elementId, updates, pushHistory);
 };
 
-export const getTransformOptions = (currentType: ElementType): ElementType[] => {
+export const getTransformOptions = (currentType: ElementType, isPolylineShape = false): ElementType[] => {
     const connectors: ElementType[] = ['line', 'arrow', 'bezier', 'organicBranch'];
     const shapes: ElementType[] = [
         'rectangle', 'circle', 'diamond', 'triangle', 'hexagon', 'octagon',
@@ -91,6 +113,11 @@ export const getTransformOptions = (currentType: ElementType): ElementType[] => 
         'umlPackage', 'umlComponent', 'umlState', 'umlLifeline', 'umlFragment',
         'umlSignalSend', 'umlSignalReceive', 'umlProvidedInterface', 'umlRequiredInterface'
     ];
+
+    // Unbound polylines are shapes, not connectors
+    if (isPolylineShape) {
+        return shapes;
+    }
 
     if (connectors.includes(currentType)) {
         return connectors.filter(t => t !== currentType);
