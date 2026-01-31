@@ -12,6 +12,7 @@ import { calculateSmartElbowRoute } from "../utils/routing";
 import type { DrawingElement } from "../types";
 import { intersectElementWithLine, getOrganicBranchPolygon } from "../utils/geometry";
 import { hitTestElement } from "../utils/hit-testing";
+import { getHandleAtPosition, getSelectionBoundingBox } from "../utils/handle-detection";
 import ContextMenu, { type MenuItem } from "./context-menu";
 import { snapPoint } from "../utils/snap-helpers";
 import { getImage, setImageLoadCallback } from "../utils/image-cache";
@@ -1260,7 +1261,7 @@ const Canvas: Component = () => {
 
         // 3. Draw Multi-selection bounding box and handles
         if (store.selection.length > 1) {
-            const box = getSelectionBoundingBox();
+            const box = getSelectionBoundingBox(store.elements, store.selection);
             if (box) {
                 const scale = store.viewState.scale;
                 const padding = 2 / scale;
@@ -1780,276 +1781,6 @@ const Canvas: Component = () => {
         return rotatePoint(x, y, cx, cy, -angle);
     };
 
-    const getSelectionBoundingBox = () => {
-        if (store.selection.length === 0) return null;
-        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-        let hasElements = false;
-
-        store.elements.forEach(el => {
-            if (store.selection.includes(el.id)) {
-                // For rotated elements, we technically need the rotated bounds, 
-                // but usually multi-selection boxes are axis-aligned to the world.
-                // However, we should consider the visual bounds.
-                // For now, let's stick to axis-aligned world bounds.
-                minX = Math.min(minX, el.x);
-                minY = Math.min(minY, el.y);
-                maxX = Math.max(maxX, el.x + el.width);
-                maxY = Math.max(maxY, el.y + el.height);
-                hasElements = true;
-            }
-        });
-
-        if (!hasElements) return null;
-        return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
-    };
-
-    const getHandleAtPosition = (x: number, y: number) => {
-        const { scale } = store.viewState;
-        const handleSize = 12 / scale; // slightly larger hit area
-        const padding = 2 / scale;
-
-        // 1. Priority: Multi-selection handles
-        if (store.selection.length > 1) {
-            const box = getSelectionBoundingBox();
-            if (box) {
-                const handles = [
-                    { type: 'tl', x: box.x - padding, y: box.y - padding },
-                    { type: 'tr', x: box.x + box.width + padding, y: box.y - padding },
-                    { type: 'br', x: box.x + box.width + padding, y: box.y + box.height + padding },
-                    { type: 'bl', x: box.x - padding, y: box.y + box.height + padding },
-                    { type: 'tm', x: box.x + box.width / 2, y: box.y - padding },
-                    { type: 'rm', x: box.x + box.width + padding, y: box.y + box.height / 2 },
-                    { type: 'bm', x: box.x + box.width / 2, y: box.y + box.height + padding },
-                    { type: 'lm', x: box.x - padding, y: box.y + box.height / 2 }
-                ];
-
-                for (const h of handles) {
-                    if (Math.abs(x - h.x) <= handleSize / 2 && Math.abs(y - h.y) <= handleSize / 2) {
-                        return { id: 'multi', handle: h.type };
-                    }
-                }
-            }
-        }
-
-        // 2. Mindmap Toggle Handles (Priority over element selection)
-        for (let i = store.elements.length - 1; i >= 0; i--) {
-            const el = store.elements[i];
-            if (isElementHiddenByHierarchy(el, store.elements)) continue;
-
-            const hasChildren = store.elements.some(e => e.parentId === el.id);
-            if (hasChildren && el.type !== 'line' && el.type !== 'arrow') {
-                const ecx = el.x + el.width / 2;
-                const ecy = el.y + el.height / 2;
-                const local = unrotatePoint(x, y, ecx, ecy, el.angle || 0);
-
-                const toggleSize = 14 / scale;
-                const tx = el.x + el.width + 15 / scale;
-                const ty = el.y + el.height / 2;
-
-                const dist = Math.sqrt(Math.pow(local.x - tx, 2) + Math.pow(local.y - ty, 2));
-                if (dist <= (toggleSize / 2) + (5 / scale)) {
-                    return { id: el.id, handle: 'mindmap-toggle' };
-                }
-            }
-        }
-
-        // 3. Single element handles
-        for (let i = store.elements.length - 1; i >= 0; i--) {
-            const el = store.elements[i];
-            if (!store.selection.includes(el.id)) continue;
-            // If part of multi-selection, we only allow individual handles if single selected? 
-            // Usually if multi-selected, individual handles are hidden.
-            if (store.selection.length > 1) continue;
-
-            const cx = el.x + el.width / 2;
-            const cy = el.y + el.height / 2;
-            const heading = el.angle || 0;
-
-            // Transform mouse point to element's local system (unrotate)
-            const local = unrotatePoint(x, y, cx, cy, heading);
-
-            // Check corners and sides
-            let handles = [
-                { type: 'tl', x: el.x - padding, y: el.y - padding },
-                { type: 'tr', x: el.x + el.width + padding, y: el.y - padding },
-                { type: 'br', x: el.x + el.width + padding, y: el.y + el.height + padding },
-                { type: 'bl', x: el.x - padding, y: el.y + el.height + padding },
-                { type: 'tm', x: el.x + el.width / 2, y: el.y - padding },
-                { type: 'rm', x: el.x + el.width + padding, y: el.y + el.height / 2 },
-                { type: 'bm', x: el.x + el.width / 2, y: el.y + el.height + padding },
-                { type: 'lm', x: el.x - padding, y: el.y + el.height / 2 }
-            ];
-
-            if (el.type === 'line' || el.type === 'arrow' || el.type === 'organicBranch') {
-                let startX = el.x;
-                let startY = el.y;
-                let endX = el.x + el.width;
-                let endY = el.y + el.height;
-
-                // For organicBranch, use actual start/end points from points array
-                if (el.type === 'organicBranch' && el.points && el.points.length >= 2) {
-                    const pts = normalizePoints(el.points);
-                    if (pts.length >= 2) {
-                        startX = el.x + pts[0].x;
-                        startY = el.y + pts[0].y;
-                        endX = el.x + pts[pts.length - 1].x;
-                        endY = el.y + pts[pts.length - 1].y;
-                    }
-                }
-
-                handles = [
-                    { type: 'tl', x: startX, y: startY },
-                    { type: 'br', x: endX, y: endY }
-                ];
-            }
-
-            for (const h of handles) {
-                if (Math.abs(local.x - h.x) <= handleSize / 2 && Math.abs(local.y - h.y) <= handleSize / 2) {
-                    return { id: el.id, handle: h.type };
-                }
-            }
-
-            // Check Rotate Handle
-            const rotH = { x: el.x + el.width / 2, y: el.y - padding - 20 / scale };
-            if (Math.abs(local.x - rotH.x) <= handleSize && Math.abs(local.y - rotH.y) <= handleSize / 2) {
-                return { id: el.id, handle: 'rotate' };
-            }
-
-            // Custom Control Handles (Star, Burst, Isometric Cube, Solid Block)
-            if (el.type === 'isometricCube') {
-                const shapeRatio = (el.shapeRatio !== undefined ? el.shapeRatio : 25) / 100;
-                const sideRatio = (el.sideRatio !== undefined ? el.sideRatio : 50) / 100;
-
-                // Calculate handle position (Center Vertex)
-                const faceHeight = el.height * shapeRatio;
-                const cy = el.y + faceHeight;
-                const cx = el.x + el.width * sideRatio;
-
-                if (Math.abs(local.x - cx) <= handleSize && Math.abs(local.y - cy) <= handleSize) {
-                    return { id: el.id, handle: 'control-1' };
-                }
-            } else if (el.type === 'solidBlock' || el.type === 'cylinder') {
-                const depth = el.depth !== undefined ? el.depth : 50;
-                const angle = (el.viewAngle !== undefined ? el.viewAngle : 45) * Math.PI / 180;
-
-                const centerX = el.x + el.width / 2;
-                const centerY = el.y + el.height / 2;
-
-                const cx = centerX + depth * Math.cos(angle);
-                const cy = centerY + depth * Math.sin(angle);
-
-                if (Math.abs(local.x - cx) <= handleSize && Math.abs(local.y - cy) <= handleSize) {
-                    return { id: el.id, handle: 'control-1' };
-                }
-            } else if (el.type === 'perspectiveBlock') {
-                const depth = el.depth !== undefined ? el.depth : 50;
-                const angle = (el.viewAngle !== undefined ? el.viewAngle : 45) * Math.PI / 180;
-                const taper = el.taper !== undefined ? el.taper : 0;
-                const skewX = (el.skewX !== undefined ? el.skewX : 0) * el.width;
-                const skewY = (el.skewY !== undefined ? el.skewY : 0) * el.height;
-
-                const centerX = el.x + el.width / 2;
-                const centerY = el.y + el.height / 2;
-
-                const dx = depth * Math.cos(angle) + skewX;
-                const dy = depth * Math.sin(angle) + skewY;
-
-                const scale = 1 - taper;
-                const bw = (el.width / 2) * scale;
-                const bh = (el.height / 2) * scale;
-
-                const fScale = 1 - (el.frontTaper || 0);
-                const fw = (el.width / 2) * fScale;
-                const fh = (el.height / 2) * fScale;
-                const fsX = (el.frontSkewX || 0) * el.width;
-                const fsY = (el.frontSkewY || 0) * el.height;
-
-                const handles = [
-                    { x: centerX + dx, y: centerY + dy, handle: 'control-1' },   // Back Center
-                    // Back Vertices
-                    { x: centerX + dx - bw, y: centerY + dy - bh, handle: 'control-2' },
-                    { x: centerX + dx + bw, y: centerY + dy - bh, handle: 'control-3' },
-                    { x: centerX + dx + bw, y: centerY + dy + bh, handle: 'control-4' },
-                    { x: centerX + dx - bw, y: centerY + dy + bh, handle: 'control-5' },
-                    // Front Vertices
-                    { x: centerX + fsX - fw, y: centerY + fsY - fh, handle: 'control-6' },
-                    { x: centerX + fsX + fw, y: centerY + fsY - fh, handle: 'control-7' },
-                    { x: centerX + fsX + fw, y: centerY + fsY + fh, handle: 'control-8' },
-                    { x: centerX + fsX - fw, y: centerY + fsY + fh, handle: 'control-9' }
-                ];
-
-                for (const h of handles) {
-                    if (Math.abs(local.x - h.x) <= handleSize && Math.abs(local.y - h.y) <= handleSize) {
-                        return { id: el.id, handle: h.handle };
-                    }
-                }
-            } else if (el.type === 'star' || el.type === 'burst') {
-                const ratio = (el.shapeRatio !== undefined ? el.shapeRatio : 25) / 100;
-                const cx = el.x + el.width / 2;
-                const cy = el.y + el.height * ratio; // Simple approx for top inner point? 
-
-                // Actually star logic usually puts handle at inner radius top position
-                // For now let's assume it's just a vertical slider handle relative to bounds
-                if (Math.abs(local.x - cx) <= handleSize && Math.abs(local.y - cy) <= handleSize) {
-                    return { id: el.id, handle: 'control-1' };
-                }
-            }
-
-            // Check Control Points for Bezier/SmartElbow
-            if ((el.type === 'line' || el.type === 'arrow' || el.type === 'bezier' || el.type === 'organicBranch') && el.controlPoints) {
-                if (el.controlPoints.length === 1) {
-                    const cp = el.controlPoints[0];
-                    let start = { x: el.x, y: el.y };
-                    let end = { x: el.x + el.width, y: el.y + el.height };
-                    if (el.points && el.points.length >= 2) {
-                        const pts = normalizePoints(el.points);
-                        if (pts.length > 0) {
-                            start = { x: el.x + pts[0].x, y: el.y + pts[0].y };
-                            end = { x: el.x + pts[pts.length - 1].x, y: el.y + pts[pts.length - 1].y };
-                        }
-                    }
-
-                    const curveX = 0.25 * start.x + 0.5 * cp.x + 0.25 * end.x;
-                    const curveY = 0.25 * start.y + 0.5 * cp.y + 0.25 * end.y;
-
-                    if (Math.abs(x - curveX) <= handleSize / 2 && Math.abs(y - curveY) <= handleSize / 2) {
-                        return { id: el.id, handle: `control-0` };
-                    }
-                } else {
-                    for (let i = 0; i < el.controlPoints.length; i++) {
-                        const cp = el.controlPoints[i];
-                        // Control points might be in absolute coordinates, so use world x/y
-                        if (Math.abs(x - cp.x) <= handleSize / 2 && Math.abs(y - cp.y) <= handleSize / 2) {
-                            return { id: el.id, handle: `control-${i}` };
-                        }
-                    }
-                }
-            }
-
-            // Check Connector Handles (only for non-line/arrow shapes)
-            if (el.type !== 'line' && el.type !== 'arrow') {
-                const connectorSize = 14 / scale;
-                const connectorOffset = 32 / scale;
-                const ecx = el.x + el.width / 2;
-                const ecy = el.y + el.height / 2;
-                const connectorHandles = [
-                    { type: 'connector-top', x: ecx, y: el.y - connectorOffset },
-                    { type: 'connector-right', x: el.x + el.width + connectorOffset, y: ecy },
-                    { type: 'connector-bottom', x: ecx, y: el.y + el.height + connectorOffset },
-                    { type: 'connector-left', x: el.x - connectorOffset, y: ecy }
-                ];
-
-                for (const ch of connectorHandles) {
-                    const dist = Math.sqrt(Math.pow(local.x - ch.x, 2) + Math.pow(local.y - ch.y, 2));
-                    if (dist <= connectorSize / 2 + 2 / scale) { // Small tolerance
-                        return { id: el.id, handle: ch.type };
-                    }
-                }
-            }
-        }
-        return null;
-    };
-
     // Helper: Normalize pencil points to be relative to bounding box
     const normalizePencil = (el: DrawingElement) => {
         if (!el.points || el.points.length === 0) return null;
@@ -2339,7 +2070,7 @@ const Canvas: Component = () => {
 
 
         if (store.selectedTool === 'selection') {
-            const hitHandle = getHandleAtPosition(x, y);
+            const hitHandle = getHandleAtPosition(x, y, store.elements, store.selection, store.viewState.scale);
             if (hitHandle) {
                 // Mindmap toggle logic
                 if (hitHandle.handle === 'mindmap-toggle') {
@@ -2427,7 +2158,7 @@ const Canvas: Component = () => {
                 startY = y;
 
                 if (hitHandle.id === 'multi') {
-                    const box = getSelectionBoundingBox();
+                    const box = getSelectionBoundingBox(store.elements, store.selection);
                     if (box) {
                         initialElementX = box.x;
                         initialElementY = box.y;
@@ -2656,7 +2387,7 @@ const Canvas: Component = () => {
             } else {
                 // Clicked empty space - Check if hit selection bounding box
                 if (store.selection.length > 0) {
-                    const box = getSelectionBoundingBox();
+                    const box = getSelectionBoundingBox(store.elements, store.selection);
                     if (box) {
                         const threshold = 10 / store.viewState.scale;
                         if (x >= box.x - threshold && x <= box.x + box.width + threshold &&
@@ -2894,7 +2625,7 @@ const Canvas: Component = () => {
         if (store.selectedTool === 'pan') {
             setCursor(isDragging ? 'grabbing' : 'grab');
         } else if (store.selectedTool === 'selection' && !isDragging) {
-            const hit = getHandleAtPosition(x, y);
+            const hit = getHandleAtPosition(x, y, store.elements, store.selection, store.viewState.scale);
             const prevHover = hoveredConnector;
 
             if (hit) {
@@ -3906,7 +3637,7 @@ const Canvas: Component = () => {
 
                 // Check for control handles (Star, Burst, Speech Bubble, Isometric Cube, Solid Block, Perspective Block)
                 if (['star', 'burst', 'speechBubble', 'isometricCube', 'solidBlock', 'perspectiveBlock'].includes(el.type)) {
-                    const hitHandle = getHandleAtPosition(x, y);
+                    const hitHandle = getHandleAtPosition(x, y, store.elements, store.selection, store.viewState.scale);
                     if (hitHandle && hitHandle.handle.startsWith('control-')) {
                         // Hit a control handle, don't open text editor
                         return;
