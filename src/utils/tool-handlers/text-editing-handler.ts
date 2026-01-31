@@ -201,7 +201,10 @@ export function handleDoubleClick(e: MouseEvent, ctx: TextEditingContext): void 
                     ctx.setEditText(el.containerText || '');
                 }
 
-                setTimeout(() => ctx.textInputRef?.focus(), 0);
+                setTimeout(() => {
+                    ctx.textInputRef?.focus();
+                    ctx.textInputRef?.select();
+                }, 0);
                 return;
             }
             break;

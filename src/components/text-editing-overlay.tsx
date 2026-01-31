@@ -60,6 +60,7 @@ const TextEditingOverlay: Component<TextEditingOverlayProps> = (props) => {
                 let centerY = (elY + elH / 2) * scale + panY;
                 let textAlign = 'center';
                 let fontSizeVal = el.fontSize || 28;
+                let textareaWidth = elW * scale;
 
                 if (el.type === 'umlClass') {
                     const prop = props.editingProperty();
@@ -94,6 +95,12 @@ const TextEditingOverlay: Component<TextEditingOverlayProps> = (props) => {
                     }
                 }
 
+                const fontFamily = el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
+                    el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
+                        'Handlee, cursive';
+                const fontWeight = el.fontWeight || 'normal';
+                const fontStyle = el.fontStyle || 'normal';
+
                 return (
                     <textarea
                         ref={(el) => {
@@ -115,10 +122,9 @@ const TextEditingOverlay: Component<TextEditingOverlayProps> = (props) => {
                             top: `${centerY}px`,
                             left: `${centerX}px`,
                             transform: 'translate(-50%, -50%)',
-                            font: `${fontSizeVal * scale}px ${el.fontFamily === 'sans-serif' ? 'Inter, sans-serif' :
-                                el.fontFamily === 'monospace' ? 'Source Code Pro, monospace' :
-                                    'Handlee, cursive'
-                                }`,
+                            width: `${Math.max(50, textareaWidth)}px`,
+                            'box-sizing': 'border-box',
+                            font: `${fontStyle} ${fontWeight} ${fontSizeVal * scale}px ${fontFamily}`,
                             color: el.strokeColor,
                             background: 'transparent',
                             border: '1px dashed #007acc',
@@ -127,7 +133,6 @@ const TextEditingOverlay: Component<TextEditingOverlayProps> = (props) => {
                             padding: '4px',
                             resize: 'none',
                             overflow: 'hidden',
-                            'min-width': '50px',
                             'min-height': '1em',
                             'text-align': textAlign as any
                         }}
