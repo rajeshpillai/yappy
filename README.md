@@ -1,190 +1,256 @@
 # Yappy
 
-**Yappy** is an infinite canvas drawing and diagramming application built with SolidJS, inspired by Excalidraw. Create beautiful hand-drawn style diagrams, sketches, and whiteboard illustrations with a powerful set of drawing tools.
+**Yappy** is an infinite canvas drawing and diagramming application built with SolidJS. Create hand-drawn style diagrams, architecture sketches, mindmaps, wireframes, presentations, and whiteboard illustrations with 100+ shape types and a full-featured toolset.
 
 ## Features
 
-### Core Drawing Tools
-- **Shapes** - Rectangle, Circle, Line, Arrow
-- **Freehand** - Pencil tool for organic sketches
-- **Text** - Add and style text with custom fonts and sizing
-- **Images** - Insert PNG/JPG images into your canvas
+### Drawing & Shape Tools
 
-### Interactions
-- **Infinite Canvas** - Pan and zoom across unlimited space
-- **Select & Transform** - Move, resize (with side and corner handles), and rotate elements
-- **Multi-Select** - Group and manipulate multiple elements together
-- **Eraser** - Click or drag to remove elements
-- **Pan Tool** - Hand tool for easy canvas navigation
+| Category | Tools |
+|----------|-------|
+| **Basic Shapes** | Rectangle, Circle, Diamond, Triangle, Hexagon, Octagon, Star, Cloud, Heart, Capsule, Polygon (parametric), and more |
+| **Connectors** | Arrow, Line, Bezier Curve, Polyline (multi-click), Organic Branch (tapered mindmap connector) |
+| **Pen Tools** | Fine Liner, Ink Brush, Marker |
+| **Text** | Rich text with font selection, sizing, alignment, highlight backgrounds |
+| **Images** | Insert, resize, and compress images on canvas |
+| **Flowchart** | Database, Document, Predefined Process, Internal Storage |
+| **Infrastructure** | Server, Load Balancer, Firewall, Router, Lambda, Message Queue, Browser |
+| **Cloud & Containers** | Kubernetes, Container, API Gateway, CDN, Storage Blob, Microservice, Shield |
+| **UML** | Class, Interface, Actor, Use Case, Note, Package, Component, State, Lifeline, Fragment, Signal Send/Receive |
+| **Data & Metrics** | Bar Chart, Pie Chart, Trend Up/Down, Funnel, Gauge, Table |
+| **Wireframe** | Browser Window, Mobile Phone, Ghost Button, Input Field |
+| **Sketchnote** | Star Person, Lightbulb, Trophy, Rocket, Flag, Gear, Target, Signpost, Scroll, and more |
+| **People** | Stick Figure, Sitting/Presenting Person, Thumbs Up, Happy/Sad/Confused Faces |
+| **Status** | Checkbox, Numbered Badge, Question/Exclamation Mark, Tag, Pin, Stamp |
+| **Connection** | Puzzle Piece, Chain Link, Bridge, Magnet, Scale, Seedling, Tree, Mountain |
+| **3D / Technical** | Isometric Cube, Solid Block, Perspective Block, Cylinder, DFD Process/Data Store |
+| **State Machine** | Start/End states, Sync Bar, Activation Bar |
+| **Math / Geometric** | Trapezoid, Right Triangle, Pentagon, Septagon |
+
+### Connectors & Binding
+
+- **Magnetic snap** — endpoints auto-bind to shape anchors (top, right, bottom, left)
+- **Smart elbow routing** — automatic right-angle paths between bound shapes
+- **Dynamic anchor switching** — bindings re-route when shapes move
+- **Connection anchors** — visual blue dots on nearby shapes while drawing
+- **Connector handles** — green drag-out dots on selected shapes to start new connections
+- **Polyline shapes** — unbound polylines act as polygon shapes (fill, hit-test, transform)
+
+### Mindmap
+
+- Organic branch connectors with tapered bezier curves
+- Add child / sibling nodes
+- Auto-layout: horizontal, vertical, radial
+- Auto-style with 9-color branch palette
+- Collapse / expand subtrees
+- Parent-child hierarchy with visual toggle handles
+
+### Presentation & Slides
+
+- Create multi-slide decks (1920x1080)
+- 8 slide transitions (fade, slide, zoom) with configurable easing
+- Per-slide background color, image, gradient, and fill style
+- Master layers (content repeats on every slide)
+- Full-screen presentation mode with slide navigator
+- Slides mode or infinite canvas mode per document
+
+### Animation
+
+- **35+ entrance/exit effects** — bounce, fade, zoom, slide, rotate, flip, lightSpeed, rollIn, jackInTheBox, and more
+- **Triggers** — on-load, on-click, on-hover, after-prev, with-prev
+- **Motion graphics** — flow animation along connectors (dashes, dots, pulse), persistent spin, orbit
+- **Shape morphing** — smooth polygon-to-polygon transitions
+- **Draw-in/out** — animated stroke drawing effect
+- **Timeline** — sequence and overlap animations with delay, duration, easing, repeat, yoyo
 
 ### Styling & Rendering
-- **RoughJS Integration** - Hand-drawn, sketchy aesthetic
-- **Dual Render Modes** - Switch between 'sketch' and 'architectural' styles
-- **Property Panel** - Comprehensive sidebar for editing colors, stroke width, fill styles, opacity, and more
-- **Enhanced Color Picker** - Palette presets, hex input, and system color picker
-- **Dark Mode** - Full theme support
 
-### File Management
-- **Save/Load** - JSON-based storage with shareable links
-- **Local Files** - Import/export drawings from your local disk
-- **File Browser** - Modal dialog to manage your saved drawings
-- **Export** - Download as PNG or SVG images
+- **Dual render modes** — sketch (RoughJS hand-drawn) or architectural (clean lines)
+- **Fill styles** — solid, hachure, cross-hatch, zigzag, dots, dashed, zigzag-line, gradients
+- **Gradients** — linear, radial, conic with multi-stop color control
+- **18 blend modes** — multiply, screen, overlay, color-dodge, and more
+- **Shadows** — color, blur, and offset per element
+- **Arrowheads** — arrow, triangle, dot, circle, bar, diamond, crowsfoot (start/end independently)
+- **Opacity, roughness, roundness, stroke style** per element
+- **Text styling** — font family, size, weight, alignment, vertical alignment, highlight
 
-### Advanced Features
-- **Undo/Redo** - Full history stack with keyboard shortcuts (Ctrl+Z, Ctrl+Y)
-- **Auto-Scroll** - Intelligent viewport scrolling when dragging near edges
-- **Scroll to Content** - Quick button to return to your drawing
-- **Mobile & Pen Support** - Touch and stylus input via Pointer Events API
-- **Delete** - Keyboard shortcuts (Delete/Backspace) for quick removal
-- **Layer System** - Professional layer management (like Procreate/Figma)
-  - Create, rename, duplicate, delete layers
-  - Show/hide and lock/unlock layers
-  - Drag & drop layer reordering
-  - Move elements between layers
-  - Layer-based z-ordering
-  - Auto-switch active layer on selection
-- **Grid & Snap** - Grid visualization and snapping (in progress)
-  - Canvas context menu (right-click)
-  - Toggleable grid overlay
-  - Snap to grid functionality
+### Property Panel
+
+Collapsible sections for fill & stroke, appearance, shadows, gradients, blend modes, text, connectors, shape-specific options (star points, polygon sides, burst count, etc.), animation, and canvas properties.
+
+### Layer System
+
+- Create, rename, duplicate, delete, merge, flatten layers
+- Show/hide and lock/unlock per layer
+- Layer opacity control
+- Layer groups with drag-drop reordering
+- Move elements between layers
+- Master layers for slides
+- Auto-switch active layer on selection
+
+### Export
+
+| Format | Options |
+|--------|---------|
+| **PNG** | Scale 1x-4x, transparent or with background, selected-only |
+| **SVG** | Vector export, selected-only |
+| **PDF** | Scale, background toggle |
+| **PPTX** | PowerPoint presentation |
+| **WebM / MP4** | Screen recording |
+
+### Programmatic API
+
+Full browser console API via `window.Yappy`:
+
+```js
+// Create elements
+Yappy.createRectangle(100, 100, 200, 150, { backgroundColor: '#fef08a' })
+Yappy.createArrow(100, 100, 400, 300)
+Yappy.connect(sourceId, targetId, { curveType: 'elbow' })
+
+// Animate
+Yappy.fadeIn(elementId, { duration: 800 })
+Yappy.animateElement(id, { type: 'entrance', name: 'bounceIn' })
+
+// Slides
+Yappy.addSlide()
+Yappy.updateSlideTransition(0, { type: 'fade', duration: 500 })
+
+// Mindmap
+Yappy.addChildNode(parentId)
+Yappy.reorderMindmap(rootId, 'horizontal')
+
+// And 100+ more functions for elements, layers, view, themes, clipboard, history...
+```
+
+### Additional Features
+
+- **Command palette** (Ctrl+K) — searchable tool/action/view/layer commands
+- **Template browser** — pre-built diagrams, sketchnotes, animations, wireframes
+- **Transform shape** — right-click to convert between shape types within the same family
+- **Curve style switching** — change connectors between straight, bezier, and elbow
+- **Grid & snap** — configurable grid overlay (lines/dots), snap-to-grid, snap-to-objects
+- **Dark mode** — full theme support with localStorage persistence
+- **Minimap** — visual canvas overview with click-to-navigate
+- **Zen mode** (Alt+Z) — hide all panels for distraction-free drawing
+- **Copy/paste styles** — format painter for element formatting
+- **Element locking** — prevent accidental edits
+- **Undo/redo** — unlimited history stack
+- **Mobile & stylus** — touch, pressure sensitivity, responsive layout
+- **Auto-scroll** — viewport follows when dragging near edges
+- **Block text** — large sketchnote-style lettering generator
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| V / 1 | Selection tool |
+| H | Pan (Hand) tool |
+| R / 2 | Rectangle |
+| O / 3 | Circle |
+| L / 4 | Line |
+| A / 5 | Arrow |
+| T / 6 | Text |
+| E / 7 | Eraser |
+| P / 8 | Fine Liner |
+| I / 9 | Insert Image |
+| B / 0 | Bezier |
+| D | Diamond |
+| Shift+P | Laser Pointer |
+| Alt+I | Ink Overlay |
+| Ctrl+Z | Undo |
+| Ctrl+Y | Redo |
+| Ctrl+K | Command Palette |
+| Ctrl+G | Group |
+| Ctrl+Shift+G | Ungroup |
+| Ctrl+] | Bring to Front |
+| Ctrl+[ | Send to Back |
+| Delete / Backspace | Delete selected |
+| Shift+' | Toggle Grid |
+| Shift+; | Toggle Snap |
+| Alt+Z | Zen Mode |
+| Alt+Enter | Toggle Properties |
+| Alt+L | Toggle Layers |
+| Alt+M | Toggle Minimap |
+| Alt+N | New Sketch |
+| Escape | Cancel / Finalize polyline |
 
 ## Tech Stack
 
-- **Framework**: [SolidJS](https://solidjs.com) - Reactive JavaScript framework
-- **Rendering**: HTML5 Canvas API + [RoughJS](https://roughjs.com) for sketchy rendering
-- **Build Tool**: [Vite](https://vitejs.dev)
-- **State Management**: Centralized reactive store (`appStore.ts`)
-- **Styling**: Custom CSS organized per component
-- **Deployment**: GitHub Pages with static build configuration
+- **Framework**: [SolidJS](https://solidjs.com) — reactive JavaScript framework
+- **Rendering**: HTML5 Canvas + [RoughJS](https://roughjs.com) for hand-drawn aesthetic
+- **Build**: [Vite](https://vitejs.dev)
+- **Language**: TypeScript
+- **Icons**: [Lucide](https://lucide.dev)
+- **PDF Export**: jsPDF
+- **PPTX Export**: pptxgenjs
+- **State**: Centralized reactive store
 
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js (v18+)
 - npm, pnpm, yarn, or bun
 
-### Installation
+### Install & Run
 
 ```bash
-# Clone the repository
 git clone <repository-url>
 cd yappy
-
-# Install dependencies
 npm install
-# or
-bun install
-```
-
-### Development
-
-```bash
-# Start the development server
 npm run dev
-# or
-bun dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ### Build
 
 ```bash
-# Build for production
 npm run build
-# or
-bun run build
 ```
 
-Builds the app to the `dist` folder, optimized for production deployment.
+Outputs to `dist/`, optimized for production.
 
 ### Deploy
-
-The project is configured for GitHub Pages deployment:
 
 ```bash
 npm run deploy
 ```
 
-This builds the app with the correct base path and pushes to the `gh-pages` branch.
+Builds and pushes to the `gh-pages` branch for GitHub Pages.
 
-## Sample Diagrams
-The `data/` directory contains sample JSON files generated via the API, which can be loaded into Yappy:
-- `flow-chart.json`: A deployment pipeline flowchart.
-- `activity-diagram.json`: A logic flow activity diagram.
-- `sequence-diagram.json`: A usage sequence diagram.
+## Sample Data
+
+The `data/` directory contains sample drawings that can be loaded into Yappy:
+
+- `flow-chart.json` — deployment pipeline flowchart
+- `activity-diagram.json` — logic flow activity diagram
+- `sequence-diagram.json` — usage sequence diagram
+- `cloud-architecture-demo.json` — cloud architecture sketch
+- `six-thinking-hats.json` — sketchnote example
+- `dev-arch.json` — development architecture diagram
 
 ## Project Structure
 
 ```
 yappy/
 ├── src/
-│   ├── components/     # UI components (Canvas, Toolbar, PropertyPanel, etc.)\n│   ├── store/          # Application state management (appStore.ts)
-│   ├── utils/          # Utility functions and helpers
-│   └── App.tsx         # Main application component
-├── public/             # Static assets
-├── task.md             # Development roadmap and progress tracking
-└── vite.config.ts      # Vite configuration
+│   ├── components/        # UI components (Canvas, Toolbar, PropertyPanel, etc.)
+│   ├── config/            # Property and tool configuration
+│   ├── shapes/            # Shape renderers (connector, path, sketch, custom)
+│   ├── store/             # Reactive state management
+│   ├── utils/             # Drawing, hit-testing, geometry, animation, binding, layout
+│   └── App.tsx            # Root component
+├── data/                  # Sample drawings (JSON)
+├── docs/                  # Technical documentation
+├── public/                # Static assets
+└── vite.config.ts         # Vite configuration
 ```
-
-## Keyboard Shortcuts
-
-- **Ctrl+Z** - Undo
-- **Ctrl+Y** / **Ctrl+Shift+Z** - Redo
-- **Delete** / **Backspace** - Delete selected element(s)
-- **Ctrl+'** - Toggle grid
-- **Ctrl+Shift+'** - Toggle snap to grid
-- **V** - Select tool
-- **H** - Pan (Hand) tool
-- **R** - Rectangle
-- **C** - Circle
-- **L** - Line
-- **A** - Arrow
-- **T** - Text
-- **P** - Pencil
-- **E** - Eraser
-
-## Roadmap
-
-### Completed ✓
-- [x] Core drawing tools and infinite canvas
-- [x] File management and shareable links
-- [x] Undo/Redo system
-- [x] Property panel with advanced styling options
-- [x] RoughJS integration with dual render modes
-- [x] Export to PNG/SVG
-- [x] Dark mode support
-- [x] Multi-select and grouping
-- [x] Image insertion
-- [x] Mobile and pen support
-- [x] Local file save/load
-- [x] Layer system with full controls
-- [x] Grid visualization and context menu
-- [x] Snap to grid functionality
-- [x] Canvas properties persistence (Grid & Background)
-- [x] Shape Connectors (Flowchart-style linking)
-- [x] Smart Line Selection (Endpoint handles)
-- [x] Bezier Connectors (Curved lines)
-- [x] Dedicated Bezier Tool
-- [x] Diamond Shape (Decision Box)
-- [x] Configurable Start/End Arrowheads
-- [x] Programmatic API (window.Yappy) for sketches and diagrams
-
-### Planned
-- [ ] Layer grouping (hierarchical folders)
-- [ ] Snap to objects with visual guides
-- [ ] Viewport culling optimization
-- [ ] Animation system
 
 ## Contributing
 
-This is a personal learning project. Feel free to fork and experiment!
-
-## Learn More
-
-- [SolidJS Documentation](https://solidjs.com)
-- [RoughJS Documentation](https://roughjs.com)
-- [Vite Documentation](https://vitejs.dev)
+Contributions welcome. Fork, branch, and open a PR.
 
 ## License
 
