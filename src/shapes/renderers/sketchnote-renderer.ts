@@ -78,6 +78,36 @@ export class SketchnoteRenderer extends ShapeRenderer {
                 ctx.stroke(new Path2D(path));
                 break;
             }
+            case 'scroll': {
+                const scrollPath = this.getScrollPath(x, y, w, h);
+                if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                    ctx.fillStyle = options.fill;
+                    ctx.fill(new Path2D(scrollPath));
+                }
+                RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
+                ctx.stroke(new Path2D(scrollPath));
+                break;
+            }
+            case 'doubleBanner': {
+                const bannerShapes = this.getDoubleBannerPolygons(x, y, w, h);
+                for (const poly of bannerShapes) {
+                    if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
+                        ctx.fillStyle = options.fill;
+                        ctx.beginPath();
+                        ctx.moveTo(poly[0][0], poly[0][1]);
+                        for (let i = 1; i < poly.length; i++) ctx.lineTo(poly[i][0], poly[i][1]);
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+                    RenderPipeline.applyStrokeStyle(ctx, el, isDarkMode);
+                    ctx.beginPath();
+                    ctx.moveTo(poly[0][0], poly[0][1]);
+                    for (let i = 1; i < poly.length; i++) ctx.lineTo(poly[i][0], poly[i][1]);
+                    ctx.closePath();
+                    ctx.stroke();
+                }
+                break;
+            }
         }
 
         RenderPipeline.renderText(context, cx, cy);
@@ -121,7 +151,17 @@ export class SketchnoteRenderer extends ShapeRenderer {
                 rc.path(this.getWavyDividerPath(x, y, w, h), options);
                 break;
             }
-
+            case 'scroll': {
+                rc.path(this.getScrollPath(x, y, w, h), options);
+                break;
+            }
+            case 'doubleBanner': {
+                const bannerPolys = this.getDoubleBannerPolygons(x, y, w, h);
+                for (const poly of bannerPolys) {
+                    rc.polygon(poly, options);
+                }
+                break;
+            }
         }
 
         RenderPipeline.renderText(context, cx, cy);
@@ -187,6 +227,27 @@ export class SketchnoteRenderer extends ShapeRenderer {
             path += (i === 0 ? "M " : " L ") + px + " " + py;
         }
         return path + " Z";
+    }
+
+    private getScrollPath(x: number, y: number, w: number, h: number): string {
+        const rH = h * 0.15;
+        return `M ${x} ${y + rH} L ${x + w} ${y + rH} L ${x + w} ${y + h - rH} L ${x} ${y + h - rH} Z `
+            + `M ${x} ${y + rH} C ${x - rH} ${y + rH} ${x - rH} ${y} ${x} ${y} L ${x + w} ${y} C ${x + w + rH} ${y} ${x + w + rH} ${y + rH} ${x + w} ${y + rH} `
+            + `M ${x} ${y + h - rH} C ${x - rH} ${y + h - rH} ${x - rH} ${y + h} ${x} ${y + h} L ${x + w} ${y + h} C ${x + w + rH} ${y + h} ${x + w + rH} ${y + h - rH} ${x + w} ${y + h - rH}`;
+    }
+
+    private getDoubleBannerPolygons(x: number, y: number, w: number, h: number): [number, number][][] {
+        const eW = w * 0.15;
+        const eH = h * 0.25;
+        const mh = y + h;
+        return [
+            // Left ribbon
+            [[x + eW, y + eH], [x, y + eH], [x + eW / 2, y], [x, mh], [x + eW, mh]],
+            // Right ribbon
+            [[x + w - eW, y + eH], [x + w, y + eH], [x + w - eW / 2, y], [x + w, mh], [x + w - eW, mh]],
+            // Center panel
+            [[x + eW, y], [x + w - eW, y], [x + w - eW, y + h - eH], [x + eW, y + h - eH]]
+        ];
     }
 
     protected definePath(ctx: CanvasRenderingContext2D, el: any): void {
