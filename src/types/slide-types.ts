@@ -110,7 +110,7 @@ export const createDefaultSlide = (id?: string, name?: string, x: number = 0, y:
     name: name || 'Slide 1',
     spatialPosition: { x, y },
     dimensions: { width: 1920, height: 1080 }, // Default 1080p
-    backgroundColor: '#ffffff',
+    backgroundColor: '',
     order: 0,
     transition: { ...DEFAULT_SLIDE_TRANSITION }
 });

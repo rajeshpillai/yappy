@@ -14,13 +14,6 @@ const P3_COLORS = [
     { name: 'P3 Pink', value: 'color(display-p3 1 0 0.5)' },
 ];
 
-const BACKGROUND_ASSETS = [
-    { name: 'Noise Texture', value: 'https://www.transparenttextures.com/patterns/asfalt-dark.png' },
-    { name: 'Paper Texture', value: 'https://www.transparenttextures.com/patterns/paper.png' },
-    { name: 'Carbon Fiber', value: 'https://www.transparenttextures.com/patterns/carbon-fibre.png' },
-    { name: 'Gradient Blue', value: 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=320' },
-    { name: 'Gradient Sunset', value: 'https://images.unsplash.com/photo-1557683311-eac922347aa1?q=80&w=320' },
-];
 
 export const P3ColorPicker: Component = () => {
     const [showAdvanced, setShowAdvanced] = createSignal(false);
@@ -148,45 +141,6 @@ export const P3ColorPicker: Component = () => {
                         </button>
                     </div>
 
-                    <div style={{ 'font-size': '10px', 'font-weight': 'bold', color: 'var(--text-secondary)', 'margin-bottom': '4px' }}>BACKGROUNDS</div>
-                    <div
-                        style={{
-                            display: 'grid',
-                            'grid-template-columns': 'repeat(5, 1fr)',
-                            gap: '8px',
-                        }}
-                    >
-                        <For each={BACKGROUND_ASSETS}>
-                            {(asset) => (
-                                <div
-                                    draggable={true}
-                                    onDragStart={(e) => {
-                                        e.stopPropagation();
-                                        handleDragStart(e, asset.value);
-                                    }}
-                                    onMouseDown={(e) => e.stopPropagation()}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        applyAsset(asset.value);
-                                    }}
-                                    title={`${asset.name} (Drag to shape/slide)`}
-                                    style={{
-                                        width: '24px',
-                                        height: '24px',
-                                        'background-image': `url(${asset.value})`,
-                                        'background-size': 'cover',
-                                        'background-position': 'center',
-                                        'border-radius': '6px',
-                                        cursor: 'grab',
-                                        border: '1px solid rgba(0,0,0,0.1)',
-                                        transition: 'transform 0.2s',
-                                    }}
-                                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
-                                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                                />
-                            )}
-                        </For>
-                    </div>
                 </div>
             </Show>
         </div>

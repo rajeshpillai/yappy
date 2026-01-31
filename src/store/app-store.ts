@@ -1296,6 +1296,14 @@ export const toggleTheme = () => {
             setStore('toolStyles', tool as any, 'strokeColor' as any, newStroke);
         }
     }
+
+    // Swap slide backgrounds that are at the old theme default
+    const oldBg = newTheme === 'dark' ? '#ffffff' : '#121212';
+    store.slides.forEach((slide, i) => {
+        if (!slide.backgroundColor || slide.backgroundColor === oldBg) {
+            setStore('slides', i, 'backgroundColor', '');
+        }
+    });
 };
 
 export const zoomToFit = () => {
