@@ -15,12 +15,16 @@ export function penOnMove(
     helpers: PointerHelpers,
     PEN_UPDATE_THROTTLE_MS: number
 ): void {
-    const { x: ex, y: ey } = helpers.getWorldCoordinates(e.clientX, e.clientY);
-    const px = ex - pState.startX;
-    const py = ey - pState.startY;
+    // Use coalesced events for higher point density during fast strokes
+    const coalescedEvents = e.getCoalescedEvents?.() ?? [];
+    const events = coalescedEvents.length > 0 ? coalescedEvents : [e];
 
-    // Buffer points locally for performance
-    pState.penPointsBuffer.push(px, py);
+    for (const ce of events) {
+        const { x: ex, y: ey } = helpers.getWorldCoordinates(ce.clientX, ce.clientY);
+        const px = ex - pState.startX;
+        const py = ey - pState.startY;
+        pState.penPointsBuffer.push(px, py);
+    }
 
     const now = Date.now();
     // Throttle store updates but ensure smooth visual feedback

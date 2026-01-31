@@ -97,13 +97,28 @@ export class FreehandRenderer extends ShapeRenderer {
         ctx.stroke();
     }
 
-    private renderInkbrush(ctx: CanvasRenderingContext2D, pts: any[], baseWidth: number, taperAmount = 0.15, velocitySensitivity = 0.5) {
+    private renderInkbrush(ctx: CanvasRenderingContext2D, rawPts: any[], baseWidth: number, taperAmount = 0.15, velocitySensitivity = 0.5) {
+        if (rawPts.length < 2) {
+            ctx.beginPath(); ctx.arc(rawPts[0].x, rawPts[0].y, baseWidth / 2, 0, Math.PI * 2); ctx.fill();
+            return;
+        }
+
+        // 1. Filter out points that are too close (reduces jitter from slow drawing)
+        const MIN_DIST_SQ = 4;
+        const pts = [rawPts[0]];
+        for (let i = 1; i < rawPts.length; i++) {
+            const dx = rawPts[i].x - pts[pts.length - 1].x;
+            const dy = rawPts[i].y - pts[pts.length - 1].y;
+            if (dx * dx + dy * dy >= MIN_DIST_SQ || i === rawPts.length - 1) {
+                pts.push(rawPts[i]);
+            }
+        }
         if (pts.length < 2) {
             ctx.beginPath(); ctx.arc(pts[0].x, pts[0].y, baseWidth / 2, 0, Math.PI * 2); ctx.fill();
             return;
         }
 
-        // Calculate velocities (distances) between consecutive points
+        // 2. Calculate velocities (distances between consecutive points)
         const velocities: number[] = [0];
         for (let i = 1; i < pts.length; i++) {
             const dx = pts[i].x - pts[i - 1].x;
@@ -111,38 +126,31 @@ export class FreehandRenderer extends ShapeRenderer {
             velocities.push(Math.sqrt(dx * dx + dy * dy));
         }
 
-        // Smooth velocities with a moving average
-        const smoothedVelocities: number[] = [];
-        const smoothWindow = 3;
-        for (let i = 0; i < velocities.length; i++) {
-            let sum = 0, count = 0;
-            for (let j = Math.max(0, i - smoothWindow); j <= Math.min(velocities.length - 1, i + smoothWindow); j++) {
-                sum += velocities[j];
-                count++;
-            }
-            smoothedVelocities.push(sum / count);
+        // 3. Bidirectional EMA for smooth velocities (eliminates width wobble)
+        const velAlpha = 0.3;
+        const smoothedVelocities: number[] = [velocities[0]];
+        for (let i = 1; i < velocities.length; i++) {
+            smoothedVelocities.push(velAlpha * velocities[i] + (1 - velAlpha) * smoothedVelocities[i - 1]);
+        }
+        for (let i = smoothedVelocities.length - 2; i >= 0; i--) {
+            smoothedVelocities[i] = velAlpha * smoothedVelocities[i] + (1 - velAlpha) * smoothedVelocities[i + 1];
         }
 
-        // Find max velocity for normalization
         const maxVelocity = Math.max(...smoothedVelocities, 1);
 
-        // Calculate widths: slower = thicker, faster = thinner
-        // Also apply taper at start and end
+        // 4. Calculate raw widths from velocity
         const minWidth = baseWidth * (1 - velocitySensitivity * 0.7);
         const maxWidth = baseWidth * (1 + velocitySensitivity * 0.5);
-        const widths: number[] = [];
+        const rawWidths: number[] = [];
 
         for (let i = 0; i < pts.length; i++) {
-            // Velocity factor: 0 (slow) to 1 (fast)
             const velocityFactor = smoothedVelocities[i] / maxVelocity;
-            // Invert: slow = thick, fast = thin
             let width = maxWidth - (maxWidth - minWidth) * velocityFactor;
 
-            // Apply taper at start and end
-            const taperLength = Math.min(pts.length * taperAmount, 20); // Scale with taperAmount
+            const taperLength = Math.min(pts.length * taperAmount, 20);
             if (taperLength > 0) {
                 if (i < taperLength) {
-                    width *= (i / taperLength) * 0.9 + 0.1; // Start at 10%, grow to 100%
+                    width *= (i / taperLength) * 0.9 + 0.1;
                 }
                 if (i > pts.length - taperLength - 1) {
                     const endPos = pts.length - 1 - i;
@@ -150,18 +158,25 @@ export class FreehandRenderer extends ShapeRenderer {
                 }
             }
 
-            widths.push(Math.max(width, 0.5));
+            rawWidths.push(Math.max(width, 0.5));
         }
 
-        // Render as filled polygon with variable width
-        ctx.beginPath();
+        // 5. Smooth widths with bidirectional EMA for gradual transitions
+        const widthAlpha = 0.4;
+        const widths: number[] = [rawWidths[0]];
+        for (let i = 1; i < rawWidths.length; i++) {
+            widths.push(widthAlpha * rawWidths[i] + (1 - widthAlpha) * widths[i - 1]);
+        }
+        for (let i = widths.length - 2; i >= 0; i--) {
+            widths[i] = widthAlpha * widths[i] + (1 - widthAlpha) * widths[i + 1];
+        }
 
-        // Build left and right edges of the stroke
+        // 6. Build left and right edges with perpendicular smoothing
         const leftEdge: { x: number; y: number }[] = [];
         const rightEdge: { x: number; y: number }[] = [];
+        let prevPerpX = 0, prevPerpY = 0;
 
         for (let i = 0; i < pts.length; i++) {
-            // Calculate perpendicular direction
             let perpX: number, perpY: number;
 
             if (i === 0) {
@@ -177,7 +192,6 @@ export class FreehandRenderer extends ShapeRenderer {
                 perpX = -dy / len;
                 perpY = dx / len;
             } else {
-                // Average of before and after
                 const dx1 = pts[i].x - pts[i - 1].x;
                 const dy1 = pts[i].y - pts[i - 1].y;
                 const dx2 = pts[i + 1].x - pts[i].x;
@@ -191,43 +205,79 @@ export class FreehandRenderer extends ShapeRenderer {
                 perpY /= perpLen;
             }
 
+            // Prevent perpendicular flipping at sharp corners and blend with previous
+            if (i > 0) {
+                const dot = perpX * prevPerpX + perpY * prevPerpY;
+                if (dot < 0) {
+                    perpX = -perpX;
+                    perpY = -perpY;
+                }
+                const blend = 0.6;
+                perpX = perpX * blend + prevPerpX * (1 - blend);
+                perpY = perpY * blend + prevPerpY * (1 - blend);
+                const reLen = Math.sqrt(perpX * perpX + perpY * perpY) || 1;
+                perpX /= reLen;
+                perpY /= reLen;
+            }
+
+            prevPerpX = perpX;
+            prevPerpY = perpY;
+
             const halfWidth = widths[i] / 2;
             leftEdge.push({ x: pts[i].x + perpX * halfWidth, y: pts[i].y + perpY * halfWidth });
             rightEdge.push({ x: pts[i].x - perpX * halfWidth, y: pts[i].y - perpY * halfWidth });
         }
 
-        // Draw the filled shape with smooth curves
-        if (leftEdge.length >= 2) {
-            // Start cap (rounded)
-            ctx.moveTo(leftEdge[0].x, leftEdge[0].y);
+        // 7. Smooth polygon edges (two passes for cleaner outlines)
+        const smoothEdge = (edge: { x: number; y: number }[]): { x: number; y: number }[] => {
+            if (edge.length < 3) return edge;
+            const result = [edge[0]];
+            for (let i = 1; i < edge.length - 1; i++) {
+                result.push({
+                    x: edge[i - 1].x * 0.25 + edge[i].x * 0.5 + edge[i + 1].x * 0.25,
+                    y: edge[i - 1].y * 0.25 + edge[i].y * 0.5 + edge[i + 1].y * 0.25,
+                });
+            }
+            result.push(edge[edge.length - 1]);
+            return result;
+        };
+
+        const smoothLeft = smoothEdge(smoothEdge(leftEdge));
+        const smoothRight = smoothEdge(smoothEdge(rightEdge));
+
+        // 8. Draw the filled shape with smooth curves
+        ctx.beginPath();
+
+        if (smoothLeft.length >= 2) {
+            ctx.moveTo(smoothLeft[0].x, smoothLeft[0].y);
 
             // Left edge (forward)
-            for (let i = 1; i < leftEdge.length - 1; i++) {
-                const midX = (leftEdge[i].x + leftEdge[i + 1].x) / 2;
-                const midY = (leftEdge[i].y + leftEdge[i + 1].y) / 2;
-                ctx.quadraticCurveTo(leftEdge[i].x, leftEdge[i].y, midX, midY);
+            for (let i = 1; i < smoothLeft.length - 1; i++) {
+                const midX = (smoothLeft[i].x + smoothLeft[i + 1].x) / 2;
+                const midY = (smoothLeft[i].y + smoothLeft[i + 1].y) / 2;
+                ctx.quadraticCurveTo(smoothLeft[i].x, smoothLeft[i].y, midX, midY);
             }
-            ctx.lineTo(leftEdge[leftEdge.length - 1].x, leftEdge[leftEdge.length - 1].y);
+            ctx.lineTo(smoothLeft[smoothLeft.length - 1].x, smoothLeft[smoothLeft.length - 1].y);
 
             // End cap (rounded)
             const endIdx = pts.length - 1;
             ctx.arc(pts[endIdx].x, pts[endIdx].y, widths[endIdx] / 2,
-                Math.atan2(leftEdge[endIdx].y - pts[endIdx].y, leftEdge[endIdx].x - pts[endIdx].x),
-                Math.atan2(rightEdge[endIdx].y - pts[endIdx].y, rightEdge[endIdx].x - pts[endIdx].x),
+                Math.atan2(smoothLeft[endIdx].y - pts[endIdx].y, smoothLeft[endIdx].x - pts[endIdx].x),
+                Math.atan2(smoothRight[endIdx].y - pts[endIdx].y, smoothRight[endIdx].x - pts[endIdx].x),
                 false);
 
             // Right edge (backward)
-            for (let i = rightEdge.length - 2; i > 0; i--) {
-                const midX = (rightEdge[i].x + rightEdge[i - 1].x) / 2;
-                const midY = (rightEdge[i].y + rightEdge[i - 1].y) / 2;
-                ctx.quadraticCurveTo(rightEdge[i].x, rightEdge[i].y, midX, midY);
+            for (let i = smoothRight.length - 2; i > 0; i--) {
+                const midX = (smoothRight[i].x + smoothRight[i - 1].x) / 2;
+                const midY = (smoothRight[i].y + smoothRight[i - 1].y) / 2;
+                ctx.quadraticCurveTo(smoothRight[i].x, smoothRight[i].y, midX, midY);
             }
-            ctx.lineTo(rightEdge[0].x, rightEdge[0].y);
+            ctx.lineTo(smoothRight[0].x, smoothRight[0].y);
 
             // Start cap (rounded)
             ctx.arc(pts[0].x, pts[0].y, widths[0] / 2,
-                Math.atan2(rightEdge[0].y - pts[0].y, rightEdge[0].x - pts[0].x),
-                Math.atan2(leftEdge[0].y - pts[0].y, leftEdge[0].x - pts[0].x),
+                Math.atan2(smoothRight[0].y - pts[0].y, smoothRight[0].x - pts[0].x),
+                Math.atan2(smoothLeft[0].y - pts[0].y, smoothLeft[0].x - pts[0].x),
                 false);
         }
 
