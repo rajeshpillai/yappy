@@ -1,7 +1,7 @@
 import { type Component, For, createSignal, onMount, onCleanup } from "solid-js";
 import { store, setSelectedTool, addElement, setStore } from "../store/app-store";
 import type { ElementType } from "../types";
-import { MousePointer2, Square, Circle, Minus, Type, MoveUpRight, Eraser, Hand, Image as ImageIcon, Activity, Diamond, CaseUpper, Zap, Highlighter } from "lucide-solid";
+import { MousePointer2, Square, Circle, Type, Eraser, Hand, Image as ImageIcon, Diamond, CaseUpper, Zap, Highlighter } from "lucide-solid";
 import { generateBlockText } from "../utils/block-alphabet";
 import PenToolGroup from "./pen-tool-group";
 import ShapeToolGroup from "./shape-tool-group";
@@ -17,6 +17,7 @@ import StatusToolGroup from "./status-tool-group";
 import CloudInfraToolGroup from "./cloud-infra-tool-group";
 import DataMetricsToolGroup from "./data-metrics-tool-group";
 import ConnectionRelToolGroup from "./connection-rel-tool-group";
+import ConnectorToolGroup from "./connector-tool-group";
 import "./toolbar.css";
 
 // Tools that are NOT pens or grouped shapes
@@ -26,11 +27,7 @@ const tools: { type: ElementType | 'selection' | 'block-text'; icon: Component<{
     { type: 'rectangle', icon: Square, label: 'Rectangle (R or 2)' },
     { type: 'circle', icon: Circle, label: 'Circle (O or 3)' },
     { type: 'diamond', icon: Diamond, label: 'Diamond (D)' },
-    { type: 'arrow', icon: MoveUpRight, label: 'Arrow (A or 5)' },
-    { type: 'line', icon: Minus, label: 'Line (L or 4)' },
-    { type: 'bezier', icon: Activity, label: 'Bezier Curve (B or 0)' },
-    // Pens are grouped in PenToolGroup
-    // New shapes are grouped in ShapeToolGroup
+    // Arrow, Line, Bezier, Polyline are grouped in ConnectorToolGroup
     { type: 'text', icon: Type, label: 'Text (T or 6)' },
     { type: 'block-text', icon: CaseUpper, label: 'Block Text (Sketchnote)' },
     { type: 'image', icon: ImageIcon, label: 'Insert Image (I or 9)' },
@@ -201,7 +198,6 @@ const Toolbar: Component = () => {
 
     // Find indices for inserting grouped tools
     const diamondIndex = tools.findIndex(t => t.type === 'diamond');
-    const bezierIndex = tools.findIndex(t => t.type === 'bezier');
 
     return (
         <div
@@ -239,6 +235,9 @@ const Toolbar: Component = () => {
 
             {/* Pen Tool Group (Pencil, Calligraphy, Fine Liner, Ink Brush) */}
             <PenToolGroup />
+
+            {/* Connector Tool Group (Arrow, Line, Bezier, Polyline) */}
+            <ConnectorToolGroup />
 
             {/* Rectangle, Circle, Diamond */}
             <For each={tools.slice(2, diamondIndex + 1)}>
@@ -293,23 +292,8 @@ const Toolbar: Component = () => {
             {/* UML Tool Group (Class, Actor, UseCase) */}
             <UmlToolGroup />
 
-            {/* Arrow, Line, Bezier */}
-            <For each={tools.slice(diamondIndex + 1, bezierIndex + 1)}>
-                {(tool) => (
-                    <button
-                        class={`toolbar-btn ${store.selectedTool === tool.type ? 'active' : ''}`}
-                        onClick={() => handleToolClick(tool.type)}
-                        onContextMenu={handleRightClick}
-                        title={tool.label}
-                    >
-                        <tool.icon size={20} />
-                    </button>
-                )}
-            </For>
-
-
             {/* Text, Image, Eraser */}
-            <For each={tools.slice(bezierIndex + 1)}>
+            <For each={tools.slice(diamondIndex + 1)}>
                 {(tool) => (
                     <button
                         class={`toolbar-btn ${store.selectedTool === tool.type ? 'active' : ''}`}

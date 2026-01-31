@@ -6,7 +6,8 @@ export type ElementType = 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | '
 | 'checkbox' | 'checkboxChecked' | 'numberedBadge' | 'questionMark' | 'exclamationMark' | 'tag' | 'pin' | 'stamp'
 | 'kubernetes' | 'container' | 'apiGateway' | 'cdn' | 'storageBlob' | 'eventBus' | 'microservice' | 'shield'
 | 'barChart' | 'pieChart' | 'trendUp' | 'trendDown' | 'funnel' | 'gauge' | 'table'
-| 'puzzlePiece' | 'chainLink' | 'bridge' | 'magnet' | 'scale' | 'seedling' | 'tree' | 'mountain';
+| 'puzzlePiece' | 'chainLink' | 'bridge' | 'magnet' | 'scale' | 'seedling' | 'tree' | 'mountain'
+| 'polyline';
 
 export type AppMode = 'design' | 'presentation' | 'prototype';
 export type FillStyle = 'hachure' | 'solid' | 'cross-hatch' | 'zigzag' | 'dots' | 'dashed' | 'zigzag-line' | 'linear' | 'radial' | 'conic' | 'image';

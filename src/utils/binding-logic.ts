@@ -94,6 +94,11 @@ export function refreshLinePoints(
     const ey = overrideEndY ?? (line.y + line.height);
 
     if (line.curveType === 'elbow') {
+        // Unbound polylines (user-defined multi-point elbows) — preserve existing points
+        if (!line.startBinding && !line.endBinding) {
+            return undefined;
+        }
+
         const startEl = elements.find(e => e.id === line.startBinding?.elementId);
         const endEl = elements.find(e => e.id === line.endBinding?.elementId);
 

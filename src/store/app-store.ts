@@ -46,6 +46,7 @@ interface AppState {
     appMode: AppMode;
     showCommandPalette: boolean;
     selectedPenType: 'fineliner' | 'inkbrush' | 'marker';
+    selectedConnectorType: 'arrow' | 'line' | 'bezier' | 'polyline';
     selectedShapeType: 'triangle' | 'hexagon' | 'octagon' | 'parallelogram' | 'star' | 'cloud' | 'heart' | 'cross' | 'checkmark' | 'arrowLeft' | 'arrowRight' | 'arrowUp' | 'arrowDown' | 'capsule' | 'stickyNote' | 'callout' | 'burst' | 'speechBubble' | 'ribbon' | 'bracketLeft' | 'bracketRight' | 'database' | 'document' | 'predefinedProcess' | 'internalStorage';
     selectedInfraType: 'server' | 'loadBalancer' | 'firewall' | 'user' | 'messageQueue' | 'lambda' | 'router' | 'browser';
     selectedMathType: 'trapezoid' | 'rightTriangle' | 'pentagon' | 'septagon';
@@ -168,6 +169,7 @@ const initialState: AppState = {
     appMode: 'design',
     showCommandPalette: false,
     selectedPenType: 'fineliner',
+    selectedConnectorType: 'arrow',
     selectedShapeType: 'triangle',
     selectedInfraType: 'server',
     selectedMathType: 'trapezoid',
@@ -563,7 +565,7 @@ export const setSelectedTool = (tool: ElementType | 'selection') => {
     // Adjust default styles based on tool (Tool-specific hard overrides)
     if (tool === 'arrow') {
         updateDefaultStyles({ endArrowhead: 'arrow' });
-    } else if (tool === 'line') {
+    } else if (tool === 'line' || tool === 'polyline') {
         updateDefaultStyles({ endArrowhead: null });
     }
 
@@ -1652,6 +1654,10 @@ export const setCanvasTexture = (texture: 'none' | 'dots' | 'grid' | 'graph' | '
 
 export const setSelectedPenType = (penType: 'fineliner' | 'inkbrush' | 'marker') => {
     setStore('selectedPenType', penType);
+};
+
+export const setSelectedConnectorType = (connectorType: 'arrow' | 'line' | 'bezier' | 'polyline') => {
+    setStore('selectedConnectorType', connectorType);
 };
 
 export const setSelectedShapeType = (shapeType: 'triangle' | 'hexagon' | 'octagon' | 'parallelogram' | 'star' | 'cloud' | 'heart' | 'cross' | 'checkmark' | 'arrowLeft' | 'arrowRight' | 'arrowUp' | 'arrowDown' | 'capsule' | 'stickyNote' | 'callout' | 'burst' | 'speechBubble' | 'ribbon' | 'bracketLeft' | 'bracketRight' | 'database' | 'document' | 'predefinedProcess' | 'internalStorage') => {

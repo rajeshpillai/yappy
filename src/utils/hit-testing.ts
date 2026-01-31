@@ -155,6 +155,10 @@ export function hitTestElement(
             const pts = normalizePoints(el.points);
             if (pts && pts.length > 0) {
                 const localP = { x: p.x - el.x, y: p.y - el.y };
+                // For polylines with 3+ points, also check interior (polygon fill area)
+                if (pts.length >= 3 && !el.startBinding && !el.endBinding) {
+                    if (isPointInPolygon(localP, pts)) return true;
+                }
                 return isPointOnPolyline(localP, pts, threshold);
             } else {
                 // Fallback to simple line

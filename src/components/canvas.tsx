@@ -22,6 +22,7 @@ import {
 } from "../utils/tool-handlers/minor-handlers";
 import { drawOnDown, drawOnMove, drawOnUp } from "../utils/tool-handlers/draw-handler";
 import { penOnMove } from "../utils/tool-handlers/pen-handler";
+import { polylineOnDown, polylineOnMove, polylineOnUp, polylineFinalize, polylineUndo } from "../utils/tool-handlers/polyline-handler";
 import { selectionOnDown, selectionOnMove, selectionOnUp } from "../utils/tool-handlers/selection-handler";
 import { checkBinding as checkBindingUtil, refreshLinePoints as refreshLinePointsUtil, refreshBoundLine as refreshBoundLineUtil } from "../utils/binding-logic";
 import {
@@ -475,6 +476,7 @@ const Canvas: Component = () => {
         if (store.selectedTool === 'ink') { inkOnDown(x, y, pState); return; }
         if (store.selectedTool === 'eraser') { eraserOnDown(x, y, pState, pHelpers); return; }
         if (store.selectedTool === 'pan') { panOnDown(pState, pHelpers); return; }
+        if (store.selectedTool === 'polyline' || pState.isPolylineBuilding) { polylineOnDown(x, y, pState, pHelpers); return; }
 
         drawOnDown(x, y, pState, pHelpers);
     };
@@ -494,6 +496,12 @@ const Canvas: Component = () => {
 
         if (store.selectedTool === 'laser') {
             laserOnMove(e, pState, pHelpers, LASER_THROTTLE_MS, LASER_MAX_POINTS);
+        }
+
+        if (pState.isPolylineBuilding) {
+            polylineOnMove(x, y, pState, pHelpers, pSignals);
+            requestAnimationFrame(draw);
+            return;
         }
 
         if (!pState.isDrawing || !pState.currentId) {
@@ -530,6 +538,11 @@ const Canvas: Component = () => {
             return;
         }
 
+        if (pState.isPolylineBuilding) {
+            polylineOnUp(pState);
+            return;
+        }
+
         if (store.selectedTool === 'selection') {
             selectionOnUp(e, pState, pHelpers, pSignals);
             return;
@@ -538,7 +551,14 @@ const Canvas: Component = () => {
         drawOnUp(pState, pHelpers, pSignals);
     };
 
-    const handleDoubleClick = (e: MouseEvent) => handleDoubleClickHandler(e, textEditCtx);
+    const handleDoubleClick = (e: MouseEvent) => {
+        if (pState.isPolylineBuilding) {
+            polylineFinalize(pState, pHelpers, pSignals);
+            requestAnimationFrame(draw);
+            return;
+        }
+        handleDoubleClickHandler(e, textEditCtx);
+    };
 
     onMount(() => {
         // Register callback to trigger redraw when images load
@@ -546,10 +566,28 @@ const Canvas: Component = () => {
             draw();
         });
 
+        // Polyline keyboard shortcuts (Escape to finish, Backspace to undo last point)
+        const handlePolylineKeys = (e: KeyboardEvent) => {
+            if (!pState.isPolylineBuilding) return;
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                polylineFinalize(pState, pHelpers, pSignals);
+                requestAnimationFrame(draw);
+            } else if (e.key === 'Backspace') {
+                e.preventDefault();
+                e.stopPropagation();
+                polylineUndo(pState);
+                requestAnimationFrame(draw);
+            }
+        };
+        window.addEventListener('keydown', handlePolylineKeys, true);
+
         window.addEventListener("resize", handleResize);
         document.addEventListener("fullscreenchange", handleResize);
         handleResize();
         onCleanup(() => {
+            window.removeEventListener('keydown', handlePolylineKeys, true);
             window.removeEventListener("resize", handleResize);
             document.removeEventListener("fullscreenchange", handleResize);
         });

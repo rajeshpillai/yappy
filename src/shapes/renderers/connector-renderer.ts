@@ -154,14 +154,36 @@ export class ConnectorRenderer extends ShapeRenderer {
     }
 
     private renderElbow(context: RenderContext, options: any) {
-        options = { ...options, fill: undefined }; // Connectors should never have background fill
-        const { rc, element: el } = context;
+        const { rc, ctx, element: el } = context;
         const pts = normalizePoints(el.points);
         const drawPoints: [number, number][] = (pts && pts.length > 0)
             ? pts.map(p => [el.x + p.x, el.y + p.y])
             : [[el.x, el.y], [el.x + el.width, el.y + el.height]];
 
-        rc.linearPath(drawPoints, options);
+        // Polylines (unbound elbows with 3+ points) support fill via polygon rendering
+        const isPolyline = !el.startBinding && !el.endBinding && drawPoints.length >= 3;
+        const hasFill = options.fill && options.fill !== 'transparent';
+
+        if (isPolyline && hasFill) {
+            rc.polygon(drawPoints, options);
+        } else {
+            options = { ...options, fill: undefined };
+            rc.linearPath(drawPoints, options);
+        }
+
+        // Draw vertex dots at polyline joints to cover roughjs gaps
+        if (drawPoints.length >= 3) {
+            const strokeW = el.strokeWidth || 2;
+            const dotRadius = Math.max(strokeW * 0.6, 1.5);
+            ctx.save();
+            ctx.fillStyle = options.stroke || el.strokeColor || '#000000';
+            for (let i = 1; i < drawPoints.length - 1; i++) {
+                ctx.beginPath();
+                ctx.arc(drawPoints[i][0], drawPoints[i][1], dotRadius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
 
         const cleanPoints = drawPoints.filter((p, i, self) =>
             i === 0 || Math.abs(p[0] - self[i - 1][0]) > 0.1 || Math.abs(p[1] - self[i - 1][1]) > 0.1

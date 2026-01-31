@@ -667,7 +667,7 @@ export function renderConnectionAnchors(
 ): void {
     const { elements, selectedTool, currentDrawingId, isDrawing, activeLayerId, scale, canInteractWithElement } = params;
 
-    if (!(selectedTool === 'line' || selectedTool === 'arrow') || !isDrawing || !currentDrawingId) return;
+    if (!(selectedTool === 'line' || selectedTool === 'arrow' || selectedTool === 'polyline') || !isDrawing || !currentDrawingId) return;
 
     const currentEl = elements.find(e => e.id === currentDrawingId);
     if (!currentEl || (currentEl.type !== 'line' && currentEl.type !== 'arrow')) return;

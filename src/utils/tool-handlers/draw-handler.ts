@@ -36,7 +36,7 @@ const NORMALIZABLE_SHAPES = [
 // Tools that stay active after drawing (don't switch to selection)
 const CONTINUOUS_TOOLS = [
     'selection', 'pan', 'eraser', 'fineliner', 'inkbrush', 'marker',
-    'text', 'block-text', 'ink'
+    'text', 'block-text', 'ink', 'polyline'
 ];
 
 // ─── Pointer Down: Create element ───────────────────────────────────

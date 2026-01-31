@@ -27,6 +27,8 @@ export interface PointerState {
     penPointsBuffer: number[];
     lastPenUpdateTime: number;
     penUpdatePending: boolean;
+    isPolylineBuilding: boolean;
+    polylinePoints: { x: number; y: number }[];
 }
 
 export function createPointerState(): PointerState {
@@ -53,5 +55,7 @@ export function createPointerState(): PointerState {
         penPointsBuffer: [],
         lastPenUpdateTime: 0,
         penUpdatePending: false,
+        isPolylineBuilding: false,
+        polylinePoints: [],
     };
 }

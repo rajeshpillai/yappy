@@ -741,7 +741,18 @@ function applyResize(
             }
 
             if (singleEl.type === 'line' || singleEl.type === 'arrow' || singleEl.type === 'bezier') {
-                updates.points = helpers.refreshLinePoints(singleEl, newX, newY, newX + newWidth, newY + newHeight);
+                // For unbound polylines (elbow with user-defined points), scale proportionally
+                if (singleEl.curveType === 'elbow' && !singleEl.startBinding && !singleEl.endBinding) {
+                    const init = pState.initialPositions.get(id);
+                    if (init && init.points && Array.isArray(init.points) && init.points.length > 0) {
+                        updates.points = (init.points as any[]).map((p: any) => ({
+                            x: p.x * scaleX,
+                            y: p.y * scaleY
+                        }));
+                    }
+                } else {
+                    updates.points = helpers.refreshLinePoints(singleEl, newX, newY, newX + newWidth, newY + newHeight);
+                }
             }
 
             if (singleEl.type === 'organicBranch') {

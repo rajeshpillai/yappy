@@ -118,8 +118,8 @@ export function handleDoubleClick(e: MouseEvent, ctx: TextEditingContext): void 
                 }
             }
 
-            // Add Control Point for Bezier/Arrow
-            if ((el.type === 'line' || el.type === 'arrow' || el.type === 'bezier')) {
+            // Add Control Point for Bezier/Arrow (skip polylines / elbow lines)
+            if ((el.type === 'line' || el.type === 'arrow' || el.type === 'bezier') && el.curveType !== 'elbow') {
                 const newControlPoints = el.controlPoints ? [...el.controlPoints] : [];
 
                 // LIMIT TO 2 Control Points for S-Curve Support
