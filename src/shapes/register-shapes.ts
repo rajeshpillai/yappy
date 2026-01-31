@@ -18,6 +18,7 @@ import { SpecialtyShapeRenderer } from "./renderers/specialty-shape-renderer";
 import { UmlClassRenderer } from "./renderers/uml-class-renderer";
 import { UmlGeneralRenderer } from "./renderers/uml-general-renderer";
 import { UmlStateRenderer } from "./renderers/uml-state-renderer";
+import { PeopleRenderer } from "./renderers/people-renderer";
 
 export function registerShapes() {
     console.log('Registering all shapes including specialty...');
@@ -89,4 +90,8 @@ export function registerShapes() {
     const umlGeneralRenderer = new UmlGeneralRenderer();
     const umlTypes = ['umlInterface', 'umlActor', 'umlUseCase', 'umlNote', 'umlPackage', 'umlComponent', 'umlLifeline', 'umlFragment'] as const;
     umlTypes.forEach(type => shapeRegistry.register(type, umlGeneralRenderer));
+
+    const peopleRenderer = new PeopleRenderer();
+    const peopleTypes = ['stickFigure', 'sittingPerson', 'presentingPerson', 'handPointRight', 'thumbsUp', 'faceHappy', 'faceSad', 'faceConfused'] as const;
+    peopleTypes.forEach(type => shapeRegistry.register(type, peopleRenderer));
 }

@@ -76,6 +76,8 @@ export const getTransformOptions = (currentType: ElementType): ElementType[] => 
         'starPerson', 'lightbulb', 'signpost', 'burstBlob', 'scroll', 'wavyDivider', 'doubleBanner',
         'trophy', 'clock', 'gear', 'target', 'rocket', 'flag',
         'key', 'magnifyingGlass', 'book', 'megaphone', 'eye', 'thoughtBubble',
+        'stickFigure', 'sittingPerson', 'presentingPerson', 'handPointRight', 'thumbsUp',
+        'faceHappy', 'faceSad', 'faceConfused',
         'dfdProcess', 'dfdDataStore', 'externalEntity',
         'isometricCube', 'solidBlock', 'perspectiveBlock', 'cylinder',
         'stateStart', 'stateEnd', 'stateSync', 'activationBar'
@@ -190,6 +192,16 @@ export const getShapeIcon = (type: ElementType): string => {
         'megaphone': '📣',
         'eye': '👁',
         'thoughtBubble': '💭',
+
+        // People & Expressions
+        'stickFigure': '🧍',
+        'sittingPerson': '🪑',
+        'presentingPerson': '🧑‍🏫',
+        'handPointRight': '👉',
+        'thumbsUp': '👍',
+        'faceHappy': '😊',
+        'faceSad': '😢',
+        'faceConfused': '😕',
 
         // DFD / Diagram
         'dfdProcess': '⊙',

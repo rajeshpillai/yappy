@@ -219,7 +219,10 @@ export function hitTestElement(
         el.type === 'trophy' || el.type === 'clock' || el.type === 'gear' ||
         el.type === 'target' || el.type === 'rocket' || el.type === 'flag' ||
         el.type === 'key' || el.type === 'magnifyingGlass' || el.type === 'book' ||
-        el.type === 'megaphone' || el.type === 'eye' || el.type === 'thoughtBubble'
+        el.type === 'megaphone' || el.type === 'eye' || el.type === 'thoughtBubble' ||
+        el.type === 'stickFigure' || el.type === 'sittingPerson' || el.type === 'presentingPerson' ||
+        el.type === 'handPointRight' || el.type === 'thumbsUp' ||
+        el.type === 'faceHappy' || el.type === 'faceSad' || el.type === 'faceConfused'
     ) {
         // For these shapes, rely on bounding box hit test (passed above)
         // or implement detailed geometry check if needed

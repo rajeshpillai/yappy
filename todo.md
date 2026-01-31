@@ -1183,3 +1183,39 @@
 - [x] Fix renderer registration for standalone export <!-- id: 744 -->
 - [x] Enable interactive tools (Ink, Laser) in player <!-- id: 745 -->
 - [x] Update documentation for Offline HTML Export <!-- id: 746 -->
+
+## Phase 78: People & Expressions Shape Group
+- [ ] Add 8 new shapes: `stickFigure`, `sittingPerson`, `presentingPerson`, `handPointRight`, `thumbsUp`, `faceHappy`, `faceSad`, `faceConfused`
+- [ ] Create `PeopleRenderer` in `src/shapes/renderers/people-renderer.ts` (architectural + sketch modes)
+- [ ] Create `PeopleToolGroup` component with SVG icons in `src/components/people-tool-group.tsx`
+- [ ] Add `selectedPeopleType` signal to app-store
+- [ ] Register shapes, update types, hit-testing, text-editing, properties, element-transforms
+- [ ] Verify with `npx tsc --noEmit`
+
+## Phase 79: Status & Annotation Shape Group
+- [ ] Add 8 new shapes: `checkbox`, `checkboxChecked`, `numberedBadge`, `questionMark`, `exclamationMark`, `tag`, `pin`, `stamp`
+- [ ] Create `StatusRenderer` in `src/shapes/renderers/status-renderer.ts`
+- [ ] Create `StatusToolGroup` component with SVG icons
+- [ ] Add `selectedStatusType` signal to app-store
+- [ ] Register shapes, update types, hit-testing, text-editing, properties, element-transforms
+
+## Phase 80: Cloud & Container Infrastructure Shape Group
+- [ ] Add 8 new shapes: `kubernetes`, `container`, `apiGateway`, `cdn`, `storageBlob`, `eventBus`, `microservice`, `shield`
+- [ ] Create `CloudInfraRenderer` in `src/shapes/renderers/cloud-infra-renderer.ts`
+- [ ] Create `CloudInfraToolGroup` component with SVG icons
+- [ ] Add `selectedCloudInfraType` signal to app-store
+- [ ] Register shapes, update types, hit-testing, text-editing, properties, element-transforms
+
+## Phase 81: Data & Metrics Shape Group
+- [ ] Add 7 new shapes: `barChart`, `pieChart`, `trendUp`, `trendDown`, `funnel`, `gauge`, `table`
+- [ ] Create `DataMetricsRenderer` in `src/shapes/renderers/data-metrics-renderer.ts`
+- [ ] Create `DataMetricsToolGroup` component with SVG icons
+- [ ] Add `selectedDataMetricsType` signal to app-store
+- [ ] Register shapes, update types, hit-testing, text-editing, properties, element-transforms
+
+## Phase 82: Connection & Relationship Shape Group
+- [ ] Add 8 new shapes: `puzzlePiece`, `chainLink`, `bridge`, `magnet`, `scale`, `seedling`, `tree`, `mountain`
+- [ ] Create `ConnectionRenderer` in `src/shapes/renderers/connection-renderer.ts`
+- [ ] Create `ConnectionToolGroup` component with SVG icons
+- [ ] Add `selectedConnectionType` signal to app-store
+- [ ] Register shapes, update types, hit-testing, text-editing, properties, element-transforms

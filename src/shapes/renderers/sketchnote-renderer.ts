@@ -739,7 +739,6 @@ export class SketchnoteRenderer extends ShapeRenderer {
     }
 
     private getEyePath(x: number, y: number, w: number, h: number): string {
-        const cx = x + w / 2;
         const cy = y + h / 2;
         const rx = w / 2;
         const ry = h / 2;

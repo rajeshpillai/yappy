@@ -50,6 +50,7 @@ interface AppState {
     selectedInfraType: 'server' | 'loadBalancer' | 'firewall' | 'user' | 'messageQueue' | 'lambda' | 'router' | 'browser';
     selectedMathType: 'trapezoid' | 'rightTriangle' | 'pentagon' | 'septagon';
     selectedSketchnoteType: 'starPerson' | 'scroll' | 'wavyDivider' | 'doubleBanner' | 'trophy' | 'clock' | 'gear' | 'target' | 'rocket' | 'flag' | 'key' | 'magnifyingGlass' | 'book' | 'megaphone' | 'eye' | 'thoughtBubble';
+    selectedPeopleType: 'stickFigure' | 'sittingPerson' | 'presentingPerson' | 'handPointRight' | 'thumbsUp' | 'faceHappy' | 'faceSad' | 'faceConfused';
     selectedWireframeType: 'browserWindow' | 'mobilePhone' | 'ghostButton' | 'inputField';
     layerGroupingModeEnabled: boolean;
     maxLayers: number;
@@ -167,6 +168,7 @@ const initialState: AppState = {
     selectedInfraType: 'server',
     selectedMathType: 'trapezoid',
     selectedSketchnoteType: 'starPerson',
+    selectedPeopleType: 'stickFigure',
     selectedWireframeType: 'browserWindow',
     layerGroupingModeEnabled: false,
     maxLayers: 20,
@@ -1623,6 +1625,10 @@ export const setSelectedMathType = (mathType: 'trapezoid' | 'rightTriangle' | 'p
 
 export const setSelectedSketchnoteType = (sketchnoteType: 'starPerson' | 'scroll' | 'wavyDivider' | 'doubleBanner' | 'trophy' | 'clock' | 'gear' | 'target' | 'rocket' | 'flag' | 'key' | 'magnifyingGlass' | 'book' | 'megaphone' | 'eye' | 'thoughtBubble') => {
     setStore('selectedSketchnoteType', sketchnoteType);
+};
+
+export const setSelectedPeopleType = (peopleType: 'stickFigure' | 'sittingPerson' | 'presentingPerson' | 'handPointRight' | 'thumbsUp' | 'faceHappy' | 'faceSad' | 'faceConfused') => {
+    setStore('selectedPeopleType', peopleType);
 };
 
 export const setSelectedWireframeType = (wireframeType: 'browserWindow' | 'mobilePhone' | 'ghostButton' | 'inputField') => {

@@ -12,6 +12,7 @@ import WireframeToolGroup from "./wireframe-tool-group";
 import MindmapToolGroup from "./mindmap-tool-group";
 import TechnicalToolGroup from "./technical-tool-group";
 import UmlToolGroup from "./uml-tool-group";
+import PeopleToolGroup from "./people-tool-group";
 import "./toolbar.css";
 
 // Tools that are NOT pens or grouped shapes
@@ -257,6 +258,9 @@ const Toolbar: Component = () => {
 
             {/* Sketchnote Essentials Group (Star Person, Scroll, Divider, Banner) */}
             <SketchnoteToolGroup />
+
+            {/* People & Expressions Group (Stick Figure, Faces, Hands) */}
+            <PeopleToolGroup />
 
             {/* Infrastructure Tool Group (Server, LB, Cloud, User, etc.) */}
             <InfraToolGroup />
