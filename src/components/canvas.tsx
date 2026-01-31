@@ -3,19 +3,16 @@ import { calculateAllAnimatedStates } from "../utils/animation-utils";
 import { projectMasterPosition } from "../utils/slide-utils";
 import { animationEngine } from "../utils/animation/animation-engine";
 import rough from 'roughjs'; // Hand-drawn style
-import { isElementHiddenByHierarchy } from "../utils/hierarchy";
 import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit, zoomToFitSlide, isLayerVisible, isLayerLocked, toggleCollapse, setParent, clearParent, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, togglePropertyPanel, updateSlideThumbnail, advancePresentation, updateSlideBackground, updateAnimation, setPathEditing } from "../store/app-store";
 import { renderElement, normalizePoints } from "../utils/render-element";
 import { PathUtils } from "../utils/math/path-utils";
-import { getAnchorPoints } from "../utils/anchor-points";
 import type { DrawingElement } from "../types";
 import { hitTestElement } from "../utils/hit-testing";
-import { getHandleAtPosition, getSelectionBoundingBox } from "../utils/handle-detection";
+import { getHandleAtPosition } from "../utils/handle-detection";
 import ContextMenu, { type MenuItem } from "./context-menu";
-import { getImage, setImageLoadCallback } from "../utils/image-cache";
+import { setImageLoadCallback } from "../utils/image-cache";
 import type { SnappingGuide } from "../utils/object-snapping";
 import type { SpacingGuide } from "../utils/spacing";
-import { renderSnappingGuides, renderSpacingGuides } from "../utils/snap-renderer";
 import { createPointerState } from "../utils/pointer-state";
 import {
     presentationOnDown, presentationOnMove, presentationOnUp,
@@ -30,7 +27,12 @@ import { drawOnDown, drawOnMove, drawOnUp } from "../utils/tool-handlers/draw-ha
 import { penOnMove } from "../utils/tool-handlers/pen-handler";
 import { selectionOnDown, selectionOnMove, selectionOnUp } from "../utils/tool-handlers/selection-handler";
 import { checkBinding as checkBindingUtil, refreshLinePoints as refreshLinePointsUtil, refreshBoundLine as refreshBoundLineUtil } from "../utils/binding-logic";
-import { renderElementOverlays, renderMultiSelectionBox, renderSelectionBox, renderBindingHighlight } from "../utils/selection-renderer";
+import {
+    computeViewportBounds, cullElementsForAnimation, decayLaserTrail,
+    renderWorkspaceBackground, renderSlideBoundaries, renderCanvasTexture,
+    renderGrid, renderLayersAndElements, renderSelectionOverlays,
+    renderConnectionAnchors, renderLaserTrail, renderSlideBackground
+} from "../utils/canvas-renderer";
 import { Minimap } from "./minimap";
 import {
     copyToClipboard, cutToClipboard, pasteFromClipboard,
@@ -48,116 +50,6 @@ import RecordingOverlay from "./recording-overlay";
 
 // Export controls for Menu/Dialog access
 export const [requestRecording, setRequestRecording] = createSignal<{ start: boolean, format?: 'webm' | 'mp4' } | null>(null);
-
-// Helper to render slide background
-const renderSlideBackground = (ctx: CanvasRenderingContext2D, rc: any, slide: any, x: number, y: number, w: number, h: number, isDarkMode: boolean) => {
-    const type = slide.fillStyle || 'solid';
-
-    if (type === 'solid') {
-        const fallbackColor = isDarkMode ? "#121212" : "#ffffff";
-        let color = slide.backgroundColor || fallbackColor;
-        if (color === 'transparent') color = fallbackColor;
-
-        // Apply Dark Mode adjustment
-        if (isDarkMode && (color === '#ffffff' || color === '#fff' || color === 'white')) color = '#121212';
-        if (isDarkMode && (color === '#000000' || color === '#000' || color === 'black')) color = '#e8e8e8';
-
-        ctx.fillStyle = color;
-        ctx.fillRect(x, y, w, h);
-    } else if (['linear', 'radial', 'conic'].includes(type)) {
-        const stops = slide.gradientStops || [];
-        const angle = slide.gradientDirection || 0;
-
-        if (stops.length === 0) {
-            const fallbackColor = isDarkMode ? "#121212" : "#ffffff";
-            let color = slide.backgroundColor || fallbackColor;
-            if (color === 'transparent') color = fallbackColor;
-            if (isDarkMode && (color === '#ffffff' || color === '#fff' || color === 'white')) color = '#121212';
-            if (isDarkMode && (color === '#000000' || color === '#000' || color === 'black')) color = '#e8e8e8';
-            ctx.fillStyle = color;
-            ctx.fillRect(x, y, w, h);
-            return;
-        }
-
-        const centerX = x + w / 2;
-        const centerY = y + h / 2;
-
-        let grad;
-        if (type === 'linear') {
-            const angleRad = (angle * Math.PI) / 180;
-            const length = Math.sqrt(w * w + h * h) / 2;
-            const dx = Math.cos(angleRad) * length;
-            const dy = Math.sin(angleRad) * length;
-            grad = ctx.createLinearGradient(centerX - dx, centerY - dy, centerX + dx, centerY + dy);
-        } else {
-            // Radial
-            const angleRad = (angle * Math.PI) / 180;
-            const radius = Math.max(w, h) / 2;
-            const focalOffset = radius * 0.4; // 40% offset
-            const fx = centerX + Math.cos(angleRad) * focalOffset;
-            const fy = centerY + Math.sin(angleRad) * focalOffset;
-            grad = ctx.createRadialGradient(fx, fy, 0, centerX, centerY, radius);
-        }
-
-        stops.forEach((s: any) => {
-            let color = s.color;
-            if (isDarkMode && (color === '#ffffff' || color === '#fff' || color === 'white')) color = '#121212';
-            if (isDarkMode && (color === '#000000' || color === '#000' || color === 'black')) color = '#e8e8e8';
-            grad.addColorStop(s.offset, color);
-        });
-        ctx.fillStyle = grad;
-        ctx.fillRect(x, y, w, h);
-    } else if (['hachure', 'cross-hatch', 'zigzag', 'dots', 'dashed', 'zigzag-line'].includes(type)) {
-        // RoughJS Pattern Fills for slides
-        let bgColor = slide.backgroundColor || (isDarkMode ? "#121212" : "#ffffff");
-        if (isDarkMode && (bgColor === '#ffffff' || bgColor === '#fff' || bgColor === 'white')) bgColor = '#121212';
-        if (isDarkMode && (bgColor === '#000000' || bgColor === '#000' || bgColor === 'black')) bgColor = '#e8e8e8';
-
-        ctx.fillStyle = bgColor;
-        ctx.fillRect(x, y, w, h);
-
-        let strokeColor = slide.strokeColor || (isDarkMode ? "#ffffff" : "#000000");
-        if (isDarkMode && (strokeColor === '#000000' || strokeColor === '#000' || strokeColor === 'black')) strokeColor = '#ffffff';
-        if (isDarkMode && (strokeColor === '#ffffff' || strokeColor === '#fff' || strokeColor === 'white')) strokeColor = '#000000';
-
-        rc.rectangle(x, y, w, h, {
-            fill: strokeColor,
-            fillStyle: type as any,
-            fillWeight: 0.5,
-            hachureGap: 8,
-            stroke: 'transparent',
-            roughness: 0
-        });
-    } else if (type === 'image' && slide.backgroundImage) {
-        const img = getImage(slide.backgroundImage);
-        if (img) {
-            ctx.save();
-            ctx.globalAlpha = slide.backgroundOpacity ?? 1;
-            // Draw image cropped/fitted
-            const imgAspect = img.width / img.height;
-            const slideAspect = w / h;
-            let dw, dh, dx, dy;
-
-            if (imgAspect > slideAspect) {
-                dh = h;
-                dw = h * imgAspect;
-                dx = x - (dw - w) / 2;
-                dy = y;
-            } else {
-                dw = w;
-                dh = w / imgAspect;
-                dx = x;
-                dy = y - (dh - h) / 2;
-            }
-            ctx.drawImage(img, dx, dy, dw, dh);
-            ctx.restore();
-        } else {
-            // Placeholder while loading
-            ctx.fillStyle = isDarkMode ? "#1a1a1a" : "#f0f0f0";
-            ctx.fillRect(x, y, w, h);
-        }
-    }
-};
 
 const Canvas: Component = () => {
 
@@ -405,591 +297,69 @@ const Canvas: Component = () => {
         const ctx = canvasRef.getContext("2d");
         if (!ctx) return;
 
-        // Expose effectiveTime to window for renderers to access without signal overhead in deep loops
+        const startTime = performance.now();
         const currentTime = effectiveTime();
         (window as any).yappyGlobalTime = currentTime;
 
-        console.log('[Canvas] draw() called, effectiveTime:', currentTime);
-
-        const startTime = performance.now();
-
-        // PRE-CALCULATE ANIMATION STATES FOR THIS FRAME
-        // Performance Optimization: Only calculate animations for elements near the viewport
-        // to avoid CPU overhead from off-screen elements.
+        const { scale, panX, panY } = store.viewState;
+        const isDarkMode = store.theme === 'dark';
+        const rc = rough.canvas(canvasRef);
         const shouldAnimate = store.appMode === 'presentation' || store.isPreviewing;
 
-        // Compute viewport bounds early so we can use them for animation culling AND render culling
-        const { scale, panX, panY } = store.viewState;
-        const viewportBounds = {
-            minX: (-panX) / scale,
-            maxX: (canvasRef.width - panX) / scale,
-            minY: (-panY) / scale,
-            maxY: (canvasRef.height - panY) / scale
-        };
-        const bufferX = (viewportBounds.maxX - viewportBounds.minX) * 0.1;
-        const bufferY = (viewportBounds.maxY - viewportBounds.minY) * 0.1;
-
-        let elementsToAnimate = store.elements;
-        if (store.docType === 'slides' && store.slides.length > 0) {
-            const activeSlide = store.slides[store.activeSlideIndex];
-            if (activeSlide) {
-                const { x: sX, y: sY } = activeSlide.spatialPosition;
-                const { width: sW, height: sH } = activeSlide.dimensions;
-                const BUFFER = 200; // Extra margin to prevent pop-in
-
-                // 1. Get elements on or near the active slide, OR on a Master layer
-                const masterLayerIds = new Set(store.layers.filter(l => l.isMaster).map(l => l.id));
-                const primaryElements = store.elements.filter(el => {
-                    if (masterLayerIds.has(el.layerId)) return true;
-
-                    const cx = el.x + el.width / 2;
-                    const cy = el.y + el.height / 2;
-                    return cx >= sX - BUFFER && cx <= sX + sW + BUFFER &&
-                        cy >= sY - BUFFER && cy <= sY + sH + BUFFER;
-                });
-
-                // 2. Ensure Orbit Centers are included even if they are off-slide
-                const centerIds = new Set(primaryElements.map(el => el.orbitCenterId).filter(Boolean));
-                const centerElements = store.elements.filter(el => centerIds.has(el.id));
-
-                elementsToAnimate = primaryElements.length === store.elements.length
-                    ? store.elements
-                    : [...new Set([...primaryElements, ...centerElements])];
-            }
-        } else {
-            // Infinite canvas: cull elements outside the viewport
-            const primaryElements = store.elements.filter(el => {
-                const margin = Math.max(Math.abs(el.width), Math.abs(el.height)) * 0.5;
-                return !(el.x + el.width + margin < viewportBounds.minX - bufferX ||
-                    el.x - margin > viewportBounds.maxX + bufferX ||
-                    el.y + el.height + margin < viewportBounds.minY - bufferY ||
-                    el.y - margin > viewportBounds.maxY + bufferY);
-            });
-
-            // Ensure Orbit Centers are included even if off-screen
-            const centerIds = new Set(primaryElements.map(el => el.orbitCenterId).filter(Boolean));
-            const centerElements = store.elements.filter(el => centerIds.has(el.id));
-
-            elementsToAnimate = primaryElements.length === store.elements.length
-                ? store.elements
-                : [...new Set([...primaryElements, ...centerElements])];
-        }
-
-        if (elementsToAnimate.length !== store.elements.length) {
-            console.log(`[Canvas] culling: ${elementsToAnimate.length}/${store.elements.length} elements in viewport`);
-        }
-
+        // 1. Compute viewport & animated states
+        const vp = computeViewportBounds(canvasRef, scale, panX, panY);
+        const elementsToAnimate = cullElementsForAnimation(store.elements, store.slides, store.layers, store.docType, store.activeSlideIndex, vp);
         const animatedStates = calculateAllAnimatedStates(elementsToAnimate, currentTime, shouldAnimate);
 
-        // Reset Transform Matrix to Identity so we don't accumulate translations!
+        // 2. Clear canvas & decay laser
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, canvasRef.width, canvasRef.height);
+        decayLaserTrail(pState.laserTrailData, LASER_DECAY_MS);
 
-        // --- Laser Trail Decay (using mutable array for performance) ---
-        const now = Date.now();
-        if (pState.laserTrailData.length > 0) {
-            // Filter in place for performance
-            let writeIdx = 0;
-            for (let i = 0; i < pState.laserTrailData.length; i++) {
-                if (now - pState.laserTrailData[i].timestamp < LASER_DECAY_MS) {
-                    pState.laserTrailData[writeIdx++] = pState.laserTrailData[i];
-                }
-            }
-            pState.laserTrailData.length = writeIdx;
-        }
+        // 3. Render backgrounds & grids
+        renderWorkspaceBackground(ctx, canvasRef, isDarkMode);
+        renderSlideBoundaries(ctx, rc, store.slides, store.docType, store.activeSlideIndex, scale, panX, panY, isDarkMode);
+        renderCanvasTexture(ctx, canvasRef, store.canvasTexture, scale, panX, panY, isDarkMode);
 
-        // Render Canvas Overall Background (The "Infinite" workspace)
-        const isDarkMode = store.theme === 'dark';
-        const workspaceBg = isDarkMode ? "#1a1a1b" : "#e2e8f0"; // Slightly darker for contrast
-        ctx.fillStyle = workspaceBg;
-        ctx.fillRect(0, 0, canvasRef.width, canvasRef.height);
-
+        // 4. Enter world-space for elements
         ctx.save();
         ctx.translate(panX, panY);
         ctx.scale(scale, scale);
 
-        const rc = rough.canvas(canvasRef);
+        renderGrid(ctx, canvasRef, store.gridSettings, scale, panX, panY, isDarkMode);
 
-        // --- Render Slide Boundaries ---
-        if (store.docType === 'slides') {
-            // Strict Mode: Only render the ACTIVE slide
-            const activeSlide = store.slides[store.activeSlideIndex];
-            if (activeSlide) {
-                const { width: sW, height: sH } = activeSlide.dimensions;
-                const { x: sX, y: sY } = activeSlide.spatialPosition;
-
-                // 1. Draw Slide Shadow (Outer)
-                ctx.save();
-                ctx.shadowColor = isDarkMode ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.15)";
-                ctx.shadowBlur = 40;
-                ctx.shadowOffsetY = 10;
-                ctx.fillStyle = "black";
-                ctx.fillRect(sX, sY, sW, sH);
-                ctx.restore();
-
-                // 2. Draw Slide Surface
-                renderSlideBackground(ctx, rc, activeSlide, sX, sY, sW, sH, isDarkMode);
-            }
-        } else if (store.docType === 'infinite' && store.slides.length > 1) {
-            // Wide Mode: Render slide frames only if there are multiple slides
-            // Single-slide infinite canvas should be clean and boundless
-            store.slides.forEach((slide, index) => {
-                const { width: sW, height: sH } = slide.dimensions;
-                const { x: sX, y: sY } = slide.spatialPosition;
-
-                // Dashed frame for slide boundaries
-                ctx.save();
-                ctx.strokeStyle = isDarkMode ? "rgba(100,149,237,0.4)" : "rgba(70,130,180,0.3)"; // Cornflower blue
-                ctx.lineWidth = 2;
-                ctx.setLineDash([10, 5]);
-                ctx.strokeRect(sX, sY, sW, sH);
-                ctx.setLineDash([]);
-                ctx.restore();
-
-                // Very light background tint
-                ctx.fillStyle = isDarkMode ? "rgba(100,149,237,0.03)" : "rgba(70,130,180,0.02)";
-                ctx.fillRect(sX, sY, sW, sH);
-
-                // Slide number label in top-left corner
-                ctx.save();
-                const labelText = `Slide ${index + 1}`;
-                const fontSize = Math.max(14, 16 / scale); // Scale-aware font size
-                ctx.font = `${fontSize}px Inter, sans-serif`;
-                ctx.fillStyle = isDarkMode ? "rgba(100,149,237,0.6)" : "rgba(70,130,180,0.5)";
-
-                const padding = 8;
-                const textMetrics = ctx.measureText(labelText);
-                const labelHeight = fontSize + padding * 2;
-                const labelWidth = textMetrics.width + padding * 2;
-
-                // Label background
-                ctx.fillStyle = isDarkMode ? "rgba(30,30,30,0.8)" : "rgba(255,255,255,0.9)";
-                ctx.fillRect(sX, sY, labelWidth, labelHeight);
-
-                // Label border
-                ctx.strokeStyle = isDarkMode ? "rgba(100,149,237,0.4)" : "rgba(70,130,180,0.3)";
-                ctx.lineWidth = 1;
-                ctx.strokeRect(sX, sY, labelWidth, labelHeight);
-
-                // Label text
-                ctx.fillStyle = isDarkMode ? "rgba(100,149,237,0.8)" : "rgba(70,130,180,0.7)";
-                ctx.fillText(labelText, sX + padding, sY + fontSize + padding / 2);
-                ctx.restore();
-            });
-        }
-        ctx.restore();
-
-        // Render Canvas Texture
-        if (store.canvasTexture !== 'none') {
-            const texture = store.canvasTexture;
-
-            ctx.save();
-            ctx.setTransform(1, 0, 0, 1, 0, 0); // Use screen coordinates for texture
-
-            if (texture === 'dots' || texture === 'grid' || texture === 'graph') {
-                const spacing = texture === 'graph' ? 40 : 20;
-                const subSpacing = spacing / 4;
-                const dotColor = isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
-                const lineColor = isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.03)';
-                const majorLineColor = isDarkMode ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.07)';
-
-                const gridStartX = (panX % (spacing * scale));
-                const gridStartY = (panY % (spacing * scale));
-
-                if (texture === 'dots') {
-                    ctx.fillStyle = dotColor;
-                    for (let x = gridStartX; x < canvasRef.width; x += spacing * scale) {
-                        for (let y = gridStartY; y < canvasRef.height; y += spacing * scale) {
-                            ctx.beginPath();
-                            ctx.arc(x, y, 1, 0, Math.PI * 2);
-                            ctx.fill();
-                        }
-                    }
-                } else if (texture === 'grid') {
-                    ctx.strokeStyle = lineColor;
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    for (let x = gridStartX; x < canvasRef.width; x += spacing * scale) {
-                        ctx.moveTo(x, 0); ctx.lineTo(x, canvasRef.height);
-                    }
-                    for (let y = gridStartY; y < canvasRef.height; y += spacing * scale) {
-                        ctx.moveTo(0, y); ctx.lineTo(canvasRef.width, y);
-                    }
-                    ctx.stroke();
-                } else if (texture === 'graph') {
-                    // Minor lines
-                    ctx.strokeStyle = lineColor;
-                    ctx.lineWidth = 0.5;
-                    ctx.beginPath();
-                    for (let x = (panX % (subSpacing * scale)); x < canvasRef.width; x += subSpacing * scale) {
-                        ctx.moveTo(x, 0); ctx.lineTo(x, canvasRef.height);
-                    }
-                    for (let y = (panY % (subSpacing * scale)); y < canvasRef.height; y += subSpacing * scale) {
-                        ctx.moveTo(0, y); ctx.lineTo(canvasRef.width, y);
-                    }
-                    ctx.stroke();
-
-                    // Major lines
-                    ctx.strokeStyle = majorLineColor;
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    for (let x = gridStartX; x < canvasRef.width; x += spacing * scale) {
-                        ctx.moveTo(x, 0); ctx.lineTo(x, canvasRef.height);
-                    }
-                    for (let y = gridStartY; y < canvasRef.height; y += spacing * scale) {
-                        ctx.moveTo(0, y); ctx.lineTo(canvasRef.width, y);
-                    }
-                    ctx.stroke();
-                }
-            } else if (texture === 'paper') {
-                // Handled by CSS Overlay for performance
-            }
-
-            ctx.restore();
-        }
-
-        ctx.save();
-
-        ctx.translate(panX, panY);
-        ctx.scale(scale, scale);
-
-        // Draw Grid if enabled
-        if (store.gridSettings.enabled) {
-            const gridSize = store.gridSettings.gridSize;
-            let gridColor = store.gridSettings.gridColor;
-
-            // Adjust grid color for dark mode if using default
-            if (isDarkMode && gridColor === '#e0e0e0') {
-                gridColor = '#333333';
-            }
-
-            const gridOpacity = store.gridSettings.gridOpacity;
-            const gridStyle = store.gridSettings.style || 'lines';
-
-            ctx.save();
-            ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform for grid optimization
-            ctx.strokeStyle = gridColor;
-            ctx.fillStyle = gridColor;
-            ctx.globalAlpha = gridOpacity;
-            ctx.lineWidth = 1;
-
-            // Calculate visible grid bounds
-            const gridStartX = Math.floor((-panX / scale) / gridSize) * gridSize;
-            const endX = Math.ceil((canvasRef.width - panX) / scale / gridSize) * gridSize;
-            const gridStartY = Math.floor((-panY / scale) / gridSize) * gridSize;
-            const endY = Math.ceil((canvasRef.height - panY) / scale / gridSize) * gridSize;
-
-            if (gridStyle === 'lines') {
-                // Draw vertical lines
-                ctx.beginPath();
-                for (let x = gridStartX; x <= endX; x += gridSize) {
-                    const screenX = x * scale + panX;
-                    ctx.moveTo(screenX, 0);
-                    ctx.lineTo(screenX, canvasRef.height);
-                }
-                // Draw horizontal lines
-                for (let y = gridStartY; y <= endY; y += gridSize) {
-                    const screenY = y * scale + panY;
-                    ctx.moveTo(0, screenY);
-                    ctx.lineTo(canvasRef.width, screenY);
-                }
-                ctx.stroke();
-            } else {
-                // Draw DOTS
-                const dotSize = 3; // Slightly larger for visibility
-
-                // Enhance contrast for dots in light mode
-                if (!isDarkMode && gridStyle === 'dots' && (gridColor === '#e0e0e0' || gridColor === '#fafafa')) {
-                    ctx.fillStyle = '#b0b0b0'; // Darker gray for dots
-                }
-
-                for (let x = gridStartX; x <= endX; x += gridSize) {
-                    for (let y = gridStartY; y <= endY; y += gridSize) {
-                        const screenX = x * scale + panX;
-                        const screenY = y * scale + panY;
-
-                        // Optimization: Only draw if on screen
-                        if (screenX >= -dotSize && screenX <= canvasRef.width + dotSize &&
-                            screenY >= -dotSize && screenY <= canvasRef.height + dotSize) {
-                            ctx.beginPath();
-                            ctx.arc(screenX, screenY, dotSize / 2, 0, Math.PI * 2);
-                            ctx.fill();
-                        }
-                    }
-                }
-            }
-
-            ctx.restore();
-        }
-
-        // Render Layers and Elements (reuse viewportBounds + bufferX/bufferY from above)
-        const sortedLayers = [...store.layers].sort((a, b) => a.order - b.order);
-        let totalRendered = 0;
-
-        // OPTIMIZATION: Create O(1) lookup map for elements at start of frame
-        const elementMap = new Map<string, DrawingElement>();
-        for (const el of store.elements) {
-            elementMap.set(el.id, el);
-        }
-
-        // OPTIMIZATION: Create RoughJS instance ONCE per render frame, reuse across all layers
-        // (rc is now declared at top of draw function)
-
-        sortedLayers.forEach(layer => {
-            if (!isLayerVisible(layer.id)) return;
-
-            // 1. Draw Layer Background
-            if (layer.backgroundColor && layer.backgroundColor !== 'transparent') {
-                ctx.save();
-                ctx.globalAlpha = layer.opacity;
-                ctx.fillStyle = layer.backgroundColor;
-
-                // Fill the whole world (or at least a very large area)
-                // Since we are in world coordinates (translated/scaled),
-                // we should fill a massive area to cover the infinite canvas.
-                const BIG_VALUE = 1000000;
-                ctx.fillRect(-BIG_VALUE, -BIG_VALUE, BIG_VALUE * 2, BIG_VALUE * 2);
-                ctx.restore();
-            }
-
-            // 2. Draw Elements on this layer with viewport culling
-
-            const layerElements = store.elements.filter(el => {
-                if (el.layerId !== layer.id) return false;
-
-                // FIX: Always render the element currently being drawn
-                if (el.id === pState.currentId) return true;
-
-                // FIX: Skip viewport culling for Master layers because they will be 
-                // projected into the active slide's origin during render
-                if (layer.isMaster) return true;
-
-                // Mindmap Visibility Check
-                if (isElementHiddenByHierarchy(el, store.elements, elementMap)) return false;
-
-                // Hide connectors if their bound elements are hidden
-                if (el.type === 'line' || el.type === 'arrow' || el.type === 'bezier') {
-                    if (el.startBinding) {
-                        const startEl = elementMap.get(el.startBinding.elementId);
-                        if (startEl && isElementHiddenByHierarchy(startEl, store.elements, elementMap)) return false;
-                    }
-                    if (el.endBinding) {
-                        const endEl = elementMap.get(el.endBinding.elementId);
-                        if (endEl && isElementHiddenByHierarchy(endEl, store.elements, elementMap)) return false;
-                    }
-                }
-
-                // OPTIMIZATION: Skip elements smaller than 1px on screen (invisible when zoomed out)
-                const screenWidth = Math.abs(el.width) * scale;
-                const screenHeight = Math.abs(el.height) * scale;
-                if (screenWidth < 1 && screenHeight < 1) return false;
-
-                // OPTIMIZATION: Quick AABB (Axis-Aligned Bounding Box) visibility check
-                // Add margin for rotated elements (use max dimension as safe bound)
-                const margin = Math.max(Math.abs(el.width), Math.abs(el.height)) * 0.5;
-
-                return !(el.x + el.width + margin < viewportBounds.minX - bufferX ||
-                    el.x - margin > viewportBounds.maxX + bufferX ||
-                    el.y + el.height + margin < viewportBounds.minY - bufferY ||
-                    el.y - margin > viewportBounds.maxY + bufferY);
-            });
-
-            totalRendered += layerElements.length;
-
-            layerElements.forEach(el => {
-                // Get Animated State if exists
-                const animState = animatedStates.get(el.id);
-
-                // Construct Renderable Element with animated props
-                const renderedEl = animState ? {
-                    ...el,
-                    x: animState.x,
-                    y: animState.y,
-                    angle: animState.angle
-                } : JSON.parse(JSON.stringify(el)); // Deep copy to safely mutate for Master rendering
-
-                const isMasterLayer = layer.isMaster;
-
-                // Project Master elements relative to active slide
-                if (isMasterLayer && store.docType === 'slides') {
-                    const activeSlide = store.slides[store.activeSlideIndex];
-                    if (activeSlide) {
-                        const projected = projectMasterPosition(renderedEl, activeSlide, store.slides);
-                        renderedEl.x = projected.x;
-                        renderedEl.y = projected.y;
-                    }
-                }
-
-                let cx = renderedEl.x + renderedEl.width / 2;
-                let cy = renderedEl.y + renderedEl.height / 2;
-
-                // Strict isolation in Slide Mode (unless it's a Master Layer element which we just projected)
-                if (store.docType === 'slides' && !isMasterLayer) {
-                    const activeSlide = store.slides[store.activeSlideIndex];
-                    if (activeSlide) {
-                        const { x: sX, y: sY } = activeSlide.spatialPosition;
-                        const { width: sW, height: sH } = activeSlide.dimensions;
-                        const isOnActiveSlide = cx >= sX && cx <= sX + sW && cy >= sY && cy <= sY + sH;
-
-                        // If element is completely outside the active slide frame, don't render it
-                        if (!isOnActiveSlide) return;
-                    }
-                }
-
-                // Handle Dynamic Variables in Text (Formula Syntax starts with '=')
-                if (renderedEl.type === 'text' && renderedEl.text) {
-                    if (renderedEl.text.startsWith('==')) {
-                        // ESCAPE SYNTAX: "==" at start renders as a literal "=" and disables formulas
-                        renderedEl.text = renderedEl.text.substring(1);
-                    } else if (renderedEl.text.startsWith('=')) {
-                        // FORMULA SYNTAX: "=" at start enables variable substitution
-                        const slideNumber = (store.activeSlideIndex + 1).toString();
-                        const totalSlides = store.slides.length.toString();
-
-                        // Remove the leading '=' and perform replacement
-                        renderedEl.text = renderedEl.text.substring(1)
-                            .replace(/\$\{slideNumber\}/g, slideNumber)
-                            .replace(/\$\{totalSlides\}/g, totalSlides);
-                    }
-                }
-
-                if (renderedEl.type !== 'text' || editingId() !== renderedEl.id) {
-                    const layerOpacity = (layer?.opacity ?? 1);
-                    renderElement(rc, ctx, renderedEl, isDarkMode, layerOpacity);
-                }
-
-                // Selection & overlay rendering (handles, control points, connectors, collapsed glow)
-                renderElementOverlays(ctx, el, renderedEl, {
-                    scale,
-                    isSelected: store.selection.includes(el.id),
-                    selectionLength: store.selection.length,
-                    isDarkMode,
-                    elements: store.elements,
-                    selectedTool: store.selectedTool,
-                    hoveredConnector: pState.hoveredConnector
-                });
-            });
+        // 5. Render layers & elements
+        const totalRendered = renderLayersAndElements(ctx, rc, {
+            elements: store.elements, layers: store.layers, slides: store.slides,
+            docType: store.docType, activeSlideIndex: store.activeSlideIndex,
+            selection: store.selection, selectedTool: store.selectedTool,
+            activeLayerId: store.activeLayerId,
+            animatedStates, viewportBounds: vp, scale, isDarkMode,
+            currentDrawingId: pState.currentId,
+            hoveredConnector: pState.hoveredConnector,
+            editingId: editingId(),
+            canInteractWithElement,
         });
 
-        // 3. Draw Multi-selection bounding box and handles
-        if (store.selection.length > 1) {
-            const box = getSelectionBoundingBox(store.elements, store.selection);
-            if (box) renderMultiSelectionBox(ctx, box, store.viewState.scale);
-        }
+        // 6. Overlays
+        renderSelectionOverlays(ctx, {
+            elements: store.elements, selection: store.selection, scale,
+            selectionBox: selectionBox(), suggestedBinding: suggestedBinding(),
+            snappingGuides: snappingGuides(), spacingGuides: spacingGuides(),
+        });
 
-        // Draw Selection Box (drag rectangle)
-        const box = selectionBox();
-        if (box) renderSelectionBox(ctx, box, scale);
+        renderConnectionAnchors(ctx, {
+            elements: store.elements, selectedTool: store.selectedTool,
+            currentDrawingId: pState.currentId, isDrawing: pState.isDrawing,
+            activeLayerId: store.activeLayerId, scale,
+            canInteractWithElement,
+        });
 
-        // Draw Suggested Binding Highlight
-        const binding = suggestedBinding();
-        if (binding) {
-            const target = store.elements.find(e => e.id === binding.elementId);
-            if (target) renderBindingHighlight(ctx, target, binding, scale);
-        }
+        renderLaserTrail(ctx, pState.laserTrailData, scale, LASER_DECAY_MS);
 
-        // Draw Snapping & Spacing Guides
-        renderSnappingGuides(ctx, snappingGuides(), store.viewState.scale);
-        renderSpacingGuides(ctx, spacingGuides(), store.viewState.scale);
+        ctx.restore();
 
-        // Render Connection Anchors (when drawing lines/arrows)
-        if ((store.selectedTool === 'line' || store.selectedTool === 'arrow') && pState.isDrawing && pState.currentId) {
-            const currentEl = store.elements.find(e => e.id === pState.currentId);
-            if (currentEl && (currentEl.type === 'line' || currentEl.type === 'arrow')) {
-                const endX = currentEl.x + currentEl.width;
-                const endY = currentEl.y + currentEl.height;
-
-                // OPTIMIZATION: Show anchors only on very nearby shapes (reduced from 200px)
-                const threshold = 50 / store.viewState.scale;
-                const anchorSnapThreshold = 15 / store.viewState.scale;
-
-                ctx.save();
-                for (const element of store.elements) {
-                    if (element.id === pState.currentId) continue;
-                    if (!canInteractWithElement(element)) continue;
-                    if (element.type === 'line' || element.type === 'arrow' || element.type === 'bezier') continue;
-                    if (element.layerId !== store.activeLayerId) continue;
-
-                    const cx = element.x + element.width / 2;
-                    const cy = element.y + element.height / 2;
-                    const dist = Math.sqrt((cx - endX) ** 2 + (cy - endY) ** 2);
-
-                    if (dist < threshold) {
-                        const anchors = getAnchorPoints(element);
-
-                        for (const anchor of anchors) {
-                            const dx = anchor.x - endX;
-                            const dy = anchor.y - endY;
-                            const anchorDist = Math.sqrt(dx * dx + dy * dy);
-
-                            const isHovered = anchorDist < anchorSnapThreshold;
-                            const radius = isHovered ? (6 / store.viewState.scale) : (4 / store.viewState.scale);
-
-                            ctx.beginPath();
-                            ctx.arc(anchor.x, anchor.y, radius, 0, Math.PI * 2);
-
-                            if (isHovered) {
-                                ctx.fillStyle = '#3b82f6'; // Blue
-                                ctx.fill();
-                            } else {
-                                ctx.fillStyle = 'rgba(59, 130, 246, 0.4)'; // Semi-transparent blue
-                                ctx.fill();
-                                ctx.strokeStyle = '#3b82f6';
-                                ctx.lineWidth = 1 / store.viewState.scale;
-                                ctx.stroke();
-                            }
-                        }
-                    }
-                }
-                ctx.restore();
-            }
-        }
-
-        // --- Render Laser Trail (optimized: batch by opacity bands, no per-segment shadows) ---
-        if (pState.laserTrailData.length > 1) {
-            ctx.save();
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-
-            // Single glow layer (cheaper than per-segment shadows)
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = 'rgba(255, 50, 50, 0.6)';
-
-            // Batch segments into opacity bands for fewer state changes
-            const baseWidth = 4 / store.viewState.scale;
-            let currentOpacityBand = -1;
-
-            for (let i = 0; i < pState.laserTrailData.length - 1; i++) {
-                const p1 = pState.laserTrailData[i];
-                const p2 = pState.laserTrailData[i + 1];
-                const age = now - p1.timestamp;
-                const opacity = Math.max(0, 1 - age / LASER_DECAY_MS);
-
-                if (opacity <= 0) continue;
-
-                // Quantize opacity to bands (0.2, 0.4, 0.6, 0.8, 1.0) for batching
-                const band = Math.ceil(opacity * 5);
-                if (band !== currentOpacityBand) {
-                    if (currentOpacityBand !== -1) ctx.stroke(); // Finish previous batch
-                    currentOpacityBand = band;
-                    const bandOpacity = band / 5;
-                    ctx.beginPath();
-                    ctx.strokeStyle = `rgba(255, 30, 30, ${bandOpacity})`;
-                    ctx.lineWidth = baseWidth * bandOpacity;
-                    ctx.moveTo(p1.x, p1.y);
-                }
-                ctx.lineTo(p2.x, p2.y);
-            }
-            if (currentOpacityBand !== -1) ctx.stroke(); // Finish last batch
-
-            ctx.restore();
-        }
-
-        ctx.restore(); // Final global restore
-
-        // OPTIMIZATION: Track rendering performance
-        const drawTime = performance.now() - startTime;
-        perfMonitor.measureFrame(drawTime, store.elements.length, totalRendered);
+        perfMonitor.measureFrame(performance.now() - startTime, store.elements.length, totalRendered);
     }
 
     createEffect(() => {
