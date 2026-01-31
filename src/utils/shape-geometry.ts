@@ -283,6 +283,18 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
             return { type: 'path', path: `M ${x} ${y} L ${x + w} ${y} L ${x + w} ${y + h - wH} Q ${x + (w * 0.75)} ${y + h - (wH * 2)} ${x + (w * 0.5)} ${y + h - wH} T ${x} ${y + h - wH} Z` };
         }
 
+        case 'database': {
+            const eH = h * 0.1;
+            return {
+                type: 'path',
+                path: `M ${x} ${y + eH} L ${x} ${y + h - eH} A ${mw} ${eH} 0 0 0 ${x + w} ${y + h - eH} L ${x + w} ${y + eH} A ${mw} ${eH} 0 0 1 ${x} ${y + eH}`
+            };
+        }
+
+        case 'predefinedProcess':
+        case 'internalStorage':
+            return { type: 'rect', x: x, y: y, w: w, h: h };
+
         case 'cross':
             return { type: 'multi', shapes: [{ type: 'points', points: [{ x: x, y: y }, { x: x + w, y: y + h }] }, { type: 'points', points: [{ x: x + w, y: y }, { x: x, y: y + h }] }] };
 
@@ -795,10 +807,45 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
 
         // ─── People & Expressions shapes ─────────────────────────────
 
-        case 'stickFigure':
-        case 'sittingPerson':
-        case 'presentingPerson':
-            return { type: 'rect', x: x, y: y, w: w, h: h };
+        case 'stickFigure': {
+            const headR = Math.min(w, h) * 0.12;
+            return {
+                type: 'multi', shapes: [
+                    { type: 'ellipse', cx: 0, cy: y + headR, rx: headR, ry: headR },
+                    { type: 'points', points: [
+                        { x: x + w * 0.15, y: y + headR * 2 },
+                        { x: x + w * 0.85, y: y + headR * 2 },
+                        { x: x + w * 0.8, y: y + h },
+                        { x: x + w * 0.2, y: y + h }
+                    ]}
+                ]
+            };
+        }
+
+        case 'sittingPerson': {
+            const headR = Math.min(w, h) * 0.11;
+            return {
+                type: 'multi', shapes: [
+                    { type: 'ellipse', cx: 0, cy: y + headR, rx: headR, ry: headR },
+                    { type: 'points', points: [
+                        { x: x + w * 0.2, y: y + headR * 2 },
+                        { x: x + w * 0.8, y: y + headR * 2 },
+                        { x: x + w * 0.8, y: y + h },
+                        { x: 0, y: y + h * 0.55 }
+                    ]}
+                ]
+            };
+        }
+
+        case 'presentingPerson': {
+            const headR = Math.min(w, h) * 0.1;
+            return {
+                type: 'multi', shapes: [
+                    { type: 'ellipse', cx: x + w * 0.3, cy: y + headR, rx: headR, ry: headR },
+                    { type: 'rect', x: x + w * 0.55, y: y, w: w * 0.45, h: h * 0.5 }
+                ]
+            };
+        }
 
         case 'handPointRight': {
             const wristL = x;
@@ -930,13 +977,22 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
         }
 
         case 'storageBlob': {
-            // Cylinder approximation
-            return { type: 'rect', x: x, y: y, w: w, h: h };
+            // Cylinder
+            const eH = h * 0.075;
+            const bodyTop = y + eH;
+            const bodyBot = y + h - eH;
+            return {
+                type: 'path',
+                path: `M ${x} ${bodyTop} L ${x} ${bodyBot} A ${mw} ${eH} 0 0 0 ${x + w} ${bodyBot} L ${x + w} ${bodyTop} A ${mw} ${eH} 0 0 1 ${x} ${bodyTop}`
+            };
         }
 
         case 'eventBus': {
-            // Bounding box covers the full shape including taps
-            return { type: 'rect', x: x, y: y, w: w, h: h };
+            // Horizontal rounded pipe
+            const barH = h * 0.25;
+            const barY = y + (h - barH) / 2;
+            const r = barH / 2;
+            return { type: 'path', path: getRoundedRectPath(x, barY, w, barH, r) };
         }
 
         case 'microservice': {
@@ -995,28 +1051,97 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
 
         // ─── Connection & Relationship shapes ─────────────────────────
 
-        case 'puzzlePiece':
-        case 'chainLink':
-        case 'bridge':
-        case 'magnet':
-        case 'scale':
-        case 'seedling':
-            return { type: 'rect', x: x, y: y, w: w, h: h };
+        case 'puzzlePiece': {
+            const tabR = w * 0.15;
+            const slotR = h * 0.15;
+            let pp = `M ${x} ${y}`;
+            pp += ` L ${x + w * 0.35} ${y}`;
+            pp += ` A ${slotR} ${slotR} 0 0 1 ${x + w * 0.65} ${y}`;
+            pp += ` L ${x + w} ${y}`;
+            pp += ` L ${x + w} ${y + h * 0.35}`;
+            pp += ` A ${tabR} ${tabR} 0 0 1 ${x + w} ${y + h * 0.65}`;
+            pp += ` L ${x + w} ${y + h}`;
+            pp += ` L ${x} ${y + h} Z`;
+            return { type: 'path', path: pp };
+        }
 
-        case 'tree': {
-            // Circle canopy + trunk
-            const canopyR = Math.min(w, h * 0.6) / 2;
+        case 'chainLink': {
+            const linkW = w * 0.55, linkH = h * 0.4;
+            const linkR = linkH / 2;
             return {
                 type: 'multi', shapes: [
-                    { type: 'ellipse', cx: 0, cy: y + canopyR, rx: canopyR, ry: canopyR },
-                    { type: 'rect', x: -w * 0.1, y: y + canopyR * 1.5, w: w * 0.2, h: h - canopyR * 1.5 - y }
+                    { type: 'path', path: getRoundedRectPath(x, y + h * 0.1, linkW, linkH, linkR) },
+                    { type: 'path', path: getRoundedRectPath(x + w - linkW, y + h * 0.5, linkW, linkH, linkR) }
+                ]
+            };
+        }
+
+        case 'bridge': {
+            const archY = y + h * 0.4;
+            return {
+                type: 'path',
+                path: `M ${x} ${archY} Q ${0} ${y} ${x + w} ${archY} L ${x + w} ${y + h} L ${x} ${y + h} Z`
+            };
+        }
+
+        case 'magnet': {
+            const armW = w * 0.28;
+            const armH = h - h * 0.35;
+            const innerR = (w - armW * 2) / 2;
+            const outerR = w / 2;
+            let mp = `M ${x} ${y}`;
+            mp += ` L ${x} ${y + armH}`;
+            mp += ` A ${outerR} ${outerR} 0 0 0 ${x + w} ${y + armH}`;
+            mp += ` L ${x + w} ${y}`;
+            mp += ` L ${x + w - armW} ${y}`;
+            mp += ` L ${x + w - armW} ${y + armH}`;
+            mp += ` A ${innerR} ${innerR} 0 0 1 ${x + armW} ${y + armH}`;
+            mp += ` L ${x + armW} ${y} Z`;
+            return { type: 'path', path: mp };
+        }
+
+        case 'scale': {
+            const baseW = w * 0.3, baseH = h * 0.08;
+            const beamY = y + h * 0.15;
+            return {
+                type: 'multi', shapes: [
+                    { type: 'rect', x: x + w * 0.04, y: beamY, w: w * 0.92, h: h * 0.03 },
+                    { type: 'rect', x: -w * 0.02, y: beamY, w: w * 0.04, h: h * 0.77 },
+                    { type: 'rect', x: -baseW / 2, y: y + h - baseH, w: baseW, h: baseH }
+                ]
+            };
+        }
+
+        case 'seedling': {
+            const stemBot = y + h * 0.75;
+            const stemTop = y + h * 0.25;
+            const leafW = w * 0.3;
+            const leafH = h * 0.25;
+            return {
+                type: 'multi', shapes: [
+                    { type: 'ellipse', cx: -leafW * 0.35, cy: stemTop, rx: leafW * 0.5, ry: leafH * 0.4 },
+                    { type: 'ellipse', cx: leafW * 0.2, cy: stemTop - leafH * 0.4, rx: leafW * 0.4, ry: leafH * 0.45 },
+                    { type: 'ellipse', cx: 0, cy: stemBot, rx: w * 0.25, ry: h * 0.08 }
+                ]
+            };
+        }
+
+        case 'tree': {
+            const canopyR = Math.min(w, h * 0.55) * 0.48;
+            const canopyCy = y + h * 0.38;
+            const trunkTop = canopyCy + canopyR * 0.5;
+            const trunkW = w * 0.18;
+            return {
+                type: 'multi', shapes: [
+                    { type: 'ellipse', cx: 0, cy: canopyCy, rx: canopyR, ry: canopyR },
+                    { type: 'rect', x: -trunkW / 2, y: trunkTop, w: trunkW, h: y + h - trunkTop }
                 ]
             };
         }
 
         case 'mountain': {
-            // Triangle
-            return { type: 'points', points: [{ x: 0, y: y }, { x: x + w, y: y + h }, { x: x, y: y + h }] };
+            const peakX = -w * 0.05;
+            return { type: 'points', points: [{ x: peakX, y: y }, { x: x + w, y: y + h }, { x: x, y: y + h }] };
         }
     }
 

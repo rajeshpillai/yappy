@@ -1,5 +1,6 @@
 import { ShapeRenderer } from "../base/shape-renderer";
 import { RenderPipeline } from "../base/render-pipeline";
+import { getShapeGeometry } from "../../utils/shape-geometry";
 import type { RenderContext } from "../base/types";
 
 export class DataMetricsRenderer extends ShapeRenderer {
@@ -466,6 +467,9 @@ export class DataMetricsRenderer extends ShapeRenderer {
     }
 
     protected definePath(ctx: CanvasRenderingContext2D, el: any): void {
-        ctx.rect(el.x, el.y, el.width, el.height);
+        const geometry = getShapeGeometry(el);
+        if (!geometry) return;
+        ctx.translate(el.x + el.width / 2, el.y + el.height / 2);
+        RenderPipeline.renderGeometry(ctx, geometry);
     }
 }
