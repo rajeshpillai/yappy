@@ -7,10 +7,9 @@ import { isElementHiddenByHierarchy, getDescendants } from "../utils/hierarchy";
 import { store, setViewState, addElement, updateElement, setStore, pushToHistory, deleteElements, toggleGrid, toggleSnapToGrid, setActiveLayer, setShowCanvasProperties, setSelectedTool, toggleZenMode, duplicateElement, groupSelected, ungroupSelected, bringToFront, sendToBack, moveElementZIndex, zoomToFit, zoomToFitSlide, isLayerVisible, isLayerLocked, toggleCollapse, setParent, clearParent, addChildNode, addSiblingNode, reorderMindmap, applyMindmapStyling, togglePropertyPanel, updateSlideThumbnail, advancePresentation, updateSlideBackground, updateAnimation, setPathEditing } from "../store/app-store";
 import { renderElement, normalizePoints } from "../utils/render-element";
 import { PathUtils } from "../utils/math/path-utils";
-import { getAnchorPoints, findClosestAnchor } from "../utils/anchor-points";
-import { calculateSmartElbowRoute } from "../utils/routing";
+import { getAnchorPoints } from "../utils/anchor-points";
 import type { DrawingElement } from "../types";
-import { intersectElementWithLine, getOrganicBranchPolygon } from "../utils/geometry";
+import { getOrganicBranchPolygon } from "../utils/geometry";
 import { hitTestElement } from "../utils/hit-testing";
 import { getHandleAtPosition, getSelectionBoundingBox } from "../utils/handle-detection";
 import ContextMenu, { type MenuItem } from "./context-menu";
@@ -21,6 +20,7 @@ import type { SnappingGuide } from "../utils/object-snapping";
 import { getSpacingGuides } from "../utils/spacing";
 import type { SpacingGuide } from "../utils/spacing";
 import { renderSnappingGuides, renderSpacingGuides } from "../utils/snap-renderer";
+import { checkBinding as checkBindingUtil, refreshLinePoints as refreshLinePointsUtil, refreshBoundLine as refreshBoundLineUtil } from "../utils/binding-logic";
 import { Minimap } from "./minimap";
 import {
     copyToClipboard, cutToClipboard, pasteFromClipboard,
@@ -1737,210 +1737,15 @@ const Canvas: Component = () => {
         return !isLayerLocked(el.layerId);
     };
 
-    // Helper: Binding Check
-    const checkBinding = (x: number, y: number, excludeId: string) => {
-        const threshold = 40 / store.viewState.scale;
-        const anchorSnapThreshold = 25 / store.viewState.scale; // Increased to include handle area (usually 18px away)
-        let bindingHit = null;
+    // Binding helpers — thin wrappers closing over store
+    const checkBinding = (x: number, y: number, excludeId: string) =>
+        checkBindingUtil(x, y, excludeId, store.elements, store.viewState.scale, store.activeLayerId, canInteractWithElement);
 
-        for (const target of store.elements) {
-            if (target.id === excludeId) continue;
-            if (!canInteractWithElement(target)) continue;
-            if (target.type === 'line' || target.type === 'arrow' || target.type === 'bezier' || target.type === 'organicBranch') continue;
+    const refreshLinePoints = (line: DrawingElement, overrideStartX?: number, overrideStartY?: number, overrideEndX?: number, overrideEndY?: number) =>
+        refreshLinePointsUtil(line, store.elements, overrideStartX, overrideStartY, overrideEndX, overrideEndY);
 
-            const activeLayer = store.layers.find(l => l.id === store.activeLayerId);
-            if (!activeLayer) continue;
-            if (target.layerId !== activeLayer.id) continue;
-
-            let isHit = false;
-
-            if (target.type === 'text' || target.type === 'image' || target.type === 'rectangle') {
-                if (x >= target.x - threshold && x <= target.x + target.width + threshold &&
-                    y >= target.y - threshold && y <= target.y + target.height + threshold) {
-                    isHit = true;
-                }
-            } else if (target.type === 'circle') {
-                const cx = target.x + target.width / 2;
-                const cy = target.y + target.height / 2;
-                const rx = target.width / 2 + threshold;
-                const ry = target.height / 2 + threshold;
-                if (((x - cx) ** 2) / (rx ** 2) + ((y - cy) ** 2) / (ry ** 2) <= 1) {
-                    isHit = true;
-                }
-            } else if (target.type === 'diamond') {
-                if (x >= target.x - threshold && x <= target.x + target.width + threshold &&
-                    y >= target.y - threshold && y <= target.y + target.height + threshold) {
-                    isHit = true;
-                }
-            } else {
-                if (x >= target.x - threshold && x <= target.x + target.width + threshold &&
-                    y >= target.y - threshold && y <= target.y + target.height + threshold) {
-                    isHit = true;
-                }
-            }
-
-            if (isHit) {
-                bindingHit = target;
-                break;
-            }
-        }
-
-        if (bindingHit) {
-            // **ENHANCEMENT**: Try anchor snap first
-            const closestAnchor = findClosestAnchor(bindingHit, { x, y }, anchorSnapThreshold);
-            if (closestAnchor) {
-                return { element: bindingHit, snapPoint: { x: closestAnchor.x, y: closestAnchor.y }, position: closestAnchor.position };
-            }
-
-            // Fallback to existing edge intersection logic
-            const snapPoint = intersectElementWithLine(bindingHit, { x, y }, 5);
-            if (snapPoint) {
-                return { element: bindingHit, snapPoint, position: 'edge' };
-            }
-        }
-        return null;
-    };
-
-    const refreshLinePoints = (line: DrawingElement, overrideStartX?: number, overrideStartY?: number, overrideEndX?: number, overrideEndY?: number) => {
-        const sx = overrideStartX ?? line.x;
-        const sy = overrideStartY ?? line.y;
-        const ex = overrideEndX ?? (line.x + line.width);
-        const ey = overrideEndY ?? (line.y + line.height);
-
-        if (line.curveType === 'elbow') {
-            const startEl = store.elements.find(e => e.id === line.startBinding?.elementId);
-            const endEl = store.elements.find(e => e.id === line.endBinding?.elementId);
-
-            const rawPoints = calculateSmartElbowRoute(
-                { x: sx, y: sy },
-                { x: ex, y: ey },
-                store.elements,
-                startEl,
-                endEl,
-                line.startBinding?.position,
-                line.endBinding?.position
-            );
-
-            // Convert world points to relative points for storage
-            return rawPoints.map(p => ({ x: p.x - sx, y: p.y - sy }));
-        }
-
-        // If it's a straight line/arrow that already has points, update them to be consistent with sx/sy
-        if (line.points && line.points.length >= 2) {
-            return [0, 0, ex - sx, ey - sy];
-        }
-
-        return undefined;
-    };
-
-    const refreshBoundLine = (lineId: string) => {
-        const line = store.elements.find(l => l.id === lineId);
-        if (!line || (line.type !== 'line' && line.type !== 'arrow' && line.type !== 'organicBranch' && line.type !== 'bezier')) return;
-
-        let sX = line.x;
-        let sY = line.y;
-        let eX = line.x + line.width;
-        let eY = line.y + line.height;
-        let changed = false;
-
-        const startEl = line.startBinding ? store.elements.find(e => e.id === line.startBinding?.elementId) : null;
-        const endEl = line.endBinding ? store.elements.find(e => e.id === line.endBinding?.elementId) : null;
-
-        // Dynamic Anchor Switching: Snap to the closest cardinal anchor
-        if (startEl && endEl) {
-            const startCenterX = startEl.x + startEl.width / 2;
-            const startCenterY = startEl.y + startEl.height / 2;
-            const endCenterX = endEl.x + endEl.width / 2;
-            const endCenterY = endEl.y + endEl.height / 2;
-
-            const dx = endCenterX - startCenterX;
-            const dy = endCenterY - startCenterY;
-
-            const currentStartPos = line.startBinding?.position;
-            const currentEndPos = line.endBinding?.position;
-
-            let idealStartPos: string;
-            let idealEndPos: string;
-
-            if (Math.abs(dx) > Math.abs(dy)) {
-                idealStartPos = dx > 0 ? 'right' : 'left';
-                idealEndPos = dx > 0 ? 'left' : 'right';
-            } else {
-                idealStartPos = dy > 0 ? 'bottom' : 'top';
-                idealEndPos = dy > 0 ? 'top' : 'bottom';
-            }
-
-            if (currentStartPos !== idealStartPos || currentEndPos !== idealEndPos) {
-                updateElement(line.id, {
-                    startBinding: { ...line.startBinding!, position: idealStartPos as any },
-                    endBinding: { ...line.endBinding!, position: idealEndPos as any }
-                }, false);
-                // Re-fetch to get updated positions
-                return refreshBoundLine(lineId);
-            }
-        }
-
-        if (line.startBinding) {
-            const el = startEl || store.elements.find(e => e.id === line.startBinding!.elementId);
-            if (el) {
-                const pos = line.startBinding.position;
-                let p;
-                if (pos && pos !== 'edge') {
-                    const anchors = getAnchorPoints(el);
-                    const anchor = anchors.find(a => a.position === pos);
-                    if (anchor) p = { x: anchor.x, y: anchor.y };
-                }
-                if (!p) p = intersectElementWithLine(el, { x: eX, y: eY }, line.startBinding.gap);
-                if (p) { sX = p.x; sY = p.y; changed = true; }
-            }
-        }
-
-        if (line.endBinding) {
-            const el = endEl || store.elements.find(e => e.id === line.endBinding!.elementId);
-            if (el) {
-                const pos = line.endBinding.position;
-                let p;
-                if (pos && pos !== 'edge') {
-                    const anchors = getAnchorPoints(el);
-                    const anchor = anchors.find(a => a.position === pos);
-                    if (anchor) p = { x: anchor.x, y: anchor.y };
-                }
-                if (!p) p = intersectElementWithLine(el, { x: sX, y: sY }, line.endBinding.gap);
-                if (p) { eX = p.x; eY = p.y; changed = true; }
-            }
-        }
-
-        if (changed) {
-            const points = refreshLinePoints(line, sX, sY, eX, eY);
-            if (sX !== line.x || sY !== line.y || (eX - sX) !== line.width || (eY - sY) !== line.height || JSON.stringify(points) !== JSON.stringify(line.points)) {
-
-                const updates: any = {
-                    x: sX,
-                    y: sY,
-                    width: eX - sX,
-                    height: eY - sY,
-                    points
-                };
-
-                // For organicBranch or bezier, we must update control points to follow the start/end moves
-                const hasControlPoints = line.controlPoints && line.controlPoints.length === 2;
-                if (hasControlPoints) {
-                    const dSX = sX - line.x;
-                    const dSY = sY - line.y;
-                    // End point logic: eX/eY are absolute bottom-right coordinates
-                    // Old eX = line.x + line.width
-                    const dEX = eX - (line.x + line.width);
-                    const dEY = eY - (line.y + line.height);
-
-                    const cp1 = { x: line.controlPoints![0].x + dSX, y: line.controlPoints![0].y + dSY };
-                    const cp2 = { x: line.controlPoints![1].x + dEX, y: line.controlPoints![1].y + dEY };
-                    updates.controlPoints = [cp1, cp2];
-                }
-
-                updateElement(line.id, updates, false);
-            }
-        }
-    };
+    const refreshBoundLine = (lineId: string) =>
+        refreshBoundLineUtil(lineId, () => store.elements, updateElement);
 
     const handlePointerDown = (e: PointerEvent) => {
         // Presentation Mode Logic
