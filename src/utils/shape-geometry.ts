@@ -607,6 +607,262 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
                 ]
             };
         }
+
+        // ─── Sketchnote shapes ───────────────────────────────────────
+
+        case 'trophy': {
+            const cupW = w * 0.6;
+            const stemW = w * 0.1;
+            const bW = w * 0.5;
+            return {
+                type: 'multi', shapes: [
+                    { type: 'rect', x: -cupW / 2, y: y, w: cupW, h: h * 0.55 },
+                    { type: 'rect', x: -stemW / 2, y: y + h * 0.55, w: stemW, h: h * 0.25 },
+                    { type: 'rect', x: -bW / 2, y: y + h * 0.8, w: bW, h: h * 0.2 }
+                ]
+            };
+        }
+
+        case 'clock':
+        case 'target': {
+            const r = Math.min(w, h) / 2;
+            return { type: 'ellipse', cx: 0, cy: 0, rx: r, ry: r };
+        }
+
+        case 'gear': {
+            const outerR = Math.min(w, h) / 2;
+            const innerR = outerR * 0.7;
+            const teeth = 8;
+            const toothD = outerR - innerR;
+            const pts: { x: number; y: number }[] = [];
+            for (let i = 0; i < teeth; i++) {
+                const a1 = (Math.PI * 2 * i) / teeth;
+                const a2 = (Math.PI * 2 * (i + 0.35)) / teeth;
+                const a3 = (Math.PI * 2 * (i + 0.5)) / teeth;
+                const a4 = (Math.PI * 2 * (i + 0.85)) / teeth;
+                pts.push(
+                    { x: Math.cos(a1) * innerR, y: Math.sin(a1) * innerR },
+                    { x: Math.cos(a2) * (innerR + toothD), y: Math.sin(a2) * (innerR + toothD) },
+                    { x: Math.cos(a3) * (innerR + toothD), y: Math.sin(a3) * (innerR + toothD) },
+                    { x: Math.cos(a4) * innerR, y: Math.sin(a4) * innerR }
+                );
+            }
+            return { type: 'points', points: pts };
+        }
+
+        case 'rocket': {
+            const bw = w * 0.5;
+            const noseH = h * 0.25;
+            const bodyBot = y + h * 0.75;
+            const finW = w * 0.2;
+            const finH = h * 0.25;
+            let rp = `M 0 ${y}`;
+            rp += ` C ${bw / 2} ${y + noseH * 0.5} ${bw / 2} ${y + noseH} ${bw / 2} ${y + noseH}`;
+            rp += ` L ${bw / 2} ${bodyBot} L ${-bw / 2} ${bodyBot} L ${-bw / 2} ${y + noseH}`;
+            rp += ` C ${-bw / 2} ${y + noseH} ${-bw / 2} ${y + noseH * 0.5} 0 ${y} Z`;
+            rp += ` M ${-bw / 2} ${bodyBot - finH * 0.3} L ${-bw / 2 - finW} ${bodyBot + finH * 0.5} L ${-bw / 2} ${bodyBot} Z`;
+            rp += ` M ${bw / 2} ${bodyBot - finH * 0.3} L ${bw / 2 + finW} ${bodyBot + finH * 0.5} L ${bw / 2} ${bodyBot} Z`;
+            return { type: 'path', path: rp };
+        }
+
+        case 'flag': {
+            const poleW = Math.max(3, w * 0.04);
+            const poleX = x + w * 0.15 - poleW / 2;
+            const flagL = x + w * 0.15;
+            const flagR = x + w;
+            const flagH = h * 0.55;
+            const waveDip = flagH * 0.15;
+            return {
+                type: 'multi', shapes: [
+                    { type: 'rect', x: poleX, y: y, w: poleW, h: h },
+                    {
+                        type: 'path',
+                        path: `M ${flagL} ${y} C ${flagL + (flagR - flagL) * 0.33} ${y - waveDip} ${flagL + (flagR - flagL) * 0.66} ${y + waveDip} ${flagR} ${y} L ${flagR} ${y + flagH} C ${flagL + (flagR - flagL) * 0.66} ${y + flagH + waveDip} ${flagL + (flagR - flagL) * 0.33} ${y + flagH - waveDip} ${flagL} ${y + flagH} Z`
+                    }
+                ]
+            };
+        }
+
+        case 'key': {
+            const bowRx = w * 0.35;
+            const bowRy = h * 0.25;
+            const bowCy = y + bowRy;
+            const shaftW = w * 0.12;
+            const shaftTop = bowCy + bowRy * 0.7;
+            const shaftBot = y + h;
+            return {
+                type: 'multi', shapes: [
+                    { type: 'ellipse', cx: 0, cy: bowCy, rx: bowRx, ry: bowRy },
+                    { type: 'rect', x: -shaftW / 2, y: shaftTop, w: shaftW, h: shaftBot - shaftTop }
+                ]
+            };
+        }
+
+        case 'magnifyingGlass': {
+            const lensR = Math.min(w, h) * 0.32;
+            const lensCx = x + w * 0.42;
+            const lensCy = y + h * 0.38;
+            const handleW = Math.max(w * 0.1, 4);
+            const angle = Math.PI / 4;
+            const hsX = lensCx + Math.cos(angle) * lensR;
+            const hsY = lensCy + Math.sin(angle) * lensR;
+            const hLen = Math.min(w, h) * 0.4;
+            const heX = hsX + Math.cos(angle) * hLen;
+            const heY = hsY + Math.sin(angle) * hLen;
+            const px = Math.cos(angle + Math.PI / 2) * handleW / 2;
+            const py = Math.sin(angle + Math.PI / 2) * handleW / 2;
+            let mp = `M ${lensCx - lensR} ${lensCy}`;
+            mp += ` A ${lensR} ${lensR} 0 1 1 ${lensCx + lensR} ${lensCy}`;
+            mp += ` A ${lensR} ${lensR} 0 1 1 ${lensCx - lensR} ${lensCy} Z`;
+            mp += ` M ${hsX + px} ${hsY + py} L ${heX + px} ${heY + py}`;
+            mp += ` L ${heX - px} ${heY - py} L ${hsX - px} ${hsY - py} Z`;
+            return { type: 'path', path: mp };
+        }
+
+        case 'book': {
+            const spine = 0;
+            const bkTop = y + h * 0.05;
+            const bkBot = y + h * 0.95;
+            const bulge = h * 0.08;
+            let bp = `M ${spine} ${bkTop}`;
+            bp += ` C ${spine - w * 0.1} ${bkTop + bulge} ${x + w * 0.05} ${bkTop + bulge} ${x} ${bkTop}`;
+            bp += ` L ${x} ${bkBot}`;
+            bp += ` C ${x + w * 0.05} ${bkBot - bulge} ${spine - w * 0.1} ${bkBot - bulge} ${spine} ${bkBot} Z`;
+            bp += ` M ${spine} ${bkTop}`;
+            bp += ` C ${spine + w * 0.1} ${bkTop + bulge} ${x + w * 0.95} ${bkTop + bulge} ${x + w} ${bkTop}`;
+            bp += ` L ${x + w} ${bkBot}`;
+            bp += ` C ${x + w * 0.95} ${bkBot - bulge} ${spine + w * 0.1} ${bkBot - bulge} ${spine} ${bkBot} Z`;
+            return { type: 'path', path: bp };
+        }
+
+        case 'megaphone': {
+            const mouthL = x + w * 0.15;
+            const mouthR = x + w;
+            const backTopY = y + h * 0.25;
+            const backBotY = y + h * 0.5;
+            const mouthTopY = y;
+            const mouthBotY = y + h * 0.75;
+            const hW = w * 0.12;
+            const hH = h * 0.25;
+            const hX = mouthL - hW * 0.3;
+            return {
+                type: 'multi', shapes: [
+                    {
+                        type: 'points', points: [
+                            { x: mouthL, y: backTopY },
+                            { x: mouthR, y: mouthTopY },
+                            { x: mouthR, y: mouthBotY },
+                            { x: mouthL, y: backBotY }
+                        ]
+                    },
+                    { type: 'rect', x: hX, y: backBotY, w: hW, h: hH }
+                ]
+            };
+        }
+
+        case 'eye': {
+            const eRx = w / 2;
+            const eRy = h / 2;
+            return {
+                type: 'path',
+                path: `M ${x} 0 C ${x + eRx * 0.4} ${-eRy * 1.3} ${x + eRx * 1.6} ${-eRy * 1.3} ${x + w} 0 C ${x + eRx * 1.6} ${eRy * 1.3} ${x + eRx * 0.4} ${eRy * 1.3} ${x} 0 Z`
+            };
+        }
+
+        case 'thoughtBubble': {
+            const cloudH = h * 0.8;
+            const tcy = y + cloudH / 2;
+            const trx = w * 0.48;
+            const trY = cloudH * 0.45;
+            const bumps = 8;
+            let tp = '';
+            for (let i = 0; i < bumps; i++) {
+                const a1 = (Math.PI * 2 * i) / bumps;
+                const a2 = (Math.PI * 2 * (i + 1)) / bumps;
+                const aMid = (a1 + a2) / 2;
+                const bx1 = Math.cos(a1) * trx;
+                const by1 = tcy + Math.sin(a1) * trY;
+                const cpx = Math.cos(aMid) * trx * 1.25;
+                const cpy = tcy + Math.sin(aMid) * trY * 1.25;
+                const bx2 = Math.cos(a2) * trx;
+                const by2 = tcy + Math.sin(a2) * trY;
+                if (i === 0) tp = `M ${bx1} ${by1}`;
+                tp += ` Q ${cpx} ${cpy} ${bx2} ${by2}`;
+            }
+            tp += ' Z';
+            return { type: 'path', path: tp };
+        }
+
+        // ─── People & Expressions shapes ─────────────────────────────
+
+        case 'stickFigure':
+        case 'sittingPerson':
+        case 'presentingPerson':
+            return { type: 'rect', x: x, y: y, w: w, h: h };
+
+        case 'handPointRight': {
+            const wristL = x;
+            const wristR = x + w * 0.35;
+            const wristT = y + h * 0.15;
+            const wristB = y + h * 0.55;
+            const fingerTip = x + w;
+            const fingerT = y + h * 0.08;
+            const fingerB = y + h * 0.32;
+            const fingerR = Math.min(w, h) * 0.06;
+            const thumbTipX = x + w * 0.2;
+            const thumbTipY = y;
+            const curlTop = wristB;
+            const curlBot = y + h;
+            const curlL = x + w * 0.08;
+            const curlR = wristR + w * 0.05;
+            const curlMid1 = curlTop + (curlBot - curlTop) * 0.33;
+            const curlMid2 = curlTop + (curlBot - curlTop) * 0.66;
+            let hp = `M ${wristL} ${wristT}`;
+            hp += ` Q ${thumbTipX - w * 0.05} ${thumbTipY + h * 0.02} ${thumbTipX} ${thumbTipY}`;
+            hp += ` Q ${thumbTipX + w * 0.08} ${thumbTipY} ${wristR - w * 0.05} ${fingerT + h * 0.02}`;
+            hp += ` L ${wristR} ${fingerT} L ${fingerTip - fingerR} ${fingerT}`;
+            hp += ` Q ${fingerTip} ${fingerT} ${fingerTip} ${(fingerT + fingerB) / 2}`;
+            hp += ` Q ${fingerTip} ${fingerB} ${fingerTip - fingerR} ${fingerB}`;
+            hp += ` L ${wristR} ${fingerB} L ${curlR} ${curlTop}`;
+            hp += ` Q ${curlR + w * 0.1} ${curlTop + (curlMid1 - curlTop) * 0.5} ${curlR} ${curlMid1}`;
+            hp += ` Q ${curlR + w * 0.1} ${curlMid1 + (curlMid2 - curlMid1) * 0.5} ${curlR} ${curlMid2}`;
+            hp += ` Q ${curlR + w * 0.08} ${curlMid2 + (curlBot - curlMid2) * 0.5} ${curlR - w * 0.05} ${curlBot}`;
+            hp += ` L ${curlL} ${curlBot}`;
+            hp += ` Q ${wristL - w * 0.02} ${curlBot} ${wristL} ${wristB} Z`;
+            return { type: 'path', path: hp };
+        }
+
+        case 'thumbsUp': {
+            const fistL = x + w * 0.1;
+            const fistR = x + w * 0.9;
+            const fistT = y + h * 0.42;
+            const fistB = y + h;
+            const fistRd = Math.min(w, h) * 0.06;
+            const thumbL = x + w * 0.28;
+            const thumbR = x + w * 0.52;
+            const thumbTop = y;
+            const thumbRd = (thumbR - thumbL) / 2;
+            let tup = `M ${thumbL} ${fistT}`;
+            tup += ` L ${thumbL} ${thumbTop + thumbRd}`;
+            tup += ` Q ${thumbL} ${thumbTop} ${(thumbL + thumbR) / 2} ${thumbTop}`;
+            tup += ` Q ${thumbR} ${thumbTop} ${thumbR} ${thumbTop + thumbRd}`;
+            tup += ` L ${thumbR} ${fistT} L ${fistR - fistRd} ${fistT}`;
+            tup += ` Q ${fistR} ${fistT} ${fistR} ${fistT + fistRd}`;
+            tup += ` L ${fistR} ${fistB - fistRd}`;
+            tup += ` Q ${fistR} ${fistB} ${fistR - fistRd} ${fistB}`;
+            tup += ` L ${fistL + fistRd} ${fistB}`;
+            tup += ` Q ${fistL} ${fistB} ${fistL} ${fistB - fistRd}`;
+            tup += ` L ${fistL} ${fistT + fistRd}`;
+            tup += ` Q ${fistL} ${fistT} ${fistL + fistRd} ${fistT} Z`;
+            return { type: 'path', path: tup };
+        }
+
+        case 'faceHappy':
+        case 'faceSad':
+        case 'faceConfused': {
+            const r = Math.min(w, h) / 2;
+            return { type: 'ellipse', cx: 0, cy: 0, rx: r, ry: r };
+        }
     }
 
     return null;
