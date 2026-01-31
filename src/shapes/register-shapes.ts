@@ -21,6 +21,7 @@ import { UmlStateRenderer } from "./renderers/uml-state-renderer";
 import { PeopleRenderer } from "./renderers/people-renderer";
 import { StatusRenderer } from "./renderers/status-renderer";
 import { CloudInfraRenderer } from "./renderers/cloud-infra-renderer";
+import { DataMetricsRenderer } from "./renderers/data-metrics-renderer";
 
 export function registerShapes() {
     console.log('Registering all shapes including specialty...');
@@ -104,4 +105,8 @@ export function registerShapes() {
     const cloudInfraRenderer = new CloudInfraRenderer();
     const cloudInfraTypes = ['kubernetes', 'container', 'apiGateway', 'cdn', 'storageBlob', 'eventBus', 'microservice', 'shield'] as const;
     cloudInfraTypes.forEach(type => shapeRegistry.register(type, cloudInfraRenderer));
+
+    const dataMetricsRenderer = new DataMetricsRenderer();
+    const dataMetricsTypes = ['barChart', 'pieChart', 'trendUp', 'trendDown', 'funnel', 'gauge', 'table'] as const;
+    dataMetricsTypes.forEach(type => shapeRegistry.register(type, dataMetricsRenderer));
 }

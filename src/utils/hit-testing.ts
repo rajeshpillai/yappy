@@ -228,7 +228,10 @@ export function hitTestElement(
         el.type === 'tag' || el.type === 'pin' || el.type === 'stamp' ||
         el.type === 'kubernetes' || el.type === 'container' || el.type === 'apiGateway' ||
         el.type === 'cdn' || el.type === 'storageBlob' || el.type === 'eventBus' ||
-        el.type === 'microservice' || el.type === 'shield'
+        el.type === 'microservice' || el.type === 'shield' ||
+        el.type === 'barChart' || el.type === 'pieChart' || el.type === 'trendUp' ||
+        el.type === 'trendDown' || el.type === 'funnel' || el.type === 'gauge' ||
+        el.type === 'table'
     ) {
         // For these shapes, rely on bounding box hit test (passed above)
         // or implement detailed geometry check if needed

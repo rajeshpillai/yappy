@@ -4,7 +4,8 @@ export type ElementType = 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | '
 | 'key' | 'magnifyingGlass' | 'book' | 'megaphone' | 'eye' | 'thoughtBubble'
 | 'stickFigure' | 'sittingPerson' | 'presentingPerson' | 'handPointRight' | 'thumbsUp' | 'faceHappy' | 'faceSad' | 'faceConfused'
 | 'checkbox' | 'checkboxChecked' | 'numberedBadge' | 'questionMark' | 'exclamationMark' | 'tag' | 'pin' | 'stamp'
-| 'kubernetes' | 'container' | 'apiGateway' | 'cdn' | 'storageBlob' | 'eventBus' | 'microservice' | 'shield';
+| 'kubernetes' | 'container' | 'apiGateway' | 'cdn' | 'storageBlob' | 'eventBus' | 'microservice' | 'shield'
+| 'barChart' | 'pieChart' | 'trendUp' | 'trendDown' | 'funnel' | 'gauge' | 'table';
 
 export type AppMode = 'design' | 'presentation' | 'prototype';
 export type FillStyle = 'hachure' | 'solid' | 'cross-hatch' | 'zigzag' | 'dots' | 'dashed' | 'zigzag-line' | 'linear' | 'radial' | 'conic' | 'image';

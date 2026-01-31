@@ -15,6 +15,7 @@ import UmlToolGroup from "./uml-tool-group";
 import PeopleToolGroup from "./people-tool-group";
 import StatusToolGroup from "./status-tool-group";
 import CloudInfraToolGroup from "./cloud-infra-tool-group";
+import DataMetricsToolGroup from "./data-metrics-tool-group";
 import "./toolbar.css";
 
 // Tools that are NOT pens or grouped shapes
@@ -269,6 +270,9 @@ const Toolbar: Component = () => {
 
             {/* Cloud & Container Infrastructure (Kubernetes, Container, API Gateway, etc.) */}
             <CloudInfraToolGroup />
+
+            {/* Data & Metrics (Bar Chart, Pie Chart, Trend, Funnel, Gauge, Table) */}
+            <DataMetricsToolGroup />
 
             {/* Infrastructure Tool Group (Server, LB, Cloud, User, etc.) */}
             <InfraToolGroup />

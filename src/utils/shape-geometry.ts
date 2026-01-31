@@ -960,6 +960,38 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
                 path: `M ${ccx} ${topY} L ${x + w} ${topY} L ${x + w} ${midY} Q ${x + w} ${botY * 0.85 + topY * 0.15} ${ccx} ${botY} Q ${x} ${botY * 0.85 + topY * 0.15} ${x} ${midY} L ${x} ${topY} Z`
             };
         }
+
+        // ─── Data & Metrics shapes ───────────────────────────────────
+
+        case 'barChart':
+        case 'trendUp':
+        case 'trendDown':
+        case 'table':
+            return { type: 'rect', x: x, y: y, w: w, h: h };
+
+        case 'pieChart': {
+            const r = Math.min(w, h) / 2;
+            return { type: 'ellipse', cx: 0, cy: 0, rx: r, ry: r };
+        }
+
+        case 'funnel': {
+            const topL = x, topR = x + w;
+            const botL = x + w * 0.3, botR = x + w * 0.7;
+            return {
+                type: 'points', points: [
+                    { x: topL, y: y },
+                    { x: topR, y: y },
+                    { x: botR, y: y + h },
+                    { x: botL, y: y + h }
+                ]
+            };
+        }
+
+        case 'gauge': {
+            // Semi-circle approximation — use bounding rect
+            const r = Math.min(w / 2, h * 0.8);
+            return { type: 'ellipse', cx: 0, cy: 0, rx: r, ry: r };
+        }
     }
 
     return null;

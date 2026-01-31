@@ -53,6 +53,7 @@ interface AppState {
     selectedPeopleType: 'stickFigure' | 'sittingPerson' | 'presentingPerson' | 'handPointRight' | 'thumbsUp' | 'faceHappy' | 'faceSad' | 'faceConfused';
     selectedStatusType: 'checkbox' | 'checkboxChecked' | 'numberedBadge' | 'questionMark' | 'exclamationMark' | 'tag' | 'pin' | 'stamp';
     selectedCloudInfraType: 'kubernetes' | 'container' | 'apiGateway' | 'cdn' | 'storageBlob' | 'eventBus' | 'microservice' | 'shield';
+    selectedDataMetricsType: 'barChart' | 'pieChart' | 'trendUp' | 'trendDown' | 'funnel' | 'gauge' | 'table';
     selectedWireframeType: 'browserWindow' | 'mobilePhone' | 'ghostButton' | 'inputField';
     layerGroupingModeEnabled: boolean;
     maxLayers: number;
@@ -173,6 +174,7 @@ const initialState: AppState = {
     selectedPeopleType: 'stickFigure',
     selectedStatusType: 'checkbox',
     selectedCloudInfraType: 'kubernetes',
+    selectedDataMetricsType: 'barChart',
     selectedWireframeType: 'browserWindow',
     layerGroupingModeEnabled: false,
     maxLayers: 20,
@@ -1656,6 +1658,10 @@ export const setSelectedStatusType = (statusType: 'checkbox' | 'checkboxChecked'
 
 export const setSelectedCloudInfraType = (cloudInfraType: 'kubernetes' | 'container' | 'apiGateway' | 'cdn' | 'storageBlob' | 'eventBus' | 'microservice' | 'shield') => {
     setStore('selectedCloudInfraType', cloudInfraType);
+};
+
+export const setSelectedDataMetricsType = (dataMetricsType: 'barChart' | 'pieChart' | 'trendUp' | 'trendDown' | 'funnel' | 'gauge' | 'table') => {
+    setStore('selectedDataMetricsType', dataMetricsType);
 };
 
 export const setSelectedWireframeType = (wireframeType: 'browserWindow' | 'mobilePhone' | 'ghostButton' | 'inputField') => {
