@@ -914,6 +914,52 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
             }
             return { type: 'points', points: pts };
         }
+
+        // ─── Cloud & Container Infrastructure shapes ─────────────────
+
+        case 'kubernetes':
+        case 'cdn': {
+            const r = Math.min(w, h) / 2;
+            return { type: 'ellipse', cx: 0, cy: 0, rx: r, ry: r };
+        }
+
+        case 'container':
+        case 'apiGateway': {
+            const r = Math.min(w, h) * 0.06;
+            return { type: 'rect', x: x, y: y, w: w, h: h, r: r };
+        }
+
+        case 'storageBlob': {
+            // Cylinder approximation
+            return { type: 'rect', x: x, y: y, w: w, h: h };
+        }
+
+        case 'eventBus': {
+            // Bounding box covers the full shape including taps
+            return { type: 'rect', x: x, y: y, w: w, h: h };
+        }
+
+        case 'microservice': {
+            // Hexagon
+            const pts: { x: number; y: number }[] = [];
+            const rx = w / 2, ry = h / 2;
+            for (let i = 0; i < 6; i++) {
+                const angle = (Math.PI * 2 * i) / 6 - Math.PI / 6;
+                pts.push({ x: Math.cos(angle) * rx, y: Math.sin(angle) * ry });
+            }
+            return { type: 'points', points: pts };
+        }
+
+        case 'shield': {
+            const ccx = 0;
+            const topY = y;
+            const midY = y + h * 0.55;
+            const botY = y + h;
+            return {
+                type: 'path',
+                path: `M ${ccx} ${topY} L ${x + w} ${topY} L ${x + w} ${midY} Q ${x + w} ${botY * 0.85 + topY * 0.15} ${ccx} ${botY} Q ${x} ${botY * 0.85 + topY * 0.15} ${x} ${midY} L ${x} ${topY} Z`
+            };
+        }
     }
 
     return null;

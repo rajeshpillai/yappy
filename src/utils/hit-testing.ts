@@ -225,7 +225,10 @@ export function hitTestElement(
         el.type === 'faceHappy' || el.type === 'faceSad' || el.type === 'faceConfused' ||
         el.type === 'checkbox' || el.type === 'checkboxChecked' || el.type === 'numberedBadge' ||
         el.type === 'questionMark' || el.type === 'exclamationMark' ||
-        el.type === 'tag' || el.type === 'pin' || el.type === 'stamp'
+        el.type === 'tag' || el.type === 'pin' || el.type === 'stamp' ||
+        el.type === 'kubernetes' || el.type === 'container' || el.type === 'apiGateway' ||
+        el.type === 'cdn' || el.type === 'storageBlob' || el.type === 'eventBus' ||
+        el.type === 'microservice' || el.type === 'shield'
     ) {
         // For these shapes, rely on bounding box hit test (passed above)
         // or implement detailed geometry check if needed

@@ -20,6 +20,7 @@ import { UmlGeneralRenderer } from "./renderers/uml-general-renderer";
 import { UmlStateRenderer } from "./renderers/uml-state-renderer";
 import { PeopleRenderer } from "./renderers/people-renderer";
 import { StatusRenderer } from "./renderers/status-renderer";
+import { CloudInfraRenderer } from "./renderers/cloud-infra-renderer";
 
 export function registerShapes() {
     console.log('Registering all shapes including specialty...');
@@ -99,4 +100,8 @@ export function registerShapes() {
     const statusRenderer = new StatusRenderer();
     const statusTypes = ['checkbox', 'checkboxChecked', 'numberedBadge', 'questionMark', 'exclamationMark', 'tag', 'pin', 'stamp'] as const;
     statusTypes.forEach(type => shapeRegistry.register(type, statusRenderer));
+
+    const cloudInfraRenderer = new CloudInfraRenderer();
+    const cloudInfraTypes = ['kubernetes', 'container', 'apiGateway', 'cdn', 'storageBlob', 'eventBus', 'microservice', 'shield'] as const;
+    cloudInfraTypes.forEach(type => shapeRegistry.register(type, cloudInfraRenderer));
 }

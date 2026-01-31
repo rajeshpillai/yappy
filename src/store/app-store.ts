@@ -52,6 +52,7 @@ interface AppState {
     selectedSketchnoteType: 'starPerson' | 'scroll' | 'wavyDivider' | 'doubleBanner' | 'trophy' | 'clock' | 'gear' | 'target' | 'rocket' | 'flag' | 'key' | 'magnifyingGlass' | 'book' | 'megaphone' | 'eye' | 'thoughtBubble';
     selectedPeopleType: 'stickFigure' | 'sittingPerson' | 'presentingPerson' | 'handPointRight' | 'thumbsUp' | 'faceHappy' | 'faceSad' | 'faceConfused';
     selectedStatusType: 'checkbox' | 'checkboxChecked' | 'numberedBadge' | 'questionMark' | 'exclamationMark' | 'tag' | 'pin' | 'stamp';
+    selectedCloudInfraType: 'kubernetes' | 'container' | 'apiGateway' | 'cdn' | 'storageBlob' | 'eventBus' | 'microservice' | 'shield';
     selectedWireframeType: 'browserWindow' | 'mobilePhone' | 'ghostButton' | 'inputField';
     layerGroupingModeEnabled: boolean;
     maxLayers: number;
@@ -171,6 +172,7 @@ const initialState: AppState = {
     selectedSketchnoteType: 'starPerson',
     selectedPeopleType: 'stickFigure',
     selectedStatusType: 'checkbox',
+    selectedCloudInfraType: 'kubernetes',
     selectedWireframeType: 'browserWindow',
     layerGroupingModeEnabled: false,
     maxLayers: 20,
@@ -1635,6 +1637,10 @@ export const setSelectedPeopleType = (peopleType: 'stickFigure' | 'sittingPerson
 
 export const setSelectedStatusType = (statusType: 'checkbox' | 'checkboxChecked' | 'numberedBadge' | 'questionMark' | 'exclamationMark' | 'tag' | 'pin' | 'stamp') => {
     setStore('selectedStatusType', statusType);
+};
+
+export const setSelectedCloudInfraType = (cloudInfraType: 'kubernetes' | 'container' | 'apiGateway' | 'cdn' | 'storageBlob' | 'eventBus' | 'microservice' | 'shield') => {
+    setStore('selectedCloudInfraType', cloudInfraType);
 };
 
 export const setSelectedWireframeType = (wireframeType: 'browserWindow' | 'mobilePhone' | 'ghostButton' | 'inputField') => {

@@ -14,6 +14,7 @@ import TechnicalToolGroup from "./technical-tool-group";
 import UmlToolGroup from "./uml-tool-group";
 import PeopleToolGroup from "./people-tool-group";
 import StatusToolGroup from "./status-tool-group";
+import CloudInfraToolGroup from "./cloud-infra-tool-group";
 import "./toolbar.css";
 
 // Tools that are NOT pens or grouped shapes
@@ -265,6 +266,9 @@ const Toolbar: Component = () => {
 
             {/* Status & Annotation Group (Checkbox, Badge, Tag, Pin, etc.) */}
             <StatusToolGroup />
+
+            {/* Cloud & Container Infrastructure (Kubernetes, Container, API Gateway, etc.) */}
+            <CloudInfraToolGroup />
 
             {/* Infrastructure Tool Group (Server, LB, Cloud, User, etc.) */}
             <InfraToolGroup />
