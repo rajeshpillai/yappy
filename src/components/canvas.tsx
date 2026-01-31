@@ -45,8 +45,6 @@ import { getElementPreviewBaseState } from "../utils/animation/element-animator"
 import { effectiveTime } from "../utils/animation/animation-engine";
 import { VideoRecorder } from "../utils/video-recorder";
 import RecordingOverlay from "./recording-overlay";
-import { generateId } from "../utils/id-generator"; // New Import
-
 
 // Export controls for Menu/Dialog access
 export const [requestRecording, setRequestRecording] = createSignal<{ start: boolean, format?: 'webm' | 'mp4' } | null>(null);
