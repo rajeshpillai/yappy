@@ -1,13 +1,12 @@
 
-import { type Component, Show, createEffect, onCleanup, createSignal } from 'solid-js';
+import { type Component, Show, createEffect, onCleanup, createSignal, For } from 'solid-js';
 import { store } from '../store/app-store';
 import rough from 'roughjs';
 import { renderElement } from '../utils/render-element';
 import type { DrawingElement, Point } from '../types';
 
 export const WelcomeScreen: Component = () => {
-    let canvasRef: HTMLCanvasElement | undefined;
-    // No need to instantiate specific renderer manually
+    const [canvasEl, setCanvasEl] = createSignal<HTMLCanvasElement | undefined>();
 
     const isVisible = () =>
         store.elements.length === 0 &&
@@ -27,9 +26,9 @@ export const WelcomeScreen: Component = () => {
     });
 
     createEffect(() => {
-        if (!canvasRef || !isVisible()) return;
+        const canvas = canvasEl();
+        if (!canvas || !isVisible()) return;
 
-        const canvas = canvasRef;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
@@ -126,7 +125,7 @@ export const WelcomeScreen: Component = () => {
         const helpTargetX = isMobile ? 60 : 310; // Connect to bottom-left on mobile too? Or hidden?
         const helpTargetY = height - 65;
 
-        // On mobile, the help button might be hidden or moved? 
+        // On mobile, the help button might be hidden or moved?
         // Assuming sticky UI logic holds, let's keep it but adjust source point.
         // Actually, let's keep it simple: Show Help arrow only if width > 400
         if (width > 400) {
@@ -137,6 +136,108 @@ export const WelcomeScreen: Component = () => {
             renderArrow(helpArrow);
         }
     });
+
+    const leftFeatures = [
+        "100+ shapes & icons",
+        "Sketch & Architectural modes",
+        "UML & Flowchart diagrams",
+        "Cloud infrastructure shapes",
+        "Freehand drawing tools",
+        "Smart connectors & arrows",
+        "20+ preset animations",
+        "Path & morph animations",
+    ];
+
+    const rightFeatures = [
+        "P3 wide-gamut colors",
+        "Gradient & pattern fills",
+        "Dark mode support",
+        "100% local & private",
+        "Slide transitions & builds",
+        "Spin, orbit & flow physics",
+        "Presentation mode",
+        "Export PNG, SVG, JSON",
+    ];
+
+    const shapeCategories = [
+        { label: "Flowcharts", icon: "diamond", color: "color(display-p3 0.3 0.6 1)" },
+        { label: "UML", icon: "class", color: "color(display-p3 0.6 0.3 0.9)" },
+        { label: "Cloud Infra", icon: "cloud", color: "color(display-p3 0.2 0.7 0.9)" },
+        { label: "Wireframes", icon: "browser", color: "color(display-p3 0.5 0.5 0.6)" },
+        { label: "Sketchnotes", icon: "sketch", color: "color(display-p3 0.9 0.6 0.1)" },
+        { label: "People", icon: "people", color: "color(display-p3 0.8 0.4 0.5)" },
+        { label: "Annotations", icon: "status", color: "color(display-p3 0.2 0.75 0.5)" },
+        { label: "Animations", icon: "motion", color: "color(display-p3 1 0.4 0.3)" },
+        { label: "Connectors", icon: "arrow", color: "color(display-p3 0.6 0.6 0.7)" },
+    ];
+
+    // Small SVG icons for each category
+    const getCategoryIcon = (icon: string) => {
+        switch (icon) {
+            case 'diamond': return (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M7 1 L13 7 L7 13 L1 7 Z" />
+                </svg>
+            );
+            case 'class': return (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="1" y="1" width="12" height="12" rx="1" />
+                    <line x1="1" y1="5" x2="13" y2="5" />
+                    <line x1="1" y1="9" x2="13" y2="9" />
+                </svg>
+            );
+            case 'cloud': return (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="7" cy="7" r="5.5" />
+                    <line x1="1.5" y1="7" x2="12.5" y2="7" />
+                    <ellipse cx="7" cy="7" rx="3" ry="5.5" />
+                </svg>
+            );
+            case 'browser': return (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="1" y="2" width="12" height="10" rx="1.5" />
+                    <line x1="1" y1="5" x2="13" y2="5" />
+                    <circle cx="3" cy="3.5" r="0.5" fill="currentColor" />
+                    <circle cx="5" cy="3.5" r="0.5" fill="currentColor" />
+                </svg>
+            );
+            case 'sketch': return (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M3 11 L7 2 L11 11" />
+                    <line x1="4.5" y1="8" x2="9.5" y2="8" />
+                    <circle cx="7" cy="2" r="1" fill="currentColor" />
+                </svg>
+            );
+            case 'people': return (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="7" cy="4" r="2.5" />
+                    <path d="M3 13 Q3 9 7 9 Q11 9 11 13" />
+                </svg>
+            );
+            case 'status': return (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="1" y="1" width="12" height="12" rx="2" />
+                    <path d="M4 7 L6 9.5 L10 4.5" />
+                </svg>
+            );
+            case 'motion': return (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M2 7 Q5 2 8 7 Q11 12 13 7" />
+                    <circle cx="13" cy="7" r="1.5" fill="currentColor" stroke="none" />
+                    <line x1="1" y1="4" x2="3.5" y2="4" opacity="0.5" />
+                    <line x1="0.5" y1="7" x2="2" y2="7" opacity="0.3" />
+                    <line x1="1" y1="10" x2="3.5" y2="10" opacity="0.5" />
+                </svg>
+            );
+            case 'arrow': return (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M2 12 Q4 4 12 2" />
+                    <path d="M8 2 L12 2 L12 6" />
+                </svg>
+            );
+            default: return null;
+        }
+    };
 
     return (
         <Show when={isVisible()}>
@@ -151,9 +252,36 @@ export const WelcomeScreen: Component = () => {
                     "overflow": "hidden"
                 }}
             >
+                {/* Inject keyframe animations */}
+                <style>{`
+                    @keyframes welcomeFadeInUp {
+                        from { opacity: 0; transform: translateY(16px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                    @keyframes welcomeFadeIn {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                    }
+                    @keyframes welcomeSlideInLeft {
+                        from { opacity: 0; transform: translate(-20px, -50%); }
+                        to { opacity: 0.7; transform: translate(0, -50%); }
+                    }
+                    @keyframes welcomeSlideInRight {
+                        from { opacity: 0; transform: translate(20px, -50%); }
+                        to { opacity: 0.7; transform: translate(0, -50%); }
+                    }
+                    @keyframes welcomeScaleIn {
+                        from { opacity: 0; transform: scale(0.85); }
+                        to { opacity: 1; transform: scale(1); }
+                    }
+                    @keyframes welcomePillIn {
+                        from { opacity: 0; transform: translateY(8px) scale(0.9); }
+                        to { opacity: 1; transform: translateY(0) scale(1); }
+                    }
+                `}</style>
                 {/* Canvas Layer for Arrows */}
                 <canvas
-                    ref={canvasRef}
+                    ref={setCanvasEl}
                     style={{ position: "absolute", top: 0, left: 0, width: '100%', height: '100%' }}
                 />
 
@@ -165,7 +293,8 @@ export const WelcomeScreen: Component = () => {
                         "top": "150px",
                         "left": "120px",
                         "transform": "rotate(-5deg)",
-                        "opacity": "0.8"
+                        "opacity": "0",
+                        "animation": "welcomeFadeIn 0.6s ease-out 0.8s forwards"
                     }}>
                         Export, preferences, languages...
                     </div>
@@ -176,7 +305,8 @@ export const WelcomeScreen: Component = () => {
                         "top": "100px",
                         "right": "150px",
                         "transform": "rotate(-5deg)",
-                        "opacity": "0.8",
+                        "opacity": "0",
+                        "animation": "welcomeFadeIn 0.6s ease-out 1s forwards",
                         "text-align": "right",
                         "max-width": "150px"
                     }}>
@@ -189,21 +319,89 @@ export const WelcomeScreen: Component = () => {
                         "top": "20%",
                         "left": "60%",
                         "transform": "rotate(5deg)",
-                        "opacity": "0.8",
+                        "opacity": "0",
+                        "animation": "welcomeFadeIn 0.6s ease-out 0.9s forwards",
                         "max-width": "200px"
                     }}>
                         Pick a tool & start drawing!
                     </div>
 
-                    {/* Help Label (Keep hidden on mobile for now as we simplified arrow) */}
+                    {/* Help Label */}
                     <div style={{
                         "position": "absolute",
                         "bottom": "120px",
                         "left": "300px",
                         "text-align": "left",
-                        "opacity": "0.8"
+                        "opacity": "0",
+                        "animation": "welcomeFadeIn 0.6s ease-out 1.1s forwards"
                     }}>
                         Shortcuts & help
+                    </div>
+                </Show>
+
+                {/* Feature Lists - Left Side */}
+                <Show when={windowSize().width > 1100}>
+                    <div style={{
+                        "position": "absolute",
+                        "top": "50%",
+                        "left": "60px",
+                        "transform": "translateY(-50%)",
+                        "display": "flex",
+                        "flex-direction": "column",
+                        "gap": "0.6rem",
+                        "font-family": "Inter, sans-serif",
+                        "font-size": "0.85rem",
+                        "max-width": "220px",
+                        "opacity": "0",
+                        "animation": "welcomeSlideInLeft 0.6s ease-out 0.3s forwards"
+                    }}>
+                        <For each={leftFeatures}>
+                            {(f, i) => (
+                                <div style={{
+                                    "display": "flex",
+                                    "align-items": "center",
+                                    "gap": "0.5rem",
+                                    "opacity": "0",
+                                    "animation": `welcomeFadeInUp 0.4s ease-out ${0.4 + i() * 0.08}s forwards`
+                                }}>
+                                    <span style={{ "color": "color(display-p3 0.2 0.7 0.4)", "font-size": "1rem", "flex-shrink": "0" }}>✓</span>
+                                    <span>{f}</span>
+                                </div>
+                            )}
+                        </For>
+                    </div>
+                </Show>
+
+                {/* Feature Lists - Right Side */}
+                <Show when={windowSize().width > 1100}>
+                    <div style={{
+                        "position": "absolute",
+                        "top": "50%",
+                        "right": "60px",
+                        "transform": "translateY(-50%)",
+                        "display": "flex",
+                        "flex-direction": "column",
+                        "gap": "0.6rem",
+                        "font-family": "Inter, sans-serif",
+                        "font-size": "0.85rem",
+                        "max-width": "220px",
+                        "opacity": "0",
+                        "animation": "welcomeSlideInRight 0.6s ease-out 0.3s forwards"
+                    }}>
+                        <For each={rightFeatures}>
+                            {(f, i) => (
+                                <div style={{
+                                    "display": "flex",
+                                    "align-items": "center",
+                                    "gap": "0.5rem",
+                                    "opacity": "0",
+                                    "animation": `welcomeFadeInUp 0.4s ease-out ${0.4 + i() * 0.08}s forwards`
+                                }}>
+                                    <span style={{ "color": "color(display-p3 0.2 0.7 0.4)", "font-size": "1rem", "flex-shrink": "0" }}>✓</span>
+                                    <span>{f}</span>
+                                </div>
+                            )}
+                        </For>
                     </div>
                 </Show>
 
@@ -225,7 +423,9 @@ export const WelcomeScreen: Component = () => {
                         "line-height": "1.2",
                         "display": "flex",
                         "align-items": "baseline",
-                        "gap": "0.2rem"
+                        "gap": "0.2rem",
+                        "opacity": "0",
+                        "animation": "welcomeScaleIn 0.7s ease-out 0.1s forwards"
                     }}>
                         <span style={{
                             "background": "linear-gradient(135deg, color(display-p3 0 0.5 1), color(display-p3 0.2 0.6 1))",
@@ -238,19 +438,24 @@ export const WelcomeScreen: Component = () => {
                             "-webkit-text-fill-color": "transparent"
                         }}>Draw</span>
                     </h1>
-                    <p style={{ "font-size": "1.2rem", "opacity": "0.7" }}>
+                    <p style={{
+                        "font-size": "1.2rem",
+                        "opacity": "0",
+                        "animation": "welcomeFadeIn 0.5s ease-out 0.3s forwards"
+                    }}>
                         All your data is saved locally in your browser.
                     </p>
 
                     <div style={{
-                        "margin-top": "3rem",
+                        "margin-top": "2rem",
                         "display": "grid",
                         "grid-template-columns": "auto auto",
                         "gap": "1rem 3rem",
                         "text-align": "left",
                         "font-family": "Inter, sans-serif",
                         "font-size": "0.9rem",
-                        "opacity": "0.8"
+                        "opacity": "0",
+                        "animation": "welcomeFadeInUp 0.5s ease-out 0.5s forwards"
                     }}>
                         <span>Open</span>
                         <strong>Ctrl+Alt+O</strong>
@@ -260,6 +465,38 @@ export const WelcomeScreen: Component = () => {
 
                         <span>Help</span>
                         <strong>?</strong>
+                    </div>
+
+                    {/* Shape Categories */}
+                    <div style={{
+                        "margin-top": "2rem",
+                        "display": "flex",
+                        "flex-wrap": "wrap",
+                        "justify-content": "center",
+                        "gap": "0.5rem",
+                        "max-width": "480px"
+                    }}>
+                        <For each={shapeCategories}>
+                            {(cat, i) => (
+                                <div style={{
+                                    "display": "inline-flex",
+                                    "align-items": "center",
+                                    "gap": "0.35rem",
+                                    "padding": "0.3rem 0.7rem",
+                                    "border-radius": "999px",
+                                    "border": `1.5px solid ${cat.color}`,
+                                    "font-family": "Inter, sans-serif",
+                                    "font-size": "0.75rem",
+                                    "color": cat.color,
+                                    "white-space": "nowrap",
+                                    "opacity": "0",
+                                    "animation": `welcomePillIn 0.4s ease-out ${0.7 + i() * 0.06}s forwards`
+                                }}>
+                                    {getCategoryIcon(cat.icon)}
+                                    {cat.label}
+                                </div>
+                            )}
+                        </For>
                     </div>
                 </div>
 
