@@ -112,6 +112,7 @@ const Canvas: Component = () => {
     });
 
     let canvasRef: HTMLCanvasElement | undefined;
+    let rcInstance: ReturnType<typeof rough.canvas> | null = null;
 
     // Recording & thumbnail capture (effects created within this component's reactive scope)
     const { handleStopRecording } = setupRecording(() => canvasRef);
@@ -191,7 +192,8 @@ const Canvas: Component = () => {
 
         const { scale, panX, panY } = store.viewState;
         const isDarkMode = store.theme === 'dark';
-        const rc = rough.canvas(canvasRef);
+        if (!rcInstance) rcInstance = rough.canvas(canvasRef);
+        const rc = rcInstance;
         const shouldAnimate = store.appMode === 'presentation' || store.isPreviewing;
 
         // 1. Compute viewport & animated states

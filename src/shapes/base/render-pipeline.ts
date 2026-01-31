@@ -226,24 +226,36 @@ export class RenderPipeline {
         ctx.fillStyle = grad;
     }
 
+    private static _dotPatternCache = new Map<string, CanvasPattern | null>();
+
     private static applyDotsFill(ctx: CanvasRenderingContext2D, el: DrawingElement, _isDarkMode: boolean) {
         const density = el.fillDensity || 1;
         const color = el.strokeColor || '#000000';
-
-        // Simple deterministic pattern
-        const dotCanvas = document.createElement('canvas');
+        const strokeW = el.strokeWidth / 2 || 1;
         const gap = Math.max(5, 20 / density);
-        dotCanvas.width = gap;
-        dotCanvas.height = gap;
-        const dotCtx = dotCanvas.getContext('2d');
-        if (dotCtx) {
-            dotCtx.fillStyle = color;
-            dotCtx.beginPath();
-            dotCtx.arc(gap / 2, gap / 2, el.strokeWidth / 2 || 1, 0, Math.PI * 2);
-            dotCtx.fill();
-            const pattern = ctx.createPattern(dotCanvas, 'repeat');
-            if (pattern) ctx.fillStyle = pattern;
+
+        // Cache pattern by its visual parameters
+        const cacheKey = `${color}|${density}|${strokeW}`;
+        let pattern = this._dotPatternCache.get(cacheKey);
+        if (pattern === undefined) {
+            const dotCanvas = document.createElement('canvas');
+            dotCanvas.width = gap;
+            dotCanvas.height = gap;
+            const dotCtx = dotCanvas.getContext('2d');
+            if (dotCtx) {
+                dotCtx.fillStyle = color;
+                dotCtx.beginPath();
+                dotCtx.arc(gap / 2, gap / 2, strokeW, 0, Math.PI * 2);
+                dotCtx.fill();
+                pattern = ctx.createPattern(dotCanvas, 'repeat');
+            } else {
+                pattern = null;
+            }
+            // Evict if cache grows too large
+            if (this._dotPatternCache.size > 100) this._dotPatternCache.clear();
+            this._dotPatternCache.set(cacheKey, pattern!);
         }
+        if (pattern) ctx.fillStyle = pattern;
     }
 
     static renderGeometry(ctx: CanvasRenderingContext2D, geo: any) {

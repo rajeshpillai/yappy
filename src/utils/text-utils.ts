@@ -54,6 +54,10 @@ export const wrapText = (
     return lines;
 };
 
+// Cache for text metrics to avoid re-measuring unchanged text every frame
+const _textMetricsCache = new Map<string, TextMetrics>();
+const TEXT_METRICS_CACHE_MAX = 500;
+
 export const measureContainerText = (
     ctx: CanvasRenderingContext2D,
     el: Partial<DrawingElement>,
@@ -61,10 +65,16 @@ export const measureContainerText = (
     availableWidth: number
 ): TextMetrics => {
     const fontSize = el.fontSize || 28;
-    ctx.save();
-    ctx.font = getFontString(el);
+    const fontStr = getFontString(el);
+    const cacheKey = `${text}|${fontStr}|${availableWidth}|${el.type}`;
 
-    // For shapes that are inefficient with space (circle, diamond), 
+    const cached = _textMetricsCache.get(cacheKey);
+    if (cached) return cached;
+
+    ctx.save();
+    ctx.font = fontStr;
+
+    // For shapes that are inefficient with space (circle, diamond),
     // we use a smaller inscribed area for wrapping
     let wrapWidth = availableWidth;
     if (el.type === 'circle' || el.type === 'diamond') {
@@ -100,12 +110,18 @@ export const measureContainerText = (
 
     ctx.restore();
 
-    return {
+    const result: TextMetrics = {
         textWidth: maxLineWidth,
         textHeight: lines.length * lineHeight,
         lines,
         lineHeight
     };
+
+    // Evict if cache grows too large
+    if (_textMetricsCache.size >= TEXT_METRICS_CACHE_MAX) _textMetricsCache.clear();
+    _textMetricsCache.set(cacheKey, result);
+
+    return result;
 };
 
 export const fitShapeToText = (

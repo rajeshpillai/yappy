@@ -499,7 +499,13 @@ export function renderLayersAndElements(
     let totalRendered = 0;
 
     const elementMap = new Map<string, DrawingElement>();
-    for (const el of elements) elementMap.set(el.id, el);
+    const elementsByLayer = new Map<string, DrawingElement[]>();
+    for (const el of elements) {
+        elementMap.set(el.id, el);
+        let bucket = elementsByLayer.get(el.layerId);
+        if (!bucket) { bucket = []; elementsByLayer.set(el.layerId, bucket); }
+        bucket.push(el);
+    }
 
     sortedLayers.forEach(layer => {
         if (!isLayerVisible(layer.id)) return;
@@ -515,8 +521,9 @@ export function renderLayersAndElements(
         }
 
         // Filter elements for this layer with viewport culling
-        const layerElements = elements.filter(el => {
-            if (el.layerId !== layer.id) return false;
+        const bucket = elementsByLayer.get(layer.id);
+        if (!bucket) return;
+        const layerElements = bucket.filter(el => {
             if (el.id === currentDrawingId) return true;
             if (layer.isMaster) return true;
             if (isElementHiddenByHierarchy(el, elements, elementMap)) return false;
@@ -550,17 +557,22 @@ export function renderLayersAndElements(
 
         layerElements.forEach(el => {
             const animState = animatedStates.get(el.id);
-            const renderedEl = animState ? {
-                ...el,
-                x: animState.x,
-                y: animState.y,
-                angle: animState.angle
-            } : JSON.parse(JSON.stringify(el));
-
             const isMasterLayer = layer.isMaster;
+            const needsMasterProjection = isMasterLayer && docType === 'slides';
+            const needsTextVar = el.type === 'text' && el.text && el.text.startsWith('=');
+
+            // Only create a copy when we need to mutate (animation, master projection, or text variables)
+            let renderedEl: DrawingElement;
+            if (animState) {
+                renderedEl = { ...el, x: animState.x, y: animState.y, angle: animState.angle };
+            } else if (needsMasterProjection || needsTextVar) {
+                renderedEl = { ...el };
+            } else {
+                renderedEl = el;
+            }
 
             // Project Master elements relative to active slide
-            if (isMasterLayer && docType === 'slides') {
+            if (needsMasterProjection) {
                 const activeSlide = slides[activeSlideIndex];
                 if (activeSlide) {
                     const projected = projectMasterPosition(renderedEl, activeSlide, slides);
@@ -582,7 +594,7 @@ export function renderLayersAndElements(
             }
 
             // Dynamic text variables
-            if (renderedEl.type === 'text' && renderedEl.text) {
+            if (needsTextVar && renderedEl.text) {
                 if (renderedEl.text.startsWith('==')) {
                     renderedEl.text = renderedEl.text.substring(1);
                 } else if (renderedEl.text.startsWith('=')) {
