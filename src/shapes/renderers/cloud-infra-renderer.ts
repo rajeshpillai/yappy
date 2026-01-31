@@ -94,7 +94,7 @@ export class CloudInfraRenderer extends ShapeRenderer {
                 ctx.lineTo(arrowR - w * 0.1, arrowY - arrowH);
                 ctx.lineTo(arrowR - w * 0.1, arrowY + arrowH);
                 ctx.closePath();
-                ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || (isDarkMode ? '#ffffff' : '#000000'), isDarkMode);
+                ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || '#000000', isDarkMode);
                 ctx.fill();
                 break;
             }

@@ -5,10 +5,9 @@ import { getFontString, measureContainerText } from "../../utils/text-utils";
 import type { RenderContext } from "./types";
 
 export class RenderPipeline {
-    static adjustColor(color: string, isDarkMode: boolean) {
-        if (!isDarkMode) return color;
-        if (color === '#000000' || color === 'black' || color === '#000') return '#ffffff';
-        if (color === '#ffffff' || color === 'white' || color === '#fff') return '#000000';
+    static adjustColor(color: string, _isDarkMode: boolean) {
+        // Theme only affects UI chrome, not canvas content.
+        // Shape colors are always rendered as stored — WYSIWYG.
         return color;
     }
 
@@ -227,9 +226,9 @@ export class RenderPipeline {
         ctx.fillStyle = grad;
     }
 
-    private static applyDotsFill(ctx: CanvasRenderingContext2D, el: DrawingElement, isDarkMode: boolean) {
+    private static applyDotsFill(ctx: CanvasRenderingContext2D, el: DrawingElement, _isDarkMode: boolean) {
         const density = el.fillDensity || 1;
-        const color = isDarkMode ? '#ffffff' : '#000000';
+        const color = el.strokeColor || '#000000';
 
         // Simple deterministic pattern
         const dotCanvas = document.createElement('canvas');

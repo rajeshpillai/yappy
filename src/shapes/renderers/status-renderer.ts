@@ -116,7 +116,7 @@ export class StatusRenderer extends ShapeRenderer {
                 const dotCy = y + Math.min(w, h) * 0.3;
                 ctx.beginPath();
                 ctx.arc(x + w / 2, dotCy, dotR, 0, Math.PI * 2);
-                ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || (isDarkMode ? '#ffffff' : '#000000'), isDarkMode);
+                ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || '#000000', isDarkMode);
                 ctx.fill();
                 break;
             }
@@ -183,7 +183,7 @@ export class StatusRenderer extends ShapeRenderer {
             case 'pin': {
                 rc.path(this.getPinPath(x, y, w, h), options);
                 const dotR = Math.min(w, h) * 0.1;
-                const strokeCol = RenderPipeline.adjustColor(el.strokeColor || (isDarkMode ? '#ffffff' : '#000000'), isDarkMode);
+                const strokeCol = RenderPipeline.adjustColor(el.strokeColor || '#000000', isDarkMode);
                 rc.circle(x + w / 2, y + Math.min(w, h) * 0.3, dotR * 2, { ...options, fill: strokeCol });
                 break;
             }
@@ -219,7 +219,7 @@ export class StatusRenderer extends ShapeRenderer {
         ctx.font = `bold ${fontSize}px sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || (isDarkMode ? '#ffffff' : '#000000'), isDarkMode);
+        ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || '#000000', isDarkMode);
         ctx.fillText(symbol, ccx, ccy + fontSize * 0.05);
     }
 

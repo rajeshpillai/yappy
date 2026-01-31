@@ -222,7 +222,7 @@ export class ConnectionRelRenderer extends ShapeRenderer {
                 ctx.lineTo(poleX + w * 0.04, beamY);
                 ctx.lineTo(poleX, beamY - h * 0.06);
                 ctx.closePath();
-                ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || (isDarkMode ? '#ffffff' : '#000000'), isDarkMode);
+                ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || '#000000', isDarkMode);
                 ctx.fill();
                 break;
             }
@@ -334,7 +334,7 @@ export class ConnectionRelRenderer extends ShapeRenderer {
                 ctx.lineTo(snowL + w * 0.05, snowY - h * 0.01);
                 ctx.lineTo(snowL, snowY);
                 ctx.closePath();
-                ctx.fillStyle = isDarkMode ? '#cccccc' : '#ffffff';
+                ctx.fillStyle = '#ffffff';
                 ctx.fill();
                 ctx.stroke();
                 break;
@@ -459,7 +459,7 @@ export class ConnectionRelRenderer extends ShapeRenderer {
                     [snowR - w * 0.1, snowY + h * 0.02],
                     [snowL + w * 0.05, snowY - h * 0.01],
                     [snowL, snowY]
-                ], { ...options, fill: isDarkMode ? '#cccccc' : '#ffffff' });
+                ], { ...options, fill: '#ffffff' });
                 break;
             }
         }

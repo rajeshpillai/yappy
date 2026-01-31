@@ -277,7 +277,7 @@ export class PeopleRenderer extends ShapeRenderer {
 
         ctx.beginPath();
         ctx.arc(fcx - eyeSpacing, eyeY, eyeR, 0, Math.PI * 2);
-        ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || (isDarkMode ? '#ffffff' : '#000000'), isDarkMode);
+        ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || '#000000', isDarkMode);
         ctx.fill();
         ctx.beginPath();
         ctx.arc(fcx + eyeSpacing, eyeY, eyeR, 0, Math.PI * 2);
@@ -328,7 +328,7 @@ export class PeopleRenderer extends ShapeRenderer {
         const eyeR = r * 0.08;
         const eyeY = fcy - r * 0.2;
         const eyeSpacing = r * 0.3;
-        const strokeCol = RenderPipeline.adjustColor(el.strokeColor || (isDarkMode ? '#ffffff' : '#000000'), isDarkMode);
+        const strokeCol = RenderPipeline.adjustColor(el.strokeColor || '#000000', isDarkMode);
         rc.circle(fcx - eyeSpacing, eyeY, eyeR * 2, { ...options, fill: strokeCol });
         rc.circle(fcx + eyeSpacing, eyeY, eyeR * 2, { ...options, fill: strokeCol });
 

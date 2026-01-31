@@ -177,12 +177,12 @@ export function renderSlideBackground(
 ): void {
     const type = slide.fillStyle || 'solid';
 
+    // User-set colors render as stored (WYSIWYG). Only the fallback defaults change with theme.
+    const defaultBg = isDarkMode ? "#121212" : "#ffffff";
+
     if (type === 'solid') {
-        const fallbackColor = isDarkMode ? "#121212" : "#ffffff";
-        let color = slide.backgroundColor || fallbackColor;
-        if (color === 'transparent') color = fallbackColor;
-        if (isDarkMode && (color === '#ffffff' || color === '#fff' || color === 'white')) color = '#121212';
-        if (isDarkMode && (color === '#000000' || color === '#000' || color === 'black')) color = '#e8e8e8';
+        let color = slide.backgroundColor || defaultBg;
+        if (color === 'transparent') color = defaultBg;
         ctx.fillStyle = color;
         ctx.fillRect(x, y, w, h);
     } else if (['linear', 'radial', 'conic'].includes(type)) {
@@ -190,11 +190,8 @@ export function renderSlideBackground(
         const angle = slide.gradientDirection || 0;
 
         if (stops.length === 0) {
-            const fallbackColor = isDarkMode ? "#121212" : "#ffffff";
-            let color = slide.backgroundColor || fallbackColor;
-            if (color === 'transparent') color = fallbackColor;
-            if (isDarkMode && (color === '#ffffff' || color === '#fff' || color === 'white')) color = '#121212';
-            if (isDarkMode && (color === '#000000' || color === '#000' || color === 'black')) color = '#e8e8e8';
+            let color = slide.backgroundColor || defaultBg;
+            if (color === 'transparent') color = defaultBg;
             ctx.fillStyle = color;
             ctx.fillRect(x, y, w, h);
             return;
@@ -220,23 +217,16 @@ export function renderSlideBackground(
         }
 
         stops.forEach((s: any) => {
-            let color = s.color;
-            if (isDarkMode && (color === '#ffffff' || color === '#fff' || color === 'white')) color = '#121212';
-            if (isDarkMode && (color === '#000000' || color === '#000' || color === 'black')) color = '#e8e8e8';
-            grad.addColorStop(s.offset, color);
+            grad.addColorStop(s.offset, s.color);
         });
         ctx.fillStyle = grad;
         ctx.fillRect(x, y, w, h);
     } else if (['hachure', 'cross-hatch', 'zigzag', 'dots', 'dashed', 'zigzag-line'].includes(type)) {
-        let bgColor = slide.backgroundColor || (isDarkMode ? "#121212" : "#ffffff");
-        if (isDarkMode && (bgColor === '#ffffff' || bgColor === '#fff' || bgColor === 'white')) bgColor = '#121212';
-        if (isDarkMode && (bgColor === '#000000' || bgColor === '#000' || bgColor === 'black')) bgColor = '#e8e8e8';
+        const bgColor = slide.backgroundColor || defaultBg;
         ctx.fillStyle = bgColor;
         ctx.fillRect(x, y, w, h);
 
-        let strokeColor = slide.strokeColor || (isDarkMode ? "#ffffff" : "#000000");
-        if (isDarkMode && (strokeColor === '#000000' || strokeColor === '#000' || strokeColor === 'black')) strokeColor = '#ffffff';
-        if (isDarkMode && (strokeColor === '#ffffff' || strokeColor === '#fff' || strokeColor === 'white')) strokeColor = '#000000';
+        const strokeColor = slide.strokeColor || (isDarkMode ? "#ffffff" : "#000000");
 
         rc.rectangle(x, y, w, h, {
             fill: strokeColor,

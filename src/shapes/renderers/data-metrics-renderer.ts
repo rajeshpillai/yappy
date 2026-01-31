@@ -107,7 +107,7 @@ export class DataMetricsRenderer extends ShapeRenderer {
                 ctx.lineTo(tipX + Math.cos(a1) * arrowSize, tipY + Math.sin(a1) * arrowSize);
                 ctx.lineTo(tipX + Math.cos(a2) * arrowSize, tipY + Math.sin(a2) * arrowSize);
                 ctx.closePath();
-                ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || (isDarkMode ? '#ffffff' : '#000000'), isDarkMode);
+                ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || '#000000', isDarkMode);
                 ctx.fill();
                 // Data points
                 for (const p of pts) {
@@ -164,7 +164,7 @@ export class DataMetricsRenderer extends ShapeRenderer {
                 ctx.lineTo(tipX + Math.cos(a1) * arrowSize, tipY + Math.sin(a1) * arrowSize);
                 ctx.lineTo(tipX + Math.cos(a2) * arrowSize, tipY + Math.sin(a2) * arrowSize);
                 ctx.closePath();
-                ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || (isDarkMode ? '#ffffff' : '#000000'), isDarkMode);
+                ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || '#000000', isDarkMode);
                 ctx.fill();
                 // Data points
                 for (const p of pts) {
@@ -260,7 +260,7 @@ export class DataMetricsRenderer extends ShapeRenderer {
                 const dotR = Math.min(w, h) * 0.04;
                 ctx.beginPath();
                 ctx.arc(ccx, ccy, dotR, 0, Math.PI * 2);
-                ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || (isDarkMode ? '#ffffff' : '#000000'), isDarkMode);
+                ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || '#000000', isDarkMode);
                 ctx.fill();
                 break;
             }

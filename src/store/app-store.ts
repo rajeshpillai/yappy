@@ -112,7 +112,7 @@ const initialState: AppState = {
     isRecording: false,
     readOnly: false,
     defaultElementStyles: {
-        strokeColor: '#000000',
+        strokeColor: (localStorage.getItem('theme') === 'dark') ? '#ffffff' : '#000000',
         backgroundColor: 'transparent',
         fillStyle: 'solid',
         strokeWidth: 2,
@@ -1284,6 +1284,18 @@ export const toggleTheme = () => {
     setStore('theme', newTheme);
     localStorage.setItem('theme', newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
+
+    // Swap default stroke color so new shapes are visible on the current canvas
+    const oldStroke = newTheme === 'dark' ? '#000000' : '#ffffff';
+    const newStroke = newTheme === 'dark' ? '#ffffff' : '#000000';
+    setStore('defaultElementStyles', 'strokeColor', newStroke);
+
+    // Also update cached per-tool styles that still have the old default
+    for (const tool of Object.keys(store.toolStyles)) {
+        if ((store.toolStyles as any)[tool]?.strokeColor === oldStroke) {
+            setStore('toolStyles', tool as any, 'strokeColor' as any, newStroke);
+        }
+    }
 };
 
 export const zoomToFit = () => {

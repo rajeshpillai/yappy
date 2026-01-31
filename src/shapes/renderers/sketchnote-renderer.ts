@@ -142,7 +142,7 @@ export class SketchnoteRenderer extends ShapeRenderer {
                 // Center dot
                 ctx.beginPath();
                 ctx.arc(ccx, ccy, r * 0.06, 0, Math.PI * 2);
-                ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || (isDarkMode ? '#ffffff' : '#000000'), isDarkMode);
+                ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || '#000000', isDarkMode);
                 ctx.fill();
                 break;
             }
@@ -163,7 +163,7 @@ export class SketchnoteRenderer extends ShapeRenderer {
                 for (let i = rings; i >= 1; i--) {
                     const rr = r * (i / rings);
                     if (options.fill && options.fill !== 'transparent' && options.fill !== 'none') {
-                        ctx.fillStyle = (i % 2 === 1) ? options.fill : (isDarkMode ? '#1a1a2e' : '#ffffff');
+                        ctx.fillStyle = (i % 2 === 1) ? options.fill : '#ffffff';
                         ctx.beginPath();
                         ctx.ellipse(ccx, ccy, rr, rr, 0, 0, Math.PI * 2);
                         ctx.fill();
@@ -255,7 +255,7 @@ export class SketchnoteRenderer extends ShapeRenderer {
                 ctx.stroke();
                 ctx.beginPath();
                 ctx.arc(ecx, ecy, pupilR, 0, Math.PI * 2);
-                ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || (isDarkMode ? '#ffffff' : '#000000'), isDarkMode);
+                ctx.fillStyle = RenderPipeline.adjustColor(el.strokeColor || '#000000', isDarkMode);
                 ctx.fill();
                 break;
             }
@@ -358,7 +358,7 @@ export class SketchnoteRenderer extends ShapeRenderer {
                 const rings = 3;
                 for (let i = rings; i >= 1; i--) {
                     const rr = r * (i / rings);
-                    const ringOpts = (i % 2 === 1) ? options : { ...options, fill: isDarkMode ? '#1a1a2e' : '#ffffff' };
+                    const ringOpts = (i % 2 === 1) ? options : { ...options, fill: '#ffffff' };
                     rc.circle(ccx, ccy, rr * 2, ringOpts);
                 }
                 break;
@@ -397,7 +397,7 @@ export class SketchnoteRenderer extends ShapeRenderer {
                 rc.circle(x + w / 2, y + h / 2, irisR * 2, options);
                 // Pupil (filled)
                 const pupilR = irisR * 0.45;
-                const strokeCol = RenderPipeline.adjustColor(el.strokeColor || (isDarkMode ? '#ffffff' : '#000000'), isDarkMode);
+                const strokeCol = RenderPipeline.adjustColor(el.strokeColor || '#000000', isDarkMode);
                 rc.circle(x + w / 2, y + h / 2, pupilR * 2, { ...options, fill: strokeCol });
                 break;
             }
