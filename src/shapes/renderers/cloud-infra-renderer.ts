@@ -259,7 +259,7 @@ export class CloudInfraRenderer extends ShapeRenderer {
     }
 
     protected renderSketch(context: RenderContext, cx: number, cy: number): void {
-        const { ctx, rc, element: el, isDarkMode } = context;
+        const { rc, element: el, isDarkMode } = context;
         const options = RenderPipeline.buildRenderOptions(el, isDarkMode);
         const x = el.x, y = el.y, w = el.width, h = el.height;
 
