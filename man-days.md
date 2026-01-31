@@ -3,7 +3,7 @@
 > **Assumed Expertise Level**: Senior Frontend Engineer (5+ years experience)
 > **Stack Proficiency**: High proficiency in React/SolidJS, Canvas/WebGL, and TypeScript.
 > **Context**: Estimates assume "ideal coding days" (8 hours/day) without external blockers, meetings, or significant scope creep.
-> **Current Scale**: ~40,958 lines of code (excluding node_modules/dist).
+> **Current Scale**: ~40,521 lines of code (excluding node_modules/dist).
 
 This document records the estimated engineering effort (in man-days) required for each completed feature/phase of the Yappy project.
 
@@ -88,8 +88,16 @@ This document records the estimated engineering effort (in man-days) required fo
 | | Standalone Player Scaffolding & Build | Medium | 0.5 | |
 | | Asset Embedding & Template Injection | Medium | 0.5 | |
 | | Standalone Renderer & Sync Logic | High | 1.0 | |
+| **Phase 75** | **Bug Fixes & Polish** | Low | **1.0** | ✅ Done |
+| | Dark mode canvas rendering fix (WYSIWYG) | Low | 0.5 | |
+| | Laser pointer & connector handle fixes | Low | 0.5 | |
+| **Phase 76** | **Rendering Performance 3.0** | High | **4.0** | ✅ Done |
+| | RoughJS drawable caching (Proxy-based) | High | 1.5 | |
+| | Dot pattern, text metrics & rc instance caching | Medium | 1.0 | |
+| | Deep clone removal & layer pre-grouping | Medium | 1.0 | |
+| | Performance test data generator (381 elements) | Low | 0.5 | |
 
 ---
 
-### **Total Estimated Effort: ~200.5 Man-Days**
+### **Total Estimated Effort: ~205.5 Man-Days**
 *Note: This is a rough estimation of effective coding days for a single developer, excluding initial research, detailed design phases, and extensive QA cycles.*
