@@ -13,6 +13,7 @@ import MindmapToolGroup from "./mindmap-tool-group";
 import TechnicalToolGroup from "./technical-tool-group";
 import UmlToolGroup from "./uml-tool-group";
 import PeopleToolGroup from "./people-tool-group";
+import StatusToolGroup from "./status-tool-group";
 import "./toolbar.css";
 
 // Tools that are NOT pens or grouped shapes
@@ -261,6 +262,9 @@ const Toolbar: Component = () => {
 
             {/* People & Expressions Group (Stick Figure, Faces, Hands) */}
             <PeopleToolGroup />
+
+            {/* Status & Annotation Group (Checkbox, Badge, Tag, Pin, etc.) */}
+            <StatusToolGroup />
 
             {/* Infrastructure Tool Group (Server, LB, Cloud, User, etc.) */}
             <InfraToolGroup />

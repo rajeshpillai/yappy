@@ -863,6 +863,57 @@ export const getShapeGeometry = (el: DrawingElement): ShapeGeometry | null => {
             const r = Math.min(w, h) / 2;
             return { type: 'ellipse', cx: 0, cy: 0, rx: r, ry: r };
         }
+
+        // ─── Status & Annotation shapes ──────────────────────────────
+
+        case 'checkbox':
+        case 'checkboxChecked': {
+            const r = Math.min(w, h) * 0.15;
+            return { type: 'rect', x: x, y: y, w: w, h: h, r: r };
+        }
+
+        case 'numberedBadge':
+        case 'questionMark':
+        case 'exclamationMark': {
+            const r = Math.min(w, h) / 2;
+            return { type: 'ellipse', cx: 0, cy: 0, rx: r, ry: r };
+        }
+
+        case 'tag': {
+            const notchX = x + w * 0.08;
+            return {
+                type: 'points', points: [
+                    { x: notchX, y: y },
+                    { x: x + w, y: y },
+                    { x: x + w, y: y + h },
+                    { x: notchX, y: y + h },
+                    { x: x, y: 0 }
+                ]
+            };
+        }
+
+        case 'pin': {
+            const pinR = Math.min(w, h) * 0.3;
+            const pinCy = y + pinR;
+            const pointY = y + h;
+            return {
+                type: 'path',
+                path: `M 0 ${pointY} C ${-pinR * 0.6} ${pinCy + pinR * 1.5} ${-pinR} ${pinCy + pinR * 0.5} ${-pinR} ${pinCy} A ${pinR} ${pinR} 0 1 1 ${pinR} ${pinCy} C ${pinR} ${pinCy + pinR * 0.5} ${pinR * 0.6} ${pinCy + pinR * 1.5} 0 ${pointY} Z`
+            };
+        }
+
+        case 'stamp': {
+            const outerR = Math.min(w, h) / 2;
+            const stInnerR = outerR * 0.85;
+            const scallops = 16;
+            const pts: { x: number; y: number }[] = [];
+            for (let i = 0; i < scallops * 2; i++) {
+                const angle = (Math.PI * 2 * i) / (scallops * 2);
+                const r = i % 2 === 0 ? outerR : stInnerR;
+                pts.push({ x: Math.cos(angle) * r, y: Math.sin(angle) * r });
+            }
+            return { type: 'points', points: pts };
+        }
     }
 
     return null;

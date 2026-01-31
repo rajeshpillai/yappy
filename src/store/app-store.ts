@@ -51,6 +51,7 @@ interface AppState {
     selectedMathType: 'trapezoid' | 'rightTriangle' | 'pentagon' | 'septagon';
     selectedSketchnoteType: 'starPerson' | 'scroll' | 'wavyDivider' | 'doubleBanner' | 'trophy' | 'clock' | 'gear' | 'target' | 'rocket' | 'flag' | 'key' | 'magnifyingGlass' | 'book' | 'megaphone' | 'eye' | 'thoughtBubble';
     selectedPeopleType: 'stickFigure' | 'sittingPerson' | 'presentingPerson' | 'handPointRight' | 'thumbsUp' | 'faceHappy' | 'faceSad' | 'faceConfused';
+    selectedStatusType: 'checkbox' | 'checkboxChecked' | 'numberedBadge' | 'questionMark' | 'exclamationMark' | 'tag' | 'pin' | 'stamp';
     selectedWireframeType: 'browserWindow' | 'mobilePhone' | 'ghostButton' | 'inputField';
     layerGroupingModeEnabled: boolean;
     maxLayers: number;
@@ -169,6 +170,7 @@ const initialState: AppState = {
     selectedMathType: 'trapezoid',
     selectedSketchnoteType: 'starPerson',
     selectedPeopleType: 'stickFigure',
+    selectedStatusType: 'checkbox',
     selectedWireframeType: 'browserWindow',
     layerGroupingModeEnabled: false,
     maxLayers: 20,
@@ -1629,6 +1631,10 @@ export const setSelectedSketchnoteType = (sketchnoteType: 'starPerson' | 'scroll
 
 export const setSelectedPeopleType = (peopleType: 'stickFigure' | 'sittingPerson' | 'presentingPerson' | 'handPointRight' | 'thumbsUp' | 'faceHappy' | 'faceSad' | 'faceConfused') => {
     setStore('selectedPeopleType', peopleType);
+};
+
+export const setSelectedStatusType = (statusType: 'checkbox' | 'checkboxChecked' | 'numberedBadge' | 'questionMark' | 'exclamationMark' | 'tag' | 'pin' | 'stamp') => {
+    setStore('selectedStatusType', statusType);
 };
 
 export const setSelectedWireframeType = (wireframeType: 'browserWindow' | 'mobilePhone' | 'ghostButton' | 'inputField') => {

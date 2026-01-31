@@ -78,6 +78,7 @@ export const getTransformOptions = (currentType: ElementType): ElementType[] => 
         'key', 'magnifyingGlass', 'book', 'megaphone', 'eye', 'thoughtBubble',
         'stickFigure', 'sittingPerson', 'presentingPerson', 'handPointRight', 'thumbsUp',
         'faceHappy', 'faceSad', 'faceConfused',
+        'checkbox', 'checkboxChecked', 'numberedBadge', 'questionMark', 'exclamationMark', 'tag', 'pin', 'stamp',
         'dfdProcess', 'dfdDataStore', 'externalEntity',
         'isometricCube', 'solidBlock', 'perspectiveBlock', 'cylinder',
         'stateStart', 'stateEnd', 'stateSync', 'activationBar'
@@ -202,6 +203,16 @@ export const getShapeIcon = (type: ElementType): string => {
         'faceHappy': '😊',
         'faceSad': '😢',
         'faceConfused': '😕',
+
+        // Status & Annotation
+        'checkbox': '☐',
+        'checkboxChecked': '☑',
+        'numberedBadge': '①',
+        'questionMark': '❓',
+        'exclamationMark': '❗',
+        'tag': '🏷',
+        'pin': '📌',
+        'stamp': '🔖',
 
         // DFD / Diagram
         'dfdProcess': '⊙',
